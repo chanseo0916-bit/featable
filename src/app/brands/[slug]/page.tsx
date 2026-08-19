@@ -5,23 +5,89 @@ import { partners, features } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 import { FollowButton } from "@/components/follow-button";
 import type { Metadata } from "next";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  createDetailMetadata,
+  entityId,
+  JsonLd,
+  type SeoSchema,
+} from "@/components/seo-json-ld";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const { brands } = await getCatalog();
   const brand = brands.find((b) => b.slug === slug);
   if (!brand) return {};
-  return {
-    title: `${brand.name} — ${brand.tagline}`,
+  return createDetailMetadata({
+    title: brand.name,
     description: brand.description.slice(0, 160),
-    alternates: { canonical: `/brands/${brand.slug}` },
-    openGraph: {
-      title: brand.name,
-      description: brand.tagline,
-      url: `/brands/${brand.slug}`,
-      images: [{ url: brand.coverUrl ?? brand.logoUrl }],
-    },
-  };
+    path: `/brands/${brand.slug}`,
+    image: brand.coverUrl ?? brand.logoUrl,
+  });
 }
 
-export default async function BrandDetailPage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const { brands, founders, products } = await getCatalog(); const brand = brands.find((b) => b.slug === slug); if (!brand) notFound(); const founder = founders.find((f) => f.slug === brand.founderSlug); const brandProducts = products.filter((p) => brand.productSlugs.includes(p.slug)); const brandFeatures = features.filter((f) => brand.featureSlugs.includes(f.slug)); return <><Header /><main className="brand-detail"><div className="brand-banner" style={{ backgroundImage: `url(${brand.coverUrl ?? brand.logoUrl})` }}><div className="brand-banner-shade" /></div><div className="shell brand-profile"><img className="brand-logo profile-logo" src={brand.logoUrl} alt="" /><div className="brand-profile-copy"><Badge tone="orange">{brand.category}</Badge><h1>{brand.name}</h1><p>{brand.tagline}</p><span>{founder?.name} Founder · {brand.foundedAt}</span></div><div className="brand-profile-actions"><FollowButton brandSlug={brand.slug} />{brand.website && <a className="button button-small" href={brand.website}>홈페이지 ↗</a>}</div></div><nav className="brand-tabs"><div className="shell"><a href="#about">소개</a><a href="#products">프로덕트</a><a href="#founder">Founder</a><a href="#story">Story</a><a href="#jobs">Jobs</a></div></nav><div className="shell brand-body"><section id="about"><SectionHeader title="브랜드 소개" /><p className="large-copy">{brand.description}</p>{brand.problem && <div className="two-column brand-overview"><div><p className="eyebrow">PROBLEM</p><p>{brand.problem}</p></div><div><p className="eyebrow">FOR</p><p>{brand.audience}</p></div></div>}</section><section id="products"><SectionHeader title="프로덕트" href="/products" /><div className="product-grid">{brandProducts.map((p) => <Link href={`/products/${p.slug}`} className="product-card" key={p.slug}><div className="image-card"><img src={p.heroUrl} alt={p.name} /></div><div className="card-body"><Badge>{p.category}</Badge><h3>{p.name}</h3><p>{p.tagline}</p></div></Link>)}</div></section><section id="founder" className="founder-callout"><span className="avatar large"><img src={founder?.avatarUrl} alt="" /></span><div><p className="eyebrow">FOUNDER</p><h2>{founder?.name}</h2><p>{founder?.headline}</p></div></section>{brandFeatures.length > 0 && <section id="story"><SectionHeader title="Story" href="/stories" />{brandFeatures.map((f) => <Link href={`/stories/${f.slug}`} className="inline-feature" key={f.slug}><img src={f.coverUrl} alt="" /><div><Badge>{f.kind}</Badge><h3>{f.title}</h3><p>{f.excerpt}</p></div><span className="arrow">→</span></Link>)}</section>}</div></main><Footer partners={partners} /></>; }
+export default async function BrandDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const { brands, founders, products } = await getCatalog();
+  const brand = brands.find((b) => b.slug === slug);
+  if (!brand) notFound();
+  const founder = founders.find((f) => f.slug === brand.founderSlug);
+  const brandProducts = products.filter((p) => brand.productSlugs.includes(p.slug));
+  const brandFeatures = features.filter((f) => brand.featureSlugs.includes(f.slug));
+  const brandPath = `/brands/${brand.slug}`;
+  const organizationJsonLd: SeoSchema = {
+    "@type": "Organization",
+    "@id": entityId(brandPath, "organization"),
+    name: brand.name,
+    url: absoluteUrl(brandPath),
+    logo: absoluteUrl(brand.logoUrl),
+    ...(brand.coverUrl ? { image: absoluteUrl(brand.coverUrl) } : {}),
+    description: brand.description,
+    ...(brand.website ? { sameAs: [absoluteUrl(brand.website)] } : {}),
+    ...(brand.foundedAt ? { foundingDate: brand.foundedAt } : {}),
+    ...(founder
+      ? {
+          founder: {
+            "@type": "Person",
+            "@id": entityId(`/founders/${founder.slug}`, "person"),
+            name: founder.name,
+          },
+        }
+      : {}),
+  };
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      organizationJsonLd,
+      breadcrumbJsonLd([
+        { name: "Featable", path: "/" },
+        { name: "브랜드", path: "/brands" },
+        { name: brand.name, path: brandPath },
+      ]),
+    ],
+  } satisfies SeoSchema;
+
+  return (
+    <>
+      <JsonLd data={jsonLd} />
+      <Header />
+      <main className="brand-detail">
+        <div className="brand-banner" style={{ backgroundImage: `url(${brand.coverUrl ?? brand.logoUrl})` }}><div className="brand-banner-shade" /></div>
+        <div className="shell brand-profile">
+          <img className="brand-logo profile-logo" src={brand.logoUrl} alt="" />
+          <div className="brand-profile-copy"><Badge tone="orange">{brand.category}</Badge><h1>{brand.name}</h1><p>{brand.tagline}</p><span>{founder?.name} Founder · {brand.foundedAt}</span></div>
+          <div className="brand-profile-actions"><FollowButton brandSlug={brand.slug} />{brand.website && <a className="button button-small" href={brand.website}>홈페이지 ↗</a>}</div>
+        </div>
+        <nav className="brand-tabs"><div className="shell"><a href="#about">소개</a><a href="#products">프로덕트</a><a href="#founder">Founder</a><a href="#story">Story</a><a href="#jobs">Jobs</a></div></nav>
+        <div className="shell brand-body">
+          <section id="about"><SectionHeader title="브랜드 소개" /><p className="large-copy">{brand.description}</p>{brand.problem && <div className="two-column brand-overview"><div><p className="eyebrow">PROBLEM</p><p>{brand.problem}</p></div><div><p className="eyebrow">FOR</p><p>{brand.audience}</p></div></div>}</section>
+          <section id="products"><SectionHeader title="프로덕트" href="/products" /><div className="product-grid">{brandProducts.map((p) => <Link href={`/products/${p.slug}`} className="product-card" key={p.slug}><div className="image-card"><img src={p.heroUrl} alt={p.name} /></div><div className="card-body"><Badge>{p.category}</Badge><h3>{p.name}</h3><p>{p.tagline}</p></div></Link>)}</div></section>
+          <section id="founder" className="founder-callout"><span className="avatar large"><img src={founder?.avatarUrl} alt="" /></span><div><p className="eyebrow">FOUNDER</p><h2>{founder?.name}</h2><p>{founder?.headline}</p></div></section>
+          {brandFeatures.length > 0 && <section id="story"><SectionHeader title="Story" href="/stories" />{brandFeatures.map((f) => <Link href={`/stories/${f.slug}`} className="inline-feature" key={f.slug}><img src={f.coverUrl} alt="" /><div><Badge>{f.kind}</Badge><h3>{f.title}</h3><p>{f.excerpt}</p></div><span className="arrow">→</span></Link>)}</section>}
+        </div>
+      </main>
+      <Footer partners={partners} />
+    </>
+  );
+}

@@ -1,10 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Footer, Header } from "@/components/site-shell";
-import { FeatureActions } from "@/components/feature-actions";
 import { Comments } from "@/components/comments";
 import { FeatureViewMetric } from "@/components/view-tracker";
 import { getCatalog, getFeature, getPartners } from "@/lib/data";
+import type { Metadata } from "next";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  createDetailMetadata,
+  entityId,
+  JsonLd,
+  type SeoSchema,
+} from "@/components/seo-json-ld";
 
 const kindLabel = {
   interview: "FOUNDER INTERVIEW",
@@ -16,6 +24,20 @@ const kindLabel = {
   qna: "Q&A",
 } as const;
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const feature = await getFeature(slug);
+  if (!feature) return {};
+  return createDetailMetadata({
+    title: feature.title,
+    description: feature.excerpt.slice(0, 160),
+    path: `/stories/${feature.slug}`,
+    image: feature.coverUrl,
+    type: "article",
+    publishedTime: feature.publishedAt,
+  });
+}
+
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [feature, catalog, partners] = await Promise.all([getFeature(slug), getCatalog(), getPartners()]);
@@ -24,13 +46,61 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const founder = catalog.founders.find((item) => item.slug === feature.founderSlug);
   const brand = catalog.brands.find((item) => item.slug === feature.brandSlug);
   const product = catalog.products.find((item) => item.brandSlug === feature.brandSlug);
-  const score = [...slug].reduce((total, character) => total + character.charCodeAt(0), 0);
   const discoveryCount = feature.viewCount ?? 0;
-  const interestCount = 620 + (score % 780);
-  const cheerCount = 89 + (score % 260);
+  const storyPath = `/stories/${feature.slug}`;
+  const articleSubjects: SeoSchema[] = [
+    ...(founder
+      ? [{
+          "@type": "Person",
+          "@id": entityId(`/founders/${founder.slug}`, "person"),
+          name: founder.name,
+        }]
+      : []),
+    ...(brand
+      ? [{
+          "@type": "Organization",
+          "@id": entityId(`/brands/${brand.slug}`, "organization"),
+          name: brand.name,
+        }]
+      : []),
+  ];
+  const articleJsonLd: SeoSchema = {
+    "@type": "Article",
+    "@id": entityId(storyPath, "article"),
+    headline: feature.title,
+    description: feature.excerpt,
+    url: absoluteUrl(storyPath),
+    image: absoluteUrl(feature.coverUrl),
+    datePublished: feature.publishedAt,
+    author: {
+      "@type": "Organization",
+      "@id": entityId("/", "organization"),
+      name: "Featable",
+    },
+    ...(articleSubjects.length > 0 ? { about: articleSubjects } : {}),
+    publisher: {
+      "@type": "Organization",
+      "@id": entityId("/", "organization"),
+      name: "Featable",
+      url: absoluteUrl("/"),
+    },
+    mainEntityOfPage: { "@id": absoluteUrl(storyPath) },
+  };
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      articleJsonLd,
+      breadcrumbJsonLd([
+        { name: "Featable", path: "/" },
+        { name: "스토리", path: "/stories" },
+        { name: feature.title, path: storyPath },
+      ]),
+    ],
+  } satisfies SeoSchema;
 
   return (
     <>
+      <JsonLd data={jsonLd} />
       <Header />
       <main className="feature-project-page">
         <section className="shell feature-brief-wrap">
@@ -46,10 +116,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
 
               <div className="feature-brief-metrics">
                 <FeatureViewMetric slug={feature.slug} initialCount={discoveryCount} />
-                <div><strong>{interestCount.toLocaleString()}</strong><span>관심 있게 본 사람</span></div>
-                <div><strong>{cheerCount.toLocaleString()}</strong><span>Founder 응원</span></div>
               </div>
-              <FeatureActions title={feature.title} initialInterest={interestCount} initialCheers={cheerCount} />
             </div>
 
             <div className="feature-brief-media">
@@ -66,9 +133,8 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           </div>
 
           <div id="cheers" className="feature-social-proof">
-            <div className="supporter-faces">{[1, 2, 3].map((item) => <img src={`https://picsum.photos/seed/supporter-${slug}-${item}/80/80`} alt="" key={item} />)}<span>+{cheerCount - 3}</span></div>
-            <p><strong>{cheerCount}명</strong>이 이 Founder의 다음을 기다리고 있어요.</p>
-            <span>조회수는 실시간 랭킹에 반영됩니다.</span>
+            <p><strong>Founder 응원</strong>이 다음 여정을 시작하는 데 힘이 됩니다.</p>
+            <span>스토리를 읽고 댓글로 응원을 남겨보세요.</span>
           </div>
         </section>
 

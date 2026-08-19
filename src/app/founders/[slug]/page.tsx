@@ -5,17 +5,25 @@ import { Badge, Footer, Header, SectionHeader } from "@/components/site-shell";
 import { FounderSupportButton } from "@/components/founder-support-button";
 import { getCatalog, getFeatures, getFounder, getPartners } from "@/lib/data";
 import { getFounderSupportState } from "@/app/founders/actions";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  createDetailMetadata,
+  entityId,
+  JsonLd,
+  type SeoSchema,
+} from "@/components/seo-json-ld";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const founder = await getFounder(slug);
   if (!founder) return {};
-  return {
-    title: `${founder.name} · ${founder.headline}`,
+  return createDetailMetadata({
+    title: founder.name,
     description: founder.bio?.slice(0, 160) ?? founder.headline,
-    alternates: { canonical: `/founders/${founder.slug}` },
-    openGraph: { title: founder.name, description: founder.headline, url: `/founders/${founder.slug}`, images: [{ url: founder.avatarUrl }] },
-  };
+    path: `/founders/${founder.slug}`,
+    image: founder.avatarUrl,
+  });
 }
 
 const SNS_LABELS: Record<string, string> = { instagram: "Instagram", x: "X", linkedin: "LinkedIn", website: "Website" };
@@ -42,9 +50,41 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
   const snsEntries = Object.entries(founder.sns ?? {}).filter(([, value]) => value);
   const categories = Array.from(new Set(founderBrands.map((brand) => brand.category)));
   const founderNumber = [...founder.slug].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 10000;
+  const founderPath = `/founders/${founder.slug}`;
+  const sameAs = snsEntries.map(([key, value]) => snsHref(key, value as string));
+  const personJsonLd: SeoSchema = {
+    "@type": "Person",
+    "@id": entityId(founderPath, "person"),
+    name: founder.name,
+    url: absoluteUrl(founderPath),
+    image: absoluteUrl(founder.avatarUrl),
+    description: founder.bio ?? founder.headline,
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+    ...(founderBrands.length > 0
+      ? {
+          worksFor: founderBrands.map((brand) => ({
+            "@type": "Organization",
+            "@id": entityId(`/brands/${brand.slug}`, "organization"),
+            name: brand.name,
+          })),
+        }
+      : {}),
+  };
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      personJsonLd,
+      breadcrumbJsonLd([
+        { name: "Featable", path: "/" },
+        { name: "Founders", path: "/founders" },
+        { name: founder.name, path: founderPath },
+      ]),
+    ],
+  } satisfies SeoSchema;
 
   return (
     <>
+      <JsonLd data={jsonLd} />
       <Header />
       <main className="founder-page">
         <section className="shell founder-id-section">

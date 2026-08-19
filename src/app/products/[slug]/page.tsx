@@ -9,6 +9,14 @@ import { MentorNotes } from "@/components/mentor-notes";
 import { Comments } from "@/components/comments";
 import { FavoriteButton, ProductGallery } from "./product-interactions";
 import type { Metadata } from "next";
+import {
+  absoluteUrl,
+  breadcrumbJsonLd,
+  createDetailMetadata,
+  entityId,
+  JsonLd,
+  type SeoSchema,
+} from "@/components/seo-json-ld";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -16,17 +24,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const product = products.find((p) => p.slug === slug);
   if (!product) return {};
   const brand = brands.find((b) => b.slug === product.brandSlug);
-  return {
-    title: `${product.name} — ${product.tagline}`,
+  return createDetailMetadata({
+    title: product.name,
     description: `${product.tagline}${brand ? ` | ${brand.name}` : ""} | ${product.solution}`.slice(0, 160),
-    alternates: { canonical: `/products/${product.slug}` },
-    openGraph: {
-      title: product.name,
-      description: product.tagline,
-      url: `/products/${product.slug}`,
-      images: [{ url: product.heroUrl }],
-    },
-  };
+    path: `/products/${product.slug}`,
+    image: product.heroUrl,
+  });
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -38,9 +41,40 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const brand = brands.find((item) => item.slug === product.brandSlug);
   const founder = founders.find((item) => item.slug === product.founderSlug);
   const relatedFeatures = features.filter((item) => product.relatedFeatureSlugs?.includes(item.slug));
+  const productPath = `/products/${product.slug}`;
+  const productJsonLd: SeoSchema = {
+    "@type": "Product",
+    "@id": entityId(productPath, "product"),
+    name: product.name,
+    url: absoluteUrl(productPath),
+    image: [product.heroUrl, ...product.images].map(absoluteUrl),
+    description: `${product.tagline} ${product.solution}`.slice(0, 500),
+    category: product.category,
+    ...(brand
+      ? {
+          brand: {
+            "@type": "Organization",
+            "@id": entityId(`/brands/${brand.slug}`, "organization"),
+            name: brand.name,
+          },
+        }
+      : {}),
+  };
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      productJsonLd,
+      breadcrumbJsonLd([
+        { name: "Featable", path: "/" },
+        { name: "프로덕트", path: "/products" },
+        { name: product.name, path: productPath },
+      ]),
+    ],
+  } satisfies SeoSchema;
 
   return (
     <>
+      <JsonLd data={jsonLd} />
       <Header />
       <main className="commerce-product">
         <ViewTracker slug={product.slug} />
@@ -59,7 +93,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <Badge tone="orange">{product.category}</Badge>
             <h1>{product.name}</h1>
             <p className="commerce-tagline">{product.tagline}</p>
-            <div className="commerce-social-proof"><strong>★ 4.9</strong><span>사용자 피드백 28</span><span>조회 {product.viewCount?.toLocaleString()}</span></div>
+            <div className="commerce-social-proof">{typeof product.viewCount === "number" && <span>조회 {product.viewCount.toLocaleString("ko-KR")}</span>}</div>
             {product.price && <div className="commerce-price"><span>시작 가격</span><strong>{product.price}</strong></div>}
             <div className="commerce-founder-mini"><img src={founder?.avatarUrl} alt="" /><div><span>이 제품을 만든 사람</span><strong>{founder?.name} Founder</strong></div><Link href={`/brands/${brand?.slug}`}>프로필 보기 →</Link></div>
             <div className="commerce-actions">
