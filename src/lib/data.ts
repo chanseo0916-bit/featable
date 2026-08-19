@@ -10,15 +10,19 @@ import { createClient } from "@supabase/supabase-js";
 import type {
   Brand,
   Category,
+  EventItem,
   Founder,
   MentorNote,
   Product,
   StoryBlock,
+  SupportProgram,
 } from "@/lib/types";
 import {
   brands as mockBrands,
+  events as mockEvents,
   founders as mockFounders,
   products as mockProducts,
+  supportPrograms as mockSupport,
 } from "@/lib/mock";
 
 export interface Catalog {
@@ -176,6 +180,117 @@ async function fetchLive(): Promise<Catalog | null> {
     return null;
   }
 }
+
+interface EventRow {
+  slug: string;
+  name: string;
+  cover_url: string | null;
+  host: string;
+  starts_at: string;
+  ends_at: string | null;
+  location: string;
+  is_online: boolean;
+  fee: string | null;
+  deadline: string | null;
+  category: string;
+  audience: string | null;
+  apply_url: string;
+}
+
+interface SupportRow {
+  slug: string;
+  name: string;
+  agency: string;
+  target: string;
+  benefits: string;
+  amount: string | null;
+  open_at: string | null;
+  close_at: string;
+  region: string;
+  field: string | null;
+  apply_url: string;
+}
+
+function supportStatus(openAt: string | null, closeAt: string): SupportProgram["status"] {
+  const now = Date.now();
+  if (openAt && new Date(openAt).getTime() > now) return "예정";
+  const close = new Date(`${closeAt}T23:59:59+09:00`).getTime();
+  if (close < now) return "마감";
+  return close - now <= 7 * 86_400_000 ? "마감임박" : "모집중";
+}
+
+/** 공개된 행사 — 실데이터 우선 + 목데이터 병합 */
+export const getEvents = cache(async (): Promise<EventItem[]> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return mockEvents;
+
+  try {
+    const supabase = createClient(url, key);
+    const { data, error } = await supabase
+      .from("events")
+      .select(
+        "slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,deadline,category,audience,apply_url",
+      )
+      .eq("status", "published")
+      .order("starts_at", { ascending: true });
+    if (error) return mockEvents;
+
+    const live: EventItem[] = ((data ?? []) as unknown as EventRow[]).map((e) => ({
+      slug: e.slug,
+      name: e.name,
+      coverUrl: e.cover_url || placeholder(`event-${e.slug}`),
+      host: e.host,
+      startsAt: e.starts_at,
+      endsAt: e.ends_at ?? undefined,
+      location: e.location,
+      isOnline: e.is_online,
+      fee: e.fee ?? undefined,
+      deadline: e.deadline ?? undefined,
+      category: e.category as EventItem["category"],
+      audience: e.audience ?? undefined,
+      applyUrl: e.apply_url,
+    }));
+    return mergeBySlug(live, mockEvents);
+  } catch {
+    return mockEvents;
+  }
+});
+
+/** 공개된 지원사업 — 실데이터 우선 + 목데이터 병합, 상태는 마감일 기준 자동 계산 */
+export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return mockSupport;
+
+  try {
+    const supabase = createClient(url, key);
+    const { data, error } = await supabase
+      .from("support_programs")
+      .select("slug,name,agency,target,benefits,amount,open_at,close_at,region,field,apply_url")
+      .eq("status", "published")
+      .order("close_at", { ascending: true });
+    if (error) return mockSupport;
+
+    const live: SupportProgram[] = ((data ?? []) as unknown as SupportRow[]).map((s) => ({
+      slug: s.slug,
+      name: s.name,
+      agency: s.agency,
+      target: s.target,
+      benefits: s.benefits,
+      amount: s.amount ?? undefined,
+      openAt: s.open_at ?? undefined,
+      closeAt: s.close_at,
+      region: s.region,
+      field: s.field ?? undefined,
+      applyUrl: s.apply_url,
+      status: supportStatus(s.open_at, s.close_at),
+    }));
+    return mergeBySlug(live, mockSupport);
+  } catch {
+    return mockSupport;
+  }
+});
 
 function mergeBySlug<T extends { slug: string }>(live: T[], mock: T[]): T[] {
   const liveSlugs = new Set(live.map((item) => item.slug));

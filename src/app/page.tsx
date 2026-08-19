@@ -3,14 +3,15 @@ import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shel
 import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-feature-ranking";
 import { DiscoveryStage, type DiscoveryTab } from "@/components/discovery-stage";
 import type { DiscoveryBannerSlide } from "@/components/discovery-banner";
-import { events, features, partners, supportPrograms } from "@/lib/mock";
-import { getCatalog } from "@/lib/data";
+import { features, partners } from "@/lib/mock";
+import { getCatalog, getEvents, getSupportPrograms } from "@/lib/data";
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
 
 export default async function Home() {
   const { brands, products, founders } = await getCatalog();
+  const [events, supportPrograms] = await Promise.all([getEvents(), getSupportPrograms()]);
   const mainFeature = features[5];
   const bannerFeature = features[4];
   const discoveryFeatures = [mainFeature, features[2], features[3], features[1]];

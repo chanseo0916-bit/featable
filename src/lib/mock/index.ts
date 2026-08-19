@@ -3,10 +3,10 @@ import type { Brand, Community, EventItem, Feature, Founder, Job, Partner, Produ
 const image = (slug: string, width = 1200, height = 800) => `https://picsum.photos/seed/${slug}/${width}/${height}`;
 
 export const founders: Founder[] = [
-  { slug: "minseo-kim", name: "김민서", avatarUrl: image("founder-minseo", 240, 240), headline: "매일 쓰고 싶은 업무 도구를 만듭니다.", bio: "제품을 통해 일하는 사람들의 작은 불편을 해결합니다.", brandSlugs: ["caramel-lab"] },
-  { slug: "jiyoon-lee", name: "이지윤", avatarUrl: image("founder-jiyoon", 240, 240), headline: "더 건강한 식탁을 설계하는 창업가", brandSlugs: ["grain-table"] },
-  { slug: "doheon-park", name: "박도헌", avatarUrl: image("founder-doheon", 240, 240), headline: "팀의 실행력을 높이는 개발자", brandSlugs: ["flow-note"] },
-  { slug: "sora-han", name: "한소라", avatarUrl: image("founder-sora", 240, 240), headline: "취향을 발견하는 새로운 방법", brandSlugs: ["moodboard"] },
+  { slug: "minseo-kim", name: "김민서", avatarUrl: "/avatars/founder-01.svg", headline: "매일 쓰고 싶은 업무 도구를 만듭니다.", bio: "제품을 통해 일하는 사람들의 작은 불편을 해결합니다.", brandSlugs: ["caramel-lab"] },
+  { slug: "jiyoon-lee", name: "이지윤", avatarUrl: "/avatars/founder-03.svg", headline: "더 건강한 식탁을 설계하는 창업가", brandSlugs: ["grain-table"] },
+  { slug: "doheon-park", name: "박도헌", avatarUrl: "/avatars/founder-02.svg", headline: "팀의 실행력을 높이는 개발자", brandSlugs: ["flow-note"] },
+  { slug: "sora-han", name: "한소라", avatarUrl: "/avatars/founder-04.svg", headline: "취향을 발견하는 새로운 방법", brandSlugs: ["moodboard"] },
 ];
 
 export const brands: Brand[] = [

@@ -5,33 +5,19 @@ import { Badge, Footer, Header, SectionHeader } from "@/components/site-shell";
 import { features, partners } from "@/lib/mock";
 import { getCatalog, getFounder } from "@/lib/data";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const founder = await getFounder(slug);
   if (!founder) return {};
   return {
-    title: `${founder.name} — ${founder.headline}`,
+    title: `${founder.name} · ${founder.headline}`,
     description: founder.bio?.slice(0, 160) ?? founder.headline,
     alternates: { canonical: `/founders/${founder.slug}` },
-    openGraph: {
-      title: founder.name,
-      description: founder.headline,
-      url: `/founders/${founder.slug}`,
-      images: [{ url: founder.avatarUrl }],
-    },
+    openGraph: { title: founder.name, description: founder.headline, url: `/founders/${founder.slug}`, images: [{ url: founder.avatarUrl }] },
   };
 }
 
-const SNS_LABELS: Record<string, string> = {
-  instagram: "Instagram",
-  x: "X",
-  linkedin: "LinkedIn",
-  website: "Website",
-};
+const SNS_LABELS: Record<string, string> = { instagram: "Instagram", x: "X", linkedin: "LinkedIn", website: "Website" };
 
 function snsHref(key: string, value: string): string {
   if (value.startsWith("http")) return value;
@@ -42,131 +28,73 @@ function snsHref(key: string, value: string): string {
   return `https://${value}`;
 }
 
-export default async function FounderProfilePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function FounderProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const founder = await getFounder(slug);
   if (!founder) notFound();
 
   const { brands, products } = await getCatalog();
-  const founderBrands = brands.filter((b) => b.founderSlug === founder.slug);
-  const founderProducts = products.filter((p) => p.founderSlug === founder.slug);
-  const founderFeatures = features.filter((f) => f.founderSlug === founder.slug);
-  const snsEntries = Object.entries(founder.sns ?? {}).filter(([, v]) => v);
+  const founderBrands = brands.filter((brand) => brand.founderSlug === founder.slug);
+  const founderProducts = products.filter((product) => product.founderSlug === founder.slug);
+  const founderFeatures = features.filter((feature) => feature.founderSlug === founder.slug);
+  const snsEntries = Object.entries(founder.sns ?? {}).filter(([, value]) => value);
+  const categories = Array.from(new Set(founderBrands.map((brand) => brand.category)));
+  const founderNumber = [...founder.slug].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 10000;
 
   return (
     <>
       <Header />
-      <main className="bg-white">
-        {/* 프로필 헤더 */}
-        <section className="shell mx-auto flex flex-col items-start gap-7 pb-12 pt-14 sm:flex-row sm:items-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={founder.avatarUrl}
-            alt={founder.name}
-            className="h-28 w-28 rounded-full border border-border object-cover sm:h-36 sm:w-36"
-          />
-          <div className="min-w-0">
-            <p className="mb-2 text-[11px] font-extrabold tracking-[0.13em] text-accent">FOUNDER</p>
-            <h1 className="mb-2 text-4xl font-bold tracking-tight">{founder.name}</h1>
-            <p className="mb-4 text-base text-muted">{founder.headline}</p>
-            {snsEntries.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {snsEntries.map(([key, value]) => (
-                  <a
-                    key={key}
-                    href={snsHref(key, value as string)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-border px-4 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-accent hover:text-accent"
-                  >
-                    {SNS_LABELS[key] ?? key} ↗
-                  </a>
-                ))}
-              </div>
-            )}
+      <main className="founder-page">
+        <section className="shell founder-id-section">
+          <div className="founder-id-visual">
+            <div className="founder-card-grid" aria-hidden="true" />
+            <span className="founder-id-mark">F<span>°</span></span>
+            <span className="founder-id-number">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
+            <img src={founder.avatarUrl} alt={`${founder.name} 캐릭터`} />
+            <div className="founder-id-status"><i /> NOW BUILDING</div>
+          </div>
+
+          <div className="founder-id-copy">
+            <p className="founder-profile-label">MEET THE FOUNDER</p>
+            <h1>{founder.name}</h1>
+            <p className="founder-profile-headline">{founder.headline}</p>
+            {categories.length > 0 && <div className="founder-profile-tags">{categories.map((category) => <span key={category}>#{category}</span>)}<span>#Founder</span></div>}
+
+            <div className="founder-profile-stats">
+              <div><strong>{founderBrands.length}</strong><span>브랜드</span></div>
+              <div><strong>{founderProducts.length}</strong><span>프로덕트</span></div>
+              <div><strong>{founderFeatures.length}</strong><span>피처</span></div>
+            </div>
+
+            {founder.bio && <p className="founder-profile-bio">{founder.bio}</p>}
+
+            <div className="founder-profile-actions">
+              <button type="button">이 Founder 응원하기 <span>＋</span></button>
+              {snsEntries.map(([key, value]) => <a key={key} href={snsHref(key, value as string)} target="_blank" rel="noopener noreferrer">{SNS_LABELS[key] ?? key} ↗</a>)}
+            </div>
           </div>
         </section>
 
-        {/* 스토리 */}
-        {founder.bio && (
-          <section className="shell border-t border-border py-12">
-            <p className="eyebrow">STORY</p>
-            <p className="max-w-2xl whitespace-pre-line text-lg leading-relaxed tracking-tight">
-              {founder.bio}
-            </p>
-          </section>
-        )}
+        <section className="founder-activity-bar">
+          <div className="shell"><strong>{founder.name}의 활동</strong><nav><a href="#brands">브랜드</a><a href="#products">프로덕트</a><a href="#stories">피처</a></nav><span>마지막 업데이트 · 최근</span></div>
+        </section>
 
-        {/* 브랜드 */}
-        {founderBrands.length > 0 && (
-          <section className="shell section">
-            <SectionHeader eyebrow="BRANDS" title={`${founder.name}의 브랜드`} href="/brands" />
-            <div className="brand-grid">
-              {founderBrands.map((b) => (
-                <Link href={`/brands/${b.slug}`} className="brand-card" key={b.slug}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="brand-logo" src={b.logoUrl} alt="" />
-                  <div>
-                    <Badge>{b.category}</Badge>
-                    <h3>{b.name}</h3>
-                    <p>{b.tagline}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        <div className="founder-journey">
+          <div className="shell founder-flow" aria-label="Founder 활동 흐름">
+            <div className="active"><i>01</i><span>Founder</span><strong>{founder.name}</strong></div><b>→</b>
+            <a href="#brands"><i>02</i><span>Brand</span><strong>{founderBrands[0]?.name ?? "준비 중"}</strong></a><b>→</b>
+            <a href="#products"><i>03</i><span>Product</span><strong>{founderProducts[0]?.name ?? "준비 중"}</strong></a><b>→</b>
+            <a href="#stories"><i>04</i><span>Feature</span><strong>{founderFeatures.length ? `${founderFeatures.length}개의 이야기` : "준비 중"}</strong></a>
+          </div>
 
-        {/* 프로덕트 */}
-        {founderProducts.length > 0 && (
-          <section className="shell section">
-            <SectionHeader eyebrow="PRODUCTS" title="만든 프로덕트" href="/products" />
-            <div className="product-grid">
-              {founderProducts.map((p) => (
-                <Link href={`/products/${p.slug}`} className="product-card" key={p.slug}>
-                  <div className="image-card">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.heroUrl} alt={p.name} />
-                  </div>
-                  <div className="card-body">
-                    <Badge>{p.category}</Badge>
-                    <h3>{p.name}</h3>
-                    <p>{p.tagline}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+          {founderBrands.length > 0 && <section id="brands" className="shell section founder-work-section"><SectionHeader eyebrow="BUILDING" title={`${founder.name}의 브랜드`} href="/brands" /><div className="brand-grid">{founderBrands.map((brand) => <Link href={`/brands/${brand.slug}`} className="brand-card" key={brand.slug}><img className="brand-logo" src={brand.logoUrl} alt="" /><div><Badge>{brand.category}</Badge><h3>{brand.name}</h3><p>{brand.tagline}</p></div></Link>)}</div></section>}
 
-        {/* 언론 기사식 스토리/인터뷰 */}
-        {founderFeatures.length > 0 && (
-          <section className="shell section pb-20">
-            <SectionHeader eyebrow="STORIES" title="이 창업가의 이야기" href="/stories" />
-            {founderFeatures.map((f) => (
-              <Link href={`/stories/${f.slug}`} className="inline-feature" key={f.slug}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={f.coverUrl} alt="" />
-                <div>
-                  <Badge>{f.kind}</Badge>
-                  <h3>{f.title}</h3>
-                  <p>{f.excerpt}</p>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-            ))}
-          </section>
-        )}
+          {founderProducts.length > 0 && <section id="products" className="shell section founder-work-section"><SectionHeader eyebrow="PRODUCTS" title="만든 프로덕트" href="/products" /><div className="product-grid">{founderProducts.map((product) => <Link href={`/products/${product.slug}`} className="product-card" key={product.slug}><div className="image-card"><img src={product.heroUrl} alt={product.name} /></div><div className="card-body"><Badge>{product.category}</Badge><h3>{product.name}</h3><p>{product.tagline}</p></div></Link>)}</div></section>}
 
-        {founderBrands.length === 0 && founderProducts.length === 0 && (
-          <section className="shell py-20 text-center text-sm text-muted">
-            아직 공개된 브랜드가 없습니다.
-          </section>
-        )}
+          {founderFeatures.length > 0 && <section id="stories" className="shell section founder-work-section founder-stories"><SectionHeader eyebrow="FEATURES" title={`${founder.name}의 이야기`} href="/stories" />{founderFeatures.map((feature) => <Link href={`/stories/${feature.slug}`} className="inline-feature" key={feature.slug}><img src={feature.coverUrl} alt="" /><div><Badge>{feature.kind}</Badge><h3>{feature.title}</h3><p>{feature.excerpt}</p></div><span className="arrow">→</span></Link>)}</section>}
+
+          {founderBrands.length === 0 && founderProducts.length === 0 && <section className="shell founder-empty-work"><strong>지금 첫 번째 프로젝트를 준비하고 있어요.</strong><span>새로운 소식이 등록되면 이곳에서 가장 먼저 확인할 수 있습니다.</span></section>}
+        </div>
       </main>
       <Footer partners={partners} />
     </>

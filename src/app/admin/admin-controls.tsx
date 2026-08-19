@@ -8,11 +8,13 @@ export function RowControls({
   id,
   isFeatured,
   status,
+  showFeatured = true,
 }: {
   table: AdminTable;
   id: string;
   isFeatured: boolean;
   status: "draft" | "published" | "hidden";
+  showFeatured?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export function RowControls({
 
   return (
     <div className="flex items-center gap-2">
-      <button
+      {showFeatured && <button
         disabled={pending}
         onClick={() => run(() => setFeatured(table, id, !isFeatured))}
         className={`rounded-md px-3 py-1.5 text-xs font-bold transition-colors disabled:opacity-50 ${
@@ -36,7 +38,7 @@ export function RowControls({
         }`}
       >
         {isFeatured ? "★ Featured" : "☆ Feature"}
-      </button>
+      </button>}
 
       {status === "published" ? (
         <button

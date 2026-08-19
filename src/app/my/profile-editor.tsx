@@ -9,6 +9,11 @@ export interface ProfileEditorInitial extends ProfileInput {
   slug?: string;
 }
 
+const AVATAR_PRESETS = Array.from({ length: 6 }, (_, index) => ({
+  value: `/avatars/founder-${String(index + 1).padStart(2, "0")}.svg`,
+  label: `캐릭터 ${index + 1}`,
+}));
+
 export function ProfileEditor({ initial }: { initial: ProfileEditorInitial }) {
   const [form, setForm] = useState<ProfileInput>({
     name: initial.name ?? "",
@@ -100,12 +105,23 @@ export function ProfileEditor({ initial }: { initial: ProfileEditorInitial }) {
 
       {open && (
         <div className="mt-6 border-t border-border pt-5">
-          <label className={label}>프로필 사진</label>
-          <label className="inline-block cursor-pointer rounded-lg border border-border px-4 py-2 text-xs font-semibold hover:border-accent hover:text-accent">
-            {uploading ? "업로드 중…" : form.avatarUrl ? "사진 교체" : "사진 업로드"}
-            <input type="file" accept="image/*" className="hidden" disabled={uploading}
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
-          </label>
+          <label className={label}>프로필 캐릭터</label>
+          <div className="founder-avatar-picker">
+            {AVATAR_PRESETS.map((avatar) => (
+              <button className={form.avatarUrl === avatar.value ? "active" : ""} type="button" aria-label={avatar.label} aria-pressed={form.avatarUrl === avatar.value} key={avatar.value} onClick={() => set({ avatarUrl: avatar.value })}>
+                <img src={avatar.value} alt="" />
+                <span>{form.avatarUrl === avatar.value ? "선택됨" : avatar.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="founder-photo-option">
+            <span>캐릭터 대신 내 사진을 사용하고 싶다면</span>
+            <label>
+              {uploading ? "업로드 중…" : "사진 업로드"}
+              <input type="file" accept="image/*" className="hidden" disabled={uploading}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
+            </label>
+          </div>
 
           <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
             <div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { RowControls } from "./admin-controls";
+import { DeleteCurationButton, EventForm, SupportForm } from "./curation-forms";
 
 export const metadata: Metadata = {
   title: "관리자",
@@ -73,7 +74,7 @@ export default async function AdminPage() {
   }
 
   // admin은 RLS 정책상 draft/hidden 포함 전체 조회 가능
-  const [brandsRes, productsRes] = await Promise.all([
+  const [brandsRes, productsRes, eventsRes, supportRes] = await Promise.all([
     supabase
       .from("brands")
       .select("id,slug,name,tagline,category,status,is_featured,created_at,founder:founders(name)")
@@ -82,7 +83,24 @@ export default async function AdminPage() {
       .from("products")
       .select("id,slug,name,tagline,category,status,is_featured,created_at,brand:brands(name,slug)")
       .order("created_at", { ascending: false }),
+    supabase
+      .from("events")
+      .select("id,slug,name,host,starts_at,status")
+      .order("starts_at", { ascending: false }),
+    supabase
+      .from("support_programs")
+      .select("id,slug,name,agency,close_at,status")
+      .order("close_at", { ascending: false }),
   ]);
+
+  const eventRows = (eventsRes.data ?? []) as {
+    id: string; slug: string; name: string; host: string; starts_at: string;
+    status: "draft" | "published" | "hidden";
+  }[];
+  const supportRows = (supportRes.data ?? []) as {
+    id: string; slug: string; name: string; agency: string; close_at: string;
+    status: "draft" | "published" | "hidden";
+  }[];
 
   const brands = (brandsRes.data ?? []) as unknown as AdminBrandRow[];
   const products = (productsRes.data ?? []) as unknown as AdminProductRow[];
@@ -177,6 +195,60 @@ export default async function AdminPage() {
               )}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="mb-4 text-lg font-bold">
+          행사 <span className="text-sm font-normal text-muted">{eventRows.length}</span>
+        </h2>
+        <EventForm />
+        <div className="grid gap-2">
+          {eventRows.map((e) => (
+            <div key={e.id} className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold">
+                  <Link href={`/events/${e.slug}`} className="hover:text-accent">{e.name}</Link>
+                  <span className="ml-2"><StatusBadge status={e.status} /></span>
+                </p>
+                <p className="text-xs text-muted">{e.host} · {fmt(e.starts_at)}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <RowControls table="events" id={e.id} isFeatured={false} status={e.status} showFeatured={false} />
+                <DeleteCurationButton table="events" id={e.id} name={e.name} />
+              </div>
+            </div>
+          ))}
+          {eventRows.length === 0 && (
+            <p className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-muted">등록된 행사가 없습니다.</p>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="mb-4 text-lg font-bold">
+          지원사업 <span className="text-sm font-normal text-muted">{supportRows.length}</span>
+        </h2>
+        <SupportForm />
+        <div className="grid gap-2">
+          {supportRows.map((s) => (
+            <div key={s.id} className="flex items-center justify-between rounded-xl border border-border px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold">
+                  <Link href={`/support/${s.slug}`} className="hover:text-accent">{s.name}</Link>
+                  <span className="ml-2"><StatusBadge status={s.status} /></span>
+                </p>
+                <p className="text-xs text-muted">{s.agency} · 마감 {s.close_at}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <RowControls table="support_programs" id={s.id} isFeatured={false} status={s.status} showFeatured={false} />
+                <DeleteCurationButton table="support_programs" id={s.id} name={s.name} />
+              </div>
+            </div>
+          ))}
+          {supportRows.length === 0 && (
+            <p className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-muted">등록된 지원사업이 없습니다.</p>
+          )}
         </div>
       </section>
     </main>
