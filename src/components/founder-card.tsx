@@ -2,8 +2,8 @@ import Link from "next/link";
 import type { Founder } from "@/lib/types";
 
 /**
- * 파운더 스포트라이트 카드 — 인물 사진이 카드 배경으로 녹아드는 프리미엄 카드.
- * 다크 잉크 바디 + 오렌지 글로우 프레임 (레퍼런스: 포트폴리오형 프로필 카드).
+ * 파운더 스포트라이트 카드 — 인물 사진이 카드 배경으로 녹아드는 다크 카드.
+ * 홈 '주목할 파운더', 프로필 편집 미리보기, 공개 프로필 히어로가 같은 비주얼 언어를 쓴다.
  */
 export function FounderCard({
   founder,

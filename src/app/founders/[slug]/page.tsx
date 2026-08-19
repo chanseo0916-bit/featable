@@ -46,12 +46,28 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
       <Header />
       <main className="founder-page">
         <section className="shell founder-id-section">
-          <div className="founder-id-visual">
-            <div className="founder-card-grid" aria-hidden="true" />
-            <span className="founder-id-mark">F<span>°</span></span>
-            <span className="founder-id-number">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
-            <img src={founder.avatarUrl} alt={`${founder.name} 캐릭터`} />
-            <div className="founder-id-status"><i /> NOW BUILDING</div>
+          <div className="founder-spot-card founder-hero-card">
+            <div className="founder-spot-photo">
+              {founder.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={founder.avatarUrl} alt={founder.name} />
+              ) : (
+                <div className="founder-spot-placeholder" aria-hidden>{founder.name.slice(0, 1)}</div>
+              )}
+              <div className="founder-spot-fade" aria-hidden />
+              <span className="founder-hero-id">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
+            </div>
+            <div className="founder-spot-body">
+              <h3>
+                {founder.name}
+                <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
+              </h3>
+              <p>{founder.headline}</p>
+              <div className="founder-spot-foot">
+                <span className="founder-hero-status"><i /> NOW BUILDING</span>
+                <em className="founder-spot-cta">Follow +</em>
+              </div>
+            </div>
           </div>
 
           <div className="founder-id-copy">

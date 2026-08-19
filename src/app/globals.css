@@ -1060,3 +1060,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-spot-card:hover .founder-spot-cta { background: var(--accent); color: white; }
 @media (max-width: 800px) { .founder-spotlight-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .founder-spot-body h3 { font-size: 17px; } }
 .founder-spot-placeholder { width: 100%; height: 100%; display: grid; place-items: center; font-size: 72px; font-weight: 900; color: color-mix(in srgb, var(--accent) 70%, white); background: radial-gradient(120% 100% at 50% 0%, #2a2a31 0%, #17171b 70%); letter-spacing: -.05em; }
+
+/* 공개 프로필 히어로 — 스포트라이트 카드 확장 */
+.founder-hero-card { width: min(380px, 100%); }
+.founder-hero-card .founder-spot-photo { aspect-ratio: 1 / 1.15; }
+.founder-hero-card .founder-spot-body h3 { font-size: 26px; }
+.founder-hero-id { position: absolute; top: 14px; right: 16px; font-size: 9px; font-weight: 800; letter-spacing: .14em; color: rgba(255, 255, 255, .92); text-shadow: 0 1px 6px rgba(0, 0, 0, .45); }
+.founder-hero-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #cfcfd6; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; }
+.founder-hero-status i { width: 6px; height: 6px; border-radius: 50%; background: #3ddc84; }
