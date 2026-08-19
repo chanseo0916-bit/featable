@@ -25,9 +25,12 @@ export function HeaderAuthActions() {
 
   if (authed) {
     return (
-      <Link className="button button-small nav-submit" href="/my">
-        파운더 센터 <span>↗</span>
-      </Link>
+      <div className="nav-submit-wrap">
+        <Link className="button button-small nav-submit" href="/my">
+          파운더 센터 <span>↗</span>
+        </Link>
+        <span className="nav-submit-hint">등록한 피쳐를 <b>한곳에서 관리</b></span>
+      </div>
     );
   }
 
@@ -40,9 +43,12 @@ export function HeaderAuthActions() {
       >
         로그인
       </button>
-      <Link className="button button-small nav-submit" href="/submit">
-        브랜드 올리기 <span>↗</span>
-      </Link>
+      <div className="nav-submit-wrap">
+        <Link className="button button-small nav-submit" href="/submit">
+          브랜드 올리기 <span>↗</span>
+        </Link>
+        <span className="nav-submit-hint">AI로 더 똑똑한 <b>피쳐 관리</b></span>
+      </div>
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   );

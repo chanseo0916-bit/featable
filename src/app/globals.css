@@ -226,6 +226,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .desktop-nav { gap: 32px; color: #262626; }
 .desktop-nav summary span { margin-left: 3px; color: #999; }
 .nav-submit { border-radius: 999px; padding-inline: 18px; }
+.nav-submit-wrap { position: relative; display: flex; }
+.nav-submit-hint { position: absolute; z-index: 30; top: calc(100% + 9px); left: 50%; padding: 8px 11px; border: 1px solid #ececec; border-radius: 7px; background: #fff; box-shadow: 0 8px 24px #1112; color: #444; font-size: 10px; font-weight: 650; line-height: 1; white-space: nowrap; pointer-events: none; opacity: 0; transform: translate(-50%, -5px); transition: opacity .18s ease, transform .18s ease; }
+.nav-submit-hint::before { content: ""; position: absolute; left: 50%; top: -5px; width: 8px; height: 8px; border-left: 1px solid #ececec; border-top: 1px solid #ececec; background: #fff; transform: translateX(-50%) rotate(45deg); }
+.nav-submit-hint b { color: var(--accent); }
+.nav-submit-wrap:hover .nav-submit-hint, .nav-submit-wrap:focus-within .nav-submit-hint { opacity: 1; transform: translate(-50%, 0); }
 .discovery-head { padding-top: 74px; }
 .discovery-title-row { display: flex; align-items: end; justify-content: space-between; }
 .discovery-title-row h1 { margin: 0; font-size: clamp(54px, 6.5vw, 82px); line-height: 1.03; letter-spacing: -.085em; }
@@ -473,4 +478,5 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .new-final-cta .button { margin-top: 22px; }
   .opportunity-card-grid { grid-template-columns: 1fr 1fr; }
   .opportunity-card { padding: 16px; }
+  .nav-submit-hint { display: none; }
 }
