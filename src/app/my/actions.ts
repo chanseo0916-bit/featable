@@ -4,6 +4,19 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
 
+export async function toggleBrandVisibility(brandId: string, publish: boolean): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  const status = publish ? "published" : "draft";
+  const { data: brand, error } = await supabase.from("brands").update({ status, updated_at: new Date().toISOString() }).eq("id", brandId).select("id").maybeSingle();
+  if (error || !brand) return { ok: false, error: "상태 변경에 실패했습니다." };
+  await supabase.from("products").update({ status, updated_at: new Date().toISOString() }).eq("brand_id", brandId);
+  revalidatePath("/my");
+  revalidatePath("/brands");
+  return { ok: true };
+}
+
 export interface ProfileInput {
   name: string;
   headline: string;

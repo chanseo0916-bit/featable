@@ -100,10 +100,12 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
     };
   }, [activeType]);
 
-  useEffect(() => {
+  // 타입 전환 시 카테고리/필터 초기화 — 이펙트 대신 클릭 핸들러에서 처리
+  function switchType(type: "product" | "feature") {
+    setActiveType(type);
     setActiveCategory("전체");
     setFilterOpen(false);
-  }, [activeType]);
+  }
 
   useEffect(() => {
     if (!filterOpen) return;
@@ -147,8 +149,8 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
       </div>
 
       <div className={styles.typeToggle} aria-label="랭킹 종류">
-        <button className={activeType === "product" ? styles.activeType : ""} type="button" onClick={() => setActiveType("product")}>프로덕트</button>
-        <button className={activeType === "feature" ? styles.activeType : ""} type="button" onClick={() => setActiveType("feature")}>피처</button>
+        <button className={activeType === "product" ? styles.activeType : ""} type="button" onClick={() => switchType("product")}>프로덕트</button>
+        <button className={activeType === "feature" ? styles.activeType : ""} type="button" onClick={() => switchType("feature")}>피처</button>
       </div>
 
       <div className={styles.filterRow}>

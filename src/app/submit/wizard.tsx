@@ -22,6 +22,7 @@ export type WizardInitial = Partial<Draft>;
 export interface WizardEditTarget {
   brandId: string;
   productId: string;
+  published?: boolean;
 }
 
 const emptyDraft: Draft = {
@@ -60,6 +61,7 @@ export function SubmitWizard({
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ brandSlug: string; productSlug: string } | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "local" | "error">("idle");
+  const storageKey = edit ? `featable:edit-draft:${edit.brandId}` : "featable:submission-draft";
 
   // AI 단계
   const [aiAnswers, setAiAnswers] = useState({ what: "", why: "", who: "", diff: "", say: "" });
@@ -71,31 +73,37 @@ export function SubmitWizard({
 
   useEffect(() => {
     if (initial) return;
-    try {
-      const cached = window.localStorage.getItem("featable:submission-draft");
-      if (!cached) return;
-      const parsed = JSON.parse(cached) as { draft?: Partial<Draft>; step?: number };
-      if (parsed.draft) setDraft((current) => ({ ...current, ...parsed.draft }));
-      if (typeof parsed.step === "number") setStep(Math.min(Math.max(parsed.step, 0), STEPS.length - 1));
-    } catch {}
-  }, [initial]);
+    // 하이드레이션 직후 프레임에서 로컬 초안 복원 (이펙트 내 동기 setState 회피)
+    const id = window.setTimeout(() => {
+      try {
+        const cached = window.localStorage.getItem(storageKey);
+        if (!cached) return;
+        const parsed = JSON.parse(cached) as { draft?: Partial<Draft>; step?: number };
+        if (parsed.draft) setDraft((current) => ({ ...current, ...parsed.draft }));
+        if (typeof parsed.step === "number") setStep(Math.min(Math.max(parsed.step, 0), STEPS.length - 1));
+      } catch {}
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [initial, storageKey]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try {
-        window.localStorage.setItem("featable:submission-draft", JSON.stringify({ draft, step, savedAt: Date.now() }));
+        window.localStorage.setItem(storageKey, JSON.stringify({ draft, step, savedAt: Date.now() }));
         setSaveState((state) => state === "saving" ? state : "local");
       } catch {}
     }, 500);
     return () => window.clearTimeout(timer);
-  }, [draft, step]);
+  }, [draft, step, storageKey]);
 
   async function saveProgress(nextStep = step) {
     setSaveState("saving");
     try {
-      window.localStorage.setItem("featable:submission-draft", JSON.stringify({ draft, step: nextStep, savedAt: Date.now() }));
+      window.localStorage.setItem(storageKey, JSON.stringify({ draft, step: nextStep, savedAt: Date.now() }));
     } catch {}
-    const result = await saveSubmissionDraft(draft, nextStep);
+    const result = edit
+      ? await updateBrand({ ...draft, productFeatures: draft.productFeatures.split("\n").map((item) => item.trim()).filter(Boolean), publish: Boolean(edit.published) }, edit)
+      : await saveSubmissionDraft(draft, nextStep);
     setSaveState(result.ok ? "saved" : "local");
     return result.ok;
   }
@@ -231,8 +239,8 @@ export function SubmitWizard({
       : await publishBrand(payload);
     setSubmitting(false);
     if (result.ok) {
-      await deleteSubmissionDraft();
-      try { window.localStorage.removeItem("featable:submission-draft"); } catch {}
+      if (!edit) await deleteSubmissionDraft();
+      try { window.localStorage.removeItem(storageKey); } catch {}
       setDone({ brandSlug: result.brandSlug, productSlug: result.productSlug });
       setStep(STEPS.length); // 완료 화면
     } else {
