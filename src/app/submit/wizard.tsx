@@ -222,9 +222,17 @@ export function SubmitWizard() {
   }
 
   return (
-    <div className="mx-auto max-w-xl pb-24">
+    <div className="submit-wizard-layout">
+      <aside className="submit-step-aside">
+        <p>REGISTRATION</p>
+        <h2>브랜드 등록</h2>
+        <nav>{STEPS.map((item, index) => <button type="button" key={item} className={index === step ? "active" : index < step ? "done" : ""} onClick={() => index <= step && setStep(index)}><span>{index < step ? "✓" : String(index + 1).padStart(2, "0")}</span><strong>{item}</strong></button>)}</nav>
+        <div><span>{Math.round(((step + 1) / STEPS.length) * 100)}%</span><p>입력한 내용은<br />마지막 단계에서 공개됩니다.</p></div>
+      </aside>
+
+      <section className="submit-form-card">
       {/* 진행 표시 */}
-      <div className="mb-10 flex items-center gap-1">
+      <div className="submit-mobile-progress mb-10 flex items-center gap-1">
         {STEPS.map((s, i) => (
           <div key={s} className="flex-1">
             <div className={`h-1 rounded-full ${i <= step ? "bg-accent" : "bg-border"}`} />
@@ -519,6 +527,12 @@ export function SubmitWizard() {
           </div>
         )}
       </div>
+      </section>
+
+      <aside className="submit-help-aside">
+        <div><span>STEP {step + 1}</span><strong>{STEPS[step]}</strong><p>{step === 4 ? "상세페이지는 이미지와 텍스트 블록을 원하는 만큼 추가할 수 있어요." : step === 6 ? "실제 공개 화면처럼 스토리 순서를 확인해보세요." : "필수 항목부터 작성하고 언제든 비공개로 저장할 수 있어요."}</p></div>
+        <div className="submit-save-state"><i />비공개 저장 지원</div>
+      </aside>
     </div>
   );
 }

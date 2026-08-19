@@ -42,6 +42,7 @@ export interface Brand {
   productSlugs: string[];
   featureSlugs: string[];
   jobSlugs?: string[];
+  isFeatured?: boolean; // 관리자 Featured 지정 (홈 노출 우선)
 }
 
 /** 와디즈식 상세 본문: 이미지 블록과 텍스트 블록이 번갈아 나오는 세로 스토리텔링 */
@@ -75,6 +76,7 @@ export interface Product {
   relatedFeatureSlugs?: string[];
   relatedProductSlugs?: string[];
   viewCount?: number;
+  isFeatured?: boolean; // 관리자 Featured 지정 (홈 노출 우선)
 }
 
 /** Feature = 스토리/인터뷰 등 에디토리얼 콘텐츠 */

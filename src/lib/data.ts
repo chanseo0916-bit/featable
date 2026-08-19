@@ -51,6 +51,7 @@ interface BrandRow {
   website: string | null;
   sns: { instagram?: string; x?: string; youtube?: string } | null;
   founded_at: string | null;
+  is_featured: boolean;
   founder: FounderRow | null;
 }
 
@@ -69,6 +70,7 @@ interface ProductRow {
   official_url: string | null;
   category: string;
   view_count: number | null;
+  is_featured: boolean;
   brand: { slug: string; founder: { slug: string } | null } | null;
 }
 
@@ -85,16 +87,18 @@ async function fetchLive(): Promise<Catalog | null> {
       supabase
         .from("brands")
         .select(
-          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,founder:founders(slug,name,avatar_url,headline,bio)",
+          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,founder:founders(slug,name,avatar_url,headline,bio)",
         )
         .eq("status", "published")
+        .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false }),
       supabase
         .from("products")
         .select(
-          "slug,name,hero_url,images,tagline,story,problem,solution,features,price,buy_url,official_url,category,view_count,brand:brands!inner(slug,founder:founders(slug))",
+          "slug,name,hero_url,images,tagline,story,problem,solution,features,price,buy_url,official_url,category,view_count,is_featured,brand:brands!inner(slug,founder:founders(slug))",
         )
         .eq("status", "published")
+        .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false }),
     ]);
 
@@ -121,6 +125,7 @@ async function fetchLive(): Promise<Catalog | null> {
       category: p.category as Category,
       mentorNote: undefined as MentorNote | undefined,
       viewCount: p.view_count ?? 0,
+      isFeatured: p.is_featured,
     }));
 
     const brands: Brand[] = brandRows.map((b) => ({
@@ -141,6 +146,7 @@ async function fetchLive(): Promise<Catalog | null> {
         .filter((p) => p.brandSlug === b.slug)
         .map((p) => p.slug),
       featureSlugs: [],
+      isFeatured: b.is_featured,
     }));
 
     // Founder는 브랜드 조인에서 유도 (slug 기준 중복 제거)

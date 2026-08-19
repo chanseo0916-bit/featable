@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // 로그인 필요 경로: 브랜드 등록 위저드, 마이페이지
-  const protectedPaths = ["/submit", "/my"];
+  const protectedPaths = ["/submit", "/my", "/admin"];
   const isProtected = protectedPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p),
   );

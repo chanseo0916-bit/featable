@@ -1,0 +1,184 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { RowControls } from "./admin-controls";
+
+export const metadata: Metadata = {
+  title: "관리자",
+  robots: { index: false, follow: false },
+};
+
+interface AdminBrandRow {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  category: string;
+  status: "draft" | "published" | "hidden";
+  is_featured: boolean;
+  created_at: string;
+  founder: { name: string } | null;
+}
+
+interface AdminProductRow {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  category: string;
+  status: "draft" | "published" | "hidden";
+  is_featured: boolean;
+  created_at: string;
+  brand: { name: string; slug: string } | null;
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    published: "bg-accent-soft text-accent",
+    draft: "bg-gray-100 text-muted",
+    hidden: "bg-red-50 text-red-500",
+  };
+  const labels: Record<string, string> = {
+    published: "공개",
+    draft: "초안",
+    hidden: "숨김",
+  };
+  return (
+    <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${styles[status] ?? ""}`}>
+      {labels[status] ?? status}
+    </span>
+  );
+}
+
+export default async function AdminPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
+    : { data: null };
+
+  if (profile?.role !== "admin") {
+    return (
+      <main className="mx-auto max-w-md bg-white px-6 py-24 text-center">
+        <p className="mb-2 text-[11px] font-extrabold tracking-[0.13em] text-accent">ADMIN</p>
+        <h1 className="mb-3 text-xl font-bold">접근 권한이 없습니다</h1>
+        <p className="text-sm text-muted">
+          관리자 계정으로 로그인해야 합니다.
+        </p>
+      </main>
+    );
+  }
+
+  // admin은 RLS 정책상 draft/hidden 포함 전체 조회 가능
+  const [brandsRes, productsRes] = await Promise.all([
+    supabase
+      .from("brands")
+      .select("id,slug,name,tagline,category,status,is_featured,created_at,founder:founders(name)")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("products")
+      .select("id,slug,name,tagline,category,status,is_featured,created_at,brand:brands(name,slug)")
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const brands = (brandsRes.data ?? []) as unknown as AdminBrandRow[];
+  const products = (productsRes.data ?? []) as unknown as AdminProductRow[];
+  const fmt = (iso: string) =>
+    new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(iso));
+
+  return (
+    <main className="mx-auto max-w-4xl bg-white px-6 py-14">
+      <p className="mb-1 text-[11px] font-extrabold tracking-[0.13em] text-accent">
+        FEATABLE ADMIN
+      </p>
+      <h1 className="mb-10 text-2xl font-bold tracking-tight">콘텐츠 관리</h1>
+
+      <section className="mb-12">
+        <h2 className="mb-4 text-lg font-bold">
+          브랜드 <span className="text-sm font-normal text-muted">{brands.length}</span>
+        </h2>
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs text-muted">
+                <th className="px-4 py-3 font-semibold">브랜드</th>
+                <th className="px-4 py-3 font-semibold">카테고리</th>
+                <th className="px-4 py-3 font-semibold">상태</th>
+                <th className="px-4 py-3 font-semibold">등록일</th>
+                <th className="px-4 py-3 font-semibold">관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brands.map((b) => (
+                <tr key={b.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3">
+                    <Link href={`/brands/${b.slug}`} className="font-semibold hover:text-accent">
+                      {b.name}
+                    </Link>
+                    <p className="text-xs text-muted">
+                      {b.tagline} · {b.founder?.name ?? "-"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 text-xs">{b.category}</td>
+                  <td className="px-4 py-3"><StatusBadge status={b.status} /></td>
+                  <td className="px-4 py-3 text-xs text-muted">{fmt(b.created_at)}</td>
+                  <td className="px-4 py-3">
+                    <RowControls table="brands" id={b.id} isFeatured={b.is_featured} status={b.status} />
+                  </td>
+                </tr>
+              ))}
+              {brands.length === 0 && (
+                <tr><td colSpan={5} className="px-4 py-10 text-center text-sm text-muted">등록된 브랜드가 없습니다.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-4 text-lg font-bold">
+          프로덕트 <span className="text-sm font-normal text-muted">{products.length}</span>
+        </h2>
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-xs text-muted">
+                <th className="px-4 py-3 font-semibold">프로덕트</th>
+                <th className="px-4 py-3 font-semibold">카테고리</th>
+                <th className="px-4 py-3 font-semibold">상태</th>
+                <th className="px-4 py-3 font-semibold">등록일</th>
+                <th className="px-4 py-3 font-semibold">관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3">
+                    <Link href={`/products/${p.slug}`} className="font-semibold hover:text-accent">
+                      {p.name}
+                    </Link>
+                    <p className="text-xs text-muted">
+                      {p.tagline} · {p.brand?.name ?? "-"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 text-xs">{p.category}</td>
+                  <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
+                  <td className="px-4 py-3 text-xs text-muted">{fmt(p.created_at)}</td>
+                  <td className="px-4 py-3">
+                    <RowControls table="products" id={p.id} isFeatured={p.is_featured} status={p.status} />
+                  </td>
+                </tr>
+              ))}
+              {products.length === 0 && (
+                <tr><td colSpan={5} className="px-4 py-10 text-center text-sm text-muted">등록된 프로덕트가 없습니다.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  );
+}
