@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
 import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-feature-ranking";
+import { DiscoveryBanner } from "@/components/discovery-banner";
 import { DiscoveryStage, type DiscoveryTab } from "@/components/discovery-stage";
 import type { DiscoveryBannerSlide } from "@/components/discovery-banner";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
-import { HomeBannerCarousel, type HomeBannerSlide } from "@/components/home-banner-carousel";
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
@@ -14,12 +14,6 @@ export default async function Home() {
   const { brands, products, founders } = await getCatalog();
   const [events, supportPrograms, features, partners] = await Promise.all([getEvents(), getSupportPrograms(), getFeatures(), getPartners()]);
   const mainFeature = features[5];
-  const bannerSlides: HomeBannerSlide[] = [features[4], features[5], features[2], features[3], features[1]].map((feature) => ({
-    slug: feature.slug,
-    title: feature.title,
-    excerpt: feature.excerpt,
-    coverUrl: feature.coverUrl,
-  }));
   const discoveryFeatures = [mainFeature, features[2], features[3], features[1]];
   const productRankingItems: RankedFeatureItem[] = products.map((product) => {
     const founder = founders.find((item) => item.slug === product.founderSlug);
@@ -37,7 +31,17 @@ export default async function Home() {
     <>
       <Header />
       <main>
-        <HomeBannerCarousel slides={bannerSlides} />
+        <section className="home-banner-wrap">
+          <DiscoveryBanner
+            slides={features.slice(0, 5).map((feature) => ({
+              href: `/stories/${feature.slug}`,
+              imageUrl: feature.coverUrl,
+              eyebrow: feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 스토리",
+              title: feature.title,
+              subtitle: feature.excerpt,
+            }))}
+          />
+        </section>
 
         <section className="shell live-stage">
           <div className="live-main">
