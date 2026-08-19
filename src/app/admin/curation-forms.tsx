@@ -4,9 +4,11 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   createEvent,
+  createPartner,
   createSupportProgram,
   deleteCuration,
   type EventInput,
+  type PartnerInput,
   type SupportInput,
 } from "./actions";
 
@@ -130,12 +132,63 @@ export function SupportForm() {
   );
 }
 
+export function PartnerForm() {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<PartnerInput>({
+    name: "", logoUrl: "", href: "", intro: "", field: "", description: "",
+  });
+  const [pending, startTransition] = useTransition();
+  const [notice, setNotice] = useState<string | null>(null);
+  const set = (patch: Partial<PartnerInput>) => setForm((f) => ({ ...f, ...patch }));
+
+  function submit() {
+    startTransition(async () => {
+      setNotice(null);
+      const result = await createPartner(form);
+      if (result.error) setNotice(result.error);
+      else {
+        setNotice("파트너가 등록되었습니다.");
+        setForm({ name: "", logoUrl: "", href: "", intro: "", field: "", description: "" });
+        router.refresh();
+      }
+    });
+  }
+
+  return (
+    <div className="mb-4 rounded-xl border border-border p-4">
+      <button type="button" onClick={() => setOpen((v) => !v)} className="text-sm font-bold text-accent">
+        {open ? "– 접기" : "+ 파트너 등록"}
+      </button>
+      {open && (
+        <div className="mt-2">
+          <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
+            <div><label className={labelCls}>파트너명 *</label><input className={inputCls} value={form.name} onChange={(e) => set({ name: e.target.value })} /></div>
+            <div><label className={labelCls}>분야</label><input className={inputCls} value={form.field} placeholder="커뮤니티 / 지원기관 / 미디어" onChange={(e) => set({ field: e.target.value })} /></div>
+            <div><label className={labelCls}>링크 *</label><input className={inputCls} value={form.href} placeholder="https:// 또는 /communities/…" onChange={(e) => set({ href: e.target.value })} /></div>
+            <div><label className={labelCls}>로고 URL</label><input className={inputCls} value={form.logoUrl} placeholder="https:// (비우면 자동 생성)" onChange={(e) => set({ logoUrl: e.target.value })} /></div>
+          </div>
+          <label className={labelCls}>한 줄 소개 *</label>
+          <input className={inputCls} value={form.intro} placeholder="어떤 파트너인지 한 문장으로" onChange={(e) => set({ intro: e.target.value })} />
+          <label className={labelCls}>상세 소개 (선택)</label>
+          <textarea className={`${inputCls} min-h-20`} value={form.description} placeholder="파트너십 내용, 함께한 활동 등" onChange={(e) => set({ description: e.target.value })} />
+          {notice && <p className="mt-3 rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">{notice}</p>}
+          <button type="button" onClick={submit} disabled={pending}
+            className="mt-3 rounded-lg bg-accent px-5 py-2 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50">
+            {pending ? "등록 중…" : "등록"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function DeleteCurationButton({
   table,
   id,
   name,
 }: {
-  table: "events" | "support_programs";
+  table: "events" | "support_programs" | "partners";
   id: string;
   name: string;
 }) {

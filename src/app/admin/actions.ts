@@ -8,6 +8,7 @@ function revalidateCuration() {
   revalidatePath("/");
   revalidatePath("/events");
   revalidatePath("/support");
+  revalidatePath("/partners");
   revalidatePath("/admin");
 }
 
@@ -27,7 +28,7 @@ async function requireAdmin() {
   return profile?.role === "admin" ? supabase : null;
 }
 
-export type AdminTable = "brands" | "products" | "events" | "support_programs";
+export type AdminTable = "brands" | "products" | "events" | "support_programs" | "partners";
 
 export async function setFeatured(
   table: AdminTable,
@@ -147,8 +148,39 @@ export async function createSupportProgram(
   return {};
 }
 
+export interface PartnerInput {
+  name: string;
+  logoUrl: string;
+  href: string;
+  intro: string;
+  field?: string;
+  description?: string;
+}
+
+export async function createPartner(input: PartnerInput): Promise<{ error?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  if (!input.name.trim() || !input.href.trim() || !input.intro.trim()) {
+    return { error: "파트너명, 링크, 한 줄 소개는 필수입니다." };
+  }
+
+  const { error } = await supabase.from("partners").insert({
+    name: input.name.trim(),
+    logo_url: input.logoUrl.trim() || `https://picsum.photos/seed/partner-${slugify(input.name) || randomSuffix()}/160/160`,
+    href: input.href.trim(),
+    intro: input.intro.trim(),
+    field: input.field?.trim() || null,
+    description: input.description?.trim() || null,
+    status: "published",
+  });
+  if (error) return { error: "파트너 등록에 실패했습니다." };
+
+  revalidateCuration();
+  return {};
+}
+
 export async function deleteCuration(
-  table: "events" | "support_programs",
+  table: "events" | "support_programs" | "partners",
   id: string,
 ): Promise<{ error?: string }> {
   const supabase = await requireAdmin();

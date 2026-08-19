@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { FounderCard } from "@/components/founder-card";
 import { updateFounderProfile, type ProfileInput } from "./actions";
 
 export interface ProfileEditorInitial extends ProfileInput {
@@ -14,7 +15,13 @@ const AVATAR_PRESETS = Array.from({ length: 6 }, (_, index) => ({
   label: `캐릭터 ${index + 1}`,
 }));
 
-export function ProfileEditor({ initial }: { initial: ProfileEditorInitial }) {
+export function ProfileEditor({
+  initial,
+  brandCount = 0,
+}: {
+  initial: ProfileEditorInitial;
+  brandCount?: number;
+}) {
   const [form, setForm] = useState<ProfileInput>({
     name: initial.name ?? "",
     headline: initial.headline ?? "",
@@ -104,7 +111,8 @@ export function ProfileEditor({ initial }: { initial: ProfileEditorInitial }) {
       </div>
 
       {open && (
-        <div className="mt-6 border-t border-border pt-5">
+        <div className="mt-6 grid gap-8 border-t border-border pt-5 lg:grid-cols-[1fr_300px]">
+        <div>
           <label className={label}>프로필 캐릭터</label>
           <div className="founder-avatar-picker">
             {AVATAR_PRESETS.map((avatar) => (
@@ -177,6 +185,29 @@ export function ProfileEditor({ initial }: { initial: ProfileEditorInitial }) {
           >
             {saving ? "저장 중…" : "프로필 저장"}
           </button>
+        </div>
+
+        {/* 오른쪽: 입력하는 대로 갱신되는 공개 카드 미리보기 */}
+        <aside className="self-start lg:sticky lg:top-6">
+          <p className="mb-2 text-xs font-semibold text-muted">공개 카드 미리보기</p>
+          <div className="pointer-events-none">
+            <FounderCard
+              founder={{
+                slug: slug ?? "preview",
+                name: form.name || "이름을 입력하세요",
+                avatarUrl: form.avatarUrl ?? "",
+                headline: form.headline || "한 줄 소개가 여기에 표시됩니다",
+                brandSlugs: [],
+              }}
+              brandCount={brandCount}
+              productCount={0}
+              viewCount={0}
+            />
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted">
+            홈 &lsquo;주목할 파운더&rsquo;와 검색 결과에 이 카드로 노출됩니다.
+          </p>
+        </aside>
         </div>
       )}
     </section>

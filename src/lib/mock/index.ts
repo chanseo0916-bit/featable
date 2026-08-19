@@ -93,8 +93,8 @@ export const jobs: Job[] = [
 ];
 
 export const partners: Partner[] = [
-  { name: "Youth Founders Club", logoUrl: image("partner-yfc", 160, 160), href: "/communities/youth-founders-club" },
-  { name: "Build Club", logoUrl: image("partner-build", 160, 160), href: "/communities/build-club" },
-  { name: "서울창업허브", logoUrl: image("partner-seoul", 160, 160), href: "https://example.com" },
-  { name: "Product People", logoUrl: image("partner-product", 160, 160), href: "https://example.com" },
+  { name: "Youth Founders Club", logoUrl: image("partner-yfc", 160, 160), href: "/communities/youth-founders-club", field: "커뮤니티", intro: "20대 초기 창업가들이 모여 실행과 피드백을 주고받는 클럽" },
+  { name: "Build Club", logoUrl: image("partner-build", 160, 160), href: "/communities/build-club", field: "빌더 커뮤니티", intro: "매주 만드는 사람들이 모여 서로의 제품을 출시까지 밀어주는 모임" },
+  { name: "서울창업허브", logoUrl: image("partner-seoul", 160, 160), href: "https://example.com", field: "창업 지원기관", intro: "서울시 창업 생태계를 잇는 보육·투자·네트워킹 거점" },
+  { name: "Product People", logoUrl: image("partner-product", 160, 160), href: "https://example.com", field: "프로덕트 커뮤니티", intro: "제품을 만드는 PM·디자이너·개발자의 실무 지식 교류 커뮤니티" },
 ];

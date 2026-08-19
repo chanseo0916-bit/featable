@@ -13,6 +13,7 @@ import type {
   EventItem,
   Founder,
   MentorNote,
+  Partner,
   Product,
   StoryBlock,
   SupportProgram,
@@ -21,6 +22,7 @@ import {
   brands as mockBrands,
   events as mockEvents,
   founders as mockFounders,
+  partners as mockPartners,
   products as mockProducts,
   supportPrograms as mockSupport,
 } from "@/lib/mock";
@@ -296,6 +298,46 @@ function mergeBySlug<T extends { slug: string }>(live: T[], mock: T[]): T[] {
   const liveSlugs = new Set(live.map((item) => item.slug));
   return [...live, ...mock.filter((item) => !liveSlugs.has(item.slug))];
 }
+
+interface PartnerRow {
+  name: string;
+  logo_url: string;
+  href: string;
+  intro: string | null;
+  description: string | null;
+  field: string | null;
+}
+
+/** 공개된 파트너 — 실데이터 우선 + 목데이터 병합 (파트너는 slug가 없어 이름 기준) */
+export const getPartners = cache(async (): Promise<Partner[]> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return mockPartners;
+
+  try {
+    const supabase = createClient(url, key);
+    const { data, error } = await supabase
+      .from("partners")
+      .select("name,logo_url,href,intro,description,field")
+      .eq("status", "published")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) return mockPartners;
+
+    const live: Partner[] = ((data ?? []) as unknown as PartnerRow[]).map((p) => ({
+      name: p.name,
+      logoUrl: p.logo_url || placeholder(`partner-${p.name}`, 160, 160),
+      href: p.href,
+      intro: p.intro || undefined,
+      description: p.description ?? undefined,
+      field: p.field ?? undefined,
+    }));
+    const liveNames = new Set(live.map((p) => p.name));
+    return [...live, ...mockPartners.filter((p) => !liveNames.has(p.name))];
+  } catch {
+    return mockPartners;
+  }
+});
 
 /**
  * 파운더 단건 조회 — 아직 공개 브랜드가 없는 파운더도 프로필 페이지를 가질 수 있도록

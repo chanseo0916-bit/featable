@@ -12,7 +12,7 @@ const CATEGORIES = [
 ];
 
 const STEPS = [
-  "기본정보", "Founder", "브랜드", "프로덕트", "상세페이지", "AI 소개", "미리보기", "공개",
+  "브랜드", "Founder", "프로덕트", "상세페이지", "검토·공개",
 ];
 
 type Draft = SubmissionDraftInput;
@@ -250,14 +250,11 @@ export function SubmitWizard({
 
   // 단계별 다음 버튼 활성 조건
   const canNext = [
-    Boolean(draft.brandName.trim() && draft.tagline.trim()),
+    Boolean(draft.brandName.trim() && draft.tagline.trim() && draft.description.trim()),
     Boolean(draft.founderName.trim() && draft.founderHeadline.trim()),
-    Boolean(draft.description.trim()),
     Boolean(draft.productName.trim() && draft.productTagline.trim()),
-    true, // 이미지 선택 사항
-    true, // AI 선택 사항
-    true, // 미리보기
-    true, // 공개
+    true, // 상세페이지와 AI는 선택 사항
+    true, // 검토·공개
   ][step];
 
   const input = "w-full rounded-lg border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-accent";
@@ -306,7 +303,7 @@ export function SubmitWizard({
       <header className="submit-channel-head">
         <div className="submit-channel-logo">{draft.logoUrl ? <img src={draft.logoUrl} alt="" /> : <span>{draft.brandName.slice(0, 1) || "F"}</span>}</div>
         <div><p>브랜드 워크스페이스</p><h1>{draft.brandName || "새 브랜드"}</h1><span>{draft.brandSlug ? `featable.com/brands/${draft.brandSlug}` : "아직 공개 주소가 없습니다."}</span></div>
-        <button type="button" onClick={() => setStep(6)}>미리보기</button>
+        <button type="button" onClick={() => setStep(4)}>미리보기</button>
       </header>
 
       <section className="submit-insight-panel">
@@ -314,8 +311,8 @@ export function SubmitWizard({
         <div className="submit-insight-grid">
           <button type="button" onClick={() => setStep(0)}><span>프로필 완성도</span><strong>{completion}<small>%</small></strong><i><em style={{ width: `${completion}%` }} /></i></button>
           <button type="button" onClick={() => setStep(1)}><span>Founder</span><strong>{draft.founderName ? "완료" : "미입력"}</strong><small>{draft.founderName || "사람을 소개해주세요"}</small></button>
-          <button type="button" onClick={() => setStep(3)}><span>프로덕트</span><strong>{draft.productName ? "1" : "0"}<small>개</small></strong><small>{draft.productName || "첫 제품을 등록하세요"}</small></button>
-          <button type="button" onClick={() => setStep(4)}><span>상세 블록</span><strong>{draft.story.length}<small>개</small></strong><small>{draft.story.length ? "상세페이지 작성 중" : "콘텐츠를 추가하세요"}</small></button>
+          <button type="button" onClick={() => setStep(2)}><span>프로덕트</span><strong>{draft.productName ? "1" : "0"}<small>개</small></strong><small>{draft.productName || "첫 제품을 등록하세요"}</small></button>
+          <button type="button" onClick={() => setStep(3)}><span>상세 블록</span><strong>{draft.story.length}<small>개</small></strong><small>{draft.story.length ? "상세페이지 작성 중" : "콘텐츠를 추가하세요"}</small></button>
         </div>
       </section>
 
@@ -346,8 +343,9 @@ export function SubmitWizard({
 
       {/* STEP 1 기본정보 */}
       {step === 0 && (
-        <div>
-          <p className="text-sm text-muted">브랜드의 기본 정보를 입력하세요.</p>
+        <div className="submit-field-stack">
+          <p className="text-sm text-muted">검색과 브랜드 페이지에 표시되는 정보를 입력하세요.</p>
+          <div className="submit-field-group"><strong>브랜드 아이덴티티</strong><span>이름과 주소는 공개 페이지의 기준이 됩니다.</span>
           <label className={label}>브랜드명 *</label>
           <input className={input} value={draft.brandName} placeholder="예: 카라멜랩"
             onChange={(e) => set({ brandName: e.target.value, brandSlug: slugify(e.target.value) })} />
@@ -357,20 +355,18 @@ export function SubmitWizard({
             <input className={input} value={draft.brandSlug} placeholder="caramel-lab"
               onChange={(e) => set({ brandSlug: e.target.value })} />
           </div>
-          <label className={label}>카테고리 *</label>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((c) => (
-              <button key={c} type="button" onClick={() => set({ category: c })}
-                className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors ${
-                  draft.category === c ? "border-accent bg-accent text-white" : "border-border text-muted hover:border-accent hover:text-accent"
-                }`}>
-                {c}
-              </button>
-            ))}
           </div>
+          <div className="submit-field-group"><strong>브랜드 소개</strong><span>사용자가 브랜드를 발견할 때 가장 먼저 읽는 정보입니다.</span>
+          <label className={label}>카테고리 *</label>
+          <select className={input} value={draft.category} onChange={(e) => set({ category: e.target.value })}>{CATEGORIES.map((category) => <option value={category} key={category}>{category}</option>)}</select>
           <label className={label}>한 줄 소개 *</label>
           <input className={input} value={draft.tagline} placeholder="대학생 팀이 만든 AI 노트 서비스"
             onChange={(e) => set({ tagline: e.target.value })} />
+          <label className={label}>브랜드 소개 *</label>
+          <textarea className={`${input} min-h-28`} value={draft.description} placeholder="우리 브랜드는 어떤 문제를 어떻게 풀고 있나요?" onChange={(e) => set({ description: e.target.value })} />
+          <div className="grid grid-cols-2 gap-3"><div><label className={label}>해결하는 문제</label><input className={input} value={draft.problem} onChange={(e) => set({ problem: e.target.value })} /></div><div><label className={label}>대상 고객</label><input className={input} value={draft.audience} onChange={(e) => set({ audience: e.target.value })} /></div></div>
+          <div className="grid grid-cols-2 gap-3"><div><label className={label}>홈페이지</label><input className={input} value={draft.website} placeholder="https://" onChange={(e) => set({ website: e.target.value })} /></div><div><label className={label}>인스타그램</label><input className={input} value={draft.instagram} placeholder="@handle" onChange={(e) => set({ instagram: e.target.value })} /></div></div>
+          </div>
         </div>
       )}
 
@@ -391,37 +387,8 @@ export function SubmitWizard({
         </div>
       )}
 
-      {/* STEP 3 Brand */}
+      {/* STEP 3 Product */}
       {step === 2 && (
-        <div>
-          <label className={label}>브랜드 소개 *</label>
-          <textarea className={`${input} min-h-32`} value={draft.description}
-            placeholder="우리 브랜드는 어떤 문제를 어떻게 풀고 있나요?"
-            onChange={(e) => set({ description: e.target.value })} />
-          <label className={label}>해결하는 문제</label>
-          <input className={input} value={draft.problem} onChange={(e) => set({ problem: e.target.value })} />
-          <label className={label}>대상 고객</label>
-          <input className={input} value={draft.audience} onChange={(e) => set({ audience: e.target.value })} />
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={label}>홈페이지</label>
-              <input className={input} value={draft.website} placeholder="https://"
-                onChange={(e) => set({ website: e.target.value })} />
-            </div>
-            <div>
-              <label className={label}>인스타그램</label>
-              <input className={input} value={draft.instagram} placeholder="@handle"
-                onChange={(e) => set({ instagram: e.target.value })} />
-            </div>
-          </div>
-          <label className={label}>설립 시기</label>
-          <input className={input} value={draft.foundedAt} placeholder="2025-03"
-            onChange={(e) => set({ foundedAt: e.target.value })} />
-        </div>
-      )}
-
-      {/* STEP 4 Product */}
-      {step === 3 && (
         <div>
           <label className={label}>제품/서비스명 *</label>
           <input className={input} value={draft.productName}
@@ -454,8 +421,8 @@ export function SubmitWizard({
         </div>
       )}
 
-      {/* STEP 5 상세페이지 */}
-      {step === 4 && (
+      {/* STEP 4 상세페이지 */}
+      {step === 3 && (
         <div className="story-builder">
           <div className="story-builder-intro">
             <p className="text-sm text-muted">쿠팡·와디즈 상세페이지처럼 이미지와 설명을 원하는 순서대로 쌓아주세요. 등록한 순서 그대로 긴 상세 스토리가 만들어집니다.</p>
@@ -514,9 +481,10 @@ export function SubmitWizard({
         </div>
       )}
 
-      {/* STEP 6 AI */}
-      {step === 5 && (
-        <div>
+      {step === 3 && (
+        <details className="submit-ai-assistant">
+          <summary><span>✦</span><div><strong>AI 소개 도우미</strong><small>답변을 바탕으로 브랜드 문구 초안을 만듭니다.</small></div><b>열기</b></summary>
+          <div className="submit-ai-body">
           <p className="text-sm text-muted">
             몇 가지 질문에 답하면 AI가 소개 문구 초안을 만들어드립니다. 결과는 언제든 수정할 수 있어요.
           </p>
@@ -551,77 +519,49 @@ export function SubmitWizard({
               </button>
             </div>
           )}
-        </div>
+          </div>
+        </details>
       )}
 
-      {/* STEP 7 미리보기 */}
-      {step === 6 && (
-        <div className="rounded-2xl border border-border p-6">
-          <div className="flex items-center gap-4">
-            {draft.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={draft.logoUrl} alt="" className="h-14 w-14 rounded-xl border border-border object-cover" />
-            ) : (
-              <div className="grid h-14 w-14 place-items-center rounded-xl bg-accent-soft text-lg font-black text-accent">
-                {draft.brandName.slice(0, 1) || "F"}
-              </div>
-            )}
-            <div>
-              <span className="rounded bg-accent-soft px-2 py-0.5 text-[10px] font-bold text-accent">{draft.category}</span>
-              <h2 className="mt-1 text-xl font-bold">{draft.brandName || "브랜드명"}</h2>
-              <p className="text-sm text-muted">{draft.tagline}</p>
-            </div>
+      {/* STEP 5 검토·공개 */}
+      {step === 4 && (
+        <div className="submit-review">
+          <p>공개 전 마지막으로 확인해주세요. 공개 후에도 Studio에서 언제든 수정할 수 있습니다.</p>
+          <div className="submit-review-score"><div><strong>{completion}%</strong><span>프로필 완성도</span></div><i><em style={{ width: `${completion}%` }} /></i></div>
+          <div className="submit-review-list">
+            <button type="button" onClick={() => setStep(0)}><i className={draft.brandName && draft.description ? "done" : ""}>{draft.brandName && draft.description ? "✓" : "!"}</i><span><strong>브랜드 정보</strong><small>{draft.brandName || "브랜드 이름이 필요합니다."}</small></span><b>수정 →</b></button>
+            <button type="button" onClick={() => setStep(1)}><i className={draft.founderName ? "done" : ""}>{draft.founderName ? "✓" : "!"}</i><span><strong>Founder</strong><small>{draft.founderName || "Founder 정보가 필요합니다."}</small></span><b>수정 →</b></button>
+            <button type="button" onClick={() => setStep(2)}><i className={draft.productName ? "done" : ""}>{draft.productName ? "✓" : "!"}</i><span><strong>프로덕트</strong><small>{draft.productName || "프로덕트 정보가 필요합니다."}</small></span><b>수정 →</b></button>
+            <button type="button" onClick={() => setStep(3)}><i className={draft.story.length ? "done" : "optional"}>{draft.story.length ? "✓" : "·"}</i><span><strong>상세페이지</strong><small>{draft.story.length ? `${draft.story.length}개 블록 작성됨` : "선택 사항 · 나중에 추가할 수 있어요."}</small></span><b>수정 →</b></button>
           </div>
-          {draft.heroUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={draft.heroUrl} alt="" className="mt-5 w-full rounded-xl border border-border object-cover" />
-          )}
-          <div className="mt-5 border-t border-border pt-5 text-sm">
-            <p className="font-bold">{draft.productName} <span className="font-normal text-muted">— {draft.productTagline}</span></p>
-            <p className="mt-3 whitespace-pre-line text-muted">{draft.description}</p>
-            <p className="mt-4 text-xs text-muted">
-              by <b className="text-foreground">{draft.founderName}</b> · {draft.founderHeadline}
-            </p>
-          </div>
-          {draft.story.length > 0 && <div className="wizard-story-preview"><p className="story-editor-label">상세페이지 미리보기</p>{draft.story.map((block, index) => block.type === "text" ? <section key={`${block.type}-${index}`}><span>STORY {String(index + 1).padStart(2, "0")}</span>{block.heading && <h3>{block.heading}</h3>}<p>{block.body}</p></section> : <figure key={`${block.type}-${index}`}>{block.src ? <img src={block.src} alt={block.alt} /> : <div>이미지를 업로드해주세요</div>}{block.caption && <figcaption>{block.caption}</figcaption>}</figure>)}</div>}
-        </div>
-      )}
-
-      {/* STEP 8 공개 */}
-      {step === 7 && (
-        <div>
-          <p className="text-sm text-muted">
-            공개하면 고유 URL이 생성되고 홈 피드에 노출됩니다. 비공개 저장을 선택하면 나중에 공개할 수 있습니다.
-          </p>
-          <div className="mt-6 rounded-xl border border-border p-4 text-sm">
-            공개 주소: <code className="text-accent">featable.com/brands/{slugify(draft.brandSlug) || slugify(draft.brandName) || "…"}</code>
-          </div>
+          <div className="submit-public-url"><span>공개 주소</span><code>featable.com/brands/{slugify(draft.brandSlug) || slugify(draft.brandName) || "…"}</code></div>
         </div>
       )}
 
       {error && <p className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-xs text-red-600">{error}</p>}
 
-      {/* 하단 네비게이션 */}
-      <div className="mt-10 flex items-center justify-between">
+      <div className="submit-sticky-actions">
         <button type="button" onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+          className="submit-back-button">
           이전
         </button>
-        {step < 7 ? (
+        <div className={`submit-bottom-save ${saveState}`}><i />{saveState === "saving" ? "저장 중" : saveState === "saved" ? "클라우드 저장됨" : "자동 저장됨"}</div>
+        <button type="button" className="submit-bottom-draft" onClick={() => saveProgress()} disabled={saveState === "saving"}>임시저장</button>
+        {step < 4 ? (
           <button type="button" onClick={goNext} disabled={!canNext || saveState === "saving"}
-            className="rounded-lg bg-accent px-6 py-2.5 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-40">
-            다음
+            className="submit-next-button">
+            다음 단계 →
           </button>
         ) : (
-          <div className="flex gap-3">
+          <div className="submit-publish-actions">
             <button type="button" onClick={() => submit(false)} disabled={submitting}
-              className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:opacity-50">
+              className="submit-private-button">
               비공개 저장
             </button>
             <button type="button" onClick={() => submit(true)} disabled={submitting}
-              className="rounded-lg bg-accent px-6 py-2.5 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50">
-              {submitting ? "게시 중…" : "🚀 공개하기"}
+              className="submit-next-button">
+              {submitting ? "게시 중…" : "공개하기 →"}
             </button>
           </div>
         )}
@@ -629,8 +569,12 @@ export function SubmitWizard({
       </section>
 
       <aside className="submit-help-aside">
-        <div><span>STEP {step + 1}</span><strong>{STEPS[step]}</strong><p>{step === 4 ? "상세페이지는 이미지와 텍스트 블록을 원하는 만큼 추가할 수 있어요." : step === 6 ? "실제 공개 화면처럼 스토리 순서를 확인해보세요." : "필수 항목부터 작성하고 언제든 비공개로 저장할 수 있어요."}</p></div>
-        <div className="submit-save-state"><i />비공개 저장 지원</div>
+        <div className="submit-live-preview-head"><span>LIVE PREVIEW</span><strong>브랜드 카드</strong><p>입력 내용이 공개 화면에 어떻게 보이는지 확인하세요.</p></div>
+        <div className="submit-live-preview">
+          <div className="submit-preview-cover">{draft.coverUrl || draft.heroUrl ? <img src={draft.coverUrl || draft.heroUrl} alt="" /> : <span>커버 이미지</span>}<i>{draft.category}</i></div>
+          <div className="submit-preview-body"><div>{draft.logoUrl ? <img src={draft.logoUrl} alt="" /> : <span>{draft.brandName.slice(0, 1) || "F"}</span>}<small>BRAND</small></div><h3>{draft.brandName || "브랜드 이름"}</h3><p>{draft.tagline || "한 줄 소개가 여기에 표시됩니다."}</p><footer><span>{draft.founderName || "Founder"}</span><b>프로필 보기 →</b></footer></div>
+        </div>
+        <div className="submit-preview-product"><span>PRODUCT</span><strong>{draft.productName || "프로덕트 이름"}</strong><p>{draft.productTagline || "제품 소개를 입력해주세요."}</p></div>
       </aside>
       </div>
     </div>

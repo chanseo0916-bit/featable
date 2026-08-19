@@ -5,6 +5,7 @@ import { signout } from "@/app/login/actions";
 import { DeleteBrandButton } from "./delete-button";
 import { BrandStatusButton } from "./brand-status-button";
 import { ProfileEditor } from "./profile-editor";
+import { StudioBrand } from "@/components/site-shell";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -50,7 +51,7 @@ export default async function MyPage() {
   const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
 
   return <>
-    <div className="publish-console-nav"><div className="shell"><strong><i>F</i> FEATABLE STUDIO</strong><nav><Link className="active" href="/my">대시보드</Link><a href="#brands">브랜드 관리</a><a href="#profile">Founder 프로필</a><Link href="/submit">새 프로젝트</Link></nav><form action={signout}><button>로그아웃</button></form></div></div>
+    <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><Link className="active" href="/my">대시보드</Link><a href="#brands">브랜드 관리</a><a href="#profile">Founder 프로필</a><Link href="/submit">새 프로젝트</Link></nav><form action={signout}><button>로그아웃</button></form></div></div>
     <div className="publish-console-tabs"><div className="shell"><Link className="active" href="/my">워크스페이스 홈</Link><a href="#brands">콘텐츠</a><a href="#profile">프로필 설정</a>{founder?.slug && <Link href={`/founders/${founder.slug}`}>공개 페이지 바로가기 ↗</Link>}</div></div>
 
     <main className="studio-dashboard">
@@ -96,7 +97,7 @@ export default async function MyPage() {
           </div>}
         </section>
 
-        <section id="profile" className="studio-profile-panel"><div className="studio-panel-heading"><strong>Founder 프로필</strong><span>공개 프로필에 표시되는 정보입니다.</span></div><ProfileEditor initial={{ slug: founder?.slug, name: founder?.name ?? "", headline: founder?.headline ?? "", bio: founder?.bio ?? "", avatarUrl: founder?.avatar_url ?? "", instagram: sns.instagram ?? "", x: sns.x ?? "", linkedin: sns.linkedin ?? "", website: sns.website ?? "" }} /></section>
+        <section id="profile" className="studio-profile-panel"><div className="studio-panel-heading"><strong>Founder 프로필</strong><span>공개 프로필에 표시되는 정보입니다.</span></div><ProfileEditor brandCount={brands.length} initial={{ slug: founder?.slug, name: founder?.name ?? "", headline: founder?.headline ?? "", bio: founder?.bio ?? "", avatarUrl: founder?.avatar_url ?? "", instagram: sns.instagram ?? "", x: sns.x ?? "", linkedin: sns.linkedin ?? "", website: sns.website ?? "" }} /></section>
       </div>
     </main>
   </>;

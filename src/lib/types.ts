@@ -176,4 +176,8 @@ export interface Partner {
   name: string;
   logoUrl: string;
   href: string;
+  /** 파트너 페이지용 — 푸터 로고만 쓰는 경우 생략 가능 */
+  intro?: string;
+  description?: string;
+  field?: string;
 }

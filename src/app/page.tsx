@@ -5,6 +5,7 @@ import { DiscoveryStage, type DiscoveryTab } from "@/components/discovery-stage"
 import type { DiscoveryBannerSlide } from "@/components/discovery-banner";
 import { features, partners } from "@/lib/mock";
 import { getCatalog, getEvents, getSupportPrograms } from "@/lib/data";
+import { FounderCard } from "@/components/founder-card";
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
@@ -98,6 +99,24 @@ export default async function Home() {
               const brand = brands.find((item) => item.slug === product.brandSlug);
               const founder = founders.find((item) => item.slug === product.founderSlug);
               return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card commerce-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="product-chip">{product.category}</span>{index < 2 && <span className="drop-label">NEW</span>}</div><div className="card-body"><div className="product-brand-line"><img src={brand?.logoUrl} alt="" /><span>{brand?.name}</span><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="product-meta-row"><span className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span>{founder?.name}</span>{product.price ? <strong>{product.price}</strong> : <strong className="meta-cta">피쳐 보기 →</strong>}</div></div></Link>;
+            })}
+          </div>
+        </section>
+
+        <section className="shell section">
+          <SectionHeader eyebrow="MEET THE FOUNDERS" title="주목할 파운더" href="/brands" />
+          <div className="founder-spotlight-grid">
+            {founders.slice(0, 4).map((f) => {
+              const fProducts = products.filter((p) => p.founderSlug === f.slug);
+              return (
+                <FounderCard
+                  key={f.slug}
+                  founder={f}
+                  brandCount={f.brandSlugs.length}
+                  productCount={fProducts.length}
+                  viewCount={fProducts.reduce((sum, p) => sum + (p.viewCount ?? 0), 0)}
+                />
+              );
             })}
           </div>
         </section>

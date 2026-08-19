@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { RowControls } from "./admin-controls";
-import { DeleteCurationButton, EventForm, SupportForm } from "./curation-forms";
+import { DeleteCurationButton, EventForm, PartnerForm, SupportForm } from "./curation-forms";
 
 export const metadata: Metadata = {
   title: "관리자",
@@ -74,7 +74,7 @@ export default async function AdminPage() {
   }
 
   // admin은 RLS 정책상 draft/hidden 포함 전체 조회 가능
-  const [brandsRes, productsRes, eventsRes, supportRes] = await Promise.all([
+  const [brandsRes, productsRes, eventsRes, supportRes, partnersRes] = await Promise.all([
     supabase
       .from("brands")
       .select("id,slug,name,tagline,category,status,is_featured,created_at,founder:founders(name)")
@@ -91,6 +91,11 @@ export default async function AdminPage() {
       .from("support_programs")
       .select("id,slug,name,agency,close_at,status")
       .order("close_at", { ascending: false }),
+    supabase
+      .from("partners")
+      .select("id,name,logo_url,href,intro,field,status")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true }),
   ]);
 
   const eventRows = (eventsRes.data ?? []) as {
@@ -99,6 +104,12 @@ export default async function AdminPage() {
   }[];
   const supportRows = (supportRes.data ?? []) as {
     id: string; slug: string; name: string; agency: string; close_at: string;
+    status: "draft" | "published" | "hidden";
+  }[];
+  // 마이그레이션 전(컬럼 없음)에는 조회가 실패하므로 빈 목록으로 폴백
+  const partnerRows = (partnersRes.data ?? []) as {
+    id: string; name: string; logo_url: string; href: string;
+    intro: string | null; field: string | null;
     status: "draft" | "published" | "hidden";
   }[];
 
@@ -248,6 +259,38 @@ export default async function AdminPage() {
           ))}
           {supportRows.length === 0 && (
             <p className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-muted">등록된 지원사업이 없습니다.</p>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="mb-4 text-lg font-bold">
+          파트너 <span className="text-sm font-normal text-muted">{partnerRows.length}</span>
+        </h2>
+        <PartnerForm />
+        <div className="grid gap-2">
+          {partnerRows.map((p) => (
+            <div key={p.id} className="flex items-center justify-between gap-4 rounded-xl border border-border px-4 py-3">
+              <div className="flex min-w-0 items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.logo_url} alt="" className="h-10 w-10 flex-none rounded-lg border border-border object-cover" />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">
+                    {p.name}
+                    {p.field && <span className="ml-2 text-xs font-normal text-muted">{p.field}</span>}
+                    <span className="ml-2"><StatusBadge status={p.status} /></span>
+                  </p>
+                  <p className="truncate text-xs text-muted">{p.intro || p.href}</p>
+                </div>
+              </div>
+              <div className="flex flex-none items-center gap-2">
+                <RowControls table="partners" id={p.id} isFeatured={false} status={p.status} showFeatured={false} />
+                <DeleteCurationButton table="partners" id={p.id} name={p.name} />
+              </div>
+            </div>
+          ))}
+          {partnerRows.length === 0 && (
+            <p className="rounded-xl border border-dashed border-border py-8 text-center text-sm text-muted">등록된 파트너가 없습니다.</p>
           )}
         </div>
       </section>
