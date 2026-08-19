@@ -1052,7 +1052,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .founder-spot-card { position: relative; display: block; border-radius: 20px; background: #17171b; color: white; overflow: hidden; border: 1px solid #26262c; transition: transform .25s ease, box-shadow .3s ease, border-color .25s ease; }
 .founder-spot-card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--accent) 55%, #26262c); box-shadow: 0 24px 48px -20px color-mix(in srgb, var(--accent) 45%, transparent); }
-.founder-spot-photo { position: relative; aspect-ratio: 1 / 1.05; }
+.founder-spot-photo { position: relative; aspect-ratio: 1 / 1; }
 .founder-spot-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 .founder-spot-fade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 42%, rgba(23, 23, 27, .55) 76%, #17171b 100%); }
 .founder-spot-body { position: relative; margin-top: -36px; padding: 0 20px 18px; }
@@ -1067,7 +1067,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 
 /* 공개 프로필 히어로 — 스포트라이트 카드 확장 */
 .founder-hero-card { width: min(380px, 100%); }
-.founder-hero-card .founder-spot-photo { aspect-ratio: 1 / 1.15; }
+.founder-hero-card .founder-spot-photo { aspect-ratio: 1 / 1; }
 .founder-hero-card .founder-spot-body h3 { font-size: 26px; }
 .founder-hero-id { position: absolute; top: 14px; right: 16px; font-size: 9px; font-weight: 800; letter-spacing: .14em; color: rgba(255, 255, 255, .92); text-shadow: 0 1px 6px rgba(0, 0, 0, .45); }
 .founder-hero-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #cfcfd6; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; }
