@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Badge, Footer, Header } from "@/components/site-shell";
 import { features, partners } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
+import { ShareButton } from "@/components/share-button";
+import { ViewTracker } from "@/components/view-tracker";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -38,6 +40,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     <>
       <Header />
       <main className="commerce-product">
+        <ViewTracker slug={product.slug} />
         <div className="shell product-breadcrumb">
           <Link href="/products">프로덕트</Link><span>›</span><Link href={`/brands/${brand?.slug}`}>{brand?.name}</Link><span>›</span><strong>{product.name}</strong>
         </div>
@@ -64,7 +67,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="commerce-founder-mini"><img src={founder?.avatarUrl} alt="" /><div><span>이 제품을 만든 사람</span><strong>{founder?.name} Founder</strong></div><Link href={`/brands/${brand?.slug}`}>프로필 보기 →</Link></div>
             <div className="commerce-actions">
               {product.officialUrl && <a className="button" href={product.officialUrl}>공식 사이트에서 보기 <span>↗</span></a>}
-              <button className="commerce-share">공유</button>
+              <ShareButton className="commerce-share" title={product.name} text={product.tagline} />
             </div>
             <p className="commerce-notice">Featable은 제품과 창업가를 발견할 수 있도록 연결합니다. 구매와 이용 조건은 공식 사이트에서 확인해주세요.</p>
           </div>

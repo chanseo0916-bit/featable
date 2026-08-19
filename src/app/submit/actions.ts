@@ -178,3 +178,101 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
 
   return { ok: true, brandSlug: brand.slug, productSlug: productRes.slug };
 }
+
+/** 기존 브랜드+프로덕트 수정. slug는 URL 안정성을 위해 변경하지 않는다. */
+export async function updateBrand(
+  input: PublishInput,
+  ids: { brandId: string; productId: string },
+): Promise<PublishResult> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+
+  if (!input.brandName.trim() || !input.founderName.trim() || !input.productName.trim()) {
+    return { ok: false, error: "브랜드명, 창업가 이름, 제품명은 필수입니다." };
+  }
+
+  const status = input.publish ? "published" : "draft";
+
+  // Founder 정보 갱신 (본인 것만 — RLS)
+  await supabase
+    .from("founders")
+    .update({
+      name: input.founderName.trim(),
+      headline: input.founderHeadline.trim(),
+      bio: input.founderBio?.trim() || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", user.id);
+
+  // Brand 갱신 — RLS(owns_founder)가 소유권을 보장하고, 남의 행이면 0건 갱신된다
+  const { data: brandRow, error: brandErr } = await supabase
+    .from("brands")
+    .update({
+      name: input.brandName.trim(),
+      logo_url: input.logoUrl || null,
+      tagline: input.tagline.trim(),
+      description: input.description.trim(),
+      problem: input.problem?.trim() || null,
+      audience: input.audience?.trim() || null,
+      category: input.category,
+      website: input.website?.trim() || null,
+      sns: input.instagram ? { instagram: input.instagram.trim() } : {},
+      founded_at: input.foundedAt?.trim() || null,
+      status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", ids.brandId)
+    .select("slug")
+    .maybeSingle();
+  if (brandErr || !brandRow) {
+    return { ok: false, error: "브랜드 수정에 실패했습니다. 권한을 확인해주세요." };
+  }
+
+  const storyImages = input.story
+    .filter((block): block is Extract<StoryBlock, { type: "image" }> => block.type === "image")
+    .map((block) => block.src)
+    .filter(Boolean);
+
+  const { data: productRow, error: productErr } = await supabase
+    .from("products")
+    .update({
+      name: input.productName.trim(),
+      hero_url: input.heroUrl || null,
+      images: [input.heroUrl, ...storyImages].filter(Boolean),
+      tagline: input.productTagline.trim(),
+      story: input.story,
+      problem: input.productProblem.trim(),
+      solution: input.productSolution.trim(),
+      features: input.productFeatures.map((f) => f.trim()).filter(Boolean),
+      price: input.price?.trim() || null,
+      official_url: input.officialUrl?.trim() || null,
+      category: input.category,
+      status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", ids.productId)
+    .select("slug")
+    .maybeSingle();
+  if (productErr || !productRow) {
+    return { ok: false, error: "프로덕트 수정에 실패했습니다." };
+  }
+
+  return { ok: true, brandSlug: brandRow.slug, productSlug: productRow.slug };
+}
+
+/** 브랜드 삭제 — 소속 프로덕트는 FK cascade로 함께 삭제된다 */
+export async function deleteBrand(brandId: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const { error } = await supabase.from("brands").delete().eq("id", brandId);
+  if (error) return { error: "삭제에 실패했습니다." };
+  return {};
+}

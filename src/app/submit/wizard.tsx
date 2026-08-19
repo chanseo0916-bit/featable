@@ -5,7 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slug";
 import type { StoryBlock } from "@/lib/types";
-import { publishBrand, type PublishInput } from "./actions";
+import { publishBrand, updateBrand, type PublishInput } from "./actions";
 
 const CATEGORIES = [
   "AI", "SaaS", "F&B", "패션", "뷰티", "콘텐츠", "커머스", "라이프스타일", "교육", "개발", "기타",
@@ -18,6 +18,13 @@ const STEPS = [
 type Draft = Omit<PublishInput, "publish" | "productFeatures"> & {
   productFeatures: string; // 줄바꿈 구분 입력
 };
+
+/** 수정 모드에서 서버 페이지가 넘겨주는 초기값 */
+export type WizardInitial = Partial<Draft>;
+export interface WizardEditTarget {
+  brandId: string;
+  productId: string;
+}
 
 const emptyDraft: Draft = {
   brandName: "", brandSlug: "", category: "기타", tagline: "",
@@ -36,9 +43,17 @@ interface AiResult {
   founderHeadline?: string;
 }
 
-export function SubmitWizard() {
+export function SubmitWizard({
+  initial,
+  edit,
+}: {
+  initial?: WizardInitial;
+  edit?: WizardEditTarget;
+} = {}) {
   const [step, setStep] = useState(0);
-  const [draft, setDraft] = useState<Draft>(emptyDraft);
+  const [draft, setDraft] = useState<Draft>(
+    initial ? { ...emptyDraft, ...initial } : emptyDraft,
+  );
   const [uploading, setUploading] = useState<"logo" | "hero" | null>(null);
   const [storyUploading, setStoryUploading] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -162,11 +177,14 @@ export function SubmitWizard() {
   async function submit(publish: boolean) {
     setSubmitting(true);
     setError(null);
-    const result = await publishBrand({
+    const payload: PublishInput = {
       ...draft,
       productFeatures: draft.productFeatures.split("\n").map((s) => s.trim()).filter(Boolean),
       publish,
-    });
+    };
+    const result = edit
+      ? await updateBrand(payload, edit)
+      : await publishBrand(payload);
     setSubmitting(false);
     if (result.ok) {
       setDone({ brandSlug: result.brandSlug, productSlug: result.productSlug });
@@ -196,9 +214,13 @@ export function SubmitWizard() {
     const brandUrl = `/brands/${done.brandSlug}`;
     return (
       <div className="mx-auto max-w-lg py-20 text-center">
-        <p className="mb-3 text-[11px] font-extrabold tracking-[0.13em] text-accent">PUBLISHED</p>
+        <p className="mb-3 text-[11px] font-extrabold tracking-[0.13em] text-accent">
+          {edit ? "UPDATED" : "PUBLISHED"}
+        </p>
         <h1 className="mb-4 text-3xl font-bold tracking-tight">
-          {draft.brandName}, 세상에 소개되었습니다 🎉
+          {edit
+            ? `${draft.brandName}, 수정이 저장되었습니다 ✓`
+            : `${draft.brandName}, 세상에 소개되었습니다 🎉`}
         </h1>
         <p className="mb-8 text-sm text-muted">
           이제 이 페이지가 브랜드의 공개 자산입니다. 링크를 공유해보세요.
@@ -224,8 +246,8 @@ export function SubmitWizard() {
   return (
     <div className="submit-wizard-layout">
       <aside className="submit-step-aside">
-        <p>REGISTRATION</p>
-        <h2>브랜드 등록</h2>
+        <p>{edit ? "EDIT" : "REGISTRATION"}</p>
+        <h2>{edit ? "브랜드 수정" : "브랜드 등록"}</h2>
         <nav>{STEPS.map((item, index) => <button type="button" key={item} className={index === step ? "active" : index < step ? "done" : ""} onClick={() => index <= step && setStep(index)}><span>{index < step ? "✓" : String(index + 1).padStart(2, "0")}</span><strong>{item}</strong></button>)}</nav>
         <div><span>{Math.round(((step + 1) / STEPS.length) * 100)}%</span><p>입력한 내용은<br />마지막 단계에서 공개됩니다.</p></div>
       </aside>

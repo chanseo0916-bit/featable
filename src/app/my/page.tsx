@@ -2,12 +2,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { signout } from "@/app/login/actions";
+import { DeleteBrandButton } from "./delete-button";
 
 export const metadata: Metadata = {
   title: "마이 페이지 — FEATABLE",
 };
 
 interface MyBrand {
+  id: string;
   slug: string;
   name: string;
   tagline: string;
@@ -34,7 +36,7 @@ export default async function MyPage() {
   if (founder) {
     const { data } = await supabase
       .from("brands")
-      .select("slug, name, tagline, category, status")
+      .select("id, slug, name, tagline, category, status")
       .eq("founder_id", founder.id)
       .order("created_at", { ascending: false });
     brands = (data ?? []) as MyBrand[];
@@ -93,12 +95,21 @@ export default async function MyPage() {
                 </div>
                 <p className="mt-1 text-xs text-muted">{b.tagline}</p>
               </div>
-              <Link
-                href={`/brands/${b.slug}`}
-                className="text-xs font-semibold text-accent hover:underline"
-              >
-                페이지 보기 →
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link
+                  href={`/my/edit/${b.slug}`}
+                  className="text-xs font-semibold text-muted hover:text-accent"
+                >
+                  수정
+                </Link>
+                <DeleteBrandButton brandId={b.id} brandName={b.name} />
+                <Link
+                  href={`/brands/${b.slug}`}
+                  className="text-xs font-semibold text-accent hover:underline"
+                >
+                  페이지 보기 →
+                </Link>
+              </div>
             </div>
           ))}
           <Link

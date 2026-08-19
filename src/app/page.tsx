@@ -21,25 +21,20 @@ const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() -
 export default async function Home() {
   const { brands, products, founders } = await getCatalog();
   const mainFeature = features[5];
+  const bannerFeature = features[4];
   const rankedFeatures = [features[2], features[4], features[0], features[3], features[1]];
 
   return (
     <>
       <Header />
       <main>
-        <section className="discovery-head shell">
-          <div className="discovery-title-row">
-            <div>
-              <p className="eyebrow">DISCOVER THE NEXT FOUNDERS</p>
-              <h1>요즘 뜨는 창업가,<br /><em>여기서 먼저.</em></h1>
-            </div>
-            <p className="discovery-intro">제품보다 먼저 사람을 발견하고,<br />아직 유명하지 않은 가능성을 큐레이션합니다.</p>
-          </div>
-          <form className="discovery-search" action="/search">
-            <input name="q" placeholder="어떤 창업가와 브랜드를 찾고 있나요?" />
-            <span className="search-hint">브랜드 · 피쳐 · 제품 · 기회</span>
-            <button aria-label="검색">⌕</button>
-          </form>
+        <section className="home-banner-wrap">
+          <Link className="home-top-banner" href={`/stories/${bannerFeature.slug}`}>
+            <img src={bannerFeature.coverUrl} alt="" />
+            <div className="home-banner-shade" />
+            <div className="home-banner-copy"><span>FEATABLE ORIGINAL · EDITOR&apos;S PICK</span><h1>{bannerFeature.title}</h1><p>{bannerFeature.excerpt}</p><strong>피쳐 보러가기 <i>↗</i></strong></div>
+            <div className="home-banner-control"><span className="home-banner-arrow">‹</span><span><b>01</b> / 05</span><span className="home-banner-arrow">›</span></div>
+          </Link>
         </section>
 
         <section className="curation-rail-shell">
@@ -90,6 +85,11 @@ export default async function Home() {
             </ol>
             <Link className="ranking-more" href="/stories">피쳐 랭킹 전체보기 <span>→</span></Link>
           </aside>
+        </section>
+
+        <section className="shell after-feed-search">
+          <div><p className="eyebrow">SEARCH FEATABLE</p><h2>찾고 있는 팀이 있나요?</h2><span>브랜드, Founder, 제품과 기회를 한 번에 찾아보세요.</span></div>
+          <form className="discovery-search" action="/search"><input name="q" placeholder="브랜드 · 창업가 · 제품 검색" /><button aria-label="검색">⌕</button></form>
         </section>
 
         <section className="shell section mz-curation-section">
