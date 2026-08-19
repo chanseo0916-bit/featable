@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
+import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
 import { events, features, partners, supportPrograms } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 
@@ -85,23 +85,6 @@ export default async function Home() {
           </aside>
         </section>
 
-        <section className="shell after-feed-search">
-          <div><h2>찾고 있는 팀이 있나요?</h2><span>브랜드, 창업가, 제품과 기회를 한 번에 찾아보세요.</span></div>
-          <form className="discovery-search" action="/search"><input name="q" placeholder="브랜드 · 창업가 · 제품 검색" /><button aria-label="검색">⌕</button></form>
-        </section>
-
-        <section className="shell section mz-curation-section">
-          <SectionHeader title="지금 많이 보는 피쳐" href="/stories" />
-          <div className="editorial-grid">
-            {features.slice(2, 5).map((feature, index) => (
-              <Link className={`editorial-card editorial-${index + 1}`} href={`/stories/${feature.slug}`} key={feature.slug}>
-                <img src={feature.coverUrl} alt="" /><div className="editorial-overlay" /><span className="editorial-index">피쳐</span>
-                <div><p>{index === 0 ? "팀과 일" : index === 1 ? "브랜드 이야기" : "창업가 인터뷰"} · 조회 {rankingViews[index + 1].toLocaleString("ko-KR")}</p><h3>{feature.title}</h3></div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
         <section className="shell section fresh-products">
           <SectionHeader title="새로 등록된 프로덕트" href="/products" />
           <div className="product-grid">
@@ -113,13 +96,11 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="opportunity-band">
-          <div className="shell opportunity-grid">
-            <div className="opportunity-copy"><h2>이번 주 놓치면<br />아쉬운 기회</h2><p>행사부터 지원사업까지 창업가에게 필요한 기회를 모았습니다.</p><Link href="/support">모든 기회 보기 →</Link></div>
-            <div className="opportunity-list">
-              {supportPrograms.slice(0, 2).map((program) => <Link href={`/support/${program.slug}`} key={program.slug}><span className="opportunity-day">D-{dday(program.closeAt)}</span><div><p>SUPPORT · {program.agency}</p><h3>{program.name}</h3><span>{program.target} · {program.region}</span></div><b>↗</b></Link>)}
-              {events.slice(0, 2).map((event) => <Link href={`/events/${event.slug}`} key={event.slug}><span className="opportunity-day event-day">{dateLabel(event.startsAt)}</span><div><p>EVENT · {event.host}</p><h3>{event.name}</h3><span>{event.location} · {event.fee}</span></div><b>↗</b></Link>)}
-            </div>
+        <section className="shell section opportunity-section">
+          <SectionHeader title="이번 주 행사·지원사업" href="/support" />
+          <div className="opportunity-card-grid">
+            {supportPrograms.slice(0, 2).map((program) => <Link className="opportunity-card" href={`/support/${program.slug}`} key={program.slug}><div><span className="opportunity-type">지원사업</span><strong>D-{dday(program.closeAt)}</strong></div><h3>{program.name}</h3><p>{program.agency}</p><span>{program.target} · {program.region}</span></Link>)}
+            {events.slice(0, 2).map((event) => <Link className="opportunity-card" href={`/events/${event.slug}`} key={event.slug}><div><span className="opportunity-type">행사</span><strong>{dateLabel(event.startsAt)}</strong></div><h3>{event.name}</h3><p>{event.host}</p><span>{event.location} · {event.fee}</span></Link>)}
           </div>
         </section>
 

@@ -41,6 +41,7 @@ button, input, textarea, select { font: inherit; }
 .footer-logo { width: 154px; }
 .desktop-nav { display: flex; align-items: center; gap: 28px; font-size: 14px; font-weight: 650; color: #444; }
 .desktop-nav a:hover, .login-link:hover { color: var(--accent); }
+button.login-link { border: 0; background: none; padding: 0; cursor: pointer; color: inherit; }
 details { position: relative; }
 summary { cursor: pointer; list-style: none; }
 summary::-webkit-details-marker { display: none; }
@@ -445,6 +446,16 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .new-final-cta h2 { margin: 0 0 8px; font-size: 27px; line-height: 1.35; letter-spacing: -.05em; }
 .new-final-cta p { margin: 0; color: #777; font-size: 12px; }
 .new-final-cta .button { flex: 0 0 auto; }
+.opportunity-section { padding-top: 82px; }
+.opportunity-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.opportunity-card { min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 9px; background: #fff; transition: border-color .2s, transform .2s; }
+.opportunity-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.opportunity-card > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.opportunity-type { padding: 5px 7px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font-size: 9px; font-weight: 750; }
+.opportunity-card > div strong { color: var(--accent); font-size: 12px; }
+.opportunity-card h3 { min-height: 44px; margin: 16px 0 10px; font-size: 15px; line-height: 1.45; letter-spacing: -.025em; }
+.opportunity-card p { margin: 0 0 8px; color: #666; font-size: 10px; }
+.opportunity-card > span:last-child { color: #999; font-size: 9px; }
 
 @media (max-width: 760px) {
   .home-top-banner { height: 310px; }
@@ -460,4 +471,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .new-final-cta .shell { min-height: 210px; padding: 28px 22px; display: block; }
   .new-final-cta h2 { font-size: 24px; }
   .new-final-cta .button { margin-top: 22px; }
+  .opportunity-card-grid { grid-template-columns: 1fr 1fr; }
+  .opportunity-card { padding: 16px; }
 }
