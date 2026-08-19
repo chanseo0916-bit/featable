@@ -34,7 +34,10 @@ export async function POST(request: Request) {
 
   if (type === "feature") {
     // SQL 함수가 UPDATE를 원자적으로 수행하므로 동시 요청에서 증가분이 유실되지 않음
-    await admin.rpc("increment_feature_view_count", { p_slug: slug });
+    const { error } = await admin.rpc("increment_feature_view_count", { p_slug: slug });
+    if (error) {
+      return NextResponse.json({ error: "feature views not ready" }, { status: 503 });
+    }
     return noContent();
   }
 

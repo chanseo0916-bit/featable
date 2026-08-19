@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
+import Link from "next/link";
 import styles from "./live-feature-ranking.module.css";
 
 export type RankedFeatureItem = {
@@ -106,16 +107,13 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
   return (
     <section className={styles.widget} aria-labelledby={titleId}>
       <div className={styles.header}>
-        <div>
-          <p className={styles.kicker}>LIVE RANKING</p>
-          <h2 id={titleId}>실시간 기능 랭킹</h2>
-        </div>
+        <h2 id={titleId}>실시간 베스트 스토리</h2>
         <span className={styles.liveIndicator} aria-hidden="true">
           <span className={styles.liveDot} /> LIVE
         </span>
       </div>
 
-      <div className={styles.tabs} role="tablist" aria-label="기능 랭킹 카테고리">
+      <div className={styles.tabs} role="tablist" aria-label="스토리 랭킹 카테고리">
         {categoryFilters.map((category) => {
           const isActive = activeCategory === category;
 
@@ -140,11 +138,11 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
         {status}
       </p>
 
-      <div id={panelId} role="tabpanel" aria-label={`${activeCategory} 기능 조회수 순위`}>
+      <div id={panelId} role="tabpanel" aria-label={`${activeCategory} 스토리 조회수 순위`}>
         {rankedItems.length > 0 ? (
           <ol className={styles.list}>
           {rankedItems.map(({ item, currentViewCount }, index) => (
-            <li className={styles.item} key={item.slug}>
+            <li className={styles.item} key={item.slug}><Link className={styles.itemLink} href={`/stories/${item.slug}`}>
               <span className={styles.rank} aria-label={`${index + 1}위`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
@@ -161,11 +159,11 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
                 <strong>{formatViewCount(currentViewCount)}</strong>
                 <span>조회</span>
               </span>
-            </li>
+            </Link></li>
           ))}
           </ol>
         ) : (
-          <p className={styles.empty}>해당 카테고리의 기능이 없습니다.</p>
+          <p className={styles.empty}>해당 카테고리의 스토리가 없습니다.</p>
         )}
       </div>
     </section>

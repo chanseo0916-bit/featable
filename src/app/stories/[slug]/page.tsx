@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Footer, Header } from "@/components/site-shell";
 import { FeatureActions } from "@/components/feature-actions";
-import { ViewTracker } from "@/components/view-tracker";
+import { FeatureViewMetric } from "@/components/view-tracker";
 import { brands, features, founders, partners, products } from "@/lib/mock";
 
 const kindLabel = {
@@ -31,7 +31,6 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   return (
     <>
       <Header />
-      <ViewTracker slug={feature.slug} type="feature" />
       <nav className="feature-top-tabs"><div className="shell"><a className="active" href="#story">스토리</a><a href="#updates">새소식 <span>4</span></a><a href="#cheers">응원 <span>{cheerCount}</span></a><a href="#community">커뮤니티 <span>36</span></a></div></nav>
 
       <main className="feature-project-page">
@@ -40,7 +39,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <div className="feature-main-cover"><img src={feature.coverUrl} alt={feature.title} /><button className="cover-prev" aria-label="이전 이미지">‹</button><button className="cover-next" aria-label="다음 이미지">›</button><span>1 / 4</span></div>
 
             <div className="feature-ai-summary">
-              <div className="ai-summary-head"><strong><i>✦</i> AI 피쳐 요약</strong><span>Beta</span></div>
+              <div className="ai-summary-head"><strong><i>✦</i> AI 스토리 요약</strong><span>Beta</span></div>
               <div className="ai-summary-item"><b>01</b><div><strong>{brand?.name ?? "새로운 팀"}이 해결하는 문제</strong><p>{brand?.problem ?? feature.excerpt}</p></div></div>
               <div className="ai-summary-item"><b>02</b><div><strong>지금 주목해야 하는 이유</strong><p>{feature.excerpt}</p></div></div>
               <div className="ai-summary-item"><b>03</b><div><strong>만든 사람의 이야기</strong><p>{founder?.headline ?? "제품 뒤에 있는 사람의 진짜 이야기를 확인해보세요."}</p></div></div>
@@ -53,11 +52,11 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <h1>{feature.title}</h1>
             <p className="feature-project-excerpt">{feature.excerpt}</p>
 
-            <div className="feature-discovery-metric"><strong>{discoveryCount.toLocaleString()}</strong><span>회 조회</span><i>실시간 집계</i></div>
+            <FeatureViewMetric slug={feature.slug} initialCount={discoveryCount} />
             <div className="feature-project-numbers"><div><strong>{interestCount.toLocaleString()}</strong><span>명이 관심 있게 보고 있어요</span></div><div><strong>{cheerCount}</strong><span>명이 Founder를 응원했어요</span></div></div>
             <div className="feature-live-viewers"><span>👀</span>방문 조회수가 실시간 랭킹에 반영됩니다.</div>
 
-            <div className="feature-value-list"><span>피쳐</span><div><p><i>✓</i> Founder가 직접 검토한 브랜드 스토리</p><p><i>✓</i> 제품과 만든 사람을 한 번에 발견</p></div></div>
+            <div className="feature-value-list"><span>스토리</span><div><p><i>✓</i> Founder가 직접 검토한 브랜드 스토리</p><p><i>✓</i> 제품과 만든 사람을 한 번에 발견</p></div></div>
 
             <FeatureActions title={feature.title} initialInterest={interestCount} initialCheers={cheerCount} />
 
@@ -65,7 +64,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           </aside>
         </section>
 
-        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">피쳐 스토리</a><a href="#founder">Founder</a><a href="#product">프로덕트</a><a href="#community">응원 메시지</a></div></nav>
+        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">스토리</a><a href="#founder">Founder</a><a href="#product">프로덕트</a><a href="#community">응원 메시지</a></div></nav>
 
         <section id="story" className="shell feature-story-layout">
           <article className="feature-long-article">

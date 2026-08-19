@@ -143,10 +143,10 @@ export default async function FounderProfilePage({
           </section>
         )}
 
-        {/* 스토리/피쳐 */}
+        {/* 언론 기사식 스토리/인터뷰 */}
         {founderFeatures.length > 0 && (
           <section className="shell section pb-20">
-            <SectionHeader eyebrow="FEATURES" title="이 창업가의 이야기" href="/stories" />
+            <SectionHeader eyebrow="STORIES" title="이 창업가의 이야기" href="/stories" />
             {founderFeatures.map((f) => (
               <Link href={`/stories/${f.slug}`} className="inline-feature" key={f.slug}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
