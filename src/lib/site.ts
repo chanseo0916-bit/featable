@@ -3,9 +3,7 @@ const productionSiteUrl = "https://featable.kr";
 
 /** 운영 빌드에 localhost 환경변수가 남아 있어도 공개 URL은 실제 도메인을 사용한다. */
 export const SITE_URL = process.env.NODE_ENV === "production"
-  ? configuredSiteUrl && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(configuredSiteUrl)
-    ? configuredSiteUrl
-    : productionSiteUrl
+  ? productionSiteUrl
   : configuredSiteUrl || "http://localhost:3000";
 
 export const SITE_NAME = "Featable";
