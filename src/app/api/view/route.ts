@@ -64,17 +64,19 @@ export async function GET(request: Request) {
   if (!admin) return NextResponse.json({ counts: {} });
 
   const type = new URL(request.url).searchParams.get("type");
-  if (type !== "feature") return NextResponse.json({ counts: {} });
+  if (type !== "feature" && type !== "product") {
+    return NextResponse.json({ counts: {} });
+  }
 
-  const { data: features } = await admin
-    .from("features")
+  const { data: rows } = await admin
+    .from(type === "feature" ? "features" : "products")
     .select("slug, view_count")
     .eq("status", "published");
 
   const counts: Record<string, number> = {};
-  for (const feature of features ?? []) {
-    if (typeof feature.slug === "string") {
-      counts[feature.slug] = typeof feature.view_count === "number" ? feature.view_count : 0;
+  for (const row of rows ?? []) {
+    if (typeof row.slug === "string") {
+      counts[row.slug] = typeof row.view_count === "number" ? row.view_count : 0;
     }
   }
 

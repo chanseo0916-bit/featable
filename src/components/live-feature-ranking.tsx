@@ -10,17 +10,13 @@ export type RankedFeatureItem = {
   coverUrl: string;
   brandName: string;
   founderName: string;
-  category: "창업가" | "브랜드" | "제품";
+  category: string; // 프로덕트 카테고리 (AI, SaaS, F&B …)
   viewCount: number;
 };
 
 type LiveFeatureRankingProps = {
   items: RankedFeatureItem[];
 };
-
-type CategoryFilter = "전체" | RankedFeatureItem["category"];
-
-const categoryFilters: CategoryFilter[] = ["전체", "창업가", "브랜드", "제품"];
 
 function isCountsResponse(value: unknown): value is { counts: Record<string, number> } {
   if (typeof value !== "object" || value === null || !("counts" in value)) {
@@ -45,7 +41,17 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
   const componentId = useId();
   const titleId = `${componentId}-title`;
   const panelId = `${componentId}-panel`;
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("전체");
+  const [activeCategory, setActiveCategory] = useState("전체");
+
+  // 실제 등록된 프로덕트의 카테고리로 탭을 동적 구성 (최대 4개)
+  const categoryFilters = useMemo(() => {
+    const seen: string[] = [];
+    for (const item of items) {
+      if (!seen.includes(item.category)) seen.push(item.category);
+      if (seen.length >= 4) break;
+    }
+    return ["전체", ...seen];
+  }, [items]);
   const [serverCounts, setServerCounts] = useState<Record<string, number>>({});
   const [status, setStatus] = useState("실시간 조회수를 동기화하는 중입니다.");
 
@@ -54,7 +60,7 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
 
     const syncCounts = async () => {
       try {
-        const response = await fetch("/api/view?type=feature", {
+        const response = await fetch("/api/view?type=product", {
           method: "GET",
           cache: "no-store",
         });
@@ -107,13 +113,13 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
   return (
     <section className={styles.widget} aria-labelledby={titleId}>
       <div className={styles.header}>
-        <h2 id={titleId}>실시간 베스트 스토리</h2>
+        <h2 id={titleId}>실시간 베스트 프로덕트 피처</h2>
         <span className={styles.liveIndicator} aria-hidden="true">
           <span className={styles.liveDot} /> LIVE
         </span>
       </div>
 
-      <div className={styles.tabs} role="tablist" aria-label="스토리 랭킹 카테고리">
+      <div className={styles.tabs} role="tablist" aria-label="프로덕트 피처 랭킹 카테고리">
         {categoryFilters.map((category) => {
           const isActive = activeCategory === category;
 
@@ -138,11 +144,11 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
         {status}
       </p>
 
-      <div id={panelId} role="tabpanel" aria-label={`${activeCategory} 스토리 조회수 순위`}>
+      <div id={panelId} role="tabpanel" aria-label={`${activeCategory} 프로덕트 조회수 순위`}>
         {rankedItems.length > 0 ? (
           <ol className={styles.list}>
           {rankedItems.map(({ item, currentViewCount }, index) => (
-            <li className={styles.item} key={item.slug}><Link className={styles.itemLink} href={`/stories/${item.slug}`}>
+            <li className={styles.item} key={item.slug}><Link className={styles.itemLink} href={`/products/${item.slug}`}>
               <span className={styles.rank} aria-label={`${index + 1}위`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
@@ -163,7 +169,7 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
           ))}
           </ol>
         ) : (
-          <p className={styles.empty}>해당 카테고리의 스토리가 없습니다.</p>
+          <p className={styles.empty}>해당 카테고리의 프로덕트가 없습니다.</p>
         )}
       </div>
     </section>
