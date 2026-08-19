@@ -11,17 +11,21 @@ import type {
   Brand,
   Category,
   EventItem,
+  Feature,
   Founder,
   MentorNote,
   Partner,
   Product,
+  Community,
   StoryBlock,
   SupportProgram,
 } from "@/lib/types";
 import {
   brands as mockBrands,
+  communities as mockCommunities,
   events as mockEvents,
   founders as mockFounders,
+  features as mockFeatures,
   partners as mockPartners,
   products as mockProducts,
   supportPrograms as mockSupport,
@@ -213,6 +217,32 @@ interface SupportRow {
   apply_url: string;
 }
 
+interface FeatureRow {
+  slug: string;
+  title: string;
+  cover_url: string | null;
+  kind: Feature["kind"];
+  excerpt: string;
+  body: StoryBlock[] | null;
+  published_at: string | null;
+  view_count: number | null;
+  brand: { slug: string } | null;
+  founder: { slug: string } | null;
+}
+
+interface CommunityRow {
+  slug: string;
+  name: string;
+  logo_url: string | null;
+  intro: string;
+  field: string;
+  website: string | null;
+  sns: Community["sns"] | null;
+  community_founders: Array<{ founder: { slug: string } | null }> | null;
+  community_brands: Array<{ brand: { slug: string } | null }> | null;
+  events: Array<{ slug: string }> | null;
+}
+
 function supportStatus(openAt: string | null, closeAt: string): SupportProgram["status"] {
   const now = Date.now();
   if (openAt && new Date(openAt).getTime() > now) return "예정";
@@ -293,6 +323,81 @@ export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
     return mockSupport;
   }
 });
+
+/** 공개 스토리 — Supabase 등록 콘텐츠를 목데이터보다 우선한다. */
+export const getFeatures = cache(async (): Promise<Feature[]> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return mockFeatures;
+
+  try {
+    const supabase = createClient(url, key);
+    const { data, error } = await supabase
+      .from("features")
+      .select("slug,title,cover_url,kind,excerpt,body,published_at,view_count,brand:brands(slug),founder:founders(slug)")
+      .eq("status", "published")
+      .order("published_at", { ascending: false });
+    if (error) return mockFeatures;
+
+    const live: Feature[] = ((data ?? []) as unknown as FeatureRow[]).map((feature) => ({
+      slug: feature.slug,
+      title: feature.title,
+      coverUrl: feature.cover_url || placeholder(`feature-${feature.slug}`),
+      kind: feature.kind,
+      excerpt: feature.excerpt,
+      body: feature.body ?? [],
+      brandSlug: feature.brand?.slug,
+      founderSlug: feature.founder?.slug,
+      publishedAt: feature.published_at ?? new Date(0).toISOString(),
+      viewCount: feature.view_count ?? 0,
+    }));
+    return mergeBySlug(live, mockFeatures);
+  } catch {
+    return mockFeatures;
+  }
+});
+
+export const getFeature = cache(async (slug: string): Promise<Feature | null> =>
+  (await getFeatures()).find((feature) => feature.slug === slug) ?? null,
+);
+
+/** 공개 커뮤니티 — 연결된 Founder·브랜드·행사 slug까지 함께 반환한다. */
+export const getCommunities = cache(async (): Promise<Community[]> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return mockCommunities;
+
+  try {
+    const supabase = createClient(url, key);
+    const { data, error } = await supabase
+      .from("communities")
+      .select("slug,name,logo_url,intro,field,website,sns,community_founders(founder:founders(slug)),community_brands(brand:brands(slug)),events(slug)")
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+    if (error) return mockCommunities;
+
+    const live: Community[] = ((data ?? []) as unknown as CommunityRow[]).map((community) => ({
+      slug: community.slug,
+      name: community.name,
+      logoUrl: community.logo_url || placeholder(`community-${community.slug}`, 240, 240),
+      intro: community.intro,
+      field: community.field,
+      website: community.website ?? undefined,
+      sns: community.sns ?? undefined,
+      founderSlugs: (community.community_founders ?? []).flatMap((item) => item.founder?.slug ? [item.founder.slug] : []),
+      brandSlugs: (community.community_brands ?? []).flatMap((item) => item.brand?.slug ? [item.brand.slug] : []),
+      eventSlugs: (community.events ?? []).map((event) => event.slug),
+      featureSlugs: [],
+    }));
+    return mergeBySlug(live, mockCommunities);
+  } catch {
+    return mockCommunities;
+  }
+});
+
+export const getCommunity = cache(async (slug: string): Promise<Community | null> =>
+  (await getCommunities()).find((community) => community.slug === slug) ?? null,
+);
 
 function mergeBySlug<T extends { slug: string }>(live: T[], mock: T[]): T[] {
   const liveSlugs = new Set(live.map((item) => item.slug));

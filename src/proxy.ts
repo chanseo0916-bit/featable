@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /** 요청마다 Supabase 세션 토큰을 갱신하고, 보호 경로 접근을 제어한다 */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   // 환경변수 미설정 상태(초기 개발)에서는 그냥 통과

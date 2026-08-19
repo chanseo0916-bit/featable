@@ -43,6 +43,8 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
   const componentId = useId();
   const titleId = `${componentId}-title`;
   const panelId = `${componentId}-panel`;
+  const productTabId = `${componentId}-product-tab`;
+  const featureTabId = `${componentId}-feature-tab`;
   const [activeType, setActiveType] = useState<"product" | "feature">("product");
   const [activeCategory, setActiveCategory] = useState("전체");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -148,9 +150,9 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
         </span>
       </div>
 
-      <div className={styles.typeToggle} aria-label="랭킹 종류">
-        <button className={activeType === "product" ? styles.activeType : ""} type="button" onClick={() => switchType("product")}>프로덕트</button>
-        <button className={activeType === "feature" ? styles.activeType : ""} type="button" onClick={() => switchType("feature")}>피처</button>
+      <div className={styles.typeToggle} role="tablist" aria-label="랭킹 종류">
+        <button id={productTabId} role="tab" aria-selected={activeType === "product"} aria-controls={panelId} className={activeType === "product" ? styles.activeType : ""} type="button" onClick={() => switchType("product")}>프로덕트</button>
+        <button id={featureTabId} role="tab" aria-selected={activeType === "feature"} aria-controls={panelId} className={activeType === "feature" ? styles.activeType : ""} type="button" onClick={() => switchType("feature")}>피처</button>
       </div>
 
       <div className={styles.filterRow}>
@@ -175,7 +177,7 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
         {status}
       </p>
 
-      <div id={panelId} role="tabpanel" aria-label={`${activeCategory} 프로덕트 조회수 순위`}>
+      <div id={panelId} role="tabpanel" aria-labelledby={activeType === "product" ? productTabId : featureTabId} aria-label={`${activeCategory} ${activeType === "product" ? "프로덕트" : "피처"} 조회수 순위`}>
         {rankedItems.length > 0 ? (
           <ol className={styles.list}>
           {rankedItems.map(({ item, currentViewCount }, index) => (
@@ -200,7 +202,7 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
           ))}
           </ol>
         ) : (
-          <p className={styles.empty}>해당 카테고리의 프로덕트가 없습니다.</p>
+          <p className={styles.empty}>해당 카테고리의 {activeType === "product" ? "프로덕트" : "피처"}가 없습니다.</p>
         )}
       </div>
     </section>

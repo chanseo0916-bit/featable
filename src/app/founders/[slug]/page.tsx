@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Footer, Header, SectionHeader } from "@/components/site-shell";
-import { features, partners } from "@/lib/mock";
-import { getCatalog, getFounder } from "@/lib/data";
+import { FounderSupportButton } from "@/components/founder-support-button";
+import { getCatalog, getFeatures, getFounder, getPartners } from "@/lib/data";
+import { getFounderSupportState } from "@/app/founders/actions";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -33,10 +34,11 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
   const founder = await getFounder(slug);
   if (!founder) notFound();
 
-  const { brands, products } = await getCatalog();
+  const [{ brands, products }, features, partners] = await Promise.all([getCatalog(), getFeatures(), getPartners()]);
   const founderBrands = brands.filter((brand) => brand.founderSlug === founder.slug);
   const founderProducts = products.filter((product) => product.founderSlug === founder.slug);
   const founderFeatures = features.filter((feature) => feature.founderSlug === founder.slug);
+  const supportState = await getFounderSupportState(founder.slug);
   const snsEntries = Object.entries(founder.sns ?? {}).filter(([, value]) => value);
   const categories = Array.from(new Set(founderBrands.map((brand) => brand.category)));
   const founderNumber = [...founder.slug].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 10000;
@@ -85,7 +87,11 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
             {founder.bio && <p className="founder-profile-bio">{founder.bio}</p>}
 
             <div className="founder-profile-actions">
-              <button type="button">이 Founder 응원하기 <span>＋</span></button>
+              <FounderSupportButton
+                founderSlug={founder.slug}
+                initialCount={supportState.count}
+                initialSupported={supportState.supported}
+              />
               {snsEntries.map(([key, value]) => <a key={key} href={snsHref(key, value as string)} target="_blank" rel="noopener noreferrer">{SNS_LABELS[key] ?? key} ↗</a>)}
             </div>
           </div>

@@ -1,7 +1,12 @@
-/** 사이트 전역 상수 — 도메인 확정 시 .env의 NEXT_PUBLIC_SITE_URL만 바꾸면 된다 */
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-).replace(/\/$/, "");
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
+const productionSiteUrl = "https://featable.kr";
+
+/** 운영 빌드에 localhost 환경변수가 남아 있어도 공개 URL은 실제 도메인을 사용한다. */
+export const SITE_URL = process.env.NODE_ENV === "production"
+  ? configuredSiteUrl && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(configuredSiteUrl)
+    ? configuredSiteUrl
+    : productionSiteUrl
+  : configuredSiteUrl || "http://localhost:3000";
 
 export const SITE_NAME = "Featable";
 

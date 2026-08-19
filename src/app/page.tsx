@@ -3,18 +3,23 @@ import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shel
 import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-feature-ranking";
 import { DiscoveryStage, type DiscoveryTab } from "@/components/discovery-stage";
 import type { DiscoveryBannerSlide } from "@/components/discovery-banner";
-import { features, partners } from "@/lib/mock";
-import { getCatalog, getEvents, getSupportPrograms } from "@/lib/data";
+import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
+import { HomeBannerCarousel, type HomeBannerSlide } from "@/components/home-banner-carousel";
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
 
 export default async function Home() {
   const { brands, products, founders } = await getCatalog();
-  const [events, supportPrograms] = await Promise.all([getEvents(), getSupportPrograms()]);
+  const [events, supportPrograms, features, partners] = await Promise.all([getEvents(), getSupportPrograms(), getFeatures(), getPartners()]);
   const mainFeature = features[5];
-  const bannerFeature = features[4];
+  const bannerSlides: HomeBannerSlide[] = [features[4], features[5], features[2], features[3], features[1]].map((feature) => ({
+    slug: feature.slug,
+    title: feature.title,
+    excerpt: feature.excerpt,
+    coverUrl: feature.coverUrl,
+  }));
   const discoveryFeatures = [mainFeature, features[2], features[3], features[1]];
   const productRankingItems: RankedFeatureItem[] = products.map((product) => {
     const founder = founders.find((item) => item.slug === product.founderSlug);
@@ -32,14 +37,7 @@ export default async function Home() {
     <>
       <Header />
       <main>
-        <section className="home-banner-wrap">
-          <Link className="home-top-banner" href={`/stories/${bannerFeature.slug}`}>
-            <img src={bannerFeature.coverUrl} alt="" />
-            <div className="home-banner-shade" />
-            <div className="home-banner-copy"><span>이번 주 추천 스토리</span><h1>{bannerFeature.title}</h1><p>{bannerFeature.excerpt}</p><strong>자세히 보기 <i>→</i></strong></div>
-            <div className="home-banner-control"><span className="home-banner-arrow">‹</span><span><b>01</b> / 05</span><span className="home-banner-arrow">›</span></div>
-          </Link>
-        </section>
+        <HomeBannerCarousel slides={bannerSlides} />
 
         <section className="shell live-stage">
           <div className="live-main">

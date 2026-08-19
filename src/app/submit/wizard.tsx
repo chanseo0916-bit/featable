@@ -45,10 +45,14 @@ interface AiResult {
 export function SubmitWizard({
   initial,
   initialStep,
+  initialSavedAt,
+  draftKey,
   edit,
 }: {
   initial?: WizardInitial;
   initialStep?: number;
+  initialSavedAt?: number;
+  draftKey?: string;
   edit?: WizardEditTarget;
 } = {}) {
   const [step, setStep] = useState(Math.min(Math.max(initialStep ?? 0, 0), STEPS.length - 1));
@@ -61,7 +65,7 @@ export function SubmitWizard({
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ brandSlug: string; productSlug: string } | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "local" | "error">("idle");
-  const storageKey = edit ? `featable:edit-draft:${edit.brandId}` : "featable:submission-draft";
+  const storageKey = edit ? `featable:edit-draft:${edit.brandId}` : `featable:submission-draft:${draftKey ?? "default"}`;
 
   // AI 단계
   const [aiAnswers, setAiAnswers] = useState({ what: "", why: "", who: "", diff: "", say: "" });
@@ -72,19 +76,19 @@ export function SubmitWizard({
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
 
   useEffect(() => {
-    if (initial) return;
     // 하이드레이션 직후 프레임에서 로컬 초안 복원 (이펙트 내 동기 setState 회피)
     const id = window.setTimeout(() => {
       try {
         const cached = window.localStorage.getItem(storageKey);
         if (!cached) return;
-        const parsed = JSON.parse(cached) as { draft?: Partial<Draft>; step?: number };
+        const parsed = JSON.parse(cached) as { draft?: Partial<Draft>; step?: number; savedAt?: number };
+        if (initial && (parsed.savedAt ?? 0) <= (initialSavedAt ?? 0)) return;
         if (parsed.draft) setDraft((current) => ({ ...current, ...parsed.draft }));
         if (typeof parsed.step === "number") setStep(Math.min(Math.max(parsed.step, 0), STEPS.length - 1));
       } catch {}
     }, 0);
     return () => window.clearTimeout(id);
-  }, [initial, storageKey]);
+  }, [initial, initialSavedAt, storageKey]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -96,6 +100,22 @@ export function SubmitWizard({
     return () => window.clearTimeout(timer);
   }, [draft, step, storageKey]);
 
+  useEffect(() => {
+    const navigateFromConsole = (event: MouseEvent) => {
+      const target = event.target instanceof Element
+        ? event.target.closest<HTMLElement>("[data-submit-step]")
+        : null;
+      if (!target) return;
+      const nextStep = Number(target.dataset.submitStep);
+      if (!Number.isInteger(nextStep) || nextStep < 0 || nextStep >= STEPS.length) return;
+      event.preventDefault();
+      setStep(nextStep);
+      document.getElementById("editor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    document.addEventListener("click", navigateFromConsole);
+    return () => document.removeEventListener("click", navigateFromConsole);
+  }, []);
+
   async function saveProgress(nextStep = step) {
     setSaveState("saving");
     try {
@@ -103,7 +123,7 @@ export function SubmitWizard({
     } catch {}
     const result = edit
       ? await updateBrand({ ...draft, productFeatures: draft.productFeatures.split("\n").map((item) => item.trim()).filter(Boolean), publish: Boolean(edit.published) }, edit)
-      : await saveSubmissionDraft(draft, nextStep);
+      : await saveSubmissionDraft(draftKey ?? "default", draft, nextStep);
     setSaveState(result.ok ? "saved" : "local");
     return result.ok;
   }
@@ -239,7 +259,7 @@ export function SubmitWizard({
       : await publishBrand(payload);
     setSubmitting(false);
     if (result.ok) {
-      if (!edit) await deleteSubmissionDraft();
+      if (!edit) await deleteSubmissionDraft(draftKey ?? "default");
       try { window.localStorage.removeItem(storageKey); } catch {}
       setDone({ brandSlug: result.brandSlug, productSlug: result.productSlug });
       setStep(STEPS.length); // 완료 화면
@@ -281,7 +301,7 @@ export function SubmitWizard({
           이제 이 페이지가 브랜드의 공개 자산입니다. 링크를 공유해보세요.
         </p>
         <div className="mb-8 rounded-xl border border-border p-4 text-sm">
-          <code className="text-accent">featable.com{brandUrl}</code>
+          <code className="text-accent">featable.kr{brandUrl}</code>
         </div>
         <div className="flex justify-center gap-3">
           <Link href={brandUrl} className="rounded-lg bg-accent px-6 py-3 text-sm font-bold text-white hover:bg-accent-hover">
@@ -302,7 +322,7 @@ export function SubmitWizard({
     <div className="submit-console-workspace" id="editor">
       <header className="submit-channel-head">
         <div className="submit-channel-logo">{draft.logoUrl ? <img src={draft.logoUrl} alt="" /> : <span>{draft.brandName.slice(0, 1) || "F"}</span>}</div>
-        <div><p>브랜드 워크스페이스</p><h1>{draft.brandName || "새 브랜드"}</h1><span>{draft.brandSlug ? `featable.com/brands/${draft.brandSlug}` : "아직 공개 주소가 없습니다."}</span></div>
+        <div><p>브랜드 워크스페이스</p><h1>{draft.brandName || "새 브랜드"}</h1><span>{draft.brandSlug ? `featable.kr/brands/${draft.brandSlug}` : "아직 공개 주소가 없습니다."}</span></div>
         <button type="button" onClick={() => setStep(4)}>미리보기</button>
       </header>
 
@@ -351,7 +371,7 @@ export function SubmitWizard({
             onChange={(e) => set({ brandName: e.target.value, brandSlug: slugify(e.target.value) })} />
           <label className={label}>URL 주소 (영문 추천)</label>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted">featable.com/brands/</span>
+            <span className="text-xs text-muted">featable.kr/brands/</span>
             <input className={input} value={draft.brandSlug} placeholder="caramel-lab"
               onChange={(e) => set({ brandSlug: e.target.value })} />
           </div>
@@ -534,7 +554,7 @@ export function SubmitWizard({
             <button type="button" onClick={() => setStep(2)}><i className={draft.productName ? "done" : ""}>{draft.productName ? "✓" : "!"}</i><span><strong>프로덕트</strong><small>{draft.productName || "프로덕트 정보가 필요합니다."}</small></span><b>수정 →</b></button>
             <button type="button" onClick={() => setStep(3)}><i className={draft.story.length ? "done" : "optional"}>{draft.story.length ? "✓" : "·"}</i><span><strong>상세페이지</strong><small>{draft.story.length ? `${draft.story.length}개 블록 작성됨` : "선택 사항 · 나중에 추가할 수 있어요."}</small></span><b>수정 →</b></button>
           </div>
-          <div className="submit-public-url"><span>공개 주소</span><code>featable.com/brands/{slugify(draft.brandSlug) || slugify(draft.brandName) || "…"}</code></div>
+          <div className="submit-public-url"><span>공개 주소</span><code>featable.kr/brands/{slugify(draft.brandSlug) || slugify(draft.brandName) || "…"}</code></div>
         </div>
       )}
 

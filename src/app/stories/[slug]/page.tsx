@@ -4,7 +4,7 @@ import { Badge, Footer, Header } from "@/components/site-shell";
 import { FeatureActions } from "@/components/feature-actions";
 import { Comments } from "@/components/comments";
 import { FeatureViewMetric } from "@/components/view-tracker";
-import { brands, features, founders, partners, products } from "@/lib/mock";
+import { getCatalog, getFeature, getPartners } from "@/lib/data";
 
 const kindLabel = {
   interview: "FOUNDER INTERVIEW",
@@ -18,12 +18,12 @@ const kindLabel = {
 
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const feature = features.find((item) => item.slug === slug);
+  const [feature, catalog, partners] = await Promise.all([getFeature(slug), getCatalog(), getPartners()]);
   if (!feature) notFound();
 
-  const founder = founders.find((item) => item.slug === feature.founderSlug);
-  const brand = brands.find((item) => item.slug === feature.brandSlug);
-  const product = products.find((item) => item.brandSlug === feature.brandSlug);
+  const founder = catalog.founders.find((item) => item.slug === feature.founderSlug);
+  const brand = catalog.brands.find((item) => item.slug === feature.brandSlug);
+  const product = catalog.products.find((item) => item.brandSlug === feature.brandSlug);
   const score = [...slug].reduce((total, character) => total + character.charCodeAt(0), 0);
   const discoveryCount = feature.viewCount ?? 0;
   const interestCount = 620 + (score % 780);

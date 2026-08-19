@@ -16,7 +16,7 @@ export default async function EditBrandPage({ params }: { params: Promise<{ slug
 
   const { data: founder } = await supabase.from("founders").select("id,name,headline,bio").eq("user_id", user.id).maybeSingle();
   if (!founder) notFound();
-  const { data: brand } = await supabase.from("brands").select("id,slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,status").eq("slug", slug).eq("founder_id", founder.id).maybeSingle();
+  const { data: brand } = await supabase.from("brands").select("id,slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,status,updated_at").eq("slug", slug).eq("founder_id", founder.id).maybeSingle();
   if (!brand) notFound();
   const { data: product } = await supabase.from("products").select("id,slug,name,hero_url,tagline,story,problem,solution,features,price,official_url").eq("brand_id", brand.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
   if (!product) redirect("/submit");
@@ -32,8 +32,8 @@ export default async function EditBrandPage({ params }: { params: Promise<{ slug
   };
 
   return <>
-    <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><Link href="/my">대시보드</Link><a className="active" href="#editor">브랜드 수정</a><a href="#story">상세페이지</a><a href="#publish">공개 설정</a></nav><Link href="/my">워크스페이스로 →</Link></div></div>
+    <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><Link href="/my">대시보드</Link><a className="active" href="#editor" data-submit-step="0">브랜드 수정</a><a href="#editor" data-submit-step="3">상세페이지</a><a href="#editor" data-submit-step="4">공개 설정</a></nav><Link href="/my">워크스페이스로 →</Link></div></div>
     <div className="publish-console-tabs"><div className="shell"><Link href="/my">워크스페이스 홈</Link><a className="active" href="#editor">{brand.name} 편집</a><Link href={`/brands/${brand.slug}`}>공개 페이지 바로가기 ↗</Link></div></div>
-    <main className="submit-page"><SubmitWizard initial={initial} edit={{ brandId: brand.id, productId: product.id, published: brand.status === "published" }} /></main>
+    <main className="submit-page"><SubmitWizard initial={initial} initialSavedAt={Date.parse(brand.updated_at) || 0} edit={{ brandId: brand.id, productId: product.id, published: brand.status === "published" }} /></main>
   </>;
 }

@@ -4,11 +4,12 @@
 create table if not exists public.submission_drafts (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid not null references public.profiles(id) on delete cascade,
+  draft_key text not null default uuid_generate_v4()::text,
   payload jsonb not null default '{}'::jsonb,
   current_step integer not null default 0 check (current_step between 0 and 7),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (user_id)
+  unique (user_id, draft_key)
 );
 
 alter table public.submission_drafts enable row level security;

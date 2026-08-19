@@ -1,16 +1,18 @@
 import type { MetadataRoute } from "next";
-import { getCatalog } from "@/lib/data";
+import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
 import {
-  communities,
-  events,
-  features,
   jobs,
-  supportPrograms,
 } from "@/lib/mock";
 import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { brands, products, founders } = await getCatalog();
+  const [{ brands, products, founders }, features, events, supportPrograms, communities] = await Promise.all([
+    getCatalog(),
+    getFeatures(),
+    getEvents(),
+    getSupportPrograms(),
+    getCommunities(),
+  ]);
 
   const staticPaths = [
     "",
@@ -21,6 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/support",
     "/communities",
     "/jobs",
+    "/partners",
   ].map((path) => ({
     url: `${SITE_URL}${path}`,
     changeFrequency: "daily" as const,

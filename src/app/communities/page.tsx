@@ -1,12 +1,49 @@
 import Link from "next/link";
 import { Footer, Header } from "@/components/site-shell";
-import { communities, partners } from "@/lib/mock";
+import { getCommunities, getPartners } from "@/lib/data";
 
-export default async function CommunitiesPage({ searchParams }: { searchParams: Promise<{ field?: string; q?: string }> }) {
-  const { field, q = "" } = await searchParams;
+const sortOptions = [
+  { value: "activity", label: "활동순" },
+  { value: "latest", label: "최신순" },
+  { value: "name", label: "이름순" },
+] as const;
+
+type CommunitySort = (typeof sortOptions)[number]["value"];
+
+function getSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+function makeCommunitiesHref({ field, q, sort }: { field?: string; q?: string; sort: CommunitySort }) {
+  const params = new URLSearchParams();
+  if (field) params.set("field", field);
+  if (q) params.set("q", q);
+  params.set("sort", sort);
+  const query = params.toString();
+  return query ? `/communities?${query}` : "/communities";
+}
+
+function activityScore(community: Awaited<ReturnType<typeof getCommunities>>[number]) {
+  return (community.founderSlugs?.length ?? 0) + (community.brandSlugs?.length ?? 0) + (community.eventSlugs?.length ?? 0);
+}
+
+export default async function CommunitiesPage({ searchParams }: { searchParams: Promise<{ field?: string | string[]; q?: string | string[]; sort?: string | string[] }> }) {
+  const params = await searchParams;
+  const field = getSearchParam(params.field);
+  const q = getSearchParam(params.q);
+  const requestedSort = getSearchParam(params.sort);
+  const sort: CommunitySort = sortOptions.some((option) => option.value === requestedSort) ? requestedSort as CommunitySort : "activity";
+  const [communities, partners] = await Promise.all([getCommunities(), getPartners()]);
   const fields = Array.from(new Set(communities.map((community) => community.field)));
   const keyword = q.trim().toLowerCase();
-  const filtered = communities.filter((community) => (!field || community.field === field) && (!keyword || `${community.name} ${community.intro} ${community.field}`.toLowerCase().includes(keyword)));
+  const filtered = communities
+    .filter((community) => (!field || community.field === field) && (!keyword || `${community.name} ${community.intro} ${community.field}`.toLowerCase().includes(keyword)))
+    .map((community, index) => ({ community, sourceIndex: index, score: activityScore(community) }))
+    .sort((a, b) => {
+      if (sort === "name") return a.community.name.localeCompare(b.community.name, "ko-KR") || a.sourceIndex - b.sourceIndex;
+      if (sort === "latest") return a.sourceIndex - b.sourceIndex;
+      return b.score - a.score || a.community.name.localeCompare(b.community.name, "ko-KR") || a.sourceIndex - b.sourceIndex;
+    });
 
   return (
     <>
@@ -15,21 +52,23 @@ export default async function CommunitiesPage({ searchParams }: { searchParams: 
         <div className="shell community-hub-inner">
           <header className="community-toolbar">
             <div><h1>커뮤니티 찾기</h1><span>{communities.length}개의 커뮤니티</span></div>
-            <form action="/communities"><input name="q" defaultValue={q} placeholder="커뮤니티 이름이나 분야 검색" />{field && <input type="hidden" name="field" value={field} />}<button>검색</button></form>
+            <form action="/communities"><input name="q" defaultValue={q} placeholder="커뮤니티 이름이나 분야 검색" />{field && <input type="hidden" name="field" value={field} />}<input type="hidden" name="sort" value={sort} /><button>검색</button></form>
           </header>
 
           <nav className="community-filters" aria-label="커뮤니티 분야">
-            <Link className={!field ? "active" : ""} href={q ? `/communities?q=${encodeURIComponent(q)}` : "/communities"}>전체</Link>
-            {fields.map((item) => <Link className={field === item ? "active" : ""} href={`/communities?field=${encodeURIComponent(item)}${q ? `&q=${encodeURIComponent(q)}` : ""}`} key={item}>{item}</Link>)}
+            <Link className={!field ? "active" : ""} href={makeCommunitiesHref({ q, sort })}>전체</Link>
+            {fields.map((item) => <Link className={field === item ? "active" : ""} href={makeCommunitiesHref({ field: item, q, sort })} key={item}>{item}</Link>)}
           </nav>
 
           <section className="community-directory-panel">
             <div className="community-panel-head">
               <div><strong>{field ? `${field} 커뮤니티` : "지금 활발한 커뮤니티"}</strong><span>검색 결과 {filtered.length}개</span></div>
-              <button type="button">활동순⌄</button>
+              <nav className="community-sort" aria-label="커뮤니티 정렬">
+                {sortOptions.map((option) => <Link className={sort === option.value ? "active" : ""} href={makeCommunitiesHref({ field, q, sort: option.value })} aria-current={sort === option.value ? "page" : undefined} key={option.value}>{option.label}</Link>)}
+              </nav>
             </div>
             <div className="community-directory-list">
-            {filtered.map((community, index) => (
+            {filtered.map(({ community }) => (
               <Link className="community-directory-card" href={`/communities/${community.slug}`} key={community.slug}>
                 <div className="community-card-head">
                   <img src={community.logoUrl} alt={`${community.name} 로고`} />
@@ -40,8 +79,9 @@ export default async function CommunitiesPage({ searchParams }: { searchParams: 
                   <p>{community.intro}</p>
                 </div>
                 <div className="community-card-stats">
-                  <span><b>{128 + index * 73}</b> 멤버</span>
-                  <span><b>{12 + index * 4}</b> 새 글</span>
+                  <span><b>{community.founderSlugs?.length ?? 0}</b> Founder</span>
+                  <span><b>{community.brandSlugs?.length ?? 0}</b> Brand</span>
+                  <span><b>{community.eventSlugs?.length ?? 0}</b> Event</span>
                   <strong>커뮤니티 보기 <span aria-hidden="true">→</span></strong>
                 </div>
               </Link>

@@ -21,7 +21,12 @@ interface MyBrand {
 }
 
 interface MyProduct { id: string; brand_id: string; name: string; view_count: number; status: string; }
-interface SavedDraft { payload: Record<string, unknown>; current_step: number; updated_at: string; }
+interface SavedDraft { draft_key: string; payload: Record<string, unknown>; current_step: number; updated_at: string; }
+
+const draftFieldNames = ["brandName", "tagline", "founderName", "founderHeadline", "description", "productName", "productTagline", "logoUrl", "heroUrl"];
+function draftCompletion(draft: SavedDraft) {
+  return Math.round((draftFieldNames.filter((key) => typeof draft.payload[key] === "string" && String(draft.payload[key]).trim()).length / draftFieldNames.length) * 100);
+}
 
 export default async function MyPage() {
   const supabase = await createClient();
@@ -42,11 +47,8 @@ export default async function MyPage() {
     }
   }
 
-  const { data: draftRow } = await supabase.from("submission_drafts").select("payload,current_step,updated_at").eq("user_id", user.id).maybeSingle();
-  const savedDraft = draftRow as SavedDraft | null;
-  const draftName = typeof savedDraft?.payload?.brandName === "string" ? savedDraft.payload.brandName : "새 브랜드";
-  const draftFields = savedDraft ? ["brandName", "tagline", "founderName", "founderHeadline", "description", "productName", "productTagline", "logoUrl", "heroUrl"] : [];
-  const draftCompletion = savedDraft ? Math.round((draftFields.filter((key) => typeof savedDraft.payload[key] === "string" && String(savedDraft.payload[key]).trim()).length / draftFields.length) * 100) : 0;
+  const { data: draftRows } = await supabase.from("submission_drafts").select("draft_key,payload,current_step,updated_at").eq("user_id", user.id).order("updated_at", { ascending: false });
+  const savedDrafts = (draftRows ?? []) as SavedDraft[];
   const publishedCount = brands.filter((brand) => brand.status === "published").length;
   const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
 
@@ -68,16 +70,20 @@ export default async function MyPage() {
             <a href="#brands"><span>전체 조회수</span><strong>{totalViews.toLocaleString("ko-KR")}</strong><small>프로덕트 누적</small></a>
             <a href="#brands"><span>공개 중</span><strong>{publishedCount}<em>개</em></strong><small>전체 브랜드 {brands.length}개</small></a>
             <a href="#brands"><span>프로덕트</span><strong>{products.length}<em>개</em></strong><small>등록된 제품과 서비스</small></a>
-            <Link href="/submit"><span>작성 중 초안</span><strong>{savedDraft ? 1 : 0}<em>개</em></strong><small>{savedDraft ? `${draftCompletion}% 작성됨` : "새 초안 만들기"}</small></Link>
+            <Link href={savedDrafts[0] ? `/submit?draft=${encodeURIComponent(savedDrafts[0].draft_key)}` : "/submit"}><span>작성 중 초안</span><strong>{savedDrafts.length}<em>개</em></strong><small>{savedDrafts.length ? "최근 초안 이어서 작성" : "새 초안 만들기"}</small></Link>
           </div>
         </section>
 
-        {savedDraft && <section className="studio-draft-banner">
-          <div><span>작성 중</span><strong>{draftName}</strong><p>STEP {savedDraft.current_step + 1}에서 멈췄어요 · {draftCompletion}% 완료</p></div>
-          <div className="studio-draft-progress"><i style={{ width: `${draftCompletion}%` }} /></div>
-          <time>{new Date(savedDraft.updated_at).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })} 저장</time>
-          <Link href="/submit">이어서 작성 →</Link>
-        </section>}
+        {savedDrafts.length > 0 && <div className="studio-draft-list">{savedDrafts.map((savedDraft) => {
+          const completion = draftCompletion(savedDraft);
+          const draftName = typeof savedDraft.payload.brandName === "string" && savedDraft.payload.brandName.trim() ? savedDraft.payload.brandName : "새 브랜드";
+          return <section className="studio-draft-banner" key={savedDraft.draft_key}>
+            <div><span>작성 중</span><strong>{draftName}</strong><p>STEP {savedDraft.current_step + 1}에서 멈췄어요 · {completion}% 완료</p></div>
+            <div className="studio-draft-progress"><i style={{ width: `${completion}%` }} /></div>
+            <time>{new Date(savedDraft.updated_at).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })} 저장</time>
+            <Link href={`/submit?draft=${encodeURIComponent(savedDraft.draft_key)}`}>이어서 작성 →</Link>
+          </section>;
+        })}</div>}
 
         <section id="brands" className="studio-content-panel">
           <div className="studio-panel-heading"><strong>브랜드와 프로덕트</strong><span>{brands.length}개의 브랜드</span><Link href="/submit">＋ 새 브랜드</Link></div>

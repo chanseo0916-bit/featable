@@ -7,6 +7,7 @@ import { ShareButton } from "@/components/share-button";
 import { ViewTracker } from "@/components/view-tracker";
 import { MentorNotes } from "@/components/mentor-notes";
 import { Comments } from "@/components/comments";
+import { FavoriteButton, ProductGallery } from "./product-interactions";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -48,18 +49,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <section className="shell commerce-summary">
-          <div className="commerce-gallery">
-            <img className="commerce-hero-image" src={product.heroUrl} alt={product.name} />
-            <div className="commerce-thumbs">
-              <button className="active"><img src={product.heroUrl} alt="대표 이미지" /></button>
-              {product.images.map((src, index) => <button key={src}><img src={src} alt={`${product.name} 상세 이미지 ${index + 1}`} /></button>)}
-            </div>
-          </div>
+          <ProductGallery name={product.name} heroUrl={product.heroUrl} images={product.images} />
 
           <div className="commerce-buy-panel">
             <div className="commerce-brand-line">
               <Link href={`/brands/${brand?.slug}`}><img src={brand?.logoUrl} alt="" />{brand?.name}<span>›</span></Link>
-              <button aria-label="관심 제품에 추가">♡</button>
+              <FavoriteButton slug={product.slug} />
             </div>
             <Badge tone="orange">{product.category}</Badge>
             <h1>{product.name}</h1>

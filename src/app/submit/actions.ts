@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
 import type { StoryBlock } from "@/lib/types";
@@ -43,28 +44,32 @@ export type SubmissionDraftInput = Omit<PublishInput, "publish" | "productFeatur
   productFeatures: string;
 };
 
-export async function loadSubmissionDraft(): Promise<{ draft: SubmissionDraftInput; step: number } | null> {
+export async function loadSubmissionDraft(draftKey: string): Promise<{ draft: SubmissionDraftInput; step: number; savedAt: number } | null> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data, error } = await supabase.from("submission_drafts").select("payload,current_step").eq("user_id", user.id).maybeSingle();
+  const { data, error } = await supabase.from("submission_drafts").select("payload,current_step,updated_at").eq("user_id", user.id).eq("draft_key", draftKey).maybeSingle();
   if (error || !data || !data.payload || typeof data.payload !== "object") return null;
-  return { draft: data.payload as SubmissionDraftInput, step: Number(data.current_step) || 0 };
+  return {
+    draft: data.payload as SubmissionDraftInput,
+    step: Number(data.current_step) || 0,
+    savedAt: Date.parse(data.updated_at) || 0,
+  };
 }
 
-export async function saveSubmissionDraft(draft: SubmissionDraftInput, step: number): Promise<{ ok: boolean }> {
+export async function saveSubmissionDraft(draftKey: string, draft: SubmissionDraftInput, step: number): Promise<{ ok: boolean }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false };
-  const { error } = await supabase.from("submission_drafts").upsert({ user_id: user.id, payload: draft, current_step: step, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  const { error } = await supabase.from("submission_drafts").upsert({ user_id: user.id, draft_key: draftKey, payload: draft, current_step: step, updated_at: new Date().toISOString() }, { onConflict: "user_id,draft_key" });
   return { ok: !error };
 }
 
-export async function deleteSubmissionDraft(): Promise<void> {
+export async function deleteSubmissionDraft(draftKey: string): Promise<void> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  await supabase.from("submission_drafts").delete().eq("user_id", user.id);
+  await supabase.from("submission_drafts").delete().eq("user_id", user.id).eq("draft_key", draftKey);
 }
 
 export type PublishResult =
@@ -111,7 +116,7 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
   let founderId: string;
   if (existingFounder) {
     founderId = existingFounder.id;
-    await supabase
+    const { error } = await supabase
       .from("founders")
       .update({
         name: input.founderName.trim(),
@@ -120,6 +125,7 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
         updated_at: new Date().toISOString(),
       })
       .eq("id", founderId);
+    if (error) return { ok: false, error: "창업가 프로필 저장에 실패했습니다." };
   } else {
     const founderSlug =
       slugify(input.founderName) || `founder-${randomSuffix()}`;
@@ -204,8 +210,16 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
       status,
     } as never,
   );
-  if ("error" in productRes) return { ok: false, error: productRes.error };
+  if ("error" in productRes) {
+    // 제품 생성 실패 시 이번 요청에서 만든 브랜드를 제거해 고아 데이터가 남지 않게 한다.
+    await supabase.from("brands").delete().eq("id", brand.id);
+    return { ok: false, error: productRes.error };
+  }
 
+  revalidatePath("/");
+  revalidatePath("/brands");
+  revalidatePath("/products");
+  revalidatePath("/my");
   return { ok: true, brandSlug: brand.slug, productSlug: productRes.slug };
 }
 
@@ -286,12 +300,19 @@ export async function updateBrand(
       updated_at: new Date().toISOString(),
     })
     .eq("id", ids.productId)
+    .eq("brand_id", ids.brandId)
     .select("slug")
     .maybeSingle();
   if (productErr || !productRow) {
     return { ok: false, error: "프로덕트 수정에 실패했습니다." };
   }
 
+  revalidatePath("/");
+  revalidatePath("/brands");
+  revalidatePath("/products");
+  revalidatePath(`/brands/${brandRow.slug}`);
+  revalidatePath(`/products/${productRow.slug}`);
+  revalidatePath("/my");
   return { ok: true, brandSlug: brandRow.slug, productSlug: productRow.slug };
 }
 

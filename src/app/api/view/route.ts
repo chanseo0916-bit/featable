@@ -41,19 +41,9 @@ export async function POST(request: Request) {
     return noContent();
   }
 
-  // 기존 product 조회수 동작은 그대로 유지
-  const { data: product } = await admin
-    .from("products")
-    .select("id, view_count")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
-
-  if (product) {
-    await admin
-      .from("products")
-      .update({ view_count: (product.view_count ?? 0) + 1 })
-      .eq("id", product.id);
+  const { error } = await admin.rpc("increment_product_view_count", { p_slug: slug });
+  if (error) {
+    return NextResponse.json({ error: "product views not ready" }, { status: 503 });
   }
 
   return noContent();

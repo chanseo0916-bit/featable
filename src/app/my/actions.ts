@@ -8,10 +8,13 @@ export async function toggleBrandVisibility(brandId: string, publish: boolean): 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "로그인이 필요합니다." };
-  const status = publish ? "published" : "draft";
-  const { data: brand, error } = await supabase.from("brands").update({ status, updated_at: new Date().toISOString() }).eq("id", brandId).select("id").maybeSingle();
-  if (error || !brand) return { ok: false, error: "상태 변경에 실패했습니다." };
-  await supabase.from("products").update({ status, updated_at: new Date().toISOString() }).eq("brand_id", brandId);
+  const { data: changed, error } = await supabase.rpc("set_brand_publication_state", {
+    p_brand_id: brandId,
+    p_publish: publish,
+  });
+  if (error || changed !== true) {
+    return { ok: false, error: "상태 변경에 실패했습니다." };
+  }
   revalidatePath("/my");
   revalidatePath("/brands");
   return { ok: true };

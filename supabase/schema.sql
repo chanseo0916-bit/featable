@@ -47,6 +47,15 @@ create table founders (
   unique (user_id)  -- MVP: 계정당 Founder 프로필 1개
 );
 
+-- ---------- Founder Support ----------
+-- 로그인 사용자는 Founder를 한 번만 응원할 수 있고, 취소할 수 있다.
+create table founder_supports (
+  user_id uuid not null references profiles(id) on delete cascade,
+  founder_id uuid not null references founders(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, founder_id)
+);
+
 -- ---------- Brand ----------
 create table brands (
   id uuid primary key default uuid_generate_v4(),
@@ -130,6 +139,23 @@ $$;
 -- 조회수 증가는 서버의 service_role을 통해서만 실행
 revoke execute on function public.increment_feature_view_count(text) from public;
 grant execute on function public.increment_feature_view_count(text) to service_role;
+
+-- 공개된 product 조회수도 동시 요청에서 유실되지 않도록 원자적으로 증가
+create or replace function public.increment_product_view_count(p_slug text)
+returns integer
+language sql
+security definer
+set search_path = public
+as $$
+  update public.products
+  set view_count = view_count + 1
+  where slug = p_slug
+    and status = 'published'
+  returning view_count;
+$$;
+
+revoke execute on function public.increment_product_view_count(text) from public, anon, authenticated;
+grant execute on function public.increment_product_view_count(text) to service_role;
 
 -- ---------- Mentor's Note ----------
 create table mentor_notes (
@@ -251,6 +277,7 @@ create index idx_features_status on features(status);
 create index idx_features_brand on features(brand_id);
 create index idx_support_close_at on support_programs(close_at);
 create index idx_events_starts_at on events(starts_at);
+create index idx_founder_supports_founder on founder_supports(founder_id);
 
 -- ============================================================
 -- Row Level Security
@@ -276,8 +303,42 @@ returns boolean language sql security definer set search_path = public as $$
   );
 $$;
 
+-- 브랜드와 소속 프로덕트의 공개 상태를 한 트랜잭션에서 함께 변경
+create or replace function public.set_brand_publication_state(
+  p_brand_id uuid,
+  p_publish boolean
+)
+returns boolean
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  next_status public.content_status := case when p_publish then 'published' else 'draft' end;
+  changed_count integer;
+begin
+  update public.brands
+  set status = next_status, updated_at = now()
+  where id = p_brand_id
+    and (public.owns_founder(founder_id) or public.is_admin());
+
+  get diagnostics changed_count = row_count;
+  if changed_count = 0 then return false; end if;
+
+  update public.products
+  set status = next_status, updated_at = now()
+  where brand_id = p_brand_id;
+
+  return true;
+end;
+$$;
+
+revoke execute on function public.set_brand_publication_state(uuid, boolean) from public, anon;
+grant execute on function public.set_brand_publication_state(uuid, boolean) to authenticated;
+
 alter table profiles enable row level security;
 alter table founders enable row level security;
+alter table founder_supports enable row level security;
 alter table brands enable row level security;
 alter table products enable row level security;
 alter table features enable row level security;
@@ -299,6 +360,11 @@ create policy "founders_select_all" on founders for select using (true);
 create policy "founders_insert_own" on founders for insert with check (user_id = auth.uid());
 create policy "founders_update_own" on founders for update using (user_id = auth.uid() or is_admin());
 create policy "founders_delete_own" on founders for delete using (user_id = auth.uid() or is_admin());
+
+-- founder_supports: 응원 수는 공개, 쓰기는 로그인한 본인 행만 허용
+create policy "founder_supports_select_all" on founder_supports for select using (true);
+create policy "founder_supports_insert_own" on founder_supports for insert with check (user_id = auth.uid());
+create policy "founder_supports_delete_own" on founder_supports for delete using (user_id = auth.uid());
 
 -- brands: published 공개, 소유자는 draft 포함 전체
 create policy "brands_select_published" on brands for select

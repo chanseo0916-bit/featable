@@ -28,19 +28,21 @@ export default async function PartnersPage() {
             const external = !partner.href.startsWith("/");
             const card = (
               <>
-                <div className="partner-org-head">
+                <div className="partner-org-logo">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={partner.logoUrl} alt={partner.name} />
-                  <div>
+                </div>
+                <div className="partner-org-body">
+                  <div className="partner-org-title">
                     <h3>{partner.name}</h3>
                     {partner.field && <Badge>{partner.field}</Badge>}
                   </div>
+                  {partner.intro && <p>{partner.intro}</p>}
+                  {partner.description && <small>{partner.description}</small>}
+                  <span className="text-link">
+                    {external ? "웹사이트 방문 →" : "자세히 보기 →"}
+                  </span>
                 </div>
-                {partner.intro && <p>{partner.intro}</p>}
-                {partner.description && <small>{partner.description}</small>}
-                <span className="text-link">
-                  {external ? "웹사이트 방문 →" : "자세히 보기 →"}
-                </span>
               </>
             );
             return external ? (
