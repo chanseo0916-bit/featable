@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { Footer, Header, Badge } from "@/components/site-shell";
 import { getPartners, getSupportPrograms } from "@/lib/data";
+import { createPageMetadata } from "@/lib/site";
+
+export const metadata = createPageMetadata({
+  title: "창업 지원사업 찾기",
+  description:
+    "예비·초기 창업가에게 필요한 창업 지원사업을 한곳에서 찾아보세요. 지역과 분야별 공고를 확인하고 내 브랜드에 맞는 기회를 발견할 수 있습니다.",
+  path: "/support",
+});
 
 type SupportSearchParams = {
   region?: string | string[];

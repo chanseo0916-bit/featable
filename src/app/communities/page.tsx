@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { Footer, Header } from "@/components/site-shell";
 import { getCommunities, getPartners } from "@/lib/data";
+import { createPageMetadata } from "@/lib/site";
+
+export const metadata = createPageMetadata({
+  title: "창업 커뮤니티 찾기",
+  description:
+    "관심 분야와 활동을 기준으로 나에게 맞는 창업 커뮤니티를 찾아보세요. 함께 성장하는 창업가와 브랜드의 네트워크를 만날 수 있습니다.",
+  path: "/communities",
+});
 
 const sortOptions = [
   { value: "activity", label: "활동순" },

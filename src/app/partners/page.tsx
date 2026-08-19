@@ -1,13 +1,14 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import { Badge, Footer, Header } from "@/components/site-shell";
 import { getPartners } from "@/lib/data";
-import { CONTACT_EMAIL } from "@/lib/site";
+import { CONTACT_EMAIL, createPageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "파트너",
-  description: "피처블과 함께 창업 생태계를 만드는 파트너를 소개합니다.",
-};
+export const metadata = createPageMetadata({
+  title: "창업 생태계 파트너",
+  description:
+    "커뮤니티, 지원기관, 미디어 등 창업 생태계를 함께 만드는 Featable의 파트너를 소개합니다.",
+  path: "/partners",
+});
 
 export default async function PartnersPage() {
   const partners = await getPartners();

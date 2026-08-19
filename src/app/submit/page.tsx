@@ -5,14 +5,19 @@ import { redirect } from "next/navigation";
 import { SubmitWizard } from "./wizard";
 import { loadSubmissionDraft } from "./actions";
 import { StudioBrand } from "@/components/site-shell";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "브랜드 등록 — FEATABLE",
   description: "10분 안에 당신의 브랜드를 세상에 소개하세요.",
 };
 
-// 미들웨어가 비로그인 접근을 /login으로 돌려보낸다
+// Cloudflare(OpenNext)가 Node 미들웨어를 미지원이라 페이지에서 직접 로그인 보호
 export default async function SubmitPage({ searchParams }: { searchParams: Promise<{ draft?: string }> }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login?next=/submit");
+
   const { draft } = await searchParams;
   if (!draft) redirect(`/submit?draft=${randomUUID()}`);
   const draftKey = draft.slice(0, 80);
