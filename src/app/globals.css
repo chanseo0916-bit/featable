@@ -495,6 +495,75 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .community-directory-list { grid-template-columns: 1fr; }
 }
 
+/* Featable feature brief — profile/discovery layout, not a funding panel */
+.feature-brief-wrap { padding-top: 34px; padding-bottom: 34px; }
+.feature-brief-hero { min-height: 570px; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); overflow: hidden; border-radius: 18px; background: #191919; color: #fff; }
+.feature-brief-copy { min-width: 0; padding: 44px 42px 38px; display: flex; flex-direction: column; }
+.feature-brief-brand { display: flex; align-items: center; gap: 11px; }
+.feature-brief-brand img { width: 42px; height: 42px; border-radius: 11px; object-fit: cover; }
+.feature-brief-brand div { display: grid; gap: 3px; }
+.feature-brief-brand span { color: #777; font-size: 8px; font-weight: 750; letter-spacing: .1em; }
+.feature-brief-brand a { color: #fff; font-size: 12px; font-weight: 700; }
+.feature-brief-kicker { margin: 55px 0 14px; color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.feature-brief-copy h1 { max-width: 510px; margin: 0; font-size: clamp(35px, 3.7vw, 52px); line-height: 1.2; letter-spacing: -.07em; }
+.feature-brief-excerpt { max-width: 490px; margin: 19px 0 0; color: #aaa; font-size: 13px; line-height: 1.7; }
+.feature-brief-metrics { margin-top: auto; padding: 28px 0 23px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; border-top: 1px solid #333; }
+.feature-brief-metrics > div { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.feature-brief-metrics strong { color: #fff; font-size: 18px; line-height: 1; letter-spacing: -.03em; }
+.feature-brief-metrics span { color: #777; font-size: 8px; }
+.feature-brief-metrics .feature-discovery-metric { margin: 0; color: inherit; }
+.feature-brief-metrics .feature-discovery-metric strong { font-size: 18px; }
+.feature-brief-metrics .feature-discovery-metric span { font-size: 8px; font-weight: 400; }
+.feature-brief-metrics .feature-discovery-metric i { display: none; }
+.feature-brief-copy .feature-action-area { grid-template-columns: 90px 1fr; gap: 8px; margin-top: 0; }
+.feature-brief-copy .feature-small-actions button { border-color: #444; background: #242424; color: #ccc; }
+.feature-brief-copy .feature-cheer { min-height: 52px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; box-shadow: none; }
+.feature-brief-copy .feature-cheer > strong { border-left-color: #ffffff55; }
+.feature-brief-copy .feature-cheer.active { background: #fff; color: var(--accent); }
+.feature-brief-media { min-width: 0; position: relative; margin: 10px; overflow: hidden; border-radius: 12px; background: #333; }
+.feature-brief-media img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.feature-brief-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 65%, #0009); pointer-events: none; }
+.feature-brief-media > span { position: absolute; z-index: 1; left: 20px; bottom: 18px; color: #ddd; font-size: 8px; font-weight: 700; letter-spacing: .08em; }
+.feature-summary-strip { margin-top: 12px; display: grid; grid-template-columns: .7fr repeat(3, 1fr); overflow: hidden; border: 1px solid #e2e4e7; border-radius: 12px; background: #fff; }
+.feature-summary-strip > div { min-width: 0; min-height: 116px; padding: 19px; display: flex; gap: 12px; border-right: 1px solid #eceef0; }
+.feature-summary-strip > div:last-child { border-right: 0; }
+.feature-summary-label { flex-direction: column; gap: 4px !important; background: #fff5f2; }
+.feature-summary-label > span { color: var(--accent); font-size: 17px; }
+.feature-summary-label strong { margin-top: 4px; font-size: 13px; }
+.feature-summary-label small { color: #999; font-size: 8px; }
+.feature-summary-strip > div > b { color: var(--accent); font-size: 9px; }
+.feature-summary-strip p { min-width: 0; margin: 0; display: grid; align-content: start; gap: 7px; }
+.feature-summary-strip p strong { font-size: 10px; }
+.feature-summary-strip p span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #777; font-size: 9px; line-height: 1.55; }
+.feature-social-proof { min-height: 58px; margin-top: 12px; padding: 0 16px; display: flex; align-items: center; gap: 13px; border-radius: 10px; background: #f5f6f7; }
+.feature-social-proof .supporter-faces img, .feature-social-proof .supporter-faces span { width: 28px; height: 28px; }
+.feature-social-proof p { margin: 0; color: #555; font-size: 10px; }
+.feature-social-proof > span { margin-left: auto; color: #999; font-size: 8px; }
+
+@media (max-width: 900px) {
+  .feature-brief-hero { grid-template-columns: 1fr 1fr; }
+  .feature-brief-copy { padding: 34px 28px; }
+  .feature-summary-strip { grid-template-columns: 1fr 1fr; }
+  .feature-summary-strip > div:nth-child(2) { border-right: 0; }
+  .feature-summary-strip > div { border-bottom: 1px solid #eceef0; }
+  .feature-summary-strip > div:nth-last-child(-n+2) { border-bottom: 0; }
+}
+@media (max-width: 720px) {
+  .feature-brief-wrap { width: 100%; padding-top: 0; }
+  .feature-brief-hero { display: flex; flex-direction: column-reverse; border-radius: 0; }
+  .feature-brief-media { height: 380px; margin: 0; border-radius: 0; }
+  .feature-brief-copy { padding: 30px 20px; }
+  .feature-brief-kicker { margin-top: 38px; }
+  .feature-brief-copy h1 { font-size: 36px; }
+  .feature-brief-metrics { margin-top: 45px; }
+  .feature-brief-copy .feature-action-area { position: static; padding: 0; background: transparent; box-shadow: none; }
+  .feature-summary-strip { margin: 10px 16px 0; grid-template-columns: 1fr; }
+  .feature-summary-strip > div { min-height: 92px; border-right: 0; border-bottom: 1px solid #eceef0 !important; }
+  .feature-summary-strip > div:last-child { border-bottom: 0 !important; }
+  .feature-social-proof { margin: 10px 16px 0; }
+  .feature-social-proof > span { display: none; }
+}
+
 /* 오늘의 발견 — 와이드 배너 캐러셀 */
 .discovery-banner-wrap { width: 100%; }
 .discovery-banner { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1000 / 320; background: #f2f2f2; }
@@ -516,3 +585,21 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .discovery-banner { aspect-ratio: 4 / 3; border-radius: 12px; }
   .discovery-banner-copy { left: 18px; bottom: 16px; right: 18px; }
 }
+
+/* 커머스형 프로덕트 카드 — 블로그 카드 탈피 */
+.commerce-card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: white; transition: transform .2s ease, box-shadow .25s ease, border-color .2s ease; }
+.commerce-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 16px 34px -18px rgba(17, 17, 17, .22); }
+.commerce-card .image-card img { aspect-ratio: 1.35; }
+.commerce-card .product-image-wrap { position: relative; }
+.commerce-card .product-chip { position: absolute; left: 10px; bottom: 10px; padding: 5px 9px; border-radius: 6px; background: rgba(255, 255, 255, .92); color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .02em; backdrop-filter: blur(3px); }
+.commerce-card .drop-label { position: absolute; top: 10px; left: 10px; padding: 5px 8px; border-radius: 6px; background: var(--accent); color: white; font-size: 9px; font-weight: 850; letter-spacing: .08em; }
+.commerce-card .card-body { padding: 13px 15px 15px; }
+.commerce-card .product-brand-line { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 11px; color: #777; font-weight: 650; }
+.commerce-card .product-brand-line img { width: 16px; height: 16px; border-radius: 4px; object-fit: cover; }
+.commerce-card .product-brand-line em { margin-left: auto; font-style: normal; font-weight: 500; color: #aaa; font-size: 10px; }
+.commerce-card .card-body h3 { margin: 0 0 5px; font-size: 16px; letter-spacing: -.045em; }
+.commerce-card .card-body > p { margin: 0 0 12px; color: var(--muted); font-size: 12.5px; line-height: 1.5; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.commerce-card .product-meta-row { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 11px; }
+.commerce-card .product-meta-row .person-line { gap: 6px; font-size: 11px; color: #666; }
+.commerce-card .product-meta-row > strong { font-size: 13px; letter-spacing: -.02em; color: var(--foreground); }
+.commerce-card .product-meta-row > strong.meta-cta { color: var(--accent); font-size: 11px; }

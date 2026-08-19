@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-/** 상세 조회수 적재 — 브라우저 세션당 콘텐츠별 1회만 */
+/** 상세 조회수 적재: 브라우저 세션당 콘텐츠별 한 번 */
 export function ViewTracker({ slug, type = "product" }: { slug: string; type?: "product" | "feature" }) {
   useEffect(() => {
     const key = `featable:viewed:${type}:${slug}`;
@@ -10,7 +10,7 @@ export function ViewTracker({ slug, type = "product" }: { slug: string; type?: "
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, "1");
     } catch {
-      // 시크릿 모드 등 storage 불가 시 그냥 1회 전송
+      // storage를 사용할 수 없는 환경에서는 요청을 전송합니다.
     }
     fetch("/api/view", {
       method: "POST",
@@ -36,7 +36,7 @@ export function FeatureViewMetric({ slug, initialCount }: { slug: string; initia
         shouldTrack = !sessionStorage.getItem(key);
         if (shouldTrack) sessionStorage.setItem(key, "1");
       } catch {
-        // storage를 사용할 수 없는 환경에서는 요청을 한 번 전송한다.
+        // storage를 사용할 수 없는 환경에서는 요청을 전송합니다.
       }
 
       if (shouldTrack) {
@@ -55,7 +55,7 @@ export function FeatureViewMetric({ slug, initialCount }: { slug: string; initia
         const nextCount = payload.counts?.[slug];
         if (!cancelled && typeof nextCount === "number") setCount(nextCount);
       } catch {
-        // 서버 집계가 준비되지 않은 환경에서는 초기 조회수를 유지한다.
+        // 서버 집계가 준비되지 않은 환경에서는 초기 조회수를 유지합니다.
       }
     };
 
@@ -63,5 +63,5 @@ export function FeatureViewMetric({ slug, initialCount }: { slug: string; initia
     return () => { cancelled = true; };
   }, [slug]);
 
-  return <div className="feature-discovery-metric"><strong>{count.toLocaleString("ko-KR")}</strong><span>회 조회</span><i>실시간 집계</i></div>;
+  return <div className="feature-discovery-metric"><strong>{count.toLocaleString("ko-KR")}</strong><span>회 조회</span><i>실시간</i></div>;
 }

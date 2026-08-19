@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import styles from "./live-feature-ranking.module.css";
 
@@ -45,6 +45,8 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
   const panelId = `${componentId}-panel`;
   const [activeType, setActiveType] = useState<"product" | "feature">("product");
   const [activeCategory, setActiveCategory] = useState("전체");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
   const items = activeType === "product" ? productItems : featureItems;
 
   // 실제 등록된 프로덕트의 카테고리로 탭을 동적 구성 (최대 4개)
@@ -100,7 +102,24 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
 
   useEffect(() => {
     setActiveCategory("전체");
+    setFilterOpen(false);
   }, [activeType]);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const close = (event: MouseEvent) => {
+      if (!filterRef.current?.contains(event.target as Node)) setFilterOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFilterOpen(false);
+    };
+    document.addEventListener("pointerdown", close);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [filterOpen]);
 
   const rankedItems = useMemo(() => {
     return items
@@ -132,25 +151,22 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
         <button className={activeType === "feature" ? styles.activeType : ""} type="button" onClick={() => setActiveType("feature")}>피처</button>
       </div>
 
-      <div className={styles.tabs} role="tablist" aria-label="프로덕트 피처 랭킹 카테고리">
-        {categoryFilters.map((category) => {
-          const isActive = activeCategory === category;
-
-          return (
-            <button
-              key={category}
-              className={`${styles.tab} ${isActive ? styles.activeTab : ""}`}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={panelId}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => setActiveCategory(category)}
-            >
-              {category}
-            </button>
-          );
-        })}
+      <div className={styles.filterRow}>
+        <span>{activeCategory === "전체" ? "전체 랭킹" : `${activeCategory} 랭킹`}</span>
+        <div className={styles.filterMenu} ref={filterRef}>
+          <button className={`${styles.filterTrigger} ${filterOpen ? styles.openTrigger : ""}`} type="button" aria-label="카테고리 필터" aria-haspopup="menu" aria-expanded={filterOpen} onClick={() => setFilterOpen((open) => !open)}>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h8M15 5h2M3 10h2M9 10h8M3 15h8M15 15h2"/><circle cx="13" cy="5" r="2"/><circle cx="7" cy="10" r="2"/><circle cx="13" cy="15" r="2"/></svg>
+            {activeCategory !== "전체" && <i />}
+          </button>
+          {filterOpen && <div className={styles.filterPopover} role="menu" aria-label="카테고리 선택">
+            <p>카테고리</p>
+            {categoryFilters.map((category) => (
+              <button className={activeCategory === category ? styles.selectedFilter : ""} type="button" role="menuitemradio" aria-checked={activeCategory === category} key={category} onClick={() => { setActiveCategory(category); setFilterOpen(false); }}>
+                <span>{category}</span><b aria-hidden="true">✓</b>
+              </button>
+            ))}
+          </div>}
+        </div>
       </div>
 
       <p className={styles.status} aria-live="polite">
