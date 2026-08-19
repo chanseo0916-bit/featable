@@ -1,23 +1,133 @@
 import Link from "next/link";
 import { Badge, Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
-import { brands, communities, events, features, founders, jobs, partners, products, supportPrograms } from "@/lib/mock";
+import { events, features, partners, supportPrograms } from "@/lib/mock";
+import { getCatalog } from "@/lib/data";
+
+const curationItems = [
+  { label: "이번 주 피쳐", seed: "curation-feature", href: "/stories" },
+  { label: "대학생 창업가", seed: "curation-student", href: "/stories/student-founder-week", hot: true },
+  { label: "막 나온 제품", seed: "curation-new-product", href: "/products" },
+  { label: "100명의 팬", seed: "curation-fans", href: "/stories/first-100-users" },
+  { label: "서울 밋업", seed: "curation-meetup", href: "/events" },
+  { label: "마감 임박", seed: "curation-deadline", href: "/support" },
+  { label: "작은 팀의 일", seed: "curation-small-team", href: "/stories/flow-small-team" },
+  { label: "취향 발견", seed: "curation-taste", href: "/stories/mood-taste-map" },
+  { label: "커뮤니티 픽", seed: "curation-community", href: "/communities" },
+];
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
-const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86400000));
+const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
 
-export default function Home() {
-  const hero = features[0];
-  return <><Header /><main>
-    <section className="hero shell"><div className="hero-copy"><p className="eyebrow">DISCOVER WHAT&apos;S NEXT</p><h1>어떤 브랜드를<br /><em>찾고 있나요?</em></h1><p className="hero-description">새로운 창업가와 제품, 그리고 다음 기회를 발견해보세요.</p><form className="search-box" action="/search"><span>⌕</span><input name="q" placeholder="브랜드 · 창업가 · 제품 · 지원사업 검색" /><button aria-label="검색">검색</button></form><div className="hero-tags"><span>지금 많이 찾는 것</span><Link href="/products?category=AI">AI 제품</Link><Link href="/stories">창업가 이야기</Link><Link href="/support">지원사업</Link></div></div><div className="hero-art"><div className="hero-art-note">Every founder<br /><strong>deserves to be<br />featured.</strong></div><div className="hero-art-circle">F</div><div className="hero-art-line" /></div></section>
-    <section className="category-strip"><div className="shell category-scroll">{["AI", "SaaS", "F&B", "패션", "뷰티", "콘텐츠", "커머스", "라이프스타일", "교육", "개발", "기타"].map((category) => <Link href={`/products?category=${category}`} key={category}>{category}</Link>)}</div></section>
-    <section className="shell section feature-section"><SectionHeader eyebrow="THIS WEEK&apos;S FEATURE" title="이번 주, 주목할 이야기" href="/stories" /><Link href={`/stories/${hero.slug}`} className="feature-hero"><ImageCard src={hero.coverUrl} alt={hero.title} /><div className="feature-overlay"><Badge tone="orange">{hero.kind === "interview" ? "INTERVIEW" : "FEATURE"}</Badge><h3>{hero.title}</h3><p>{hero.excerpt}</p><span className="text-link">이야기 보기 →</span></div></Link></section>
-    <section className="shell section"><SectionHeader eyebrow="PRODUCT DISCOVERY" title="지금 발견한 프로덕트" href="/products" /><div className="product-grid">{products.map((product) => { const brand = brands.find((b) => b.slug === product.brandSlug); const founder = founders.find((f) => f.slug === product.founderSlug); return <Link href={`/products/${product.slug}`} className="product-card" key={product.slug}><ImageCard src={product.heroUrl} alt={product.name} /><div className="card-body"><div className="card-meta"><Badge>{product.category}</Badge>{product.viewCount && <span>조회 {product.viewCount.toLocaleString()}</span>}</div><h3>{product.name}</h3><p>{product.tagline}</p><div className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span><span>{brand?.name} · {founder?.name} Founder</span></div></div></Link>; })}</div></section>
-    <section className="shell section"><SectionHeader eyebrow="NEW ON FEATABLE" title="새로 등록된 브랜드" href="/brands" /><div className="brand-grid">{brands.map((brand) => <Link href={`/brands/${brand.slug}`} className="brand-card" key={brand.slug}><img className="brand-logo" src={brand.logoUrl} alt="" /><div><Badge>{brand.category}</Badge><h3>{brand.name}</h3><p>{brand.tagline}</p></div><span className="arrow">↗</span></Link>)}</div></section>
-    <section className="shell section stories-section"><SectionHeader eyebrow="FOUNDER STORIES" title="사람에서 시작된 이야기" href="/stories" /><div className="story-grid">{features.map((feature) => { const founder = founders.find((f) => f.slug === feature.founderSlug); return <Link href={`/stories/${feature.slug}`} className="story-card" key={feature.slug}><ImageCard src={feature.coverUrl} alt={feature.title} /><div className="story-card-copy"><span className="avatar"><img src={founder?.avatarUrl} alt="" /></span><div><p className="eyebrow">{founder?.name} · {feature.kind === "interview" ? "INTERVIEW" : "BRAND STORY"}</p><h3>{feature.title}</h3></div></div></Link>; })}</div></section>
-    <section className="shell section"><SectionHeader eyebrow="UPCOMING EVENTS" title="이번 주에 만나요" href="/events" /><div className="event-grid">{events.map((event) => <Link href={`/events/${event.slug}`} className="event-card" key={event.slug}><ImageCard src={event.coverUrl} alt={event.name} /><div className="card-body"><div className="event-date"><strong>{dateLabel(event.startsAt)}</strong><Badge>{event.category}</Badge></div><h3>{event.name}</h3><p>{event.host} · {event.location}</p><span className="text-link">신청하기 →</span></div></Link>)}</div></section>
-    <section className="shell section support-section"><SectionHeader eyebrow="STARTUP SUPPORT" title="지금 받을 수 있는 지원" href="/support" /><div className="support-list">{supportPrograms.map((program) => <Link href={`/support/${program.slug}`} className="support-row" key={program.slug}><div className="support-dday"><strong>D-{dday(program.closeAt)}</strong><span>마감임박</span></div><div className="support-main"><h3>{program.name}</h3><p>{program.agency} · {program.region} · {program.target}</p></div><strong className="support-amount">{program.amount}</strong><span className="arrow">→</span></Link>)}</div></section>
-    <section className="shell section"><SectionHeader eyebrow="COMMUNITY" title="함께 성장하는 커뮤니티" href="/communities" /><div className="community-grid">{communities.map((community) => <Link href={`/communities/${community.slug}`} className="community-card" key={community.slug}><img className="community-logo" src={community.logoUrl} alt="" /><div><Badge>{community.field}</Badge><h3>{community.name}</h3><p>{community.intro}</p></div><span className="arrow">↗</span></Link>)}</div></section>
-    <section className="shell section jobs-section"><SectionHeader eyebrow="JOIN A TEAM" title="함께할 동료를 찾고 있어요" href="/jobs" /><div className="job-list">{jobs.map((job) => { const brand = brands.find((b) => b.slug === job.brandSlug); return <Link href={`/jobs/${job.slug}`} className="job-row" key={job.slug}><img className="brand-logo small" src={brand?.logoUrl} alt="" /><div><h3>{job.title}</h3><p>{brand?.name} · {job.role}</p></div><span>{job.location}</span><Badge>{job.type}</Badge><span className="arrow">→</span></Link>; })}</div></section>
-    <section className="cta-section"><div className="shell cta-inner"><div><p className="eyebrow">YOUR STORY MATTERS</p><h2>당신의 브랜드는<br /><em>세상에 소개될 준비가 되었나요?</em></h2></div><Link className="button" href="/submit">브랜드 등록하기 <span>→</span></Link></div></section>
-  </main><Footer partners={partners} /></>;
+export default async function Home() {
+  const { brands, products, founders } = await getCatalog();
+  const mainFeature = features[5];
+  const rankedFeatures = [features[2], features[4], features[0], features[3], features[1]];
+
+  return (
+    <>
+      <Header />
+      <main>
+        <section className="discovery-head shell">
+          <div className="discovery-title-row">
+            <div>
+              <p className="eyebrow">DISCOVER THE NEXT FOUNDERS</p>
+              <h1>요즘 뜨는 창업가,<br /><em>여기서 먼저.</em></h1>
+            </div>
+            <p className="discovery-intro">제품보다 먼저 사람을 발견하고,<br />아직 유명하지 않은 가능성을 큐레이션합니다.</p>
+          </div>
+          <form className="discovery-search" action="/search">
+            <input name="q" placeholder="어떤 창업가와 브랜드를 찾고 있나요?" />
+            <span className="search-hint">브랜드 · 피쳐 · 제품 · 기회</span>
+            <button aria-label="검색">⌕</button>
+          </form>
+        </section>
+
+        <section className="curation-rail-shell">
+          <div className="shell curation-rail">
+            {curationItems.map((item, index) => (
+              <Link className="curation-bubble" href={item.href} key={item.label}>
+                <span className={`curation-image curation-tone-${(index % 4) + 1}`}>
+                  <img src={`https://picsum.photos/seed/${item.seed}/180/180`} alt="" />
+                  {item.hot && <b>HOT</b>}
+                </span>
+                <strong>{item.label}</strong>
+              </Link>
+            ))}
+            <Link className="curation-next" href="/stories" aria-label="큐레이션 더보기">→</Link>
+          </div>
+        </section>
+
+        <section className="shell live-stage">
+          <div className="live-main">
+            <div className="stage-heading">
+              <div className="stage-tabs"><Link className="active" href="/">오늘의 발견</Link><Link href="/stories">새로운 이야기</Link><Link href="/products">막 나온 제품</Link></div>
+              <span>08.20 UPDATE</span>
+            </div>
+            <Link className="spotlight-card" href={`/stories/${mainFeature.slug}`}>
+              <ImageCard src={mainFeature.coverUrl} alt={mainFeature.title} />
+              <div className="spotlight-shade" />
+              <div className="spotlight-badges"><Badge tone="orange">EDITOR&apos;S PICK</Badge><span>지금 주목할 창업가</span></div>
+              <div className="spotlight-copy"><p>이번 주, 캠퍼스에서 가장 빠르게 움직이는 팀들</p><h2>{mainFeature.title}</h2><span>피쳐 읽기 <b>↗</b></span></div>
+              <div className="spotlight-count">01 <i>/</i> 05</div>
+            </Link>
+            <div className="spotlight-progress"><span /></div>
+            <div className="mini-features">
+              {features.slice(2, 5).map((feature, index) => (
+                <Link href={`/stories/${feature.slug}`} key={feature.slug}><span>0{index + 2}</span><div><p>{feature.kind.replace("-", " ")}</p><h3>{feature.title}</h3></div><b>↗</b></Link>
+              ))}
+            </div>
+          </div>
+
+          <aside className="live-ranking">
+            <div className="ranking-head"><div><p className="eyebrow">LIVE NOW</p><h2>실시간 베스트 피쳐</h2></div><span className="live-dot">LIVE</span></div>
+            <div className="ranking-tabs"><button className="active">전체</button><button>창업가</button><button>브랜드</button><button>제품</button></div>
+            <ol className="ranking-list">
+              {rankedFeatures.map((feature, index) => {
+                const founder = founders.find((item) => item.slug === feature.founderSlug);
+                const brand = brands.find((item) => item.slug === feature.brandSlug);
+                return <li key={feature.slug}><Link href={`/stories/${feature.slug}`}><strong>{index + 1}</strong><img src={feature.coverUrl} alt="" /><div><h3>{feature.title}</h3><p>{brand?.name ?? "FEATABLE"} · {founder?.name ?? "에디터"}</p></div><span className={index < 2 ? "rank-up" : "rank-stay"}>{index < 2 ? "↑" : "–"}</span></Link></li>;
+              })}
+            </ol>
+            <Link className="ranking-more" href="/stories">피쳐 랭킹 전체보기 <span>→</span></Link>
+          </aside>
+        </section>
+
+        <section className="shell section mz-curation-section">
+          <SectionHeader eyebrow="FEATABLE CURATION" title="지금 이 흐름, 놓치지 마세요" href="/stories" />
+          <div className="editorial-grid">
+            {features.slice(2, 5).map((feature, index) => (
+              <Link className={`editorial-card editorial-${index + 1}`} href={`/stories/${feature.slug}`} key={feature.slug}>
+                <img src={feature.coverUrl} alt="" /><div className="editorial-overlay" /><span className="editorial-index">CURATION 0{index + 1}</span>
+                <div><p>{index === 0 ? "작은 팀의 새로운 일 방식" : index === 1 ? "요즘 취향이 모이는 곳" : "첫 팬을 만드는 창업가"}</p><h3>{feature.title}</h3></div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="shell section fresh-products">
+          <SectionHeader eyebrow="JUST DROPPED" title="방금 세상에 나온 프로덕트" href="/products" />
+          <div className="product-grid">
+            {products.map((product, index) => {
+              const brand = brands.find((item) => item.slug === product.brandSlug);
+              const founder = founders.find((item) => item.slug === product.founderSlug);
+              return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="drop-label">NEW {String(index + 1).padStart(2, "0")}</span><span className="heart-label">♡</span></div><div className="card-body"><div className="card-meta"><span>{product.category}</span><span>{brand?.name}</span></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span><span>{founder?.name} Founder</span></div></div></Link>;
+            })}
+          </div>
+        </section>
+
+        <section className="opportunity-band">
+          <div className="shell opportunity-grid">
+            <div className="opportunity-copy"><p className="eyebrow">DON&apos;T MISS OUT</p><h2>이번 주,<br />놓치면 아쉬운 기회</h2><p>행사부터 지원사업까지 창업가에게 필요한 다음 기회만 모았어요.</p><Link href="/support">모든 기회 보기 →</Link></div>
+            <div className="opportunity-list">
+              {supportPrograms.slice(0, 2).map((program) => <Link href={`/support/${program.slug}`} key={program.slug}><span className="opportunity-day">D-{dday(program.closeAt)}</span><div><p>SUPPORT · {program.agency}</p><h3>{program.name}</h3><span>{program.target} · {program.region}</span></div><b>↗</b></Link>)}
+              {events.slice(0, 2).map((event) => <Link href={`/events/${event.slug}`} key={event.slug}><span className="opportunity-day event-day">{dateLabel(event.startsAt)}</span><div><p>EVENT · {event.host}</p><h3>{event.name}</h3><span>{event.location} · {event.fee}</span></div><b>↗</b></Link>)}
+            </div>
+          </div>
+        </section>
+
+        <section className="new-final-cta"><div className="shell"><p>당신이 만들고 있는 것을<br />더 많은 사람에게 보여주세요.</p><h2>Every founder deserves<br />to be <em>featured.</em></h2><Link className="button" href="/submit">내 브랜드 올리기 <span>↗</span></Link></div></section>
+      </main>
+      <Footer partners={partners} />
+    </>
+  );
 }
