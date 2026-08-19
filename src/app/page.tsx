@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
 import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-feature-ranking";
+import { DiscoveryBanner, type DiscoveryBannerSlide } from "@/components/discovery-banner";
 import { events, features, partners, supportPrograms } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 
@@ -37,14 +38,15 @@ export default async function Home() {
               <div className="stage-tabs"><Link className="active" href="/">오늘의 발견</Link><Link href="/stories">새로운 이야기</Link><Link href="/products">막 나온 제품</Link></div>
               <span>08.20 UPDATE</span>
             </div>
-            <div className="discovery-feature-grid">
-              {discoveryFeatures.map((feature, index) => (
-                <Link className="discovery-feature-card" href={`/stories/${feature.slug}`} key={feature.slug}>
-                  <div className="discovery-feature-image"><img src={feature.coverUrl} alt="" />{index === 0 && <span>추천</span>}</div>
-                  <div className="discovery-feature-copy"><p>{feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 스토리"} · 조회 {(feature.viewCount ?? 0).toLocaleString("ko-KR")}</p><h2>{feature.title}</h2><span>{feature.excerpt}</span></div>
-                </Link>
-              ))}
-            </div>
+            <DiscoveryBanner
+              slides={discoveryFeatures.map((feature): DiscoveryBannerSlide => ({
+                href: `/stories/${feature.slug}`,
+                imageUrl: feature.coverUrl,
+                eyebrow: feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 스토리",
+                title: feature.title,
+                subtitle: feature.excerpt,
+              }))}
+            />
           </div>
 
           <LiveFeatureRanking items={rankingItems} />

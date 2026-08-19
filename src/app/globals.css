@@ -427,27 +427,41 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .opportunity-card h3 { min-height: 44px; margin: 16px 0 10px; font-size: 15px; line-height: 1.45; letter-spacing: -.025em; }
 .opportunity-card p { margin: 0 0 8px; color: #666; font-size: 10px; }
 .opportunity-card > span:last-child { color: #999; font-size: 9px; }
-.community-directory-page { padding-top: 48px; }
-.community-directory-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; padding-bottom: 27px; border-bottom: 1px solid var(--border); }
-.community-directory-heading h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.2; letter-spacing: -.045em; }
-.community-directory-heading p { margin: 0; color: #777; font-size: 13px; }
-.community-filters { display: flex; gap: 6px; }
-.community-filters a { padding: 8px 13px; border: 1px solid var(--border); border-radius: 7px; color: #777; font-size: 11px; }
+.community-hub { min-height: 720px; padding: 32px 0 72px; background: #f5f6f7; }
+.community-hub-inner { max-width: 1120px; }
+.community-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+.community-toolbar > div { display: flex; align-items: baseline; gap: 10px; }
+.community-toolbar h1 { margin: 0; font-size: 23px; line-height: 1.2; letter-spacing: -.035em; }
+.community-toolbar > div span { color: #999; font-size: 10px; }
+.community-toolbar form { width: 330px; height: 42px; display: flex; padding: 0 5px 0 14px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; }
+.community-toolbar input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 11px; }
+.community-toolbar button { border: 0; background: transparent; color: var(--accent); font-size: 10px; font-weight: 750; cursor: pointer; }
+.community-filters { display: flex; gap: 6px; margin: 20px 0 12px; }
+.community-filters a { padding: 7px 12px; border: 1px solid #dfe2e5; border-radius: 6px; background: #fff; color: #777; font-size: 10px; }
 .community-filters a:hover, .community-filters a.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-.community-directory-section { padding-top: 34px; }
-.community-directory-title { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; }
-.community-directory-title h2 { margin: 0; font-size: 17px; letter-spacing: -.025em; }
-.community-directory-title span { color: var(--accent); font-size: 11px; font-weight: 700; }
-.community-directory-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.community-directory-card { min-height: 122px; display: grid; grid-template-columns: 82px minmax(0, 1fr) 30px; align-items: center; gap: 20px; padding: 19px 22px; border: 1px solid var(--border); border-radius: 9px; background: #fff; transition: border-color .18s, background .18s; }
-.community-directory-card:hover { border-color: var(--accent); background: #fffdfc; }
-.community-directory-card > img { width: 82px; height: 82px; display: block; border: 1px solid #eee; border-radius: 16px; object-fit: cover; }
+.community-directory-panel { background: transparent; }
+.community-panel-head { height: 45px; display: flex; align-items: center; justify-content: space-between; }
+.community-panel-head > div { display: flex; align-items: center; gap: 9px; }
+.community-panel-head strong { font-size: 14px; }
+.community-panel-head span { color: #999; font-size: 9px; }
+.community-panel-head button { padding: 6px 9px; border: 1px solid #dfe2e5; border-radius: 6px; background: #fff; color: #666; font-size: 9px; }
+.community-directory-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.community-directory-card { min-width: 0; min-height: 220px; padding: 19px; display: flex; flex-direction: column; border: 1px solid #dfe2e5; border-radius: 10px; background: #fff; box-shadow: 0 1px 2px #11111108; transition: border-color .18s, box-shadow .18s, transform .18s; }
+.community-directory-card:hover { border-color: #bfc3c8; box-shadow: 0 8px 24px #1111110d; transform: translateY(-2px); }
+.community-card-head { display: flex; align-items: start; justify-content: space-between; }
+.community-card-head > img { width: 58px; height: 58px; display: block; border: 1px solid #e6e7e9; border-radius: 14px; object-fit: cover; }
+.community-card-head > span { display: flex; align-items: center; gap: 5px; color: #7b8289; font-size: 8px; }
+.community-card-head > span i { width: 6px; height: 6px; border-radius: 50%; background: #23b26d; box-shadow: 0 0 0 3px #23b26d18; }
 .community-directory-copy { min-width: 0; }
-.community-directory-copy > span { color: var(--accent); font-size: 10px; font-weight: 750; }
-.community-directory-copy h2 { margin: 6px 0 5px; font-size: 18px; letter-spacing: -.025em; }
-.community-directory-copy p { margin: 0 0 9px; color: #666; font-size: 12px; }
-.community-directory-copy small { color: #999; font-size: 9px; }
-.community-directory-card > strong { color: #aaa; font-size: 17px; font-weight: 500; text-align: right; }
+.community-directory-copy > div { margin-top: 15px; display: flex; align-items: center; gap: 7px; }
+.community-directory-copy h2 { margin: 0; font-size: 16px; letter-spacing: -.015em; }
+.community-directory-copy > div span { padding: 3px 6px; border-radius: 4px; background: #f3f4f5; color: #777; font-size: 8px; }
+.community-directory-copy p { min-height: 34px; margin: 7px 0 15px; color: #666; font-size: 11px; line-height: 1.55; }
+.community-card-stats { margin-top: auto; padding-top: 13px; display: flex; align-items: center; gap: 11px; border-top: 1px solid #edf0f2; color: #8a9096; font-size: 8px; }
+.community-card-stats b { color: #333; font-size: 9px; }
+.community-card-stats strong { margin-left: auto; color: var(--accent); font-size: 9px; font-weight: 700; }
+.community-card-stats strong span { margin-left: 2px; }
+.community-empty { margin: 0; padding: 45px 20px; color: #999; font-size: 11px; text-align: center; }
 
 @media (max-width: 760px) {
   .home-top-banner { height: 310px; }
@@ -466,12 +480,39 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .opportunity-card-grid { grid-template-columns: 1fr 1fr; }
   .opportunity-card { padding: 16px; }
   .nav-submit-hint { display: none; }
-  .community-directory-page { padding-top: 32px; }
-  .community-directory-heading { display: block; }
+  .community-hub { padding-top: 24px; }
+  .community-toolbar { display: block; }
+  .community-toolbar form { width: 100%; margin-top: 17px; }
   .community-filters { margin-top: 20px; overflow-x: auto; }
-  .community-directory-card { grid-template-columns: 64px minmax(0, 1fr) 20px; gap: 13px; padding: 15px; }
-  .community-directory-card > img { width: 64px; height: 64px; border-radius: 13px; }
-  .community-directory-copy h2 { font-size: 16px; }
-  .community-directory-copy p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .community-directory-list { grid-template-columns: 1fr 1fr; }
+  .community-directory-card { min-height: 210px; padding: 16px; }
+  .community-card-head > img { width: 54px; height: 54px; border-radius: 12px; }
+  .community-directory-copy h2 { font-size: 14px; }
+  .community-card-stats strong { font-size: 0; }
+  .community-card-stats strong span { font-size: 13px; }
+}
+@media (max-width: 480px) {
   .community-directory-list { grid-template-columns: 1fr; }
+}
+
+/* 오늘의 발견 — 와이드 배너 캐러셀 */
+.discovery-banner-wrap { width: 100%; }
+.discovery-banner { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1000 / 320; background: #f2f2f2; }
+.discovery-banner-slide { position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease; pointer-events: none; }
+.discovery-banner-slide.active { opacity: 1; pointer-events: auto; }
+.discovery-banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.discovery-banner-shade { position: absolute; inset: 0; background: linear-gradient(75deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.28) 45%, transparent 75%); }
+.discovery-banner-copy { position: absolute; left: 32px; bottom: 28px; right: 130px; color: white; }
+.discovery-banner-copy span { display: inline-block; margin-bottom: 10px; font-size: 11px; font-weight: 750; letter-spacing: .06em; color: #ffd9c9; }
+.discovery-banner-copy h2 { margin: 0 0 8px; font-size: clamp(19px, 2.6vw, 27px); line-height: 1.3; letter-spacing: -.05em; }
+.discovery-banner-copy p { margin: 0; font-size: 13px; color: #e8e8e8; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.discovery-banner-control { position: absolute; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 999px; background: rgba(0,0,0,.45); color: #ddd; font-size: 11px; backdrop-filter: blur(4px); }
+.discovery-banner-control b { color: white; }
+.discovery-banner-control button { border: 0; background: none; color: white; font-size: 16px; line-height: 1; padding: 0 4px; cursor: pointer; }
+.discovery-banner-control button:hover { color: var(--accent-soft); }
+.discovery-banner-progress { height: 3px; margin-top: 14px; border-radius: 2px; background: var(--border); overflow: hidden; }
+.discovery-banner-progress span { display: block; height: 100%; border-radius: 2px; background: #333; transition: width .45s ease; }
+@media (max-width: 800px) {
+  .discovery-banner { aspect-ratio: 4 / 3; border-radius: 12px; }
+  .discovery-banner-copy { left: 18px; bottom: 16px; right: 18px; }
 }

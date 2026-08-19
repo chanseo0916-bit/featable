@@ -78,6 +78,12 @@ export const supportPrograms: SupportProgram[] = [
 export const communities: Community[] = [
   { slug: "youth-founders-club", name: "Youth Founders Club", logoUrl: image("community-yfc", 160, 160), intro: "젊은 창업가들이 서로의 다음을 만드는 커뮤니티", field: "창업", website: "https://example.com", founderSlugs: ["minseo-kim", "jiyoon-lee"] },
   { slug: "build-club", name: "Build Club", logoUrl: image("community-build", 160, 160), intro: "만들면서 배우는 사람들의 모임", field: "개발", website: "https://example.com", founderSlugs: ["doheon-park"] },
+  { slug: "makers-union", name: "Makers Union", logoUrl: image("community-makers", 160, 160), intro: "작은 아이디어를 빠르게 제품으로 만드는 메이커 네트워크", field: "메이커", website: "https://example.com", founderSlugs: ["minseo-kim", "doheon-park"] },
+  { slug: "brand-people", name: "Brand People", logoUrl: image("community-brand", 160, 160), intro: "브랜드를 만들고 키우는 사람들의 실전 정보 교환소", field: "브랜딩", website: "https://example.com", founderSlugs: ["jiyoon-lee"] },
+  { slug: "zero-to-one", name: "Zero to One", logoUrl: image("community-zero-one", 160, 160), intro: "첫 고객과 첫 매출을 만드는 초기 창업가들의 모임", field: "창업", website: "https://example.com", founderSlugs: ["minseo-kim"] },
+  { slug: "design-mates", name: "Design Mates", logoUrl: image("community-design", 160, 160), intro: "혼자 고민하지 않는 프로덕트 디자이너 커뮤니티", field: "디자인", website: "https://example.com", founderSlugs: ["jiyoon-lee", "doheon-park"] },
+  { slug: "side-project-lab", name: "Side Project Lab", logoUrl: image("community-side-project", 160, 160), intro: "이번 달에 진짜 출시하는 사이드 프로젝트 팀 빌딩", field: "개발", website: "https://example.com", founderSlugs: ["doheon-park"] },
+  { slug: "local-founders", name: "Local Founders", logoUrl: image("community-local", 160, 160), intro: "지역에서 새로운 비즈니스를 만드는 사람들의 연결", field: "로컬", website: "https://example.com", founderSlugs: ["minseo-kim", "jiyoon-lee"] },
 ];
 
 export const jobs: Job[] = [
