@@ -5,6 +5,7 @@ import { features, partners } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 import { ShareButton } from "@/components/share-button";
 import { ViewTracker } from "@/components/view-tracker";
+import { MentorNotes } from "@/components/mentor-notes";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -74,7 +75,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </section>
 
         <nav className="product-detail-tabs">
-          <div className="shell"><a className="active" href="#story">상세 스토리</a><a href="#features">주요 기능</a><a href="#founder">만든 사람</a><a href="#mentor">Mentor&apos;s Note</a></div>
+          <div className="shell"><a className="active" href="#story">상세 스토리</a><a href="#features">주요 기능</a><a href="#founder">만든 사람</a></div>
         </nav>
 
         <section id="story" className="commerce-detail-wrap">
@@ -122,7 +123,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <div><p className="commerce-section-label">BEHIND THE PRODUCT</p><h2>제품 뒤에는<br />이 사람이 있습니다.</h2><blockquote>“{founder?.headline}”</blockquote><strong>{founder?.name}</strong><span>{brand?.name} Founder</span></div>
             </section>
 
-            {product.mentorNote && <section id="mentor" className="commerce-mentor"><p className="commerce-section-label">MENTOR&apos;S NOTE</p><blockquote>“{product.mentorNote.comment}”</blockquote><div><strong>{product.mentorNote.mentorName}</strong><span>{product.mentorNote.mentorField} · FEATABLE MENTOR</span></div></section>}
+            <MentorNotes productSlug={product.slug} />
 
             <section className="commerce-story-closing">
               <span>{brand?.name}</span>
@@ -137,7 +138,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <a href="#story">브랜드 스토리 <span>01</span></a>
             <a href="#features">주요 기능 <span>02</span></a>
             <a href="#founder">만든 사람 <span>03</span></a>
-            <a href="#mentor">멘토 노트 <span>04</span></a>
           </aside>
         </section>
 
