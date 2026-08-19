@@ -6,6 +6,7 @@ import { getCatalog } from "@/lib/data";
 import { ShareButton } from "@/components/share-button";
 import { ViewTracker } from "@/components/view-tracker";
 import { MentorNotes } from "@/components/mentor-notes";
+import { Comments } from "@/components/comments";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -141,6 +142,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </aside>
         </section>
 
+        <Comments type="product" slug={product.slug} />
         {relatedFeatures.length > 0 && <section className="shell commerce-related"><p className="eyebrow">RELATED FEATURE</p><h2>이 제품의 더 깊은 이야기</h2>{relatedFeatures.map((feature) => <Link href={`/stories/${feature.slug}`} key={feature.slug}><img src={feature.coverUrl} alt="" /><div><Badge>{feature.kind}</Badge><h3>{feature.title}</h3><p>{feature.excerpt}</p></div><span>↗</span></Link>)}</section>}
       </main>
       <Footer partners={partners} />

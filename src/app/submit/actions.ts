@@ -39,6 +39,34 @@ export interface PublishInput {
   publish: boolean;
 }
 
+export type SubmissionDraftInput = Omit<PublishInput, "publish" | "productFeatures"> & {
+  productFeatures: string;
+};
+
+export async function loadSubmissionDraft(): Promise<{ draft: SubmissionDraftInput; step: number } | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase.from("submission_drafts").select("payload,current_step").eq("user_id", user.id).maybeSingle();
+  if (error || !data || !data.payload || typeof data.payload !== "object") return null;
+  return { draft: data.payload as SubmissionDraftInput, step: Number(data.current_step) || 0 };
+}
+
+export async function saveSubmissionDraft(draft: SubmissionDraftInput, step: number): Promise<{ ok: boolean }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+  const { error } = await supabase.from("submission_drafts").upsert({ user_id: user.id, payload: draft, current_step: step, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  return { ok: !error };
+}
+
+export async function deleteSubmissionDraft(): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("submission_drafts").delete().eq("user_id", user.id);
+}
+
 export type PublishResult =
   | { ok: true; brandSlug: string; productSlug: string }
   | { ok: false; error: string };

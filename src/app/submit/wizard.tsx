@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slug";
 import type { StoryBlock } from "@/lib/types";
-import { publishBrand, updateBrand, type PublishInput } from "./actions";
+import { deleteSubmissionDraft, publishBrand, saveSubmissionDraft, updateBrand, type PublishInput, type SubmissionDraftInput } from "./actions";
 
 const CATEGORIES = [
   "AI", "SaaS", "F&B", "패션", "뷰티", "콘텐츠", "커머스", "라이프스타일", "교육", "개발", "기타",
@@ -15,9 +15,7 @@ const STEPS = [
   "기본정보", "Founder", "브랜드", "프로덕트", "상세페이지", "AI 소개", "미리보기", "공개",
 ];
 
-type Draft = Omit<PublishInput, "publish" | "productFeatures"> & {
-  productFeatures: string; // 줄바꿈 구분 입력
-};
+type Draft = SubmissionDraftInput;
 
 /** 수정 모드에서 서버 페이지가 넘겨주는 초기값 */
 export type WizardInitial = Partial<Draft>;
@@ -45,12 +43,14 @@ interface AiResult {
 
 export function SubmitWizard({
   initial,
+  initialStep,
   edit,
 }: {
   initial?: WizardInitial;
+  initialStep?: number;
   edit?: WizardEditTarget;
 } = {}) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(Math.min(Math.max(initialStep ?? 0, 0), STEPS.length - 1));
   const [draft, setDraft] = useState<Draft>(
     initial ? { ...emptyDraft, ...initial } : emptyDraft,
   );
@@ -59,6 +59,7 @@ export function SubmitWizard({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ brandSlug: string; productSlug: string } | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "local" | "error">("idle");
 
   // AI 단계
   const [aiAnswers, setAiAnswers] = useState({ what: "", why: "", who: "", diff: "", say: "" });
@@ -67,6 +68,43 @@ export function SubmitWizard({
   const [aiNotice, setAiNotice] = useState<string | null>(null);
 
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
+
+  useEffect(() => {
+    if (initial) return;
+    try {
+      const cached = window.localStorage.getItem("featable:submission-draft");
+      if (!cached) return;
+      const parsed = JSON.parse(cached) as { draft?: Partial<Draft>; step?: number };
+      if (parsed.draft) setDraft((current) => ({ ...current, ...parsed.draft }));
+      if (typeof parsed.step === "number") setStep(Math.min(Math.max(parsed.step, 0), STEPS.length - 1));
+    } catch {}
+  }, [initial]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem("featable:submission-draft", JSON.stringify({ draft, step, savedAt: Date.now() }));
+        setSaveState((state) => state === "saving" ? state : "local");
+      } catch {}
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [draft, step]);
+
+  async function saveProgress(nextStep = step) {
+    setSaveState("saving");
+    try {
+      window.localStorage.setItem("featable:submission-draft", JSON.stringify({ draft, step: nextStep, savedAt: Date.now() }));
+    } catch {}
+    const result = await saveSubmissionDraft(draft, nextStep);
+    setSaveState(result.ok ? "saved" : "local");
+    return result.ok;
+  }
+
+  async function goNext() {
+    const nextStep = Math.min(step + 1, STEPS.length - 1);
+    await saveProgress(nextStep);
+    setStep(nextStep);
+  }
 
   async function uploadImage(kind: "logo" | "cover" | "hero", file: File) {
     setUploading(kind);
@@ -193,6 +231,8 @@ export function SubmitWizard({
       : await publishBrand(payload);
     setSubmitting(false);
     if (result.ok) {
+      await deleteSubmissionDraft();
+      try { window.localStorage.removeItem("featable:submission-draft"); } catch {}
       setDone({ brandSlug: result.brandSlug, productSlug: result.productSlug });
       setStep(STEPS.length); // 완료 화면
     } else {
@@ -214,6 +254,10 @@ export function SubmitWizard({
 
   const input = "w-full rounded-lg border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-accent";
   const label = "mb-1 mt-4 block text-xs font-semibold text-muted";
+  const completion = useMemo(() => {
+    const values = [draft.brandName, draft.tagline, draft.founderName, draft.founderHeadline, draft.description, draft.productName, draft.productTagline, draft.logoUrl, draft.heroUrl];
+    return Math.round((values.filter((value) => value?.trim()).length / values.length) * 100);
+  }, [draft]);
 
   // ---------- 완료 화면 ----------
   if (done) {
@@ -250,7 +294,26 @@ export function SubmitWizard({
   }
 
   return (
-    <div className="submit-wizard-layout">
+    <div className="submit-console-workspace" id="editor">
+      <header className="submit-channel-head">
+        <div className="submit-channel-logo">{draft.logoUrl ? <img src={draft.logoUrl} alt="" /> : <span>{draft.brandName.slice(0, 1) || "F"}</span>}</div>
+        <div><p>브랜드 워크스페이스</p><h1>{draft.brandName || "새 브랜드"}</h1><span>{draft.brandSlug ? `featable.com/brands/${draft.brandSlug}` : "아직 공개 주소가 없습니다."}</span></div>
+        <button type="button" onClick={() => setStep(6)}>미리보기</button>
+      </header>
+
+      <section className="submit-insight-panel">
+        <div className="submit-insight-head"><strong>등록 현황</strong><span>필수 정보를 채우면 언제든 공개할 수 있어요.</span></div>
+        <div className="submit-insight-grid">
+          <button type="button" onClick={() => setStep(0)}><span>프로필 완성도</span><strong>{completion}<small>%</small></strong><i><em style={{ width: `${completion}%` }} /></i></button>
+          <button type="button" onClick={() => setStep(1)}><span>Founder</span><strong>{draft.founderName ? "완료" : "미입력"}</strong><small>{draft.founderName || "사람을 소개해주세요"}</small></button>
+          <button type="button" onClick={() => setStep(3)}><span>프로덕트</span><strong>{draft.productName ? "1" : "0"}<small>개</small></strong><small>{draft.productName || "첫 제품을 등록하세요"}</small></button>
+          <button type="button" onClick={() => setStep(4)}><span>상세 블록</span><strong>{draft.story.length}<small>개</small></strong><small>{draft.story.length ? "상세페이지 작성 중" : "콘텐츠를 추가하세요"}</small></button>
+        </div>
+      </section>
+
+      <div className="submit-editor-heading"><div><strong>브랜드 등록</strong><span>{STEPS[step]} 편집 중</span></div><div className={`submit-persist-state ${saveState}`}><i />{saveState === "saving" ? "저장 중" : saveState === "saved" ? "클라우드 저장됨" : saveState === "local" ? "브라우저에 자동 저장됨" : "변경사항 없음"}</div><button type="button" onClick={() => saveProgress()} disabled={saveState === "saving"}>임시저장</button></div>
+
+      <div className="submit-wizard-layout">
       <aside className="submit-step-aside">
         <p>{edit ? "EDIT" : "REGISTRATION"}</p>
         <h2>{edit ? "브랜드 수정" : "브랜드 등록"}</h2>
@@ -271,9 +334,7 @@ export function SubmitWizard({
         ))}
       </div>
 
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">
-        STEP {step + 1} — {STEPS[step]}
-      </h1>
+      <div className="submit-form-title"><span>STEP {String(step + 1).padStart(2, "0")}</span><h1>{STEPS[step]}</h1></div>
 
       {/* STEP 1 기본정보 */}
       {step === 0 && (
@@ -540,7 +601,7 @@ export function SubmitWizard({
           이전
         </button>
         {step < 7 ? (
-          <button type="button" onClick={() => setStep((s) => s + 1)} disabled={!canNext}
+          <button type="button" onClick={goNext} disabled={!canNext || saveState === "saving"}
             className="rounded-lg bg-accent px-6 py-2.5 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-40">
             다음
           </button>
@@ -563,6 +624,7 @@ export function SubmitWizard({
         <div><span>STEP {step + 1}</span><strong>{STEPS[step]}</strong><p>{step === 4 ? "상세페이지는 이미지와 텍스트 블록을 원하는 만큼 추가할 수 있어요." : step === 6 ? "실제 공개 화면처럼 스토리 순서를 확인해보세요." : "필수 항목부터 작성하고 언제든 비공개로 저장할 수 있어요."}</p></div>
         <div className="submit-save-state"><i />비공개 저장 지원</div>
       </aside>
+      </div>
     </div>
   );
 }

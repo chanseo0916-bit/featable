@@ -71,7 +71,7 @@ export function ProfileEditor({ initial }: { initial: ProfileEditorInitial }) {
   const label = "mb-1 mt-3 block text-xs font-semibold text-muted";
 
   return (
-    <section className="mb-10 rounded-2xl border border-border p-6">
+    <section className="rounded-2xl border border-border bg-white p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {form.avatarUrl ? (

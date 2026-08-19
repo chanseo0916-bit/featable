@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Footer, Header } from "@/components/site-shell";
 import { FeatureActions } from "@/components/feature-actions";
+import { Comments } from "@/components/comments";
 import { FeatureViewMetric } from "@/components/view-tracker";
 import { brands, features, founders, partners, products } from "@/lib/mock";
 
@@ -86,8 +87,10 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             {product && <section id="product" className="feature-related-product"><p>RELATED PRODUCT</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
           </article>
 
-          <aside className="feature-article-aside"><div><p>FEATURED</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>{founder?.name} Founder</span></div><div><p>DISCOVERED</p><strong>{discoveryCount.toLocaleString()}</strong><span>people</span></div><a href="#cheers">Founder 응원하기 →</a></aside>
+          <aside className="feature-article-aside"><div><p>FEATURED</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>{founder?.name} Founder</span></div><div><p>DISCOVERED</p><strong>{discoveryCount.toLocaleString()}</strong><span>people</span></div><a href="#comments">Founder 응원하기 →</a></aside>
         </section>
+
+        <Comments type="feature" slug={feature.slug} />
       </main>
       <Footer partners={partners} />
     </>
