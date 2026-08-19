@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
 import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-feature-ranking";
-import { DiscoveryBanner, type DiscoveryBannerSlide } from "@/components/discovery-banner";
+import { DiscoveryStage, type DiscoveryTab } from "@/components/discovery-stage";
+import type { DiscoveryBannerSlide } from "@/components/discovery-banner";
 import { events, features, partners, supportPrograms } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 
@@ -13,10 +14,16 @@ export default async function Home() {
   const mainFeature = features[5];
   const bannerFeature = features[4];
   const discoveryFeatures = [mainFeature, features[2], features[3], features[1]];
-  const rankingItems: RankedFeatureItem[] = products.map((product) => {
+  const productRankingItems: RankedFeatureItem[] = products.map((product) => {
     const founder = founders.find((item) => item.slug === product.founderSlug);
     const brand = brands.find((item) => item.slug === product.brandSlug);
     return { slug: product.slug, title: product.name, coverUrl: product.heroUrl, brandName: brand?.name ?? "FEATABLE", founderName: founder?.name ?? "Founder", category: product.category, viewCount: product.viewCount ?? 0 };
+  });
+  const featureKindLabel: Record<string, string> = { interview: "인터뷰", "brand-story": "브랜드", "case-study": "팀", "product-feature": "제품", qna: "노하우", update: "트렌드" };
+  const featureRankingItems: RankedFeatureItem[] = features.map((feature) => {
+    const founder = founders.find((item) => item.slug === feature.founderSlug);
+    const brand = brands.find((item) => item.slug === feature.brandSlug);
+    return { slug: feature.slug, title: feature.title, coverUrl: feature.coverUrl, brandName: brand?.name ?? "FEATABLE", founderName: founder?.name ?? "Founder", category: featureKindLabel[feature.kind] ?? feature.kind, viewCount: feature.viewCount ?? 0 };
   });
 
   return (
@@ -34,22 +41,53 @@ export default async function Home() {
 
         <section className="shell live-stage">
           <div className="live-main">
-            <div className="stage-heading">
-              <div className="stage-tabs"><Link className="active" href="/">오늘의 발견</Link><Link href="/stories">새로운 이야기</Link><Link href="/products">막 나온 제품</Link></div>
-              <span>08.20 UPDATE</span>
-            </div>
-            <DiscoveryBanner
-              slides={discoveryFeatures.map((feature): DiscoveryBannerSlide => ({
-                href: `/stories/${feature.slug}`,
-                imageUrl: feature.coverUrl,
-                eyebrow: feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 스토리",
-                title: feature.title,
-                subtitle: feature.excerpt,
-              }))}
+            <DiscoveryStage
+              updateLabel={`${new Intl.DateTimeFormat("ko-KR", { month: "2-digit", day: "2-digit" }).format(new Date()).replace(/\. ?/g, ".").replace(/\.$/, "")} UPDATE`}
+              tabs={[
+                {
+                  key: "discover",
+                  label: "오늘의 발견",
+                  slides: discoveryFeatures.map((feature): DiscoveryBannerSlide => ({
+                    href: `/stories/${feature.slug}`,
+                    imageUrl: feature.coverUrl,
+                    eyebrow: feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 스토리",
+                    title: feature.title,
+                    subtitle: feature.excerpt,
+                  })),
+                },
+                {
+                  key: "new-stories",
+                  label: "새로운 이야기",
+                  slides: [...features]
+                    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+                    .slice(0, 4)
+                    .map((feature): DiscoveryBannerSlide => ({
+                      href: `/stories/${feature.slug}`,
+                      imageUrl: feature.coverUrl,
+                      eyebrow: `NEW · ${dateLabel(feature.publishedAt)} 발행`,
+                      title: feature.title,
+                      subtitle: feature.excerpt,
+                    })),
+                },
+                {
+                  key: "new-products",
+                  label: "막 나온 제품",
+                  slides: products.slice(0, 4).map((product): DiscoveryBannerSlide => {
+                    const brand = brands.find((item) => item.slug === product.brandSlug);
+                    return {
+                      href: `/products/${product.slug}`,
+                      imageUrl: product.heroUrl,
+                      eyebrow: `${product.category} · ${brand?.name ?? "FEATABLE"}`,
+                      title: product.name,
+                      subtitle: product.tagline,
+                    };
+                  }),
+                },
+              ] satisfies DiscoveryTab[]}
             />
           </div>
 
-          <LiveFeatureRanking items={rankingItems} />
+          <LiveFeatureRanking productItems={productRankingItems} featureItems={featureRankingItems} />
         </section>
 
         <section className="shell section fresh-products">

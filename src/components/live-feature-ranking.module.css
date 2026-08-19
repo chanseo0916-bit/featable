@@ -47,21 +47,49 @@
   background: #ef4125;
 }
 
-.tabs {
+.typeToggle {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 4px;
+  margin-bottom: 8px;
   padding: 4px;
-  border-radius: 8px;
-  background: #f5f6f7;
+  border-radius: 9px;
+  background: #eef0f2;
 }
 
-.tab {
-  min-width: 0;
-  padding: 8px 4px;
+.typeToggle button {
+  height: 38px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 7px;
   background: transparent;
+  color: #8a9098;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.typeToggle .activeType {
+  background: #ffffff;
+  color: #111111;
+  box-shadow: 0 1px 5px rgb(17 17 17 / 11%);
+}
+
+.tabs {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 2px 0 9px;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #ffffff;
   color: #8a9098;
   cursor: pointer;
   font-size: 11px;
@@ -75,9 +103,10 @@
 }
 
 .activeTab {
-  background: #ffffff;
-  color: #111111;
-  box-shadow: 0 1px 4px rgb(17 17 17 / 10%);
+  border-color: #111111;
+  background: #111111;
+  color: #ffffff;
+  box-shadow: none;
 }
 
 .tab:focus-visible {

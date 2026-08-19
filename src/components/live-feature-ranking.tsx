@@ -12,10 +12,12 @@ export type RankedFeatureItem = {
   founderName: string;
   category: string; // 프로덕트 카테고리 (AI, SaaS, F&B …)
   viewCount: number;
+  href?: string;
 };
 
 type LiveFeatureRankingProps = {
-  items: RankedFeatureItem[];
+  productItems: RankedFeatureItem[];
+  featureItems: RankedFeatureItem[];
 };
 
 function isCountsResponse(value: unknown): value is { counts: Record<string, number> } {
@@ -37,11 +39,13 @@ function formatViewCount(viewCount: number) {
   return viewCount.toLocaleString("ko-KR");
 }
 
-export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
+export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRankingProps) {
   const componentId = useId();
   const titleId = `${componentId}-title`;
   const panelId = `${componentId}-panel`;
+  const [activeType, setActiveType] = useState<"product" | "feature">("product");
   const [activeCategory, setActiveCategory] = useState("전체");
+  const items = activeType === "product" ? productItems : featureItems;
 
   // 실제 등록된 프로덕트의 카테고리로 탭을 동적 구성 (최대 4개)
   const categoryFilters = useMemo(() => {
@@ -52,7 +56,7 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
     }
     return ["전체", ...seen];
   }, [items]);
-  const [serverCounts, setServerCounts] = useState<Record<string, number>>({});
+  const [serverCounts, setServerCounts] = useState<Record<"product" | "feature", Record<string, number>>>({ product: {}, feature: {} });
   const [status, setStatus] = useState("실시간 조회수를 동기화하는 중입니다.");
 
   useEffect(() => {
@@ -60,7 +64,7 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
 
     const syncCounts = async () => {
       try {
-        const response = await fetch("/api/view?type=product", {
+        const response = await fetch(`/api/view?type=${activeType}`, {
           method: "GET",
           cache: "no-store",
         });
@@ -75,7 +79,7 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
         }
 
         if (!cancelled) {
-          setServerCounts((currentCounts) => ({ ...currentCounts, ...payload.counts }));
+          setServerCounts((currentCounts) => ({ ...currentCounts, [activeType]: { ...currentCounts[activeType], ...payload.counts } }));
           setStatus("실시간 조회수가 업데이트되었습니다.");
         }
       } catch {
@@ -92,15 +96,19 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
       cancelled = true;
       window.clearInterval(intervalId);
     };
-  }, []);
+  }, [activeType]);
+
+  useEffect(() => {
+    setActiveCategory("전체");
+  }, [activeType]);
 
   const rankedItems = useMemo(() => {
     return items
       .map((item, index) => ({
         item,
         index,
-        currentViewCount: Object.prototype.hasOwnProperty.call(serverCounts, item.slug)
-          ? serverCounts[item.slug]
+        currentViewCount: Object.prototype.hasOwnProperty.call(serverCounts[activeType], item.slug)
+          ? serverCounts[activeType][item.slug]
           : item.viewCount,
       }))
       .filter(
@@ -108,15 +116,20 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
       )
       .sort((a, b) => b.currentViewCount - a.currentViewCount || a.index - b.index)
       .slice(0, 5);
-  }, [activeCategory, items, serverCounts]);
+  }, [activeCategory, activeType, items, serverCounts]);
 
   return (
     <section className={styles.widget} aria-labelledby={titleId}>
       <div className={styles.header}>
-        <h2 id={titleId}>실시간 베스트 프로덕트 피처</h2>
+        <h2 id={titleId}>실시간 베스트</h2>
         <span className={styles.liveIndicator} aria-hidden="true">
           <span className={styles.liveDot} /> LIVE
         </span>
+      </div>
+
+      <div className={styles.typeToggle} aria-label="랭킹 종류">
+        <button className={activeType === "product" ? styles.activeType : ""} type="button" onClick={() => setActiveType("product")}>프로덕트</button>
+        <button className={activeType === "feature" ? styles.activeType : ""} type="button" onClick={() => setActiveType("feature")}>피처</button>
       </div>
 
       <div className={styles.tabs} role="tablist" aria-label="프로덕트 피처 랭킹 카테고리">
@@ -148,7 +161,7 @@ export function LiveFeatureRanking({ items }: LiveFeatureRankingProps) {
         {rankedItems.length > 0 ? (
           <ol className={styles.list}>
           {rankedItems.map(({ item, currentViewCount }, index) => (
-            <li className={styles.item} key={item.slug}><Link className={styles.itemLink} href={`/products/${item.slug}`}>
+            <li className={styles.item} key={item.slug}><Link className={styles.itemLink} href={item.href ?? (activeType === "product" ? `/products/${item.slug}` : `/stories/${item.slug}`)}>
               <span className={styles.rank} aria-label={`${index + 1}위`}>
                 {String(index + 1).padStart(2, "0")}
               </span>
