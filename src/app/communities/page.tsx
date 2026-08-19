@@ -1,0 +1,3 @@
+import { Footer, Header } from "@/components/site-shell";
+import { communities, partners } from "@/lib/mock";
+export default function CommunitiesPage() { return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><p className="eyebrow">COMMUNITY</p><h1>커뮤니티</h1><p>함께 만드는 사람들의 네트워크를 만나보세요.</p></div></div><div className="community-grid">{communities.map((community) => <a href={`/communities/${community.slug}`} className="community-card" key={community.slug}><img className="community-logo" src={community.logoUrl} alt="" /><div><p className="eyebrow">{community.field}</p><h3>{community.name}</h3><p>{community.intro}</p></div><span className="arrow">↗</span></a>)}</div></main><Footer partners={partners} /></>; }

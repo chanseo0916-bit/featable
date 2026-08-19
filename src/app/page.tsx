@@ -1,69 +1,23 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Badge, Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
+import { brands, communities, events, features, founders, jobs, partners, products, supportPrograms } from "@/lib/mock";
+
+const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
+const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86400000));
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+  const hero = features[0];
+  return <><Header /><main>
+    <section className="hero shell"><div className="hero-copy"><p className="eyebrow">DISCOVER WHAT&apos;S NEXT</p><h1>어떤 브랜드를<br /><em>찾고 있나요?</em></h1><p className="hero-description">새로운 창업가와 제품, 그리고 다음 기회를 발견해보세요.</p><form className="search-box" action="/search"><span>⌕</span><input name="q" placeholder="브랜드 · 창업가 · 제품 · 지원사업 검색" /><button aria-label="검색">검색</button></form><div className="hero-tags"><span>지금 많이 찾는 것</span><Link href="/products?category=AI">AI 제품</Link><Link href="/stories">창업가 이야기</Link><Link href="/support">지원사업</Link></div></div><div className="hero-art"><div className="hero-art-note">Every founder<br /><strong>deserves to be<br />featured.</strong></div><div className="hero-art-circle">F</div><div className="hero-art-line" /></div></section>
+    <section className="category-strip"><div className="shell category-scroll">{["AI", "SaaS", "F&B", "패션", "뷰티", "콘텐츠", "커머스", "라이프스타일", "교육", "개발", "기타"].map((category) => <Link href={`/products?category=${category}`} key={category}>{category}</Link>)}</div></section>
+    <section className="shell section feature-section"><SectionHeader eyebrow="THIS WEEK&apos;S FEATURE" title="이번 주, 주목할 이야기" href="/stories" /><Link href={`/stories/${hero.slug}`} className="feature-hero"><ImageCard src={hero.coverUrl} alt={hero.title} /><div className="feature-overlay"><Badge tone="orange">{hero.kind === "interview" ? "INTERVIEW" : "FEATURE"}</Badge><h3>{hero.title}</h3><p>{hero.excerpt}</p><span className="text-link">이야기 보기 →</span></div></Link></section>
+    <section className="shell section"><SectionHeader eyebrow="PRODUCT DISCOVERY" title="지금 발견한 프로덕트" href="/products" /><div className="product-grid">{products.map((product) => { const brand = brands.find((b) => b.slug === product.brandSlug); const founder = founders.find((f) => f.slug === product.founderSlug); return <Link href={`/products/${product.slug}`} className="product-card" key={product.slug}><ImageCard src={product.heroUrl} alt={product.name} /><div className="card-body"><div className="card-meta"><Badge>{product.category}</Badge>{product.viewCount && <span>조회 {product.viewCount.toLocaleString()}</span>}</div><h3>{product.name}</h3><p>{product.tagline}</p><div className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span><span>{brand?.name} · {founder?.name} Founder</span></div></div></Link>; })}</div></section>
+    <section className="shell section"><SectionHeader eyebrow="NEW ON FEATABLE" title="새로 등록된 브랜드" href="/brands" /><div className="brand-grid">{brands.map((brand) => <Link href={`/brands/${brand.slug}`} className="brand-card" key={brand.slug}><img className="brand-logo" src={brand.logoUrl} alt="" /><div><Badge>{brand.category}</Badge><h3>{brand.name}</h3><p>{brand.tagline}</p></div><span className="arrow">↗</span></Link>)}</div></section>
+    <section className="shell section stories-section"><SectionHeader eyebrow="FOUNDER STORIES" title="사람에서 시작된 이야기" href="/stories" /><div className="story-grid">{features.map((feature) => { const founder = founders.find((f) => f.slug === feature.founderSlug); return <Link href={`/stories/${feature.slug}`} className="story-card" key={feature.slug}><ImageCard src={feature.coverUrl} alt={feature.title} /><div className="story-card-copy"><span className="avatar"><img src={founder?.avatarUrl} alt="" /></span><div><p className="eyebrow">{founder?.name} · {feature.kind === "interview" ? "INTERVIEW" : "BRAND STORY"}</p><h3>{feature.title}</h3></div></div></Link>; })}</div></section>
+    <section className="shell section"><SectionHeader eyebrow="UPCOMING EVENTS" title="이번 주에 만나요" href="/events" /><div className="event-grid">{events.map((event) => <Link href={`/events/${event.slug}`} className="event-card" key={event.slug}><ImageCard src={event.coverUrl} alt={event.name} /><div className="card-body"><div className="event-date"><strong>{dateLabel(event.startsAt)}</strong><Badge>{event.category}</Badge></div><h3>{event.name}</h3><p>{event.host} · {event.location}</p><span className="text-link">신청하기 →</span></div></Link>)}</div></section>
+    <section className="shell section support-section"><SectionHeader eyebrow="STARTUP SUPPORT" title="지금 받을 수 있는 지원" href="/support" /><div className="support-list">{supportPrograms.map((program) => <Link href={`/support/${program.slug}`} className="support-row" key={program.slug}><div className="support-dday"><strong>D-{dday(program.closeAt)}</strong><span>마감임박</span></div><div className="support-main"><h3>{program.name}</h3><p>{program.agency} · {program.region} · {program.target}</p></div><strong className="support-amount">{program.amount}</strong><span className="arrow">→</span></Link>)}</div></section>
+    <section className="shell section"><SectionHeader eyebrow="COMMUNITY" title="함께 성장하는 커뮤니티" href="/communities" /><div className="community-grid">{communities.map((community) => <Link href={`/communities/${community.slug}`} className="community-card" key={community.slug}><img className="community-logo" src={community.logoUrl} alt="" /><div><Badge>{community.field}</Badge><h3>{community.name}</h3><p>{community.intro}</p></div><span className="arrow">↗</span></Link>)}</div></section>
+    <section className="shell section jobs-section"><SectionHeader eyebrow="JOIN A TEAM" title="함께할 동료를 찾고 있어요" href="/jobs" /><div className="job-list">{jobs.map((job) => { const brand = brands.find((b) => b.slug === job.brandSlug); return <Link href={`/jobs/${job.slug}`} className="job-row" key={job.slug}><img className="brand-logo small" src={brand?.logoUrl} alt="" /><div><h3>{job.title}</h3><p>{brand?.name} · {job.role}</p></div><span>{job.location}</span><Badge>{job.type}</Badge><span className="arrow">→</span></Link>; })}</div></section>
+    <section className="cta-section"><div className="shell cta-inner"><div><p className="eyebrow">YOUR STORY MATTERS</p><h2>당신의 브랜드는<br /><em>세상에 소개될 준비가 되었나요?</em></h2></div><Link className="button" href="/submit">브랜드 등록하기 <span>→</span></Link></div></section>
+  </main><Footer partners={partners} /></>;
 }

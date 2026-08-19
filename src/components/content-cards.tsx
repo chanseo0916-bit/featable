@@ -1,0 +1,7 @@
+import Link from "next/link";
+import { Badge, ImageCard } from "@/components/site-shell";
+import type { Brand, Feature, Product } from "@/lib/types";
+
+export function ProductCard({ product, brandName }: { product: Product; brandName?: string }) { return <Link href={`/products/${product.slug}`} className="product-card"><ImageCard src={product.heroUrl} alt={product.name} /><div className="card-body"><div className="card-meta"><Badge>{product.category}</Badge><span>{product.viewCount ? `조회 ${product.viewCount.toLocaleString()}` : "새로 등록"}</span></div><h3>{product.name}</h3><p>{product.tagline}</p><span className="person-line">{brandName ?? product.brandSlug}</span></div></Link>; }
+export function BrandCard({ brand }: { brand: Brand }) { return <Link href={`/brands/${brand.slug}`} className="brand-card"><img className="brand-logo" src={brand.logoUrl} alt="" /><div><Badge>{brand.category}</Badge><h3>{brand.name}</h3><p>{brand.tagline}</p></div><span className="arrow">↗</span></Link>; }
+export function FeatureCard({ feature }: { feature: Feature }) { return <Link href={`/stories/${feature.slug}`} className="story-card"><ImageCard src={feature.coverUrl} alt={feature.title} /><div className="story-card-copy"><div><p className="eyebrow">{feature.kind === "interview" ? "INTERVIEW" : "FEATURE"}</p><h3>{feature.title}</h3><p className="muted-copy">{feature.excerpt}</p></div></div></Link>; }
