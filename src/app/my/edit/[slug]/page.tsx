@@ -34,7 +34,7 @@ export default async function EditBrandPage({
   const { data: brand } = await supabase
     .from("brands")
     .select(
-      "id,slug,name,logo_url,tagline,description,problem,audience,category,website,sns,founded_at,status",
+      "id,slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,status",
     )
     .eq("slug", slug)
     .eq("founder_id", founder.id)
@@ -76,6 +76,7 @@ export default async function EditBrandPage({
     price: product.price ?? "",
     officialUrl: product.official_url ?? "",
     logoUrl: brand.logo_url ?? "",
+    coverUrl: brand.cover_url ?? "",
     heroUrl: product.hero_url ?? "",
   };
 

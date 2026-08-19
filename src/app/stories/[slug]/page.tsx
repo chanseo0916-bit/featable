@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Footer, Header } from "@/components/site-shell";
 import { FeatureActions } from "@/components/feature-actions";
+import { ViewTracker } from "@/components/view-tracker";
 import { brands, features, founders, partners, products } from "@/lib/mock";
 
 const kindLabel = {
@@ -23,14 +24,14 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const brand = brands.find((item) => item.slug === feature.brandSlug);
   const product = products.find((item) => item.brandSlug === feature.brandSlug);
   const score = [...slug].reduce((total, character) => total + character.charCodeAt(0), 0);
-  const discoveryCount = 8600 + (score % 4300);
+  const discoveryCount = feature.viewCount ?? 0;
   const interestCount = 620 + (score % 780);
   const cheerCount = 89 + (score % 260);
-  const liveCount = 18 + (score % 47);
 
   return (
     <>
       <Header />
+      <ViewTracker slug={feature.slug} type="feature" />
       <nav className="feature-top-tabs"><div className="shell"><a className="active" href="#story">스토리</a><a href="#updates">새소식 <span>4</span></a><a href="#cheers">응원 <span>{cheerCount}</span></a><a href="#community">커뮤니티 <span>36</span></a></div></nav>
 
       <main className="feature-project-page">
@@ -52,9 +53,9 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <h1>{feature.title}</h1>
             <p className="feature-project-excerpt">{feature.excerpt}</p>
 
-            <div className="feature-discovery-metric"><strong>{discoveryCount.toLocaleString()}</strong><span>회 발견</span><i>오늘 +{18 + score % 70}</i></div>
+            <div className="feature-discovery-metric"><strong>{discoveryCount.toLocaleString()}</strong><span>회 조회</span><i>실시간 집계</i></div>
             <div className="feature-project-numbers"><div><strong>{interestCount.toLocaleString()}</strong><span>명이 관심 있게 보고 있어요</span></div><div><strong>{cheerCount}</strong><span>명이 Founder를 응원했어요</span></div></div>
-            <div className="feature-live-viewers"><span>👀</span>지금 <strong>{liveCount}명</strong>이 이 피쳐를 보는 중</div>
+            <div className="feature-live-viewers"><span>👀</span>방문 조회수가 실시간 랭킹에 반영됩니다.</div>
 
             <div className="feature-value-list"><span>피쳐</span><div><p><i>✓</i> Founder가 직접 검토한 브랜드 스토리</p><p><i>✓</i> 제품과 만든 사람을 한 번에 발견</p></div></div>
 

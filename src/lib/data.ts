@@ -36,6 +36,7 @@ interface FounderRow {
   avatar_url: string | null;
   headline: string;
   bio: string | null;
+  sns?: Founder["sns"] | null;
 }
 
 interface BrandRow {
@@ -87,7 +88,7 @@ async function fetchLive(): Promise<Catalog | null> {
       supabase
         .from("brands")
         .select(
-          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,founder:founders(slug,name,avatar_url,headline,bio)",
+          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,founder:founders(slug,name,avatar_url,headline,bio,sns)",
         )
         .eq("status", "published")
         .order("is_featured", { ascending: false })
@@ -164,6 +165,7 @@ async function fetchLive(): Promise<Catalog | null> {
           avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),
           headline: f.headline,
           bio: f.bio ?? undefined,
+          sns: f.sns ?? undefined,
           brandSlugs: [b.slug],
         });
       }
@@ -179,6 +181,45 @@ function mergeBySlug<T extends { slug: string }>(live: T[], mock: T[]): T[] {
   const liveSlugs = new Set(live.map((item) => item.slug));
   return [...live, ...mock.filter((item) => !liveSlugs.has(item.slug))];
 }
+
+/**
+ * 파운더 단건 조회 — 아직 공개 브랜드가 없는 파운더도 프로필 페이지를 가질 수 있도록
+ * 카탈로그(브랜드 조인 유도)와 별개로 직접 조회한다. 없으면 목데이터에서 찾는다.
+ */
+export const getFounder = cache(async (slug: string): Promise<Founder | null> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (url && key) {
+    try {
+      const supabase = createClient(url, key);
+      const { data } = await supabase
+        .from("founders")
+        .select("slug,name,avatar_url,headline,bio,sns")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (data) {
+        const f = data as unknown as FounderRow;
+        const { brands } = await getCatalog();
+        return {
+          slug: f.slug,
+          name: f.name,
+          avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),
+          headline: f.headline,
+          bio: f.bio ?? undefined,
+          sns: f.sns ?? undefined,
+          brandSlugs: brands
+            .filter((b) => b.founderSlug === f.slug)
+            .map((b) => b.slug),
+        };
+      }
+    } catch {
+      // 조회 실패 시 목데이터 폴백
+    }
+  }
+
+  return mockFounders.find((f) => f.slug === slug) ?? null;
+});
 
 /** 실데이터 + 목데이터 병합 카탈로그. 렌더 1회당 캐시됨. */
 export const getCatalog = cache(async (): Promise<Catalog> => {

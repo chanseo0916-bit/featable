@@ -22,6 +22,12 @@ export interface Founder {
   avatarUrl: string;
   headline: string; // 한 줄 소개
   bio?: string;
+  sns?: {
+    instagram?: string;
+    x?: string;
+    linkedin?: string;
+    website?: string;
+  };
   brandSlugs: string[];
 }
 
@@ -97,6 +103,7 @@ export interface Feature {
   brandSlug?: string;
   founderSlug?: string;
   publishedAt: string; // ISO
+  viewCount?: number;
 }
 
 export interface EventItem {

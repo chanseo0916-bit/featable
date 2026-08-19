@@ -1,23 +1,44 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-/** 프로덕트 조회수 +1. 클라이언트 ViewTracker가 페이지당 세션 1회 호출한다. */
+type ViewType = "product" | "feature";
+
+type ViewRequestBody = {
+  slug?: unknown;
+  type?: unknown;
+};
+
+function noContent() {
+  return new NextResponse(null, { status: 204 });
+}
+
+/** ViewTracker가 페이지/feature 상세 진입 때 호출하는 조회수 API */
 export async function POST(request: Request) {
   const admin = createAdminClient();
-  if (!admin) return NextResponse.json({}, { status: 204 });
+  if (!admin) return noContent();
 
-  let slug = "";
+  let body: ViewRequestBody;
   try {
-    const body = (await request.json()) as { slug?: string };
-    slug = body.slug ?? "";
+    const parsed = await request.json();
+    body = parsed !== null && typeof parsed === "object" ? (parsed as ViewRequestBody) : {};
   } catch {
-    // body 없음
+    return NextResponse.json({ error: "invalid body" }, { status: 400 });
   }
-  if (!slug || typeof slug !== "string" || slug.length > 200) {
+
+  const slug = typeof body.slug === "string" ? body.slug : "";
+  const type: ViewType = body.type === undefined ? "product" : (body.type as ViewType);
+
+  if (!slug || slug.length > 200 || (type !== "product" && type !== "feature")) {
     return NextResponse.json({ error: "invalid slug" }, { status: 400 });
   }
 
-  // published 제품만 카운트. 동시성으로 몇 회 유실될 수 있으나 MVP에서는 허용.
+  if (type === "feature") {
+    // SQL 함수가 UPDATE를 원자적으로 수행하므로 동시 요청에서 증가분이 유실되지 않음
+    await admin.rpc("increment_feature_view_count", { p_slug: slug });
+    return noContent();
+  }
+
+  // 기존 product 조회수 동작은 그대로 유지
   const { data: product } = await admin
     .from("products")
     .select("id, view_count")
@@ -32,5 +53,27 @@ export async function POST(request: Request) {
       .eq("id", product.id);
   }
 
-  return new NextResponse(null, { status: 204 });
+  return noContent();
+}
+
+export async function GET(request: Request) {
+  const admin = createAdminClient();
+  if (!admin) return NextResponse.json({ counts: {} });
+
+  const type = new URL(request.url).searchParams.get("type");
+  if (type !== "feature") return NextResponse.json({ counts: {} });
+
+  const { data: features } = await admin
+    .from("features")
+    .select("slug, view_count")
+    .eq("status", "published");
+
+  const counts: Record<string, number> = {};
+  for (const feature of features ?? []) {
+    if (typeof feature.slug === "string") {
+      counts[feature.slug] = typeof feature.view_count === "number" ? feature.view_count : 0;
+    }
+  }
+
+  return NextResponse.json({ counts });
 }

@@ -106,11 +106,30 @@ create table features (
   excerpt text not null default '',
   body jsonb not null default '[]',           -- StoryBlock[]
   status content_status not null default 'draft',
+  view_count integer not null default 0,
   is_featured boolean not null default false, -- THIS WEEK'S FEATURE 지정
   published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- 공개된 feature 조회수를 한 번의 UPDATE로 원자적으로 증가
+create or replace function public.increment_feature_view_count(p_slug text)
+returns integer
+language sql
+security definer
+set search_path = public
+as $$
+  update public.features
+  set view_count = view_count + 1
+  where slug = p_slug
+    and status = 'published'
+  returning view_count;
+$$;
+
+-- 조회수 증가는 서버의 service_role을 통해서만 실행
+revoke execute on function public.increment_feature_view_count(text) from public;
+grant execute on function public.increment_feature_view_count(text) to service_role;
 
 -- ---------- Mentor's Note ----------
 create table mentor_notes (

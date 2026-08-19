@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 
-/** 프로덕트 상세 조회수 적재 — 브라우저 세션당 slug 1회만 */
-export function ViewTracker({ slug }: { slug: string }) {
+/** 상세 조회수 적재 — 브라우저 세션당 콘텐츠별 1회만 */
+export function ViewTracker({ slug, type = "product" }: { slug: string; type?: "product" | "feature" }) {
   useEffect(() => {
-    const key = `featable:viewed:${slug}`;
+    const key = `featable:viewed:${type}:${slug}`;
     try {
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, "1");
@@ -15,10 +15,10 @@ export function ViewTracker({ slug }: { slug: string }) {
     fetch("/api/view", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug }),
+      body: JSON.stringify({ slug, type }),
       keepalive: true,
     }).catch(() => {});
-  }, [slug]);
+  }, [slug, type]);
 
   return null;
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { signout } from "@/app/login/actions";
 import { DeleteBrandButton } from "./delete-button";
+import { ProfileEditor } from "./profile-editor";
 
 export const metadata: Metadata = {
   title: "마이 페이지 — FEATABLE",
@@ -28,9 +29,16 @@ export default async function MyPage() {
 
   const { data: founder } = await supabase
     .from("founders")
-    .select("id, name, headline")
+    .select("id, slug, name, headline, bio, avatar_url, sns")
     .eq("user_id", user.id)
     .maybeSingle();
+
+  const sns = (founder?.sns ?? {}) as {
+    instagram?: string;
+    x?: string;
+    linkedin?: string;
+    website?: string;
+  };
 
   let brands: MyBrand[] = [];
   if (founder) {
@@ -62,6 +70,20 @@ export default async function MyPage() {
           </button>
         </form>
       </div>
+
+      <ProfileEditor
+        initial={{
+          slug: founder?.slug,
+          name: founder?.name ?? "",
+          headline: founder?.headline ?? "",
+          bio: founder?.bio ?? "",
+          avatarUrl: founder?.avatar_url ?? "",
+          instagram: sns.instagram ?? "",
+          x: sns.x ?? "",
+          linkedin: sns.linkedin ?? "",
+          website: sns.website ?? "",
+        }}
+      />
 
       {brands.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border py-16 text-center">

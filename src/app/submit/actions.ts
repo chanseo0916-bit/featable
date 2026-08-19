@@ -33,6 +33,7 @@ export interface PublishInput {
   officialUrl?: string;
   // STEP 5 — 이미지 (업로드 후 public URL)
   logoUrl?: string;
+  coverUrl?: string; // 브랜드(기업) 커버 이미지
   heroUrl?: string;
   // STEP 8 — 공개 여부
   publish: boolean;
@@ -124,6 +125,7 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
       founder_id: founderId,
       name: input.brandName.trim(),
       logo_url: input.logoUrl || null,
+      cover_url: input.coverUrl || null,
       tagline: input.tagline.trim(),
       description: input.description.trim(),
       problem: input.problem?.trim() || null,
@@ -214,6 +216,7 @@ export async function updateBrand(
     .update({
       name: input.brandName.trim(),
       logo_url: input.logoUrl || null,
+      cover_url: input.coverUrl || null,
       tagline: input.tagline.trim(),
       description: input.description.trim(),
       problem: input.problem?.trim() || null,

@@ -32,7 +32,7 @@ const emptyDraft: Draft = {
   description: "", problem: "", audience: "", website: "", instagram: "", foundedAt: "",
   productName: "", productSlug: "", productTagline: "",
   productProblem: "", productSolution: "", productFeatures: "",
-  price: "", officialUrl: "", logoUrl: "", heroUrl: "", story: [],
+  price: "", officialUrl: "", logoUrl: "", coverUrl: "", heroUrl: "", story: [],
 };
 
 /** AI 생성 결과 */
@@ -54,7 +54,7 @@ export function SubmitWizard({
   const [draft, setDraft] = useState<Draft>(
     initial ? { ...emptyDraft, ...initial } : emptyDraft,
   );
-  const [uploading, setUploading] = useState<"logo" | "hero" | null>(null);
+  const [uploading, setUploading] = useState<"logo" | "cover" | "hero" | null>(null);
   const [storyUploading, setStoryUploading] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +68,7 @@ export function SubmitWizard({
 
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
 
-  async function uploadImage(kind: "logo" | "hero", file: File) {
+  async function uploadImage(kind: "logo" | "cover" | "hero", file: File) {
     setUploading(kind);
     setError(null);
     try {
@@ -80,7 +80,13 @@ export function SubmitWizard({
       const { error: upErr } = await supabase.storage.from("images").upload(path, file);
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("images").getPublicUrl(path);
-      set(kind === "logo" ? { logoUrl: data.publicUrl } : { heroUrl: data.publicUrl });
+      set(
+        kind === "logo"
+          ? { logoUrl: data.publicUrl }
+          : kind === "cover"
+            ? { coverUrl: data.publicUrl }
+            : { heroUrl: data.publicUrl },
+      );
     } catch {
       setError("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
     } finally {
@@ -389,17 +395,19 @@ export function SubmitWizard({
 
           <section className="story-asset-section">
             <p className="story-editor-label">대표 에셋</p>
-          {(["logo", "hero"] as const).map((kind) => {
-            const url = kind === "logo" ? draft.logoUrl : draft.heroUrl;
+          {(["logo", "cover", "hero"] as const).map((kind) => {
+            const url = kind === "logo" ? draft.logoUrl : kind === "cover" ? draft.coverUrl : draft.heroUrl;
+            const labelText = kind === "logo" ? "브랜드 로고" : kind === "cover" ? "기업 커버 이미지 (브랜드 페이지 상단 배경)" : "제품 대표 이미지";
+            const previewClass = kind === "logo" ? "h-16 w-16" : kind === "cover" ? "h-20 w-52" : "h-24 w-40";
             return (
               <div key={kind} className="story-main-asset">
-                <label className={label}>{kind === "logo" ? "브랜드 로고" : "제품 대표 이미지"}</label>
+                <label className={label}>{labelText}</label>
                 <div className="flex items-center gap-4">
                   {url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={url} alt="" className={kind === "logo" ? "h-16 w-16 rounded-xl border border-border object-cover" : "h-24 w-40 rounded-xl border border-border object-cover"} />
+                    <img src={url} alt="" className={`${previewClass} rounded-xl border border-border object-cover`} />
                   ) : (
-                    <div className={`grid place-items-center rounded-xl border border-dashed border-border text-xs text-muted ${kind === "logo" ? "h-16 w-16" : "h-24 w-40"}`}>
+                    <div className={`grid place-items-center rounded-xl border border-dashed border-border text-xs text-muted ${previewClass}`}>
                       없음
                     </div>
                   )}
