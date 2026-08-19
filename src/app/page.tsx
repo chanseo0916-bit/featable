@@ -23,6 +23,9 @@ export default async function Home() {
   const mainFeature = features[5];
   const bannerFeature = features[4];
   const rankedFeatures = [features[2], features[4], features[0], features[3], features[1]];
+  const rankingViews = [18_742, 14_386, 11_204, 8_931, 6_507];
+  const discoveryFeatures = [mainFeature, features[2], features[3], features[1]];
+  const discoveryViews = [12_560, 9_841, 8_931, 6_507];
 
   return (
     <>
@@ -32,7 +35,7 @@ export default async function Home() {
           <Link className="home-top-banner" href={`/stories/${bannerFeature.slug}`}>
             <img src={bannerFeature.coverUrl} alt="" />
             <div className="home-banner-shade" />
-            <div className="home-banner-copy"><span>FEATABLE ORIGINAL · EDITOR&apos;S PICK</span><h1>{bannerFeature.title}</h1><p>{bannerFeature.excerpt}</p><strong>피쳐 보러가기 <i>↗</i></strong></div>
+            <div className="home-banner-copy"><span>이번 주 추천 피쳐</span><h1>{bannerFeature.title}</h1><p>{bannerFeature.excerpt}</p><strong>자세히 보기 <i>→</i></strong></div>
             <div className="home-banner-control"><span className="home-banner-arrow">‹</span><span><b>01</b> / 05</span><span className="home-banner-arrow">›</span></div>
           </Link>
         </section>
@@ -58,29 +61,24 @@ export default async function Home() {
               <div className="stage-tabs"><Link className="active" href="/">오늘의 발견</Link><Link href="/stories">새로운 이야기</Link><Link href="/products">막 나온 제품</Link></div>
               <span>08.20 UPDATE</span>
             </div>
-            <Link className="spotlight-card" href={`/stories/${mainFeature.slug}`}>
-              <ImageCard src={mainFeature.coverUrl} alt={mainFeature.title} />
-              <div className="spotlight-shade" />
-              <div className="spotlight-badges"><Badge tone="orange">EDITOR&apos;S PICK</Badge><span>지금 주목할 창업가</span></div>
-              <div className="spotlight-copy"><p>이번 주, 캠퍼스에서 가장 빠르게 움직이는 팀들</p><h2>{mainFeature.title}</h2><span>피쳐 읽기 <b>↗</b></span></div>
-              <div className="spotlight-count">01 <i>/</i> 05</div>
-            </Link>
-            <div className="spotlight-progress"><span /></div>
-            <div className="mini-features">
-              {features.slice(2, 5).map((feature, index) => (
-                <Link href={`/stories/${feature.slug}`} key={feature.slug}><span>0{index + 2}</span><div><p>{feature.kind.replace("-", " ")}</p><h3>{feature.title}</h3></div><b>↗</b></Link>
+            <div className="discovery-feature-grid">
+              {discoveryFeatures.map((feature, index) => (
+                <Link className="discovery-feature-card" href={`/stories/${feature.slug}`} key={feature.slug}>
+                  <div className="discovery-feature-image"><img src={feature.coverUrl} alt="" />{index === 0 && <span>추천</span>}</div>
+                  <div className="discovery-feature-copy"><p>{feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 피쳐"} · 조회 {discoveryViews[index].toLocaleString("ko-KR")}</p><h2>{feature.title}</h2><span>{feature.excerpt}</span></div>
+                </Link>
               ))}
             </div>
           </div>
 
           <aside className="live-ranking">
-            <div className="ranking-head"><div><p className="eyebrow">LIVE NOW</p><h2>실시간 베스트 피쳐</h2></div><span className="live-dot">LIVE</span></div>
+            <div className="ranking-head"><h2>실시간 베스트 피쳐</h2><span className="live-dot">LIVE</span></div>
             <div className="ranking-tabs"><button className="active">전체</button><button>창업가</button><button>브랜드</button><button>제품</button></div>
             <ol className="ranking-list">
               {rankedFeatures.map((feature, index) => {
                 const founder = founders.find((item) => item.slug === feature.founderSlug);
                 const brand = brands.find((item) => item.slug === feature.brandSlug);
-                return <li key={feature.slug}><Link href={`/stories/${feature.slug}`}><strong>{index + 1}</strong><img src={feature.coverUrl} alt="" /><div><h3>{feature.title}</h3><p>{brand?.name ?? "FEATABLE"} · {founder?.name ?? "에디터"}</p></div><span className={index < 2 ? "rank-up" : "rank-stay"}>{index < 2 ? "↑" : "–"}</span></Link></li>;
+                return <li key={feature.slug}><Link href={`/stories/${feature.slug}`}><strong className="ranking-number">{index + 1}</strong><img src={feature.coverUrl} alt="" /><div><h3>{feature.title}</h3><div className="ranking-meta"><p>{brand?.name ?? "FEATABLE"} · {founder?.name ?? "에디터"}</p><strong>조회수 {rankingViews[index].toLocaleString("ko-KR")}</strong></div></div></Link></li>;
               })}
             </ol>
             <Link className="ranking-more" href="/stories">피쳐 랭킹 전체보기 <span>→</span></Link>
@@ -88,24 +86,24 @@ export default async function Home() {
         </section>
 
         <section className="shell after-feed-search">
-          <div><p className="eyebrow">SEARCH FEATABLE</p><h2>찾고 있는 팀이 있나요?</h2><span>브랜드, Founder, 제품과 기회를 한 번에 찾아보세요.</span></div>
+          <div><h2>찾고 있는 팀이 있나요?</h2><span>브랜드, 창업가, 제품과 기회를 한 번에 찾아보세요.</span></div>
           <form className="discovery-search" action="/search"><input name="q" placeholder="브랜드 · 창업가 · 제품 검색" /><button aria-label="검색">⌕</button></form>
         </section>
 
         <section className="shell section mz-curation-section">
-          <SectionHeader eyebrow="FEATABLE CURATION" title="지금 이 흐름, 놓치지 마세요" href="/stories" />
+          <SectionHeader title="지금 많이 보는 피쳐" href="/stories" />
           <div className="editorial-grid">
             {features.slice(2, 5).map((feature, index) => (
               <Link className={`editorial-card editorial-${index + 1}`} href={`/stories/${feature.slug}`} key={feature.slug}>
-                <img src={feature.coverUrl} alt="" /><div className="editorial-overlay" /><span className="editorial-index">CURATION 0{index + 1}</span>
-                <div><p>{index === 0 ? "작은 팀의 새로운 일 방식" : index === 1 ? "요즘 취향이 모이는 곳" : "첫 팬을 만드는 창업가"}</p><h3>{feature.title}</h3></div>
+                <img src={feature.coverUrl} alt="" /><div className="editorial-overlay" /><span className="editorial-index">피쳐</span>
+                <div><p>{index === 0 ? "팀과 일" : index === 1 ? "브랜드 이야기" : "창업가 인터뷰"} · 조회 {rankingViews[index + 1].toLocaleString("ko-KR")}</p><h3>{feature.title}</h3></div>
               </Link>
             ))}
           </div>
         </section>
 
         <section className="shell section fresh-products">
-          <SectionHeader eyebrow="JUST DROPPED" title="방금 세상에 나온 프로덕트" href="/products" />
+          <SectionHeader title="새로 등록된 프로덕트" href="/products" />
           <div className="product-grid">
             {products.map((product, index) => {
               const brand = brands.find((item) => item.slug === product.brandSlug);
@@ -117,7 +115,7 @@ export default async function Home() {
 
         <section className="opportunity-band">
           <div className="shell opportunity-grid">
-            <div className="opportunity-copy"><p className="eyebrow">DON&apos;T MISS OUT</p><h2>이번 주,<br />놓치면 아쉬운 기회</h2><p>행사부터 지원사업까지 창업가에게 필요한 다음 기회만 모았어요.</p><Link href="/support">모든 기회 보기 →</Link></div>
+            <div className="opportunity-copy"><h2>이번 주 놓치면<br />아쉬운 기회</h2><p>행사부터 지원사업까지 창업가에게 필요한 기회를 모았습니다.</p><Link href="/support">모든 기회 보기 →</Link></div>
             <div className="opportunity-list">
               {supportPrograms.slice(0, 2).map((program) => <Link href={`/support/${program.slug}`} key={program.slug}><span className="opportunity-day">D-{dday(program.closeAt)}</span><div><p>SUPPORT · {program.agency}</p><h3>{program.name}</h3><span>{program.target} · {program.region}</span></div><b>↗</b></Link>)}
               {events.slice(0, 2).map((event) => <Link href={`/events/${event.slug}`} key={event.slug}><span className="opportunity-day event-day">{dateLabel(event.startsAt)}</span><div><p>EVENT · {event.host}</p><h3>{event.name}</h3><span>{event.location} · {event.fee}</span></div><b>↗</b></Link>)}
@@ -125,7 +123,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="new-final-cta"><div className="shell"><p>당신이 만들고 있는 것을<br />더 많은 사람에게 보여주세요.</p><h2>Every founder deserves<br />to be <em>featured.</em></h2><Link className="button" href="/submit">내 브랜드 올리기 <span>↗</span></Link></div></section>
+        <section className="new-final-cta"><div className="shell"><div><h2>만들고 있는 브랜드와 제품을 알리세요</h2><p>누구나 직접 등록하고 피쳐를 시작할 수 있습니다.</p></div><Link className="button" href="/submit">브랜드 올리기 <span>→</span></Link></div></section>
       </main>
       <Footer partners={partners} />
     </>

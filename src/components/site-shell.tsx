@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Partner } from "@/lib/types";
+import { HeaderAuthActions } from "@/components/header-auth-actions";
 
 function FeatableLogo({ priority = false }: { priority?: boolean }) {
   return <Image src="/featable-logo.png" alt="FEATABLE" width={2061} height={385} priority={priority} />;
 }
 
 export function Header() {
-  return <header className="site-header"><div className="shell header-primary"><Link className="logo" href="/"><FeatableLogo priority /></Link><form className="header-search" action="/search"><span aria-hidden="true" /><input name="q" placeholder="창업가, 브랜드, 제품을 검색해보세요" /><button>검색</button></form><div className="nav-actions"><Link className="mobile-search-link" href="/search" aria-label="검색"><span /></Link><Link className="login-link" href="/login">로그인</Link><Link className="button button-small nav-submit" href="/submit">브랜드 올리기 <span>↗</span></Link></div></div><div className="header-channel-row"><nav className="shell channel-nav"><Link href="/stories">피쳐</Link><Link href="/products">프로덕트</Link><Link href="/brands">브랜드</Link><Link href="/events">이벤트</Link><Link href="/support">지원사업</Link><Link href="/communities">커뮤니티</Link><Link href="/jobs">채용</Link><i /><Link className="channel-highlight" href="/stories">이번 주 큐레이션</Link></nav></div></header>;
+  return <header className="site-header"><div className="shell header-primary"><Link className="logo" href="/"><FeatableLogo priority /></Link><form className="header-search" action="/search"><span aria-hidden="true" /><input name="q" placeholder="창업가, 브랜드, 제품을 검색해보세요" /><button>검색</button></form><div className="nav-actions"><Link className="mobile-search-link" href="/search" aria-label="검색"><span /></Link><HeaderAuthActions /></div></div><div className="header-channel-row"><nav className="shell channel-nav"><Link href="/stories">피쳐</Link><Link href="/products">프로덕트</Link><Link href="/brands">브랜드</Link><Link href="/events">이벤트</Link><Link href="/support">지원사업</Link><Link href="/communities">커뮤니티</Link><Link href="/jobs">채용</Link><i /><Link className="channel-highlight" href="/stories">이번 주 큐레이션</Link></nav></div></header>;
 }
 
 export function Footer({ partners }: { partners: Partner[] }) {
