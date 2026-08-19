@@ -14,6 +14,7 @@
 - 데이터는 전부 **목데이터**로 작업: `src/lib/mock/` 아래에 만들 것
 - 타입은 `src/lib/types.ts` 사용 (아래 §3 계약 — Claude가 관리, 필드 추가/변경 금지. 필요하면 요청만)
 - API 호출 코드 작성 금지. 컴포넌트는 props로 데이터를 받는 순수 프레젠테이션 구조로
+- ⚠️ **홈·브랜드·프로덕트·검색 페이지는 `@/lib/data`의 `getCatalog()`로 데이터를 받는다** (실DB+목데이터 병합, Claude 관리). 페이지를 리디자인할 때 `@/lib/mock`의 brands/products/founders 직접 import로 되돌리지 말 것. events/support/communities/jobs/features/partners는 아직 mock 직접 import 사용.
 
 ## 1. 디자인 시스템 (엄격히 준수)
 

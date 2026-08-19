@@ -1,9 +1,27 @@
 import type { Metadata } from "next";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Featable — 창업가가 세상에 발견되기 시작하는 곳",
-  description: "초기 창업가의 제품, 이야기, 기회와 사람을 연결하는 큐레이션 플랫폼",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Featable — 창업가가 세상에 발견되기 시작하는 곳",
+    template: "%s — Featable",
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "ko_KR",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

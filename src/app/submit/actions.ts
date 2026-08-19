@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
+import type { StoryBlock } from "@/lib/types";
 
 export interface PublishInput {
   // STEP 1 — 기본정보
@@ -27,6 +28,7 @@ export interface PublishInput {
   productProblem: string;
   productSolution: string;
   productFeatures: string[]; // 주요 특징
+  story: StoryBlock[];
   price?: string;
   officialUrl?: string;
   // STEP 5 — 이미지 (업로드 후 public URL)
@@ -146,6 +148,10 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
   // 4) Product insert
   const productSlug =
     slugify(input.productSlug) || slugify(input.productName) || `product-${randomSuffix()}`;
+  const storyImages = input.story
+    .filter((block): block is Extract<StoryBlock, { type: "image" }> => block.type === "image")
+    .map((block) => block.src)
+    .filter(Boolean);
   const productRes = await insertWithSlugRetry(
     async (row) => {
       const { error } = await supabase.from("products").insert(row);
@@ -156,9 +162,9 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
       brand_id: brand.id,
       name: input.productName.trim(),
       hero_url: input.heroUrl || null,
-      images: input.heroUrl ? [input.heroUrl] : [],
+      images: [input.heroUrl, ...storyImages].filter(Boolean),
       tagline: input.productTagline.trim(),
-      story: [],
+      story: input.story,
       problem: input.productProblem.trim(),
       solution: input.productSolution.trim(),
       features: input.productFeatures.map((f) => f.trim()).filter(Boolean),

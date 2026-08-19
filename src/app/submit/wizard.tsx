@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slug";
+import type { StoryBlock } from "@/lib/types";
 import { publishBrand, type PublishInput } from "./actions";
 
 const CATEGORIES = [
@@ -11,7 +12,7 @@ const CATEGORIES = [
 ];
 
 const STEPS = [
-  "기본정보", "Founder", "브랜드", "프로덕트", "이미지", "AI 소개", "미리보기", "공개",
+  "기본정보", "Founder", "브랜드", "프로덕트", "상세페이지", "AI 소개", "미리보기", "공개",
 ];
 
 type Draft = Omit<PublishInput, "publish" | "productFeatures"> & {
@@ -24,7 +25,7 @@ const emptyDraft: Draft = {
   description: "", problem: "", audience: "", website: "", instagram: "", foundedAt: "",
   productName: "", productSlug: "", productTagline: "",
   productProblem: "", productSolution: "", productFeatures: "",
-  price: "", officialUrl: "", logoUrl: "", heroUrl: "",
+  price: "", officialUrl: "", logoUrl: "", heroUrl: "", story: [],
 };
 
 /** AI 생성 결과 */
@@ -39,6 +40,7 @@ export function SubmitWizard() {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [uploading, setUploading] = useState<"logo" | "hero" | null>(null);
+  const [storyUploading, setStoryUploading] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ brandSlug: string; productSlug: string } | null>(null);
@@ -59,7 +61,7 @@ export function SubmitWizard() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("로그인이 필요합니다.");
       const ext = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${Date.now()}-${kind}.${ext}`;
+      const path = `${user.id}/${window.crypto.randomUUID()}-${kind}.${ext}`;
       const { error: upErr } = await supabase.storage.from("images").upload(path, file);
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("images").getPublicUrl(path);
@@ -68,6 +70,50 @@ export function SubmitWizard() {
       setError("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setUploading(null);
+    }
+  }
+
+  function updateStory(index: number, block: StoryBlock) {
+    set({ story: draft.story.map((item, itemIndex) => itemIndex === index ? block : item) });
+  }
+
+  function addStoryBlock(type: StoryBlock["type"]) {
+    const block: StoryBlock = type === "text"
+      ? { type: "text", heading: "", body: "" }
+      : { type: "image", src: "", alt: "" };
+    set({ story: [...draft.story, block] });
+  }
+
+  function moveStoryBlock(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= draft.story.length) return;
+    const next = [...draft.story];
+    [next[index], next[target]] = [next[target], next[index]];
+    set({ story: next });
+  }
+
+  function removeStoryBlock(index: number) {
+    set({ story: draft.story.filter((_, itemIndex) => itemIndex !== index) });
+  }
+
+  async function uploadStoryImage(index: number, file: File) {
+    setStoryUploading(index);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("로그인이 필요합니다.");
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${user.id}/${window.crypto.randomUUID()}-story.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("images").upload(path, file);
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("images").getPublicUrl(path);
+      const current = draft.story[index];
+      if (current?.type === "image") updateStory(index, { ...current, src: data.publicUrl, alt: current.alt || draft.productName });
+    } catch {
+      setError("상세 이미지 업로드에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setStoryUploading(null);
     }
   }
 
@@ -105,6 +151,10 @@ export function SubmitWizard() {
       description: aiResult.description ?? draft.description,
       productTagline: aiResult.productTagline ?? draft.productTagline,
       founderHeadline: aiResult.founderHeadline ?? draft.founderHeadline,
+      story: draft.story.length > 0 ? draft.story : [
+        { type: "text", heading: "왜 만들었나요?", body: aiAnswers.why || draft.productProblem },
+        { type: "text", heading: "어떻게 해결하나요?", body: aiAnswers.diff || draft.productSolution },
+      ],
     });
     setAiNotice("생성된 문구를 반영했습니다. 미리보기에서 확인하세요.");
   }
@@ -299,18 +349,20 @@ export function SubmitWizard() {
         </div>
       )}
 
-      {/* STEP 5 이미지 */}
+      {/* STEP 5 상세페이지 */}
       {step === 4 && (
-        <div>
-          <p className="text-sm text-muted">
-            로고와 대표 이미지를 올려주세요. 이미지가 없으면 나중에 추가할 수도 있습니다.
-            <br />
-            <span className="text-accent">Tip:</span> docs/IMAGE_PROMPTS.md의 프롬프트로 GPT에서 이미지를 만들 수 있어요.
-          </p>
+        <div className="story-builder">
+          <div className="story-builder-intro">
+            <p className="text-sm text-muted">쿠팡·와디즈 상세페이지처럼 이미지와 설명을 원하는 순서대로 쌓아주세요. 등록한 순서 그대로 긴 상세 스토리가 만들어집니다.</p>
+            <div><span>텍스트 블록</span><b>+</b><span>이미지 블록</span><b>+</b><span>순서 변경</span><b>=</b><strong>상세페이지</strong></div>
+          </div>
+
+          <section className="story-asset-section">
+            <p className="story-editor-label">대표 에셋</p>
           {(["logo", "hero"] as const).map((kind) => {
             const url = kind === "logo" ? draft.logoUrl : draft.heroUrl;
             return (
-              <div key={kind} className="mt-6">
+              <div key={kind} className="story-main-asset">
                 <label className={label}>{kind === "logo" ? "브랜드 로고" : "제품 대표 이미지"}</label>
                 <div className="flex items-center gap-4">
                   {url ? (
@@ -330,6 +382,28 @@ export function SubmitWizard() {
               </div>
             );
           })}
+          </section>
+
+          <section className="story-block-section">
+            <div className="story-block-heading"><div><p className="story-editor-label">상세 스토리</p><h2>{draft.story.length}개의 블록</h2></div><span>위에서 아래로 노출됩니다</span></div>
+
+            {draft.story.length === 0 && <div className="story-empty"><strong>아직 상세 내용이 없어요</strong><p>텍스트나 이미지를 추가해 첫 장면을 만들어보세요.<br />완성된 통이미지 한 장만 올려도 됩니다.</p></div>}
+
+            <div className="story-editor-list">
+              {draft.story.map((block, index) => (
+                <article className="story-editor-block" key={`${block.type}-${index}`}>
+                  <div className="story-block-bar">
+                    <div><span className="story-block-number">{String(index + 1).padStart(2, "0")}</span><strong>{block.type === "text" ? "텍스트" : "이미지"}</strong></div>
+                    <div><button type="button" onClick={() => moveStoryBlock(index, -1)} disabled={index === 0} aria-label="위로 이동">↑</button><button type="button" onClick={() => moveStoryBlock(index, 1)} disabled={index === draft.story.length - 1} aria-label="아래로 이동">↓</button><button type="button" className="story-remove" onClick={() => removeStoryBlock(index)}>삭제</button></div>
+                  </div>
+
+                  {block.type === "text" ? <div className="story-text-fields"><label>큰 제목<input className={input} value={block.heading ?? ""} placeholder="예: 좋은 아이디어는 왜 사라질까요?" onChange={(event) => updateStory(index, { ...block, heading: event.target.value })} /></label><label>본문<textarea className={`${input} min-h-32`} value={block.body} placeholder="이 장면에서 전달할 이야기를 입력하세요." onChange={(event) => updateStory(index, { ...block, body: event.target.value })} /></label></div> : <div className="story-image-fields"><div className="story-image-preview">{block.src ? <img src={block.src} alt="상세 이미지 미리보기" /> : <div><span>IMAGE</span><p>세로 이미지 권장<br />4:5 또는 3:4</p></div>}</div><div><label className="story-upload-button">{storyUploading === index ? "업로드 중…" : block.src ? "이미지 교체" : "이미지 업로드"}<input type="file" accept="image/*" disabled={storyUploading !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) uploadStoryImage(index, file); }} /></label><label className={label}>이미지 설명 (접근성)<input className={input} value={block.alt} placeholder="이미지에 보이는 내용을 설명해주세요" onChange={(event) => updateStory(index, { ...block, alt: event.target.value })} /></label><label className={label}>캡션 (선택)<input className={input} value={block.caption ?? ""} placeholder="이미지 아래에 표시할 짧은 설명" onChange={(event) => updateStory(index, { ...block, caption: event.target.value })} /></label></div></div>}
+                </article>
+              ))}
+            </div>
+
+            <div className="story-add-buttons"><button type="button" onClick={() => addStoryBlock("text")}><span>T</span><div><strong>텍스트 추가</strong><small>제목과 설명을 입력합니다</small></div></button><button type="button" onClick={() => addStoryBlock("image")}><span>▧</span><div><strong>이미지 추가</strong><small>긴 상세컷을 업로드합니다</small></div></button></div>
+          </section>
         </div>
       )}
 
@@ -402,6 +476,7 @@ export function SubmitWizard() {
               by <b className="text-foreground">{draft.founderName}</b> · {draft.founderHeadline}
             </p>
           </div>
+          {draft.story.length > 0 && <div className="wizard-story-preview"><p className="story-editor-label">상세페이지 미리보기</p>{draft.story.map((block, index) => block.type === "text" ? <section key={`${block.type}-${index}`}><span>STORY {String(index + 1).padStart(2, "0")}</span>{block.heading && <h3>{block.heading}</h3>}<p>{block.body}</p></section> : <figure key={`${block.type}-${index}`}>{block.src ? <img src={block.src} alt={block.alt} /> : <div>이미지를 업로드해주세요</div>}{block.caption && <figcaption>{block.caption}</figcaption>}</figure>)}</div>}
         </div>
       )}
 
