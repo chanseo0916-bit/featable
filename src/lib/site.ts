@@ -9,6 +9,7 @@ export const SITE_URL = process.env.NODE_ENV === "production"
   : configuredSiteUrl || "http://localhost:3000";
 
 export const SITE_NAME = "Featable";
+export const SITE_SOCIAL_IMAGE = `${SITE_URL}/featable-og-v2.png`;
 
 export const SITE_DESCRIPTION =
   "초기 사용자 확보를 고민하는 창업가를 위한 Featable. 신생 브랜드와 스타트업 제품, 창업가 인터뷰와 창업 지원사업·행사·커뮤니티를 한곳에서 만나보세요.";
@@ -49,6 +50,18 @@ export function createPageMetadata({
       url: new URL(path, SITE_URL).toString(),
       title: pageTitle,
       description,
+      images: [{
+        url: SITE_SOCIAL_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "Featable — 창업가가 세상에 발견되기 시작하는 곳.",
+      }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: pageTitle,
+      description,
+      images: [SITE_SOCIAL_IMAGE],
     },
   };
 }
