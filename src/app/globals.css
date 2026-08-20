@@ -652,7 +652,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 
 /* Founder identity — collectible profile without the NFT/neon visual language */
 .founder-page { background: #f6f7f8; }
-.founder-id-section { padding-top: 48px; padding-bottom: 48px; display: grid; grid-template-columns: minmax(320px, .82fr) minmax(0, 1.18fr); gap: 64px; align-items: stretch; }
+.founder-id-section { padding-top: 48px; padding-bottom: 48px; display: grid; grid-template-columns: minmax(320px, .82fr) minmax(0, 1.18fr); gap: 64px; align-items: start; }
 .founder-id-visual { min-height: 520px; position: relative; overflow: hidden; border-radius: 24px; background: #ef4125; box-shadow: 0 20px 50px #ef412523; }
 .founder-card-grid { position: absolute; inset: 0; opacity: .16; background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 38px 38px; mask-image: linear-gradient(to bottom, #000, transparent 75%); }
 .founder-id-mark { position: absolute; z-index: 2; top: 26px; left: 27px; color: #fff; font-size: 31px; font-weight: 900; letter-spacing: -.08em; }

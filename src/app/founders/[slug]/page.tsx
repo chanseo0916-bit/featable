@@ -107,7 +107,6 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
               <p>{founder.headline}</p>
               <div className="founder-spot-foot">
                 <span className="founder-hero-status"><i /> NOW BUILDING</span>
-                <em className="founder-spot-cta">Follow +</em>
               </div>
             </div>
           </div>
