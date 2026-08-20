@@ -79,40 +79,48 @@ export function ProfileEditor({
 
   return (
     <section className="rounded-2xl border border-border bg-white p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {form.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={form.avatarUrl} alt="" className="h-14 w-14 rounded-full border border-border object-cover" />
-          ) : (
-            <div className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-lg font-black text-accent">
-              {form.name?.slice(0, 1) || "F"}
-            </div>
-          )}
-          <div>
-            <h2 className="font-bold">{form.name || "파운더 프로필"}</h2>
-            <p className="text-xs text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          {slug && (
-            <Link href={`/founders/${slug}`} className="text-xs font-semibold text-accent hover:underline">
-              공개 프로필 →
-            </Link>
-          )}
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="rounded-lg border border-border px-4 py-2 text-xs font-bold transition-colors hover:border-accent hover:text-accent"
-          >
-            {open ? "접기" : "프로필 편집"}
-          </button>
-        </div>
-      </div>
-
-      {open && (
-        <div className="mt-6 grid gap-8 border-t border-border pt-5 lg:grid-cols-[1fr_300px]">
+      <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
         <div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {form.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={form.avatarUrl} alt="" className="h-14 w-14 rounded-full border border-border object-cover" />
+              ) : (
+                <div className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-lg font-black text-accent">
+                  {form.name?.slice(0, 1) || "F"}
+                </div>
+              )}
+              <div>
+                <h2 className="font-bold">{form.name || "파운더 프로필"}</h2>
+                <p className="text-xs text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              {slug && (
+                <Link href={`/founders/${slug}`} className="text-xs font-semibold text-accent hover:underline">
+                  공개 프로필 →
+                </Link>
+              )}
+              <button
+                type="button"
+                onClick={() => setOpen((v) => !v)}
+                className="rounded-lg border border-border px-4 py-2 text-xs font-bold transition-colors hover:border-accent hover:text-accent"
+              >
+                {open ? "접기" : "프로필 편집"}
+              </button>
+            </div>
+          </div>
+
+          {!open && (
+            <p className="mt-6 border-t border-border pt-5 text-xs leading-relaxed text-muted">
+              오른쪽 카드가 홈 &lsquo;주목할 파운더&rsquo;와 검색 결과에 노출되는 내 공개 카드입니다.
+              &lsquo;프로필 편집&rsquo;을 누르면 입력하는 대로 카드가 실시간으로 바뀝니다.
+            </p>
+          )}
+
+          {open && (
+        <div className="mt-6 border-t border-border pt-5">
           <label className={label}>프로필 캐릭터</label>
           <div className="founder-avatar-picker">
             {AVATAR_PRESETS.map((avatar) => (
@@ -186,10 +194,12 @@ export function ProfileEditor({
             {saving ? "저장 중…" : "프로필 저장"}
           </button>
         </div>
+          )}
+        </div>
 
-        {/* 오른쪽: 입력하는 대로 갱신되는 공개 카드 미리보기 */}
+        {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
         <aside className="self-start lg:sticky lg:top-6">
-          <p className="mb-2 text-xs font-semibold text-muted">공개 카드 미리보기</p>
+          <p className="mb-2 text-xs font-semibold text-muted">내 공개 카드</p>
           <div className="pointer-events-none">
             <FounderCard
               founder={{
@@ -208,8 +218,7 @@ export function ProfileEditor({
             홈 &lsquo;주목할 파운더&rsquo;와 검색 결과에 이 카드로 노출됩니다.
           </p>
         </aside>
-        </div>
-      )}
+      </div>
     </section>
   );
 }
