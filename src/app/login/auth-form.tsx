@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { login, signup, type AuthState } from "./actions";
@@ -94,8 +95,8 @@ export function AuthForm() {
 
         {mode === "signup" && (
           <div className="space-y-3 rounded-xl bg-[#f6f6f6] p-4 text-xs text-[#555]">
-            <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="termsAccepted" required /><span><b className="text-foreground">[필수]</b> Featable 이용약관에 동의합니다.</span></label>
-            <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="privacyAccepted" required /><span><b className="text-foreground">[필수]</b> 개인정보 수집 및 이용에 동의합니다.</span></label>
+            <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="termsAccepted" required /><span><b className="text-foreground">[필수]</b> Featable <Link href="/terms" target="_blank" className="underline hover:text-accent">이용약관</Link>에 동의합니다.</span></label>
+            <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="privacyAccepted" required /><span><b className="text-foreground">[필수]</b> <Link href="/privacy" target="_blank" className="underline hover:text-accent">개인정보 수집 및 이용</Link>에 동의합니다.</span></label>
             <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="marketingAccepted" /><span>[선택] 새로운 Founder와 행사 소식을 받아봅니다.</span></label>
           </div>
         )}

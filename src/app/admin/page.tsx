@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { RowControls } from "./admin-controls";
 import { DeleteCurationButton, EventForm, PartnerForm, SupportForm } from "./curation-forms";
+import { StudioBrand } from "@/components/site-shell";
 
 export const metadata: Metadata = {
   title: "관리자",
@@ -119,16 +120,31 @@ export default async function AdminPage() {
     new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(iso));
 
   return (
-    <main className="mx-auto max-w-4xl bg-white px-6 py-14">
-      <p className="mb-1 text-[11px] font-extrabold tracking-[0.13em] text-accent">
-        FEATABLE ADMIN
-      </p>
-      <h1 className="mb-10 text-2xl font-bold tracking-tight">콘텐츠 관리</h1>
+    <>
+      <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><a className="active" href="#brands">콘텐츠 검수</a><a href="#events">행사</a><a href="#support">지원사업</a><a href="#partners">파트너</a></nav><Link href="/">사이트 보기 →</Link></div></div>
+      <div className="publish-console-tabs"><div className="shell"><a className="active" href="#brands">브랜드</a><a href="#products">프로덕트</a><a href="#events">행사</a><a href="#support">지원사업</a><a href="#partners">파트너</a></div></div>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-lg font-bold">
-          브랜드 <span className="text-sm font-normal text-muted">{brands.length}</span>
-        </h2>
+      <main className="shell my-dash">
+        <div className="my-dash-heading">
+          <div>
+            <p className="eyebrow">FEATABLE ADMIN</p>
+            <h1>운영 콘솔</h1>
+            <p>브랜드 검수부터 행사·지원사업·파트너 큐레이션까지 한곳에서 관리하세요.</p>
+          </div>
+        </div>
+
+        <div className="my-dash-stats">
+          <div className="my-dash-stat"><span>브랜드</span><strong>{brands.length}<em>개</em></strong></div>
+          <div className="my-dash-stat"><span>프로덕트</span><strong>{products.length}<em>개</em></strong></div>
+          <div className="my-dash-stat"><span>행사</span><strong>{eventRows.length}<em>개</em></strong></div>
+          <div className="my-dash-stat"><span>지원사업</span><strong>{supportRows.length}<em>개</em></strong></div>
+        </div>
+
+      <section id="brands" className="my-dash-panel">
+        <div className="my-dash-panel-head">
+          <h2>브랜드 <span className="text-sm font-normal text-muted">{brands.length}</span></h2>
+          <Link href="/brands">공개 페이지 →</Link>
+        </div>
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
@@ -167,10 +183,11 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-4 text-lg font-bold">
-          프로덕트 <span className="text-sm font-normal text-muted">{products.length}</span>
-        </h2>
+      <section id="products" className="my-dash-panel">
+        <div className="my-dash-panel-head">
+          <h2>프로덕트 <span className="text-sm font-normal text-muted">{products.length}</span></h2>
+          <Link href="/products">공개 페이지 →</Link>
+        </div>
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
@@ -209,10 +226,11 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="mb-4 text-lg font-bold">
-          행사 <span className="text-sm font-normal text-muted">{eventRows.length}</span>
-        </h2>
+      <section id="events" className="my-dash-panel">
+        <div className="my-dash-panel-head">
+          <h2>행사 <span className="text-sm font-normal text-muted">{eventRows.length}</span></h2>
+          <Link href="/events">공개 페이지 →</Link>
+        </div>
         <EventForm />
         <div className="grid gap-2">
           {eventRows.map((e) => (
@@ -236,10 +254,11 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="mb-4 text-lg font-bold">
-          지원사업 <span className="text-sm font-normal text-muted">{supportRows.length}</span>
-        </h2>
+      <section id="support" className="my-dash-panel">
+        <div className="my-dash-panel-head">
+          <h2>지원사업 <span className="text-sm font-normal text-muted">{supportRows.length}</span></h2>
+          <Link href="/support">공개 페이지 →</Link>
+        </div>
         <SupportForm />
         <div className="grid gap-2">
           {supportRows.map((s) => (
@@ -263,10 +282,11 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="mt-12">
-        <h2 className="mb-4 text-lg font-bold">
-          파트너 <span className="text-sm font-normal text-muted">{partnerRows.length}</span>
-        </h2>
+      <section id="partners" className="my-dash-panel">
+        <div className="my-dash-panel-head">
+          <h2>파트너 <span className="text-sm font-normal text-muted">{partnerRows.length}</span></h2>
+          <Link href="/partners">공개 페이지 →</Link>
+        </div>
         <PartnerForm />
         <div className="grid gap-2">
           {partnerRows.map((p) => (
@@ -294,6 +314,7 @@ export default async function AdminPage() {
           )}
         </div>
       </section>
-    </main>
+      </main>
+    </>
   );
 }
