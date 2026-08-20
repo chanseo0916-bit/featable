@@ -15,6 +15,7 @@ export async function updateMemberType(formData: FormData): Promise<void> {
 
   await supabase.from("profiles").update({ member_type: memberType }).eq("id", user.id);
   revalidatePath("/my");
+  revalidatePath("/my/settings");
 }
 
 export async function toggleBrandVisibility(brandId: string, publish: boolean): Promise<{ ok: boolean; error?: string }> {

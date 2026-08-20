@@ -2,14 +2,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { signout } from "@/app/login/actions";
 import { DeleteBrandButton } from "./delete-button";
 import { BrandStatusButton } from "./brand-status-button";
-import { ProfileEditor } from "./profile-editor";
-import { StudioBrand } from "@/components/site-shell";
 import { isMemberType, type MemberType } from "@/lib/auth";
-import { updateMemberType } from "./actions";
 import { getCatalog, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
+import { TeamInviteButton } from "./team-invite-button";
+import { StudioNav } from "./studio-nav";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -24,27 +24,39 @@ interface MyBrand {
   updated_at: string;
 }
 
-interface MyProduct { id: string; brand_id: string; name: string; view_count: number; status: string; }
-interface SavedDraft { draft_key: string; payload: Record<string, unknown>; current_step: number; updated_at: string; }
+interface MyProduct { id: string; brand_id: string; slug: string; name: string; hero_url: string | null; view_count: number; status: string; }
+
+function ninetyDaysAgoIso(): string {
+  return new Date(Date.now() - 90 * 86_400_000).toISOString();
+}
+
+function buildAnalyticsSeries(
+  events: { event_type: string; created_at: string }[],
+  likeRows: { created_at: string }[],
+): AnalyticsDay[] {
+  const days = 90;
+  const map = new Map<string, AnalyticsDay>();
+  const today = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    map.set(key, { date: key, views: 0, clicks: 0, likes: 0 });
+  }
+  for (const e of events) {
+    const bucket = map.get(e.created_at.slice(0, 10));
+    if (!bucket) continue;
+    if (e.event_type === "view") bucket.views++;
+    else if (e.event_type === "click") bucket.clicks++;
+  }
+  for (const l of likeRows) {
+    const bucket = map.get(l.created_at.slice(0, 10));
+    if (bucket) bucket.likes++;
+  }
+  return [...map.values()];
+}
 interface SavedCollectionItem { type: string; slug: string; title: string; meta: string; href: string; }
-
-const draftFieldNames = ["brandName", "tagline", "founderName", "founderHeadline", "description", "productName", "productTagline", "logoUrl", "heroUrl"];
-function draftCompletion(draft: SavedDraft) {
-  return Math.round((draftFieldNames.filter((key) => typeof draft.payload[key] === "string" && String(draft.payload[key]).trim()).length / draftFieldNames.length) * 100);
-}
-
-function RoleSwitcher({ memberType }: { memberType: MemberType }) {
-  return <form action={updateMemberType} className="role-switcher">
-    <label htmlFor="member-role">현재 역할</label>
-    <select id="member-role" name="memberType" defaultValue={memberType}>
-      <option value="founder">창업가·대표</option>
-      <option value="team">팀 멤버</option>
-      <option value="explorer">예비 창업가</option>
-      <option value="partner">파트너</option>
-    </select>
-    <button type="submit">변경</button>
-  </form>;
-}
+interface TeamBrand { id: string; slug: string; name: string; tagline: string; logoUrl: string | null; role: string; }
 
 const roleDashboard = {
   team: {
@@ -100,12 +112,21 @@ const roleDashboard = {
   cards: { href: string; kicker: string; title: string; copy: string }[];
 }>;
 
-function MemberDashboard({ memberType, name, email, savedItems }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[] }) {
+function MemberDashboard({ memberType, name, email, savedItems, teamBrands }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[]; teamBrands: TeamBrand[] }) {
   const role = roleDashboard[memberType];
+  const stateTitle = teamBrands.length
+    ? `${teamBrands.length}개 브랜드의 팀으로 참여 중이에요.`
+    : savedItems.length
+      ? `${savedItems.length}개의 항목을 저장했어요.`
+      : role.emptyTitle;
+  const stateCopy = teamBrands.length
+    ? "초대받은 브랜드의 콘텐츠를 함께 편집할 수 있습니다."
+    : savedItems.length
+      ? "관심 있는 콘텐츠를 다시 확인하고 다음 행동으로 이어가세요."
+      : role.emptyCopy;
 
   return <>
-    <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><Link className="active" href="/my">마이페이지</Link><Link href="/stories">피처</Link><Link href="/events">이벤트</Link><Link href="/support">기회</Link></nav><form action={signout}><button>로그아웃</button></form></div></div>
-    <div className="publish-console-tabs"><div className="shell"><Link className="active" href="/my">홈</Link><Link href="/founders">Founder</Link><Link href="/products">프로덕트</Link><Link href="/communities">커뮤니티</Link></div></div>
+    <StudioNav />
     <main className="studio-dashboard role-dashboard">
       <div className="shell studio-dashboard-inner">
         <header className="role-dashboard-hero">
@@ -114,10 +135,13 @@ function MemberDashboard({ memberType, name, email, savedItems }: { memberType: 
         </header>
         <section className="role-dashboard-state">
           <div className="role-dashboard-avatar">{name.slice(0, 1) || "F"}</div>
-          <div><span>MY ROLE · {role.label}</span><strong>{savedItems.length ? `${savedItems.length}개의 항목을 저장했어요.` : role.emptyTitle}</strong><p>{savedItems.length ? "관심 있는 콘텐츠를 다시 확인하고 다음 행동으로 이어가세요." : role.emptyCopy}</p></div>
+          <div><span>MY ROLE · {role.label}</span><strong>{stateTitle}</strong><p>{stateCopy}</p></div>
           <small>{email}</small>
         </section>
-        <RoleSwitcher memberType={memberType} />
+        {teamBrands.length > 0 && <section className="role-team-brands">
+          <div className="studio-panel-heading"><strong>참여 중인 브랜드</strong><span>편집 권한이 연결된 워크스페이스입니다.</span></div>
+          <div>{teamBrands.map((brand) => <article key={brand.id}>{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <i>{brand.name.slice(0, 1)}</i>}<div><span>{brand.role === "editor" ? "EDITOR" : "VIEWER"}</span><strong>{brand.name}</strong><small>{brand.tagline}</small></div><Link href={brand.role === "editor" ? `/my/edit/${brand.slug}` : `/brands/${brand.slug}`}>{brand.role === "editor" ? "워크스페이스 열기" : "브랜드 보기"} →</Link></article>)}</div>
+        </section>}
         <section className="role-dashboard-links">
           <div className="studio-panel-heading"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
           <div>{role.cards.map((card, index) => <Link href={card.href} key={card.href}><i>0{index + 1}</i><span>{card.kicker}</span><strong>{card.title}</strong><p>{card.copy}</p><b>바로가기 →</b></Link>)}</div>
@@ -139,6 +163,8 @@ export default async function MyPage() {
   const { data: profile } = await supabase.from("profiles").select("full_name,member_type").eq("id", user.id).maybeSingle();
   const memberType = isMemberType(profile?.member_type ?? "") ? (profile?.member_type as MemberType) : "founder";
   const memberName = profile?.full_name?.trim() || user.user_metadata?.full_name || user.user_metadata?.name || "Featable 멤버";
+  const { data: membershipRows } = await supabase.from("brand_members").select("member_role,brand:brands(id,slug,name,tagline,logo_url)").eq("user_id", user.id);
+  const teamBrands = ((membershipRows ?? []) as unknown as { member_role: string; brand: { id: string; slug: string; name: string; tagline: string; logo_url: string | null } | null }[]).flatMap((row): TeamBrand[] => row.brand ? [{ id: row.brand.id, slug: row.brand.slug, name: row.brand.name, tagline: row.brand.tagline, logoUrl: row.brand.logo_url, role: row.member_role }] : []);
 
   if (memberType !== "founder") {
     const [{ data: savedRows }, { data: followedRows }, { data: supportedRows }, catalog, features, events, supportPrograms] = await Promise.all([
@@ -172,82 +198,121 @@ export default async function MyPage() {
     for (const row of (supportedRows ?? []) as unknown as { founder: { slug: string; name: string; headline: string } | null }[]) {
       if (row.founder) savedItems.push({ type: "Founder 응원", slug: row.founder.slug, title: row.founder.name, meta: row.founder.headline, href: `/founders/${row.founder.slug}` });
     }
-    return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} savedItems={savedItems} />;
+    return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} />;
   }
 
   const { data: founder } = await supabase.from("founders").select("id,slug,name,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
-  const sns = (founder?.sns ?? {}) as { instagram?: string; x?: string; linkedin?: string; website?: string };
-
   let brands: MyBrand[] = [];
   let products: MyProduct[] = [];
   if (founder) {
     const { data: brandRows } = await supabase.from("brands").select("id,slug,name,logo_url,tagline,category,status,updated_at").eq("founder_id", founder.id).order("updated_at", { ascending: false });
     brands = (brandRows ?? []) as MyBrand[];
     if (brands.length) {
-      const { data: productRows } = await supabase.from("products").select("id,brand_id,name,view_count,status").in("brand_id", brands.map((brand) => brand.id));
+      const { data: productRows } = await supabase.from("products").select("id,brand_id,slug,name,hero_url,view_count,status").in("brand_id", brands.map((brand) => brand.id));
       products = (productRows ?? []) as MyProduct[];
     }
   }
 
-  const { data: draftRows } = await supabase.from("submission_drafts").select("draft_key,payload,current_step,updated_at").eq("user_id", user.id).order("updated_at", { ascending: false });
-  const savedDrafts = (draftRows ?? []) as SavedDraft[];
   const publishedCount = brands.filter((brand) => brand.status === "published").length;
   const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
 
+  let analyticsSeries: AnalyticsDay[] = [];
+  if (products.length) {
+    const ninetyDaysAgo = ninetyDaysAgoIso();
+    const productIds = products.map((product) => product.id);
+    const productSlugs = products.map((product) => product.slug);
+
+    const { data: eventRows } = await supabase
+      .from("product_events")
+      .select("event_type,created_at")
+      .in("product_id", productIds)
+      .gte("created_at", ninetyDaysAgo);
+
+    // saved_items(=좋아요)는 본인 행만 조회 가능한 RLS라, 프로덕트 소유자가 전체 집계를 보려면
+    // service role로 created_at만 읽는다 (user_id는 절대 선택하지 않아 개인 식별 정보는 노출되지 않음).
+    let likeRows: { created_at: string }[] = [];
+    const admin = createAdminClient();
+    if (admin) {
+      const { data } = await admin
+        .from("saved_items")
+        .select("created_at")
+        .eq("item_type", "product")
+        .in("item_slug", productSlugs)
+        .gte("created_at", ninetyDaysAgo);
+      likeRows = data ?? [];
+    }
+
+    analyticsSeries = buildAnalyticsSeries(eventRows ?? [], likeRows);
+  }
+
   return <>
-    <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><Link className="active" href="/my">대시보드</Link><a href="#brands">브랜드 관리</a><a href="#profile">Founder 프로필</a><Link href="/submit">새 프로젝트</Link></nav><form action={signout}><button>로그아웃</button></form></div></div>
-    <div className="publish-console-tabs"><div className="shell"><Link className="active" href="/my">워크스페이스 홈</Link><a href="#brands">콘텐츠</a><a href="#profile">프로필 설정</a>{founder?.slug && <Link href={`/founders/${founder.slug}`}>공개 페이지 바로가기 ↗</Link>}</div></div>
+    <StudioNav founder />
 
     <main className="studio-dashboard">
       <div className="shell studio-dashboard-inner">
-        <header className="studio-owner-head">
-          <div className="studio-owner-avatar">{founder?.avatar_url ? <img src={founder.avatar_url} alt="" /> : <span>{(founder?.name || "F").slice(0, 1)}</span>}</div>
-          <div><p>FOUNDER WORKSPACE</p><h1>{founder?.name ?? "Founder"}님의 스튜디오</h1><span>{founder?.headline || "브랜드와 프로덕트를 한 곳에서 관리하세요."}</span></div>
-          <Link href="/submit">새 프로젝트 만들기 <b>＋</b></Link>
+        <header className="ig-profile-head">
+          <div className="ig-profile-avatar">{founder?.avatar_url ? <img src={founder.avatar_url} alt="" /> : <span>{(founder?.name || "F").slice(0, 1)}</span>}</div>
+          <div className="ig-profile-main">
+            <div className="ig-profile-top">
+              <h1>{founder?.name ?? "Founder"}</h1>
+              <Link className="ig-btn" href="/my/profile">프로필 편집</Link>
+              <Link className="ig-btn primary" href={brands.length ? "/submit/product" : "/submit"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
+            </div>
+            <div className="ig-profile-stats">
+              <div><strong>{brands.length}</strong><span>브랜드</span></div>
+              <div><strong>{products.length}</strong><span>프로덕트</span></div>
+              <div><strong>{publishedCount}</strong><span>공개 중</span></div>
+              <div><strong>{totalViews.toLocaleString("ko-KR")}</strong><span>누적 조회</span></div>
+            </div>
+            <p className="ig-profile-bio">{founder?.headline || "브랜드와 프로덕트를 한 곳에서 관리하세요."}</p>
+          </div>
         </header>
 
-        <RoleSwitcher memberType={memberType} />
+        {teamBrands.length > 0 && <section className="role-team-brands">
+          <div className="studio-panel-heading"><strong>다른 팀에서 참여 중</strong><span>초대받아 공동 편집 중인 브랜드입니다.</span></div>
+          <div>{teamBrands.map((brand) => <article key={brand.id}>{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <i>{brand.name.slice(0, 1)}</i>}<div><span>{brand.role === "editor" ? "EDITOR" : "VIEWER"}</span><strong>{brand.name}</strong><small>{brand.tagline}</small></div><Link href={brand.role === "editor" ? `/my/edit/${brand.slug}` : `/brands/${brand.slug}`}>{brand.role === "editor" ? "워크스페이스 열기" : "브랜드 보기"} →</Link></article>)}</div>
+        </section>}
 
-        <section className="studio-overview-panel">
-          <div className="studio-panel-heading"><strong>워크스페이스 인사이트</strong><span>현재 등록된 프로젝트를 기준으로 집계됩니다.</span></div>
-          <div className="studio-overview-grid">
-            <a href="#brands"><span>전체 조회수</span><strong>{totalViews.toLocaleString("ko-KR")}</strong><small>프로덕트 누적</small></a>
-            <a href="#brands"><span>공개 중</span><strong>{publishedCount}<em>개</em></strong><small>전체 브랜드 {brands.length}개</small></a>
-            <a href="#brands"><span>프로덕트</span><strong>{products.length}<em>개</em></strong><small>등록된 제품과 서비스</small></a>
-            <Link href={savedDrafts[0] ? `/submit?draft=${encodeURIComponent(savedDrafts[0].draft_key)}` : "/submit"}><span>작성 중 초안</span><strong>{savedDrafts.length}<em>개</em></strong><small>{savedDrafts.length ? "최근 초안 이어서 작성" : "새 초안 만들기"}</small></Link>
+        {brands.length === 0 && <section id="brands" className="studio-first-start">
+          <div className="studio-first-copy">
+            <span>START HERE</span>
+            <h2>내 기업 정보를 먼저 등록해주세요.</h2>
+            <p>기업 정보는 한 번만 만들고, 프로덕트와 상세페이지는 이후 자유롭게 추가할 수 있어요.</p>
+            <Link href="/submit">기업 정보 등록<b>→</b></Link>
           </div>
-        </section>
+          <ol>
+            <li><i>1</i><div><strong>기업 정보 등록</strong><span>회사명, 로고, 한 줄 소개만 입력해요.</span></div></li>
+            <li><i>2</i><div><strong>프로덕트 추가</strong><span>내 기업 아래 제품과 서비스를 등록해요.</span></div></li>
+            <li><i>3</i><div><strong>상세페이지 제작</strong><span>각 프로덕트 안에서 이미지와 설명을 쌓아요.</span></div></li>
+          </ol>
+        </section>}
 
-        {savedDrafts.length > 0 && <div className="studio-draft-list">{savedDrafts.map((savedDraft) => {
-          const completion = draftCompletion(savedDraft);
-          const draftName = typeof savedDraft.payload.brandName === "string" && savedDraft.payload.brandName.trim() ? savedDraft.payload.brandName : "새 브랜드";
-          return <section className="studio-draft-banner" key={savedDraft.draft_key}>
-            <div><span>작성 중</span><strong>{draftName}</strong><p>STEP {savedDraft.current_step + 1}에서 멈췄어요 · {completion}% 완료</p></div>
-            <div className="studio-draft-progress"><i style={{ width: `${completion}%` }} /></div>
-            <time>{new Date(savedDraft.updated_at).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })} 저장</time>
-            <Link href={`/submit?draft=${encodeURIComponent(savedDraft.draft_key)}`}>이어서 작성 →</Link>
-          </section>;
-        })}</div>}
+        {brands.length > 0 && <ProductAnalytics series={analyticsSeries} />}
 
-        <section id="brands" className="studio-content-panel">
-          <div className="studio-panel-heading"><strong>브랜드와 프로덕트</strong><span>{brands.length}개의 브랜드</span><Link href="/submit">＋ 새 브랜드</Link></div>
-          {brands.length === 0 ? <div className="studio-empty"><span>＋</span><strong>첫 브랜드를 등록해보세요.</strong><p>기본 정보부터 상세페이지까지 단계별로 만들 수 있습니다.</p><Link href="/submit">등록 시작하기</Link></div> : <div className="studio-brand-table">
-            <div className="studio-brand-table-head"><span>브랜드</span><span>프로덕트</span><span>조회수</span><span>공개 상태</span><span>관리</span></div>
+        {brands.length > 0 && <section id="brands" className="ig-post-section">
+          <div className="studio-panel-heading"><strong>내가 올린 브랜드</strong><span>{brands.length}개</span></div>
+          <div className="ig-post-grid">
+            <Link href="/submit" className="ig-post-tile ig-post-tile-add"><span>＋</span><strong>새 브랜드 등록</strong></Link>
             {brands.map((brand) => {
               const brandProducts = products.filter((product) => product.brand_id === brand.id);
               const brandViews = brandProducts.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
-              return <div className="studio-brand-row" key={brand.id}>
-                <div className="studio-brand-identity">{brand.logo_url ? <img src={brand.logo_url} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}<div><strong>{brand.name}</strong><small>{brand.category} · {brand.tagline}</small></div></div>
-                <div><strong>{brandProducts.length}개</strong><small>{brandProducts.map((product) => product.name).join(", ") || "등록 전"}</small></div>
-                <div><strong>{brandViews.toLocaleString("ko-KR")}</strong><small>누적 조회</small></div>
-                <BrandStatusButton brandId={brand.id} published={brand.status === "published"} />
-                <div className="studio-row-actions"><Link href={`/my/edit/${brand.slug}`}>수정</Link><Link href={`/brands/${brand.slug}`}>미리보기</Link><DeleteBrandButton brandId={brand.id} brandName={brand.name} /></div>
-              </div>;
+              const tileImage = brandProducts.find((product) => product.hero_url)?.hero_url ?? brand.logo_url;
+              return <article className="ig-post-tile" key={brand.id}>
+                <div className="ig-post-tile-image">
+                  {tileImage ? <img src={tileImage} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}
+                  <div className="ig-post-tile-status"><BrandStatusButton brandId={brand.id} published={brand.status === "published"} /></div>
+                  <div className="ig-post-tile-views"><span aria-hidden="true">◉</span> {brandViews.toLocaleString("ko-KR")}</div>
+                </div>
+                <div className="ig-post-tile-body">
+                  <strong>{brand.name}</strong>
+                  <small>{brand.category} · {brandProducts.length}개 프로덕트</small>
+                </div>
+                <div className="studio-row-actions"><Link href={`/my/edit/${brand.slug}`}>수정</Link><Link href={`/brands/${brand.slug}`}>미리보기</Link><TeamInviteButton brandId={brand.id} brandName={brand.name} /><DeleteBrandButton brandId={brand.id} brandName={brand.name} /></div>
+              </article>;
             })}
-          </div>}
+          </div>
         </section>
-
-        <section id="profile" className="studio-profile-panel"><div className="studio-panel-heading"><strong>Founder 프로필</strong><span>공개 프로필에 표시되는 정보입니다.</span></div><ProfileEditor brandCount={brands.length} initial={{ slug: founder?.slug, name: founder?.name ?? "", headline: founder?.headline ?? "", bio: founder?.bio ?? "", avatarUrl: founder?.avatar_url ?? "", instagram: sns.instagram ?? "", x: sns.x ?? "", linkedin: sns.linkedin ?? "", website: sns.website ?? "" }} /></section>
+        }
       </div>
     </main>
   </>;

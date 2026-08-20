@@ -115,6 +115,28 @@ create table brands (
   updated_at timestamptz not null default now()
 );
 
+create table brand_members (
+  brand_id uuid not null references brands(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  member_role text not null default 'editor' check (member_role in ('editor', 'viewer')),
+  invited_by uuid references profiles(id) on delete set null,
+  joined_at timestamptz not null default now(),
+  primary key (brand_id, user_id)
+);
+
+create table brand_invitations (
+  id uuid primary key default uuid_generate_v4(),
+  brand_id uuid not null references brands(id) on delete cascade,
+  email text not null,
+  token uuid not null default uuid_generate_v4() unique,
+  member_role text not null default 'editor' check (member_role in ('editor', 'viewer')),
+  invited_by uuid not null references profiles(id) on delete cascade,
+  expires_at timestamptz not null default (now() + interval '7 days'),
+  accepted_at timestamptz,
+  accepted_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
 -- ---------- Product ----------
 create table products (
   id uuid primary key default uuid_generate_v4(),
@@ -315,6 +337,9 @@ create index idx_features_brand on features(brand_id);
 create index idx_support_close_at on support_programs(close_at);
 create index idx_events_starts_at on events(starts_at);
 create index idx_founder_supports_founder on founder_supports(founder_id);
+create index brand_members_user_idx on brand_members(user_id);
+create index brand_invitations_brand_idx on brand_invitations(brand_id, created_at desc);
+create index brand_invitations_email_idx on brand_invitations(lower(email));
 
 -- ============================================================
 -- Row Level Security
@@ -332,11 +357,19 @@ returns boolean language sql security definer set search_path = public as $$
   select exists (select 1 from founders where id = f_id and user_id = auth.uid());
 $$;
 
-create or replace function owns_brand(b_id uuid)
-returns boolean language sql security definer set search_path = public as $$
+create or replace function is_brand_owner(p_brand_id uuid)
+returns boolean language sql security definer set search_path = public stable as $$
   select exists (
     select 1 from brands b join founders f on f.id = b.founder_id
-    where b.id = b_id and f.user_id = auth.uid()
+    where b.id = p_brand_id and f.user_id = auth.uid()
+  );
+$$;
+
+create or replace function owns_brand(b_id uuid)
+returns boolean language sql security definer set search_path = public stable as $$
+  select is_brand_owner(b_id) or exists (
+    select 1 from brand_members
+    where brand_id = b_id and user_id = auth.uid() and member_role = 'editor'
   );
 $$;
 
@@ -357,7 +390,7 @@ begin
   update public.brands
   set status = next_status, updated_at = now()
   where id = p_brand_id
-    and (public.owns_founder(founder_id) or public.is_admin());
+    and (public.owns_brand(id) or public.is_admin());
 
   get diagnostics changed_count = row_count;
   if changed_count = 0 then return false; end if;
@@ -373,10 +406,35 @@ $$;
 revoke execute on function public.set_brand_publication_state(uuid, boolean) from public, anon;
 grant execute on function public.set_brand_publication_state(uuid, boolean) to authenticated;
 
+create or replace function public.accept_brand_invitation(p_token uuid)
+returns table (brand_slug text, brand_name text)
+language plpgsql security definer set search_path = public as $$
+declare
+  invite public.brand_invitations%rowtype;
+  current_email text := lower(coalesce(auth.jwt() ->> 'email', ''));
+begin
+  if auth.uid() is null or current_email = '' then raise exception 'authentication required'; end if;
+  select * into invite from public.brand_invitations
+    where token = p_token and accepted_at is null and expires_at > now() and lower(email) = current_email
+    for update;
+  if not found then raise exception 'invalid or expired invitation'; end if;
+  insert into public.brand_members (brand_id, user_id, member_role, invited_by)
+    values (invite.brand_id, auth.uid(), invite.member_role, invite.invited_by)
+    on conflict (brand_id, user_id) do update set member_role = excluded.member_role;
+  update public.brand_invitations set accepted_at = now(), accepted_by = auth.uid() where id = invite.id;
+  return query select b.slug, b.name from public.brands b where b.id = invite.brand_id;
+end;
+$$;
+
+revoke execute on function public.accept_brand_invitation(uuid) from public, anon;
+grant execute on function public.accept_brand_invitation(uuid) to authenticated;
+
 alter table profiles enable row level security;
 alter table founders enable row level security;
 alter table founder_supports enable row level security;
 alter table saved_items enable row level security;
+alter table brand_members enable row level security;
+alter table brand_invitations enable row level security;
 alter table brands enable row level security;
 alter table products enable row level security;
 alter table features enable row level security;
@@ -409,12 +467,23 @@ create policy "saved_items_select_own" on saved_items for select using (user_id 
 create policy "saved_items_insert_own" on saved_items for insert with check (user_id = auth.uid());
 create policy "saved_items_delete_own" on saved_items for delete using (user_id = auth.uid());
 
+create policy "brand_members_select_related" on brand_members for select
+  using (user_id = auth.uid() or is_brand_owner(brand_id) or is_admin());
+create policy "brand_members_delete_owner" on brand_members for delete
+  using (user_id = auth.uid() or is_brand_owner(brand_id) or is_admin());
+create policy "brand_invitations_select_related" on brand_invitations for select
+  using (is_brand_owner(brand_id) or is_admin() or lower(email) = lower(coalesce(auth.jwt() ->> 'email', '')));
+create policy "brand_invitations_insert_owner" on brand_invitations for insert
+  with check (is_brand_owner(brand_id) and invited_by = auth.uid());
+create policy "brand_invitations_delete_owner" on brand_invitations for delete
+  using (is_brand_owner(brand_id) or is_admin());
+
 -- brands: published 공개, 소유자는 draft 포함 전체
 create policy "brands_select_published" on brands for select
-  using (status = 'published' or owns_founder(founder_id) or is_admin());
+  using (status = 'published' or owns_brand(id) or is_admin());
 create policy "brands_insert_own" on brands for insert with check (owns_founder(founder_id));
-create policy "brands_update_own" on brands for update using (owns_founder(founder_id) or is_admin());
-create policy "brands_delete_own" on brands for delete using (owns_founder(founder_id) or is_admin());
+create policy "brands_update_own" on brands for update using (owns_brand(id) or is_admin());
+create policy "brands_delete_own" on brands for delete using (is_brand_owner(id) or is_admin());
 
 -- products
 create policy "products_select_published" on products for select

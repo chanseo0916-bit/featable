@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type ViewType = "product" | "feature";
+type EventKind = "view" | "click";
 
 type ViewRequestBody = {
   slug?: unknown;
   type?: unknown;
+  event?: unknown;
 };
 
 function noContent() {
@@ -27,6 +29,7 @@ export async function POST(request: Request) {
 
   const slug = typeof body.slug === "string" ? body.slug : "";
   const type: ViewType = body.type === undefined ? "product" : (body.type as ViewType);
+  const event: EventKind = body.event === "click" ? "click" : "view";
 
   if (!slug || slug.length > 200 || (type !== "product" && type !== "feature")) {
     return NextResponse.json({ error: "invalid slug" }, { status: 400 });
@@ -41,7 +44,8 @@ export async function POST(request: Request) {
     return noContent();
   }
 
-  const { error } = await admin.rpc("increment_product_view_count", { p_slug: slug });
+  // 조회/클릭 이벤트를 함께 로깅 — 조회일 때만 누적 view_count도 원자적으로 증가
+  const { error } = await admin.rpc("log_product_event", { p_slug: slug, p_event: event });
   if (error) {
     return NextResponse.json({ error: "product views not ready" }, { status: 503 });
   }

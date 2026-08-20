@@ -1,32 +1,23 @@
 import type { Metadata } from "next";
-import { randomUUID } from "node:crypto";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SubmitWizard } from "./wizard";
-import { loadSubmissionDraft } from "./actions";
 import { StudioBrand } from "@/components/site-shell";
 import { createClient } from "@/lib/supabase/server";
+import { BrandRegistrationForm } from "./brand-form";
 
 export const metadata: Metadata = {
-  title: "브랜드 등록 — FEATABLE",
-  description: "10분 안에 당신의 브랜드를 세상에 소개하세요.",
+  title: "기업 정보 등록 · FEATABLE",
+  description: "내 기업과 브랜드의 기본 정보를 간편하게 등록하세요.",
 };
 
 // Cloudflare(OpenNext)가 Node 미들웨어를 미지원이라 페이지에서 직접 로그인 보호
-export default async function SubmitPage({ searchParams }: { searchParams: Promise<{ draft?: string }> }) {
+export default async function SubmitPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/submit");
 
-  const { draft } = await searchParams;
-  if (!draft) redirect(`/submit?draft=${randomUUID()}`);
-  const draftKey = draft.slice(0, 80);
-  const saved = await loadSubmissionDraft(draftKey);
-  return (
-    <>
-      <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><a className="active" href="#editor" data-submit-step="0">브랜드 관리</a><a href="#editor" data-submit-step="2">프로덕트</a><a href="#editor" data-submit-step="3">상세페이지</a><a href="#editor" data-submit-step="4">공개 설정</a></nav><Link href="/my">내 워크스페이스 →</Link></div></div>
-      <div className="publish-console-tabs"><div className="shell"><a className="active" href="#editor" data-submit-step="0">등록 현황</a><a href="#editor" data-submit-step="0">기본 정보</a><a href="#editor" data-submit-step="3">콘텐츠 관리</a><a href="#editor" data-submit-step="4">공개 설정</a></div></div>
-      <main className="submit-page"><SubmitWizard draftKey={draftKey} initial={saved?.draft} initialStep={saved?.step} initialSavedAt={saved?.savedAt} /></main>
-    </>
-  );
+  return <>
+    <div className="publish-console-nav simple-register-nav"><div className="shell"><StudioBrand /><nav><span className="active">기업 정보 등록</span></nav><Link href="/my">나가기</Link></div></div>
+    <main className="simple-registration-page"><div className="shell"><div className="simple-registration-context"><span>1 / 1</span><p>기업 정보는 한 번만 등록하면 됩니다.<br />프로덕트는 이후 자유롭게 추가할 수 있어요.</p></div><BrandRegistrationForm /></div></main>
+  </>;
 }

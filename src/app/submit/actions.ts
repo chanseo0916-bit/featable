@@ -76,6 +76,106 @@ export type PublishResult =
   | { ok: true; brandSlug: string; productSlug: string }
   | { ok: false; error: string };
 
+export interface BrandRegistrationInput {
+  name: string;
+  tagline: string;
+  category: string;
+  description?: string;
+  website?: string;
+  logoUrl?: string;
+}
+
+export interface ProductRegistrationInput {
+  brandId: string;
+  name: string;
+  tagline: string;
+  category: string;
+  problem?: string;
+  solution?: string;
+  features: string[];
+  price?: string;
+  officialUrl?: string;
+  heroUrl?: string;
+  story: StoryBlock[];
+  publish: boolean;
+}
+
+export type BrandRegistrationResult =
+  | { ok: true; brandId: string; brandSlug: string }
+  | { ok: false; error: string };
+
+export type ProductRegistrationResult =
+  | { ok: true; productSlug: string }
+  | { ok: false; error: string };
+
+export async function updateStandaloneBrand(brandId: string, input: BrandRegistrationInput): Promise<BrandRegistrationResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  if (!input.name.trim() || !input.tagline.trim()) return { ok: false, error: "기업명과 한 줄 소개를 입력해주세요." };
+
+  const { data: targetBrand } = await supabase.from("brands").select("id,founder_id").eq("id", brandId).maybeSingle();
+  if (!targetBrand) return { ok: false, error: "기업을 찾을 수 없습니다." };
+  const [{ data: owner }, { data: membership }] = await Promise.all([
+    supabase.from("founders").select("id").eq("id", targetBrand.founder_id).eq("user_id", user.id).maybeSingle(),
+    supabase.from("brand_members").select("member_role").eq("brand_id", brandId).eq("user_id", user.id).maybeSingle(),
+  ]);
+  if (!owner && membership?.member_role !== "editor") return { ok: false, error: "기업 수정 권한이 없습니다." };
+  const { data: brand, error } = await supabase.from("brands").update({
+    name: input.name.trim(),
+    tagline: input.tagline.trim(),
+    category: input.category || "기타",
+    description: input.description?.trim() || input.tagline.trim(),
+    website: input.website?.trim() || null,
+    logo_url: input.logoUrl || null,
+    updated_at: new Date().toISOString(),
+  }).eq("id", brandId).select("id,slug").maybeSingle();
+  if (error || !brand) return { ok: false, error: "기업 정보 수정에 실패했습니다." };
+  revalidatePath("/my");
+  revalidatePath(`/brands/${brand.slug}`);
+  return { ok: true, brandId: brand.id, brandSlug: brand.slug };
+}
+
+export async function updateStandaloneProduct(productId: string, input: ProductRegistrationInput): Promise<ProductRegistrationResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  if (!input.name.trim() || !input.tagline.trim()) return { ok: false, error: "프로덕트명과 한 줄 소개를 입력해주세요." };
+
+  const { data: brand } = await supabase.from("brands").select("id,founder_id").eq("id", input.brandId).maybeSingle();
+  if (!brand) return { ok: false, error: "소속 기업을 확인할 수 없습니다." };
+  const [{ data: owner }, { data: membership }] = await Promise.all([
+    supabase.from("founders").select("id").eq("id", brand.founder_id).eq("user_id", user.id).maybeSingle(),
+    supabase.from("brand_members").select("member_role").eq("brand_id", brand.id).eq("user_id", user.id).maybeSingle(),
+  ]);
+  if (!owner && membership?.member_role !== "editor") return { ok: false, error: "프로덕트 수정 권한이 없습니다." };
+
+  const storyImages = input.story
+    .filter((block): block is Extract<StoryBlock, { type: "image" }> => block.type === "image")
+    .map((block) => block.src).filter(Boolean);
+  const { data: product, error } = await supabase.from("products").update({
+    name: input.name.trim(),
+    tagline: input.tagline.trim(),
+    category: input.category || "기타",
+    problem: input.problem?.trim() || "",
+    solution: input.solution?.trim() || "",
+    features: input.features.map((item) => item.trim()).filter(Boolean),
+    price: input.price?.trim() || null,
+    official_url: input.officialUrl?.trim() || null,
+    hero_url: input.heroUrl || null,
+    images: [input.heroUrl, ...storyImages].filter(Boolean),
+    story: input.story,
+    status: input.publish ? "published" : "draft",
+    updated_at: new Date().toISOString(),
+  }).eq("id", productId).eq("brand_id", brand.id).select("slug").maybeSingle();
+  if (error || !product) return { ok: false, error: "프로덕트 수정에 실패했습니다." };
+  if (input.publish) await supabase.from("brands").update({ status: "published" }).eq("id", brand.id);
+  revalidatePath("/my");
+  revalidatePath("/products");
+  revalidatePath(`/products/${product.slug}`);
+  return { ok: true, productSlug: product.slug };
+}
+
 /** unique 충돌 시 접미사를 붙여 1회 재시도하는 insert 헬퍼 */
 async function insertWithSlugRetry<T extends { slug: string }>(
   insert: (row: T) => Promise<{ error: { code?: string } | null }>,
@@ -89,6 +189,98 @@ async function insertWithSlugRetry<T extends { slug: string }>(
   }
   if (error) return { error: "저장에 실패했습니다. 잠시 후 다시 시도해주세요." };
   return { slug: row.slug };
+}
+
+/** 기업 정보만 먼저 등록한다. 프로덕트와 Founder 프로필은 이 과정에 묶지 않는다. */
+export async function createStandaloneBrand(input: BrandRegistrationInput): Promise<BrandRegistrationResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  if (!input.name.trim() || !input.tagline.trim()) return { ok: false, error: "기업명과 한 줄 소개를 입력해주세요." };
+
+  let { data: founder } = await supabase.from("founders").select("id").eq("user_id", user.id).maybeSingle();
+  if (!founder) {
+    const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+    const founderName = profile?.full_name?.trim() || user.user_metadata?.full_name || user.user_metadata?.name || "Founder";
+    const { data: created, error } = await supabase.from("founders").insert({
+      user_id: user.id,
+      slug: `${slugify(founderName) || "founder"}-${randomSuffix()}`,
+      name: founderName,
+      headline: "새로운 브랜드를 만들고 있습니다.",
+    }).select("id").single();
+    if (error || !created) return { ok: false, error: "기업을 등록할 계정 정보를 만들지 못했습니다." };
+    founder = created;
+  }
+
+  const slug = slugify(input.name) || `brand-${randomSuffix()}`;
+  const result = await insertWithSlugRetry(
+    async (row) => {
+      const { error } = await supabase.from("brands").insert(row);
+      return { error };
+    },
+    {
+      slug,
+      founder_id: founder.id,
+      name: input.name.trim(),
+      tagline: input.tagline.trim(),
+      category: input.category || "기타",
+      description: input.description?.trim() || input.tagline.trim(),
+      website: input.website?.trim() || null,
+      logo_url: input.logoUrl || null,
+      status: "draft",
+    } as never,
+  );
+  if ("error" in result) return { ok: false, error: result.error };
+  const { data: brand } = await supabase.from("brands").select("id,slug").eq("slug", result.slug).single();
+  if (!brand) return { ok: false, error: "기업 저장 확인에 실패했습니다." };
+  revalidatePath("/my");
+  revalidatePath("/brands");
+  return { ok: true, brandId: brand.id, brandSlug: brand.slug };
+}
+
+/** 기존 기업 아래에 프로덕트와 그 상세페이지를 등록한다. */
+export async function createStandaloneProduct(input: ProductRegistrationInput): Promise<ProductRegistrationResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  if (!input.brandId || !input.name.trim() || !input.tagline.trim()) return { ok: false, error: "소속 기업, 프로덕트명과 한 줄 소개를 입력해주세요." };
+
+  const { data: founder } = await supabase.from("founders").select("id").eq("user_id", user.id).maybeSingle();
+  if (!founder) return { ok: false, error: "먼저 기업 정보를 등록해주세요." };
+  const { data: brand } = await supabase.from("brands").select("id").eq("id", input.brandId).eq("founder_id", founder.id).maybeSingle();
+  if (!brand) return { ok: false, error: "프로덕트를 등록할 기업을 찾을 수 없습니다." };
+
+  const storyImages = input.story
+    .filter((block): block is Extract<StoryBlock, { type: "image" }> => block.type === "image")
+    .map((block) => block.src).filter(Boolean);
+  const result = await insertWithSlugRetry(
+    async (row) => {
+      const { error } = await supabase.from("products").insert(row);
+      return { error };
+    },
+    {
+      slug: slugify(input.name) || `product-${randomSuffix()}`,
+      brand_id: brand.id,
+      name: input.name.trim(),
+      tagline: input.tagline.trim(),
+      category: input.category || "기타",
+      problem: input.problem?.trim() || "",
+      solution: input.solution?.trim() || "",
+      features: input.features.map((item) => item.trim()).filter(Boolean),
+      price: input.price?.trim() || null,
+      official_url: input.officialUrl?.trim() || null,
+      hero_url: input.heroUrl || null,
+      images: [input.heroUrl, ...storyImages].filter(Boolean),
+      story: input.story,
+      status: input.publish ? "published" : "draft",
+    } as never,
+  );
+  if ("error" in result) return { ok: false, error: result.error };
+  if (input.publish) await supabase.from("brands").update({ status: "published" }).eq("id", brand.id);
+  revalidatePath("/my");
+  revalidatePath("/brands");
+  revalidatePath("/products");
+  return { ok: true, productSlug: result.slug };
 }
 
 export async function publishBrand(input: PublishInput): Promise<PublishResult> {

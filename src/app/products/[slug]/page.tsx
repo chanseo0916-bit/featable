@@ -5,6 +5,7 @@ import { features, partners } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 import { ShareButton } from "@/components/share-button";
 import { ViewTracker } from "@/components/view-tracker";
+import { TrackedLink } from "@/components/tracked-link";
 import { MentorNotes } from "@/components/mentor-notes";
 import { Comments } from "@/components/comments";
 import { ProductGallery } from "./product-interactions";
@@ -98,7 +99,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {product.price && <div className="commerce-price"><span>시작 가격</span><strong>{product.price}</strong></div>}
             <div className="commerce-founder-mini"><img src={founder?.avatarUrl} alt="" /><div><span>이 제품을 만든 사람</span><strong>{founder?.name} Founder</strong></div><Link href={`/brands/${brand?.slug}`}>프로필 보기 →</Link></div>
             <div className="commerce-actions">
-              {product.officialUrl && <a className="button" href={product.officialUrl}>공식 사이트에서 보기 <span>↗</span></a>}
+              {product.officialUrl && <TrackedLink className="button" href={product.officialUrl} slug={product.slug}>공식 사이트에서 보기 <span>↗</span></TrackedLink>}
               <ShareButton className="commerce-share" title={product.name} text={product.tagline} />
             </div>
             <p className="commerce-notice">Featable은 제품과 창업가를 발견할 수 있도록 연결합니다. 구매와 이용 조건은 공식 사이트에서 확인해주세요.</p>
@@ -160,7 +161,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <span>{brand?.name}</span>
               <h2>좋은 생각이<br />실제로 움직이기 시작하도록.</h2>
               <p>{product.tagline}</p>
-              {product.officialUrl && <a className="button" href={product.officialUrl}>{product.name} 시작하기 <span>↗</span></a>}
+              {product.officialUrl && <TrackedLink className="button" href={product.officialUrl} slug={product.slug}>{product.name} 시작하기 <span>↗</span></TrackedLink>}
             </section>
           </div>
 
