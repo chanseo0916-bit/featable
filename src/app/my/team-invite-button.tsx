@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createBrandInvitation } from "./team-actions";
+import type { BrandMemberRole } from "./team-actions";
 
 export function TeamInviteButton({ brandId, brandName }: { brandId: string; brandName: string }) {
   const [open, setOpen] = useState(false);
@@ -9,12 +10,13 @@ export function TeamInviteButton({ brandId, brandName }: { brandId: string; bran
   const [inviteUrl, setInviteUrl] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [role, setRole] = useState<BrandMemberRole>("editor");
   const [pending, startTransition] = useTransition();
 
   function createInvite() {
     startTransition(async () => {
       setError("");
-      const result = await createBrandInvitation(brandId, email);
+      const result = await createBrandInvitation(brandId, email, role);
       if (!result.ok) setError(result.error);
       else setInviteUrl(result.url);
     });
@@ -38,6 +40,10 @@ export function TeamInviteButton({ brandId, brandName }: { brandId: string; bran
           <button type="button" className="primary" onClick={copyInvite}>{copied ? "복사됨" : "링크 복사"}</button>
         </> : <>
           <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="team@company.com" aria-label="초대할 이메일" />
+          <div className="team-invite-role" aria-label="초대 권한">
+            <button type="button" className={role === "editor" ? "active" : ""} onClick={() => setRole("editor")}><strong>편집 가능</strong><small>브랜드와 프로덕트 관리</small></button>
+            <button type="button" className={role === "viewer" ? "active" : ""} onClick={() => setRole("viewer")}><strong>보기만</strong><small>워크스페이스 열람</small></button>
+          </div>
           <button type="button" className="primary" disabled={pending || !email.trim()} onClick={createInvite}>{pending ? "생성 중" : "초대 링크 만들기"}</button>
         </>}
         {error && <small>{error}</small>}

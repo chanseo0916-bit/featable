@@ -10,6 +10,8 @@ import { TeamInviteButton } from "./team-invite-button";
 import { StudioNav } from "./studio-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
+import { PendingInviteControl, TeamMemberControls } from "./team-management-controls";
+import type { BrandMemberRole } from "./team-actions";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -58,7 +60,8 @@ function buildAnalyticsSeries(
 }
 interface SavedCollectionItem { type: string; slug: string; title: string; meta: string; href: string; }
 interface TeamBrand { id: string; slug: string; name: string; tagline: string; logoUrl: string | null; role: string; }
-interface OwnedTeamMember { brand_id: string; user_id: string; display_name: string | null; title: string; bio: string | null; avatar_url: string | null; is_public: boolean; }
+interface OwnedTeamMember { brand_id: string; user_id: string; display_name: string | null; title: string; bio: string | null; avatar_url: string | null; is_public: boolean; member_role: BrandMemberRole; sort_order: number; }
+interface PendingTeamInvite { id: string; brand_id: string; email: string; member_role: BrandMemberRole; expires_at: string; }
 
 const roleDashboard = {
   team: {
@@ -207,17 +210,20 @@ export default async function MyPage() {
   let brands: MyBrand[] = [];
   let products: MyProduct[] = [];
   let ownedTeamMembers: OwnedTeamMember[] = [];
+  let pendingTeamInvites: PendingTeamInvite[] = [];
   if (founder) {
     const { data: brandRows } = await supabase.from("brands").select("id,slug,name,logo_url,tagline,category,status,updated_at").eq("founder_id", founder.id).order("updated_at", { ascending: false });
     brands = (brandRows ?? []) as MyBrand[];
     if (brands.length) {
       const brandIds = brands.map((brand) => brand.id);
-      const [{ data: productRows }, { data: teamRows }] = await Promise.all([
+      const [{ data: productRows }, { data: teamRows }, { data: inviteRows }] = await Promise.all([
         supabase.from("products").select("id,brand_id,slug,name,hero_url,view_count,status").in("brand_id", brandIds),
-        supabase.from("brand_members").select("brand_id,user_id,display_name,title,bio,avatar_url,is_public").in("brand_id", brandIds).order("sort_order", { ascending: true }),
+        supabase.from("brand_members").select("brand_id,user_id,display_name,title,bio,avatar_url,is_public,member_role,sort_order").in("brand_id", brandIds).order("sort_order", { ascending: true }),
+        supabase.from("brand_invitations").select("id,brand_id,email,member_role,expires_at").in("brand_id", brandIds).is("accepted_at", null).gt("expires_at", new Date().toISOString()).order("created_at", { ascending: false }),
       ]);
       products = (productRows ?? []) as MyProduct[];
       ownedTeamMembers = (teamRows ?? []) as OwnedTeamMember[];
+      pendingTeamInvites = (inviteRows ?? []) as PendingTeamInvite[];
     }
   }
 
@@ -297,6 +303,7 @@ export default async function MyPage() {
           </div>
           {brands.length ? <div className="team-profile-brand-list">{brands.map((brand) => {
             const members = ownedTeamMembers.filter((member) => member.brand_id === brand.id);
+            const invitations = pendingTeamInvites.filter((invitation) => invitation.brand_id === brand.id);
             return <article className="team-profile-brand" key={brand.id}>
               <header>
                 <div className="team-profile-brand-logo">{brand.logo_url ? <img src={brand.logo_url} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
@@ -309,12 +316,17 @@ export default async function MyPage() {
                   <p><small>OWNER</small><strong>{founder.name}</strong><span>{founder.headline || "Founder"}</span></p>
                   <Link href="/my/profile">편집</Link>
                 </div>}
-                {members.map((member) => <div className="team-profile-member" key={member.user_id}>
+                {members.map((member, index) => <div className="team-profile-member" key={member.user_id}>
                   <div>{member.avatar_url ? <img src={member.avatar_url} alt="" /> : <span>{member.display_name?.slice(0, 1) || "T"}</span>}</div>
                   <p><small>{member.is_public ? "PUBLIC" : "PRIVATE"}</small><strong>{member.display_name || "팀 멤버"}</strong><span>{member.title || "팀 멤버"}</span></p>
+                  <TeamMemberControls brandId={brand.id} userId={member.user_id} name={member.display_name || "팀 멤버"} role={member.member_role} first={index === 0} last={index === members.length - 1} />
                 </div>)}
                 {!members.length && <div className="team-profile-member-empty"><strong>팀원을 초대해보세요.</strong><span>초대받은 팀원은 자신의 역할과 소개를 직접 완성합니다.</span></div>}
               </div>
+              {invitations.length > 0 && <div className="team-pending-invites">
+                <strong>초대 대기 {invitations.length}</strong>
+                {invitations.map((invitation) => <div key={invitation.id}><span>{invitation.email}</span><small>{invitation.member_role === "editor" ? "편집 가능" : "보기만"}</small><PendingInviteControl invitationId={invitation.id} /></div>)}
+              </div>}
               <footer><Link href={`/brands/${brand.slug}`} target="_blank">공개 팀 페이지 보기 →</Link></footer>
             </article>;
           })}</div> : (

@@ -53,8 +53,9 @@ export interface Brand {
 
 /** 와디즈식 상세 본문: 이미지 블록과 텍스트 블록이 번갈아 나오는 세로 스토리텔링 */
 export type StoryBlock =
-  | { type: "text"; heading?: string; body: string }
-  | { type: "image"; src: string; alt: string; caption?: string };
+  | { type: "text"; heading?: string; body: string; tone?: "default" | "highlight" }
+  | { type: "image"; src: string; alt: string; caption?: string; frame?: "none" | "phone" }
+  | { type: "features"; heading?: string; tone?: "default" | "highlight"; items: { title: string; body: string }[] };
 
 export interface MentorNote {
   mentorName: string;

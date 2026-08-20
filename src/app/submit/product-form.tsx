@@ -84,11 +84,31 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
     finally { setUploading(false); }
   }
 
-  function addBlock(type: "text" | "image") {
-    set({ story: [...form.story, type === "text" ? { type: "text", heading: "", body: "" } : { type: "image", src: "", alt: "" }] });
+  function addBlock(type: "text" | "image" | "features") {
+    const block: StoryBlock = type === "text"
+      ? { type: "text", heading: "", body: "" }
+      : type === "image"
+        ? { type: "image", src: "", alt: "" }
+        : { type: "features", heading: "", items: [{ title: "", body: "" }] };
+    set({ story: [...form.story, block] });
   }
   function updateBlock(index: number, block: StoryBlock) { set({ story: form.story.map((item, itemIndex) => itemIndex === index ? block : item) }); }
   function removeBlock(index: number) { set({ story: form.story.filter((_, itemIndex) => itemIndex !== index) }); }
+  function addFeatureItem(index: number) {
+    const block = form.story[index];
+    if (block.type !== "features") return;
+    updateBlock(index, { ...block, items: [...block.items, { title: "", body: "" }] });
+  }
+  function updateFeatureItem(index: number, itemIndex: number, patch: Partial<{ title: string; body: string }>) {
+    const block = form.story[index];
+    if (block.type !== "features") return;
+    updateBlock(index, { ...block, items: block.items.map((item, i) => i === itemIndex ? { ...item, ...patch } : item) });
+  }
+  function removeFeatureItem(index: number, itemIndex: number) {
+    const block = form.story[index];
+    if (block.type !== "features") return;
+    updateBlock(index, { ...block, items: block.items.filter((_, i) => i !== itemIndex) });
+  }
   function moveBlock(index: number, direction: -1 | 1) {
     const target = index + direction;
     if (target < 0 || target >= form.story.length) return;
@@ -137,10 +157,31 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
         <div className="product-story-builder">
           {form.story.length === 0 && <div className="product-story-empty"><strong>상세페이지가 비어 있어요.</strong><span>이미지나 텍스트 블록을 추가해 시작하세요.</span></div>}
           {form.story.map((block, index) => <article key={index} draggable onDragStart={() => setDragIndex(index)} onDragOver={(event) => event.preventDefault()} onDrop={() => dropBlock(index)} className={dragIndex === index ? "dragging" : ""}>
-            <header><span><b>⠿</b> {block.type === "text" ? "텍스트" : "이미지"}</span><div><button onClick={() => moveBlock(index, -1)} disabled={index === 0}>↑</button><button onClick={() => moveBlock(index, 1)} disabled={index === form.story.length - 1}>↓</button><button onClick={() => removeBlock(index)}>삭제</button></div></header>
-            {block.type === "text" ? <><input value={block.heading} onChange={(event) => updateBlock(index, { ...block, heading: event.target.value })} placeholder="섹션 제목" /><textarea value={block.body} onChange={(event) => updateBlock(index, { ...block, body: event.target.value })} placeholder="제품을 자세히 설명해주세요." /></> : <label>{block.src ? <img src={block.src} alt="상세 이미지" /> : <span>상세 이미지 추가</span>}<input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && upload(event.target.files[0], index)} /></label>}
+            <header><span><b>⠿</b> {block.type === "text" ? "텍스트" : block.type === "image" ? "이미지" : "기능 목록"}</span><div><button onClick={() => moveBlock(index, -1)} disabled={index === 0}>↑</button><button onClick={() => moveBlock(index, 1)} disabled={index === form.story.length - 1}>↓</button><button onClick={() => removeBlock(index)}>삭제</button></div></header>
+            {block.type === "text" ? <>
+              <div className="story-tone-toggle"><button type="button" className={block.tone !== "highlight" ? "active" : ""} onClick={() => updateBlock(index, { ...block, tone: "default" })}>기본 배경</button><button type="button" className={block.tone === "highlight" ? "active" : ""} onClick={() => updateBlock(index, { ...block, tone: "highlight" })}>포인트 배경</button></div>
+              <input value={block.heading} onChange={(event) => updateBlock(index, { ...block, heading: event.target.value })} placeholder="섹션 제목" />
+              <textarea value={block.body} onChange={(event) => updateBlock(index, { ...block, body: event.target.value })} placeholder="제품을 자세히 설명해주세요." />
+            </> : block.type === "image" ? <>
+              <div className="story-tone-toggle"><button type="button" className={block.frame !== "phone" ? "active" : ""} onClick={() => updateBlock(index, { ...block, frame: "none" })}>일반 이미지</button><button type="button" className={block.frame === "phone" ? "active" : ""} onClick={() => updateBlock(index, { ...block, frame: "phone" })}>폰 프레임 (앱 스크린샷용)</button></div>
+              <label>{block.src ? <img src={block.src} alt="상세 이미지" /> : <span>상세 이미지 추가</span>}<input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && upload(event.target.files[0], index)} /></label>
+            </> : <>
+              <div className="story-tone-toggle"><button type="button" className={block.tone !== "highlight" ? "active" : ""} onClick={() => updateBlock(index, { ...block, tone: "default" })}>기본 배경</button><button type="button" className={block.tone === "highlight" ? "active" : ""} onClick={() => updateBlock(index, { ...block, tone: "highlight" })}>포인트 배경</button></div>
+              <input value={block.heading ?? ""} onChange={(event) => updateBlock(index, { ...block, heading: event.target.value })} placeholder="섹션 제목 (예: 부피는 줄이고, 정보는 더 담았습니다)" />
+              <div className="story-feature-items">
+                {block.items.map((item, itemIndex) => <div className="story-feature-item-row" key={itemIndex}>
+                  <span>{String(itemIndex + 1).padStart(2, "0")}</span>
+                  <div>
+                    <input value={item.title} onChange={(event) => updateFeatureItem(index, itemIndex, { title: event.target.value })} placeholder="기능 제목" />
+                    <textarea value={item.body} onChange={(event) => updateFeatureItem(index, itemIndex, { body: event.target.value })} placeholder="기능 설명" />
+                  </div>
+                  <button type="button" onClick={() => removeFeatureItem(index, itemIndex)} disabled={block.items.length <= 1}>삭제</button>
+                </div>)}
+              </div>
+              <button type="button" className="story-add-feature-item" onClick={() => addFeatureItem(index)}>＋ 항목 추가</button>
+            </>}
           </article>)}
-          <div className="product-add-blocks"><button onClick={() => addBlock("image")}>＋ 이미지</button><button onClick={() => addBlock("text")}>＋ 텍스트</button></div>
+          <div className="product-add-blocks"><button onClick={() => addBlock("image")}>＋ 이미지</button><button onClick={() => addBlock("text")}>＋ 텍스트</button><button onClick={() => addBlock("features")}>＋ 기능 목록</button></div>
         </div>
         <aside className="product-live-preview">
           <header><span>LIVE PREVIEW</span><small>모바일 상세페이지</small></header>

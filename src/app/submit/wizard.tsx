@@ -167,8 +167,25 @@ export function SubmitWizard({
   function addStoryBlock(type: StoryBlock["type"]) {
     const block: StoryBlock = type === "text"
       ? { type: "text", heading: "", body: "" }
-      : { type: "image", src: "", alt: "" };
+      : type === "image"
+        ? { type: "image", src: "", alt: "" }
+        : { type: "features", heading: "", items: [{ title: "", body: "" }] };
     set({ story: [...draft.story, block] });
+  }
+  function addFeatureItem(index: number) {
+    const block = draft.story[index];
+    if (block.type !== "features") return;
+    updateStory(index, { ...block, items: [...block.items, { title: "", body: "" }] });
+  }
+  function updateFeatureItem(index: number, itemIndex: number, patch: Partial<{ title: string; body: string }>) {
+    const block = draft.story[index];
+    if (block.type !== "features") return;
+    updateStory(index, { ...block, items: block.items.map((item, i) => i === itemIndex ? { ...item, ...patch } : item) });
+  }
+  function removeFeatureItem(index: number, itemIndex: number) {
+    const block = draft.story[index];
+    if (block.type !== "features") return;
+    updateStory(index, { ...block, items: block.items.filter((_, i) => i !== itemIndex) });
   }
 
   function moveStoryBlock(index: number, direction: -1 | 1) {
@@ -487,16 +504,43 @@ export function SubmitWizard({
               {draft.story.map((block, index) => (
                 <article className="story-editor-block" key={`${block.type}-${index}`}>
                   <div className="story-block-bar">
-                    <div><span className="story-block-number">{String(index + 1).padStart(2, "0")}</span><strong>{block.type === "text" ? "텍스트" : "이미지"}</strong></div>
+                    <div><span className="story-block-number">{String(index + 1).padStart(2, "0")}</span><strong>{block.type === "text" ? "텍스트" : block.type === "image" ? "이미지" : "기능 목록"}</strong></div>
                     <div><button type="button" onClick={() => moveStoryBlock(index, -1)} disabled={index === 0} aria-label="위로 이동">↑</button><button type="button" onClick={() => moveStoryBlock(index, 1)} disabled={index === draft.story.length - 1} aria-label="아래로 이동">↓</button><button type="button" className="story-remove" onClick={() => removeStoryBlock(index)}>삭제</button></div>
                   </div>
 
-                  {block.type === "text" ? <div className="story-text-fields"><label>큰 제목<input className={input} value={block.heading ?? ""} placeholder="예: 좋은 아이디어는 왜 사라질까요?" onChange={(event) => updateStory(index, { ...block, heading: event.target.value })} /></label><label>본문<textarea className={`${input} min-h-32`} value={block.body} placeholder="이 장면에서 전달할 이야기를 입력하세요." onChange={(event) => updateStory(index, { ...block, body: event.target.value })} /></label></div> : <div className="story-image-fields"><div className="story-image-preview">{block.src ? <img src={block.src} alt="상세 이미지 미리보기" /> : <div><span>IMAGE</span><p>세로 이미지 권장<br />4:5 또는 3:4</p></div>}</div><div><label className="story-upload-button">{storyUploading === index ? "업로드 중…" : block.src ? "이미지 교체" : "이미지 업로드"}<input type="file" accept="image/*" disabled={storyUploading !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) uploadStoryImage(index, file); }} /></label><label className={label}>이미지 설명 (접근성)<input className={input} value={block.alt} placeholder="이미지에 보이는 내용을 설명해주세요" onChange={(event) => updateStory(index, { ...block, alt: event.target.value })} /></label><label className={label}>캡션 (선택)<input className={input} value={block.caption ?? ""} placeholder="이미지 아래에 표시할 짧은 설명" onChange={(event) => updateStory(index, { ...block, caption: event.target.value })} /></label></div></div>}
+                  {block.type === "text" ? <div className="story-text-fields">
+                    <div className="story-tone-toggle"><button type="button" className={block.tone !== "highlight" ? "active" : ""} onClick={() => updateStory(index, { ...block, tone: "default" })}>기본 배경</button><button type="button" className={block.tone === "highlight" ? "active" : ""} onClick={() => updateStory(index, { ...block, tone: "highlight" })}>포인트 배경</button></div>
+                    <label>큰 제목<input className={input} value={block.heading ?? ""} placeholder="예: 좋은 아이디어는 왜 사라질까요?" onChange={(event) => updateStory(index, { ...block, heading: event.target.value })} /></label>
+                    <label>본문<textarea className={`${input} min-h-32`} value={block.body} placeholder="이 장면에서 전달할 이야기를 입력하세요." onChange={(event) => updateStory(index, { ...block, body: event.target.value })} /></label>
+                  </div> : block.type === "image" ? <div className="story-image-fields">
+                    <div className="story-image-preview">{block.src ? <img src={block.src} alt="상세 이미지 미리보기" /> : <div><span>IMAGE</span><p>세로 이미지 권장<br />4:5 또는 3:4</p></div>}</div>
+                    <div>
+                      <div className="story-tone-toggle"><button type="button" className={block.frame !== "phone" ? "active" : ""} onClick={() => updateStory(index, { ...block, frame: "none" })}>일반 이미지</button><button type="button" className={block.frame === "phone" ? "active" : ""} onClick={() => updateStory(index, { ...block, frame: "phone" })}>폰 프레임</button></div>
+                      <label className="story-upload-button">{storyUploading === index ? "업로드 중…" : block.src ? "이미지 교체" : "이미지 업로드"}<input type="file" accept="image/*" disabled={storyUploading !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) uploadStoryImage(index, file); }} /></label>
+                      <label className={label}>이미지 설명 (접근성)<input className={input} value={block.alt} placeholder="이미지에 보이는 내용을 설명해주세요" onChange={(event) => updateStory(index, { ...block, alt: event.target.value })} /></label>
+                      <label className={label}>캡션 (선택)<input className={input} value={block.caption ?? ""} placeholder="이미지 아래에 표시할 짧은 설명" onChange={(event) => updateStory(index, { ...block, caption: event.target.value })} /></label>
+                      {block.frame === "phone" && <p className="story-hint">앱·서비스 화면은 실제 스크린샷을 올리면 폰 프레임 안에 자동으로 담깁니다.</p>}
+                    </div>
+                  </div> : <div className="story-text-fields">
+                    <div className="story-tone-toggle"><button type="button" className={block.tone !== "highlight" ? "active" : ""} onClick={() => updateStory(index, { ...block, tone: "default" })}>기본 배경</button><button type="button" className={block.tone === "highlight" ? "active" : ""} onClick={() => updateStory(index, { ...block, tone: "highlight" })}>포인트 배경</button></div>
+                    <label>섹션 제목<input className={input} value={block.heading ?? ""} placeholder="예: 부피는 줄이고, 정보는 더 담았습니다" onChange={(event) => updateStory(index, { ...block, heading: event.target.value })} /></label>
+                    <div className="story-feature-items">
+                      {block.items.map((item, itemIndex) => <div className="story-feature-item-row" key={itemIndex}>
+                        <span>{String(itemIndex + 1).padStart(2, "0")}</span>
+                        <div>
+                          <input className={input} value={item.title} onChange={(event) => updateFeatureItem(index, itemIndex, { title: event.target.value })} placeholder="기능 제목" />
+                          <textarea className={input} value={item.body} onChange={(event) => updateFeatureItem(index, itemIndex, { body: event.target.value })} placeholder="기능 설명" />
+                        </div>
+                        <button type="button" onClick={() => removeFeatureItem(index, itemIndex)} disabled={block.items.length <= 1}>삭제</button>
+                      </div>)}
+                    </div>
+                    <button type="button" className="story-add-feature-item" onClick={() => addFeatureItem(index)}>＋ 항목 추가</button>
+                  </div>}
                 </article>
               ))}
             </div>
 
-            <div className="story-add-buttons"><button type="button" onClick={() => addStoryBlock("text")}><span>T</span><div><strong>텍스트 추가</strong><small>제목과 설명을 입력합니다</small></div></button><button type="button" onClick={() => addStoryBlock("image")}><span>▧</span><div><strong>이미지 추가</strong><small>긴 상세컷을 업로드합니다</small></div></button></div>
+            <div className="story-add-buttons"><button type="button" onClick={() => addStoryBlock("text")}><span>T</span><div><strong>텍스트 추가</strong><small>제목과 설명을 입력합니다</small></div></button><button type="button" onClick={() => addStoryBlock("image")}><span>▧</span><div><strong>이미지 추가</strong><small>긴 상세컷을 업로드합니다</small></div></button><button type="button" onClick={() => addStoryBlock("features")}><span>#</span><div><strong>기능 목록 추가</strong><small>번호 매긴 기능 소개를 쌓습니다</small></div></button></div>
           </section>
         </div>
       )}

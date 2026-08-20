@@ -19,7 +19,10 @@ export function StudioNav({
           {founder && <Link className={active === "profile" ? "active" : ""} href="/my/profile">내 팀 프로필</Link>}
           <Link className={active === "settings" ? "active" : ""} href="/my/settings">계정 설정</Link>
         </nav>
-        <form action={signout}><button>로그아웃</button></form>
+        <div className="studio-nav-actions">
+          <Link className="studio-exit-link" href="/">Featable 홈 ↗</Link>
+          <form action={signout}><button>로그아웃</button></form>
+        </div>
       </div>
     </div>
   );
