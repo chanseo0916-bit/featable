@@ -84,6 +84,11 @@ summary::-webkit-details-marker { display: none; }
 .notification-error { margin: 10px 14px 0; padding: 9px 11px; border-radius: 7px; background: #fff0ec; color: #c83b25; font-size: 9px; }
 .notification-panel-footer { padding: 13px 18px; border-top: 1px solid #eceef0; text-align: right; }
 .notification-panel-footer a { color: #555d64; font-size: 9px; font-weight: 750; }
+.header-logout-form { margin: 0; }
+.header-logout { min-height: 40px; padding: 0 7px; display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: #686e74; cursor: pointer; font-size: 11px; font-weight: 650; white-space: nowrap; transition: color .16s; }
+.header-logout:hover { color: var(--accent); }
+.header-logout:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 32%, white); outline-offset: 2px; border-radius: 6px; }
+.header-logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .search-link { font-size: 27px; line-height: 1; transform: rotate(-20deg); display: inline-block; }
 /* Primary CTA — light Featable outline */
 .button {
@@ -2050,6 +2055,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (max-width: 560px) {
   .notification-panel { position: fixed; top: 68px; right: 12px; left: 12px; width: auto; }
   .notification-list { max-height: calc(100vh - 225px); }
+  .header-logout { width: 36px; padding: 0; justify-content: center; }
+  .header-logout span { display: none; }
   .team-profile-brand > header { grid-template-columns: 42px 1fr; }
   .team-profile-brand > header > .team-invite { grid-column: 1 / -1; }
   .team-profile-member-list, .company-team-grid { grid-template-columns: 1fr; }

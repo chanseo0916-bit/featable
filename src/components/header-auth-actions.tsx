@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LoginModal } from "@/components/login-modal";
 import { NotificationCenter } from "@/components/notification-center";
+import { signout } from "@/app/login/actions";
 
 /**
  * 헤더 우측 액션 이원화:
@@ -28,6 +29,12 @@ export function HeaderAuthActions() {
     return (
       <>
         <NotificationCenter />
+        <form action={signout} className="header-logout-form">
+          <button type="submit" className="header-logout" title="로그아웃">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4M14 8l4 4-4 4M9 12h9" /></svg>
+            <span>로그아웃</span>
+          </button>
+        </form>
         <div className="nav-submit-wrap">
           <Link className="button button-small nav-submit" href="/my">
             파운더 센터 <span>↗</span>

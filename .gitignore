@@ -42,6 +42,7 @@ next-env.d.ts
 
 # OpenNext / Cloudflare
 .open-next/
+.wrangler/
 .dev.vars
 
 # Supabase CLI cache
