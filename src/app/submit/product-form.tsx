@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { StoryBlock } from "@/lib/types";
-import { createStandaloneProduct, updateStandaloneProduct, type ProductRegistrationInput } from "./actions";
+import { ProductStoryRenderer } from "@/components/product-story-renderer";
+import { ImagePromptHelper } from "@/components/image-prompt-helper";
+import { createStandaloneProduct, deleteProductDraft, saveProductDraft, updateStandaloneProduct, type ProductRegistrationInput } from "./actions";
 
 interface BrandChoice { id: string; name: string; }
 const categories = ["AI", "SaaS", "F&B", "패션", "뷰티", "콘텐츠", "커머스", "라이프스타일", "교육", "개발", "기타"];
@@ -25,7 +27,7 @@ interface ProductFormState {
   story: StoryBlock[];
 }
 
-export function ProductRegistrationForm({ brands, initialBrandId, initial, editProductId }: { brands: BrandChoice[]; initialBrandId?: string; initial?: ProductFormInitial; editProductId?: string }) {
+export function ProductRegistrationForm({ brands, initialBrandId, initial, editProductId, draftKey, initialSavedAt = 0 }: { brands: BrandChoice[]; initialBrandId?: string; initial?: ProductFormInitial; editProductId?: string; draftKey?: string; initialSavedAt?: number }) {
   const router = useRouter();
   const [step, setStep] = useState<0 | 1>(0);
   const defaultBrandId = initial?.brandId || initialBrandId || brands[0]?.id || "";
@@ -35,19 +37,35 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
     if (typeof window === "undefined") return defaults;
     try {
       const cached = window.localStorage.getItem(initialCacheKey);
-      if (cached) return { ...defaults, ...JSON.parse(cached), brandId: defaults.brandId } as ProductFormState;
+      if (cached) {
+        const parsed = JSON.parse(cached) as { form?: Partial<ProductFormState>; savedAt?: number } | Partial<ProductFormState>;
+        if ("form" in parsed && parsed.form && (parsed.savedAt ?? 0) > initialSavedAt) return { ...defaults, ...parsed.form, brandId: defaults.brandId } as ProductFormState;
+        if (!("form" in parsed) && !initialSavedAt) return { ...defaults, ...parsed, brandId: defaults.brandId } as ProductFormState;
+      }
     } catch {}
     return defaults;
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [syncState, setSyncState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const set = (patch: Partial<typeof form>) => setForm((value) => ({ ...value, ...patch }));
 
   useEffect(() => {
-    const timer = window.setTimeout(() => window.localStorage.setItem(editProductId ? `featable:product-edit:${editProductId}` : `featable:product-draft:${form.brandId}`, JSON.stringify(form)), 500);
+    const timer = window.setTimeout(() => window.localStorage.setItem(editProductId ? `featable:product-edit:${editProductId}` : `featable:product-draft:${form.brandId}`, JSON.stringify({ form, savedAt: Date.now() })), 400);
     return () => window.clearTimeout(timer);
-  }, [form]);
+  }, [editProductId, form]);
+
+  useEffect(() => {
+    if (!draftKey) return;
+    setSyncState("saving");
+    const timer = window.setTimeout(async () => {
+      const result = await saveProductDraft(draftKey, form);
+      setSyncState(result.ok ? "saved" : "error");
+    }, 1300);
+    return () => window.clearTimeout(timer);
+  }, [draftKey, form]);
 
   async function upload(file: File, storyIndex?: number) {
     setUploading(true); setError("");
@@ -78,6 +96,14 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
     [story[index], story[target]] = [story[target], story[index]];
     set({ story });
   }
+  function dropBlock(target: number) {
+    if (dragIndex === null || dragIndex === target) return setDragIndex(null);
+    const story = [...form.story];
+    const [block] = story.splice(dragIndex, 1);
+    story.splice(target, 0, block);
+    set({ story });
+    setDragIndex(null);
+  }
 
   async function submit(publish: boolean) {
     setSaving(true); setError("");
@@ -85,12 +111,13 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
     const result = editProductId ? await updateStandaloneProduct(editProductId, payload) : await createStandaloneProduct(payload);
     setSaving(false);
     if (!result.ok) { setError(result.error); return; }
+    if (draftKey) await deleteProductDraft(draftKey);
     window.localStorage.removeItem(editProductId ? `featable:product-edit:${editProductId}` : `featable:product-draft:${form.brandId}`);
     router.push(publish ? `/products/${result.productSlug}` : "/my");
   }
 
   return <section className="simple-registration-card product-registration-card">
-    <div className="product-registration-tabs"><button className={step === 0 ? "active" : ""} onClick={() => setStep(0)}><i>1</i> 프로덕트 정보</button><span>→</span><button className={step === 1 ? "active" : ""} onClick={() => form.name && form.tagline && setStep(1)}><i>2</i> 상세페이지</button><small>자동 저장됨</small></div>
+    <div className="product-registration-tabs"><button className={step === 0 ? "active" : ""} onClick={() => setStep(0)}><i>1</i> 프로덕트 정보</button><span>→</span><button className={step === 1 ? "active" : ""} onClick={() => form.name && form.tagline && setStep(1)}><i>2</i> 상세페이지</button><small className={syncState}>{syncState === "saving" ? "저장 중…" : syncState === "error" ? "브라우저에 저장됨" : "서버에 자동 저장됨"}</small></div>
     {step === 0 ? <>
       <div className="simple-registration-heading"><span>프로덕트</span><h1>{editProductId ? "프로덕트 정보를 수정하세요." : "무엇을 만들고 있나요?"}</h1><p>필수 정보와 상세페이지를 각각 나누어 관리합니다.</p></div>
       <div className="product-basic-grid">
@@ -105,12 +132,22 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
       </div>
     </> : <>
       <div className="simple-registration-heading"><span>프로덕트 상세페이지</span><h1>이미지와 설명을 순서대로 쌓으세요.</h1><p>추가한 블록이 그대로 긴 프로덕트 상세페이지가 됩니다.</p></div>
-      <div className="product-story-builder">
-        {form.story.map((block, index) => <article key={index}>
-          <header><span>{block.type === "text" ? "텍스트" : "이미지"}</span><div><button onClick={() => moveBlock(index, -1)} disabled={index === 0}>↑</button><button onClick={() => moveBlock(index, 1)} disabled={index === form.story.length - 1}>↓</button><button onClick={() => removeBlock(index)}>삭제</button></div></header>
-          {block.type === "text" ? <><input value={block.heading} onChange={(event) => updateBlock(index, { ...block, heading: event.target.value })} placeholder="섹션 제목" /><textarea value={block.body} onChange={(event) => updateBlock(index, { ...block, body: event.target.value })} placeholder="제품을 자세히 설명해주세요." /></> : <label>{block.src ? <img src={block.src} alt="상세 이미지" /> : <span>상세 이미지 추가</span>}<input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && upload(event.target.files[0], index)} /></label>}
-        </article>)}
-        <div className="product-add-blocks"><button onClick={() => addBlock("image")}>＋ 이미지</button><button onClick={() => addBlock("text")}>＋ 텍스트</button></div>
+      <ImagePromptHelper name={form.name} category={form.category} tagline={form.tagline} problem={form.problem} solution={form.solution} features={form.features} />
+      <div className="product-detail-workspace">
+        <div className="product-story-builder">
+          {form.story.length === 0 && <div className="product-story-empty"><strong>상세페이지가 비어 있어요.</strong><span>이미지나 텍스트 블록을 추가해 시작하세요.</span></div>}
+          {form.story.map((block, index) => <article key={index} draggable onDragStart={() => setDragIndex(index)} onDragOver={(event) => event.preventDefault()} onDrop={() => dropBlock(index)} className={dragIndex === index ? "dragging" : ""}>
+            <header><span><b>⠿</b> {block.type === "text" ? "텍스트" : "이미지"}</span><div><button onClick={() => moveBlock(index, -1)} disabled={index === 0}>↑</button><button onClick={() => moveBlock(index, 1)} disabled={index === form.story.length - 1}>↓</button><button onClick={() => removeBlock(index)}>삭제</button></div></header>
+            {block.type === "text" ? <><input value={block.heading} onChange={(event) => updateBlock(index, { ...block, heading: event.target.value })} placeholder="섹션 제목" /><textarea value={block.body} onChange={(event) => updateBlock(index, { ...block, body: event.target.value })} placeholder="제품을 자세히 설명해주세요." /></> : <label>{block.src ? <img src={block.src} alt="상세 이미지" /> : <span>상세 이미지 추가</span>}<input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && upload(event.target.files[0], index)} /></label>}
+          </article>)}
+          <div className="product-add-blocks"><button onClick={() => addBlock("image")}>＋ 이미지</button><button onClick={() => addBlock("text")}>＋ 텍스트</button></div>
+        </div>
+        <aside className="product-live-preview">
+          <header><span>LIVE PREVIEW</span><small>모바일 상세페이지</small></header>
+          <div className="product-preview-device">
+            <ProductStoryRenderer compact brandName={brands.find((brand) => brand.id === form.brandId)?.name} name={form.name} tagline={form.tagline} heroUrl={form.heroUrl} story={form.story} />
+          </div>
+        </aside>
       </div>
     </>}
     {error && <p className="simple-form-error">{error}</p>}
