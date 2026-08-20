@@ -7,6 +7,8 @@ import type { StoryBlock } from "@/lib/types";
 import { ProductStoryRenderer } from "@/components/product-story-renderer";
 import { ImagePromptHelper } from "@/components/image-prompt-helper";
 import { createStandaloneProduct, deleteProductDraft, saveProductDraft, updateStandaloneProduct, type ProductRegistrationInput } from "./actions";
+import { SeoPublishFields } from "@/components/seo-publish-fields";
+import { cleanSeoSlug, storyText } from "@/lib/content-seo";
 
 interface BrandChoice { id: string; name: string; }
 const categories = ["AI", "SaaS", "F&B", "패션", "뷰티", "콘텐츠", "커머스", "라이프스타일", "교육", "개발", "기타"];
@@ -25,6 +27,12 @@ interface ProductFormState {
   officialUrl: string;
   heroUrl: string;
   story: StoryBlock[];
+  slug: string;
+  seoTitle: string;
+  seoDescription: string;
+  primaryKeyword: string;
+  secondaryKeywords: string;
+  ogImageUrl: string;
 }
 
 export function ProductRegistrationForm({ brands, initialBrandId, initial, editProductId, draftKey, initialSavedAt = 0 }: { brands: BrandChoice[]; initialBrandId?: string; initial?: ProductFormInitial; editProductId?: string; draftKey?: string; initialSavedAt?: number }) {
@@ -33,7 +41,7 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
   const defaultBrandId = initial?.brandId || initialBrandId || brands[0]?.id || "";
   const initialCacheKey = editProductId ? `featable:product-edit:${editProductId}` : `featable:product-draft:${defaultBrandId}`;
   const [form, setForm] = useState<ProductFormState>(() => {
-    const defaults: ProductFormState = { brandId: defaultBrandId, name: initial?.name ?? "", tagline: initial?.tagline ?? "", category: initial?.category ?? "기타", problem: initial?.problem ?? "", solution: initial?.solution ?? "", features: initial?.features ?? "", price: initial?.price ?? "", officialUrl: initial?.officialUrl ?? "", heroUrl: initial?.heroUrl ?? "", story: initial?.story ?? [] };
+    const defaults: ProductFormState = { brandId: defaultBrandId, name: initial?.name ?? "", tagline: initial?.tagline ?? "", category: initial?.category ?? "기타", problem: initial?.problem ?? "", solution: initial?.solution ?? "", features: initial?.features ?? "", price: initial?.price ?? "", officialUrl: initial?.officialUrl ?? "", heroUrl: initial?.heroUrl ?? "", story: initial?.story ?? [], slug: initial?.slug ?? "", seoTitle: initial?.seoTitle ?? "", seoDescription: initial?.seoDescription ?? "", primaryKeyword: initial?.primaryKeyword ?? "", secondaryKeywords: initial?.secondaryKeywords?.join(", ") ?? "", ogImageUrl: initial?.ogImageUrl ?? "" };
     if (typeof window === "undefined") return defaults;
     try {
       const cached = window.localStorage.getItem(initialCacheKey);
@@ -127,7 +135,7 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
 
   async function submit(publish: boolean) {
     setSaving(true); setError("");
-    const payload = { ...form, features: form.features.split("\n"), publish };
+    const payload = { ...form, features: form.features.split("\n"), secondaryKeywords: form.secondaryKeywords.split(",").map((item) => item.trim()).filter(Boolean), publish };
     const result = editProductId ? await updateStandaloneProduct(editProductId, payload) : await createStandaloneProduct(payload);
     setSaving(false);
     if (!result.ok) { setError(result.error); return; }
@@ -143,13 +151,14 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
       <div className="product-basic-grid">
         <label><span>소속 브랜드 *</span><select value={form.brandId} onChange={(event) => set({ brandId: event.target.value })}>{brands.map((brand) => <option value={brand.id} key={brand.id}>{brand.name}</option>)}</select></label>
         <label><span>카테고리</span><select value={form.category} onChange={(event) => set({ category: event.target.value })}>{categories.map((item) => <option key={item}>{item}</option>)}</select></label>
-        <label className="full"><span>프로덕트명 *</span><input autoFocus value={form.name} onChange={(event) => set({ name: event.target.value })} placeholder="예: 카라멜 노트" /></label>
+        <label className="full"><span>프로덕트명 *</span><input autoFocus value={form.name} onChange={(event) => set({ name: event.target.value, ...(!form.slug ? { slug: cleanSeoSlug(event.target.value) } : {}) })} placeholder="예: 카라멜 노트" /></label>
         <label className="full"><span>한 줄 소개 *</span><input value={form.tagline} onChange={(event) => set({ tagline: event.target.value })} placeholder="고객이 바로 이해할 수 있는 한 문장" /></label>
         <label><span>가격</span><input value={form.price} onChange={(event) => set({ price: event.target.value })} placeholder="예: 월 9,900원" /></label>
         <label><span>공식 링크</span><input value={form.officialUrl} onChange={(event) => set({ officialUrl: event.target.value })} placeholder="https://" /></label>
         <label className="full product-hero-upload"><span>대표 이미지</span>{form.heroUrl && <img src={form.heroUrl} alt="대표 이미지" />}<input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && upload(event.target.files[0])} /></label>
         <details className="product-optional-fields full"><summary>제품 설명 더 입력하기 <small>선택</small></summary><div><label><span>해결하려는 문제</span><textarea value={form.problem} onChange={(event) => set({ problem: event.target.value })} /></label><label><span>해결 방법</span><textarea value={form.solution} onChange={(event) => set({ solution: event.target.value })} /></label><label><span>주요 특징</span><textarea value={form.features} onChange={(event) => set({ features: event.target.value })} placeholder="한 줄에 하나씩 입력" /></label></div></details>
       </div>
+      <SeoPublishFields values={form} fallbackTitle={form.name || "프로덕트명"} fallbackDescription={`${form.tagline} ${form.solution || form.problem}`} fallbackImage={form.heroUrl} content={`${form.problem} ${form.solution} ${form.features} ${storyText(form.story)}`} path="products" lockSlug={Boolean(editProductId)} onChange={set} />
     </> : <>
       <div className="simple-registration-heading"><span>프로덕트 상세페이지</span><h1>이미지와 설명을 순서대로 쌓으세요.</h1><p>추가한 블록이 그대로 긴 프로덕트 상세페이지가 됩니다.</p></div>
       <ImagePromptHelper name={form.name} category={form.category} tagline={form.tagline} problem={form.problem} solution={form.solution} features={form.features} />

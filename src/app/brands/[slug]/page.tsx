@@ -8,6 +8,8 @@ import { FollowButton } from "@/components/follow-button";
 import { absoluteUrl, breadcrumbJsonLd, createDetailMetadata, entityId, JsonLd, type SeoSchema } from "@/components/seo-json-ld";
 import { createClient } from "@/lib/supabase/server";
 import { TeamProfileCard } from "@/components/team-profile-card";
+import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
+import { SemanticDescription } from "@/components/semantic-description";
 
 interface PublicTeamMember {
   member_key: string;
@@ -24,10 +26,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const brand = brands.find((item) => item.slug === slug);
   if (!brand) return {};
   return createDetailMetadata({
-    title: brand.name,
-    description: (brand.description || brand.tagline).slice(0, 160),
+    title: seoTitle(brand.seoTitle, `${brand.name} 기업 소개`),
+    description: conciseSeoDescription(brand.seoDescription || brand.description || brand.tagline),
     path: `/brands/${brand.slug}`,
-    image: brand.coverUrl ?? brand.logoUrl,
+    image: brand.ogImageUrl ?? brand.coverUrl ?? brand.logoUrl,
+    indexable: brand.isIndexable !== false,
   });
 }
 
@@ -50,6 +53,8 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
     logo: absoluteUrl(brand.logoUrl),
     ...(brand.coverUrl ? { image: absoluteUrl(brand.coverUrl) } : {}),
     description: brand.description || brand.tagline,
+    keywords: [brand.primaryKeyword, ...(brand.secondaryKeywords ?? [])].filter(Boolean),
+    ...(brand.updatedAt ? { dateModified: brand.updatedAt } : {}),
     ...(brand.website ? { sameAs: [absoluteUrl(brand.website)] } : {}),
     ...(brand.foundedAt ? { foundingDate: brand.foundedAt } : {}),
     ...(founder ? { founder: { "@type": "Person", "@id": entityId(`/founders/${founder.slug}`, "person"), name: founder.name } } : {}),
@@ -87,8 +92,8 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
           </section>
 
           <section id="about" className="company-about-v2">
-            <header><span>ABOUT</span><h2>기업 소개</h2></header>
-            <p>{brand.description || brand.tagline}</p>
+            <header><span>ABOUT</span><h2>{brand.name} 기업 소개</h2></header>
+            <SemanticDescription text={brand.description || brand.tagline} />
             {(brand.problem || brand.audience) && <dl>{brand.problem && <div><dt>해결하는 문제</dt><dd>{brand.problem}</dd></div>}{brand.audience && <div><dt>주요 고객</dt><dd>{brand.audience}</dd></div>}</dl>}
           </section>
 

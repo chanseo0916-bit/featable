@@ -29,22 +29,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/partners",
   ].map((path) => ({
     url: absoluteUrl(path),
-    changeFrequency: "daily" as const,
-    priority: path === "" ? 1 : 0.8,
     ...(path === "" ? { images: [absoluteUrl("/featable-logo.png")] } : {}),
   }));
 
-  const brandEntries = brands.map((brand) => ({
+  const brandEntries = brands.filter((brand) => brand.isIndexable !== false).map((brand) => ({
     url: absoluteUrl(`/brands/${brand.slug}`),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
+    ...(brand.updatedAt || brand.publishedAt ? { lastModified: brand.updatedAt ?? brand.publishedAt } : {}),
     images: imageUrls(brand.coverUrl, brand.logoUrl),
   }));
 
-  const productEntries = products.map((product) => ({
+  const productEntries = products.filter((product) => product.isIndexable !== false).map((product) => ({
     url: absoluteUrl(`/products/${product.slug}`),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
+    ...(product.updatedAt || product.publishedAt ? { lastModified: product.updatedAt ?? product.publishedAt } : {}),
     images: imageUrls(product.heroUrl, ...product.images),
   }));
 
@@ -55,11 +51,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     images: imageUrls(founder.avatarUrl),
   }));
 
-  const featureEntries = features.map((feature) => ({
+  const featureEntries = features.filter((feature) => feature.isIndexable !== false).map((feature) => ({
     url: absoluteUrl(`/stories/${feature.slug}`),
-    lastModified: feature.publishedAt,
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
+    lastModified: feature.updatedAt ?? feature.publishedAt,
     images: imageUrls(feature.coverUrl),
   }));
 

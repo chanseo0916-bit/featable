@@ -49,6 +49,14 @@ export interface Brand {
   featureSlugs: string[];
   jobSlugs?: string[];
   isFeatured?: boolean; // 관리자 Featured 지정 (홈 노출 우선)
+  seoTitle?: string;
+  seoDescription?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  ogImageUrl?: string;
+  isIndexable?: boolean;
+  publishedAt?: string;
+  updatedAt?: string;
 }
 
 /** 와디즈식 상세 본문: 이미지 블록과 텍스트 블록이 번갈아 나오는 세로 스토리텔링 */
@@ -84,6 +92,14 @@ export interface Product {
   relatedProductSlugs?: string[];
   viewCount?: number;
   isFeatured?: boolean; // 관리자 Featured 지정 (홈 노출 우선)
+  seoTitle?: string;
+  seoDescription?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  ogImageUrl?: string;
+  isIndexable?: boolean;
+  publishedAt?: string;
+  updatedAt?: string;
 }
 
 /** Feature = 스토리/인터뷰 등 에디토리얼 콘텐츠 */
@@ -105,6 +121,13 @@ export interface Feature {
   founderSlug?: string;
   publishedAt: string; // ISO
   viewCount?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  ogImageUrl?: string;
+  isIndexable?: boolean;
+  updatedAt?: string;
 }
 
 export interface EventItem {

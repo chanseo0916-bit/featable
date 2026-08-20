@@ -5,6 +5,7 @@ import { AdminPageHeader } from "./admin-ui";
 const sections = [
   { key: "brands", label: "브랜드", href: "/admin/brands", description: "등록 정보와 공개 상태 관리" },
   { key: "products", label: "프로덕트", href: "/admin/products", description: "제품·서비스와 피쳐 관리" },
+  { key: "features", label: "스토리", href: "/admin/stories", description: "인터뷰·브랜드 스토리 발행" },
   { key: "events", label: "행사", href: "/admin/events", description: "행사 등록과 노출 관리" },
   { key: "support_programs", label: "지원사업", href: "/admin/support", description: "지원사업 공고 관리" },
   { key: "partners", label: "파트너", href: "/admin/partners", description: "파트너 정보와 공개 상태 관리" },
@@ -12,14 +13,15 @@ const sections = [
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
-  const [brands, products, events, support, partners] = await Promise.all([
+  const [brands, products, features, events, support, partners] = await Promise.all([
     supabase.from("brands").select("id", { count: "exact", head: true }),
     supabase.from("products").select("id", { count: "exact", head: true }),
+    supabase.from("features").select("id", { count: "exact", head: true }),
     supabase.from("events").select("id", { count: "exact", head: true }),
     supabase.from("support_programs").select("id", { count: "exact", head: true }),
     supabase.from("partners").select("id", { count: "exact", head: true }),
   ]);
-  const counts = [brands.count, products.count, events.count, support.count, partners.count];
+  const counts = [brands.count, products.count, features.count, events.count, support.count, partners.count];
 
   return (
     <main className="admin-main shell">

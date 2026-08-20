@@ -14,6 +14,7 @@ import {
   JsonLd,
   type SeoSchema,
 } from "@/components/seo-json-ld";
+import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
 
 const kindLabel = {
   interview: "FOUNDER INTERVIEW",
@@ -30,12 +31,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const feature = await getFeature(slug);
   if (!feature) return {};
   return createDetailMetadata({
-    title: feature.title,
-    description: feature.excerpt.slice(0, 160),
+    title: seoTitle(feature.seoTitle, feature.title),
+    description: conciseSeoDescription(feature.seoDescription || feature.excerpt),
     path: `/stories/${feature.slug}`,
-    image: feature.coverUrl,
+    image: feature.ogImageUrl ?? feature.coverUrl,
     type: "article",
     publishedTime: feature.publishedAt,
+    modifiedTime: feature.updatedAt,
+    indexable: feature.isIndexable !== false,
   });
 }
 
@@ -73,11 +76,9 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     url: absoluteUrl(storyPath),
     image: absoluteUrl(feature.coverUrl),
     datePublished: feature.publishedAt,
-    author: {
-      "@type": "Organization",
-      "@id": entityId("/", "organization"),
-      name: "Featable",
-    },
+    ...(feature.updatedAt ? { dateModified: feature.updatedAt } : {}),
+    keywords: [feature.primaryKeyword, ...(feature.secondaryKeywords ?? [])].filter(Boolean),
+    author: founder ? { "@type": "Person", "@id": entityId(`/founders/${founder.slug}`, "person"), name: founder.name } : { "@type": "Organization", "@id": entityId("/", "organization"), name: "Featable" },
     ...(articleSubjects.length > 0 ? { about: articleSubjects } : {}),
     publisher: {
       "@type": "Organization",

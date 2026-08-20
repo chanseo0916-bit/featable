@@ -19,6 +19,8 @@ export function createDetailMetadata({
   image,
   type = "website",
   publishedTime,
+  modifiedTime,
+  indexable = true,
 }: {
   title: string;
   description: string;
@@ -26,6 +28,8 @@ export function createDetailMetadata({
   image?: string;
   type?: "website" | "article";
   publishedTime?: string;
+  modifiedTime?: string;
+  indexable?: boolean;
 }): Metadata {
   const url = absoluteUrl(path);
   const imageUrl = image ? absoluteUrl(image) : undefined;
@@ -34,6 +38,7 @@ export function createDetailMetadata({
     title,
     description,
     alternates: { canonical: url },
+    robots: indexable ? { index: true, follow: true } : { index: false, follow: true },
     openGraph: {
       type,
       siteName: SITE_NAME,
@@ -43,6 +48,7 @@ export function createDetailMetadata({
       description,
       ...(imageUrl ? { images: [{ url: imageUrl, alt: title }] } : {}),
       ...(type === "article" && publishedTime ? { publishedTime } : {}),
+      ...(type === "article" && modifiedTime ? { modifiedTime } : {}),
     },
     twitter: {
       card: "summary_large_image",

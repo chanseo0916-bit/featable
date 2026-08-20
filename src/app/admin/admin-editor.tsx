@@ -42,6 +42,8 @@ const FIELDS: Record<AdminEditableTable, Field[]> = {
     { key: "intro", label: "한 줄 소개", wide: true }, { key: "description", label: "상세 소개", type: "textarea", wide: true },
     { key: "href", label: "연결 URL", type: "url", required: true }, { key: "logoUrl", label: "로고 URL", type: "url", required: true },
   ],
+  // 스토리는 본문 블록 때문에 전용 StoryForm(/admin/stories)에서 편집한다
+  features: [],
 };
 
 export function AdminEditButton({ table, id, initial, label }: { table: AdminEditableTable; id: string; initial: AdminEditPayload; label: string }) {

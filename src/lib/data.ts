@@ -95,6 +95,14 @@ interface BrandRow {
   sns: { instagram?: string; x?: string; youtube?: string } | null;
   founded_at: string | null;
   is_featured: boolean;
+  seo_title: string | null;
+  seo_description: string | null;
+  primary_keyword: string | null;
+  secondary_keywords: string[] | null;
+  og_image_url: string | null;
+  is_indexable: boolean;
+  published_at: string | null;
+  updated_at: string;
   founder: FounderRow | null;
 }
 
@@ -114,6 +122,14 @@ interface ProductRow {
   category: string;
   view_count: number | null;
   is_featured: boolean;
+  seo_title: string | null;
+  seo_description: string | null;
+  primary_keyword: string | null;
+  secondary_keywords: string[] | null;
+  og_image_url: string | null;
+  is_indexable: boolean;
+  published_at: string | null;
+  updated_at: string;
   brand: { slug: string; founder: { slug: string } | null } | null;
 }
 
@@ -130,7 +146,7 @@ async function fetchLive(): Promise<Catalog | null> {
       supabase
         .from("brands")
         .select(
-          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,founder:founders(slug,name,avatar_url,headline,bio,sns)",
+          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,published_at,updated_at,founder:founders(slug,name,avatar_url,headline,bio,sns)",
         )
         .eq("status", "published")
         .order("is_featured", { ascending: false })
@@ -138,7 +154,7 @@ async function fetchLive(): Promise<Catalog | null> {
       supabase
         .from("products")
         .select(
-          "slug,name,hero_url,images,tagline,story,problem,solution,features,price,buy_url,official_url,category,view_count,is_featured,brand:brands!inner(slug,founder:founders(slug))",
+          "slug,name,hero_url,images,tagline,story,problem,solution,features,price,buy_url,official_url,category,view_count,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,published_at,updated_at,brand:brands!inner(slug,founder:founders(slug))",
         )
         .eq("status", "published")
         .order("is_featured", { ascending: false })
@@ -172,6 +188,14 @@ async function fetchLive(): Promise<Catalog | null> {
       mentorNote: undefined as MentorNote | undefined,
       viewCount: p.view_count ?? 0,
       isFeatured: p.is_featured,
+      seoTitle: p.seo_title ?? undefined,
+      seoDescription: p.seo_description ?? undefined,
+      primaryKeyword: p.primary_keyword ?? undefined,
+      secondaryKeywords: p.secondary_keywords ?? [],
+      ogImageUrl: p.og_image_url ?? undefined,
+      isIndexable: p.is_indexable,
+      publishedAt: p.published_at ?? undefined,
+      updatedAt: p.updated_at,
     }));
 
     const brands: Brand[] = brandRows.map((b) => ({
@@ -193,6 +217,14 @@ async function fetchLive(): Promise<Catalog | null> {
         .map((p) => p.slug),
       featureSlugs: [],
       isFeatured: b.is_featured,
+      seoTitle: b.seo_title ?? undefined,
+      seoDescription: b.seo_description ?? undefined,
+      primaryKeyword: b.primary_keyword ?? undefined,
+      secondaryKeywords: b.secondary_keywords ?? [],
+      ogImageUrl: b.og_image_url ?? undefined,
+      isIndexable: b.is_indexable,
+      publishedAt: b.published_at ?? undefined,
+      updatedAt: b.updated_at,
     }));
 
     // Founder는 브랜드 조인에서 유도 (slug 기준 중복 제거)
@@ -262,6 +294,13 @@ interface FeatureRow {
   body: StoryBlock[] | null;
   published_at: string | null;
   view_count: number | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  primary_keyword: string | null;
+  secondary_keywords: string[] | null;
+  og_image_url: string | null;
+  is_indexable: boolean;
+  updated_at: string;
   brand: { slug: string } | null;
   founder: { slug: string } | null;
 }
@@ -388,7 +427,7 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
     const supabase = createClient(url!, key!);
     const { data, error } = await supabase
       .from("features")
-      .select("slug,title,cover_url,kind,excerpt,body,published_at,view_count,brand:brands(slug),founder:founders(slug)")
+      .select("slug,title,cover_url,kind,excerpt,body,published_at,view_count,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,updated_at,brand:brands(slug),founder:founders(slug)")
       .eq("status", "published")
       .order("published_at", { ascending: false });
     if (error) {
@@ -407,6 +446,13 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
       founderSlug: feature.founder?.slug,
       publishedAt: feature.published_at ?? new Date(0).toISOString(),
       viewCount: feature.view_count ?? 0,
+      seoTitle: feature.seo_title ?? undefined,
+      seoDescription: feature.seo_description ?? undefined,
+      primaryKeyword: feature.primary_keyword ?? undefined,
+      secondaryKeywords: feature.secondary_keywords ?? [],
+      ogImageUrl: feature.og_image_url ?? undefined,
+      isIndexable: feature.is_indexable,
+      updatedAt: feature.updated_at,
     }));
     return mergeBySlug(live, mockFeatures);
   } catch (error) {

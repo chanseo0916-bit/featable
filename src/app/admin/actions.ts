@@ -33,7 +33,7 @@ async function requireAdmin() {
   return profile?.role === "admin" ? supabase : null;
 }
 
-export type AdminTable = "brands" | "products" | "events" | "support_programs" | "partners";
+export type AdminTable = "brands" | "products" | "events" | "support_programs" | "partners" | "features";
 export type AdminEditableTable = AdminTable;
 export type AdminEditPayload = Record<string, string | boolean>;
 
@@ -44,6 +44,7 @@ function clean(value: unknown) {
 function publicPath(table: AdminTable, slug?: string | null) {
   if (!slug) return null;
   if (table === "support_programs") return `/support/${slug}`;
+  if (table === "features") return `/stories/${slug}`;
   return `/${table}/${slug}`;
 }
 
@@ -285,4 +286,86 @@ export async function deleteCuration(
 
   revalidateCuration();
   return {};
+}
+
+// ── 스토리(피처) — 언론 기사식 에디토리얼 발행 ──────────────────
+
+export interface StoryInput {
+  title: string;
+  kind: string;
+  excerpt: string;
+  coverUrl?: string;
+  brandId?: string;
+  body: import("@/lib/types").StoryBlock[];
+  publish: boolean;
+}
+
+function revalidateStories(slug?: string) {
+  revalidatePath("/");
+  revalidatePath("/stories");
+  revalidatePath("/admin/stories");
+  if (slug) revalidatePath(`/stories/${slug}`);
+}
+
+async function founderIdForBrand(
+  supabase: NonNullable<Awaited<ReturnType<typeof requireAdmin>>>,
+  brandId?: string,
+): Promise<string | null> {
+  if (!brandId) return null;
+  const { data } = await supabase.from("brands").select("founder_id").eq("id", brandId).maybeSingle();
+  return data?.founder_id ?? null;
+}
+
+export async function createStory(input: StoryInput): Promise<{ error?: string; slug?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  if (!input.title.trim() || !input.excerpt.trim()) {
+    return { error: "제목과 요약은 필수입니다." };
+  }
+
+  const slug = `${slugify(input.title) || "story"}-${randomSuffix()}`;
+  const { error } = await supabase.from("features").insert({
+    slug,
+    title: input.title.trim(),
+    kind: input.kind,
+    excerpt: input.excerpt.trim(),
+    cover_url: input.coverUrl?.trim() || null,
+    body: input.body,
+    brand_id: input.brandId || null,
+    founder_id: await founderIdForBrand(supabase, input.brandId),
+    status: input.publish ? "published" : "draft",
+    published_at: input.publish ? new Date().toISOString() : null,
+  });
+  if (error) return { error: `스토리 저장에 실패했습니다: ${error.message}` };
+
+  revalidateStories(slug);
+  return { slug };
+}
+
+export async function updateStory(id: string, input: StoryInput): Promise<{ error?: string; slug?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  if (!input.title.trim() || !input.excerpt.trim()) {
+    return { error: "제목과 요약은 필수입니다." };
+  }
+
+  const { data: current } = await supabase.from("features").select("slug,published_at").eq("id", id).maybeSingle();
+  if (!current) return { error: "스토리를 찾을 수 없습니다." };
+
+  const { error } = await supabase.from("features").update({
+    title: input.title.trim(),
+    kind: input.kind,
+    excerpt: input.excerpt.trim(),
+    cover_url: input.coverUrl?.trim() || null,
+    body: input.body,
+    brand_id: input.brandId || null,
+    founder_id: await founderIdForBrand(supabase, input.brandId),
+    status: input.publish ? "published" : "draft",
+    published_at: input.publish ? (current.published_at ?? new Date().toISOString()) : current.published_at,
+    updated_at: new Date().toISOString(),
+  }).eq("id", id);
+  if (error) return { error: `스토리 수정에 실패했습니다: ${error.message}` };
+
+  revalidateStories(current.slug);
+  return { slug: current.slug };
 }

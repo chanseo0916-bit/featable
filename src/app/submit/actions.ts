@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
 import type { StoryBlock } from "@/lib/types";
+import { cleanSeoSlug, conciseSeoDescription, normalizeKeywords, seoTitle, storyText } from "@/lib/content-seo";
 
 export interface PublishInput {
   // STEP 1 — 기본정보
@@ -77,15 +78,22 @@ export type PublishResult =
   | { ok: false; error: string };
 
 export interface BrandRegistrationInput {
+  slug?: string;
   name: string;
   tagline: string;
   category: string;
   description?: string;
   website?: string;
   logoUrl?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  ogImageUrl?: string;
 }
 
 export interface ProductRegistrationInput {
+  slug?: string;
   brandId: string;
   name: string;
   tagline: string;
@@ -98,6 +106,11 @@ export interface ProductRegistrationInput {
   heroUrl?: string;
   story: StoryBlock[];
   publish: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  ogImageUrl?: string;
 }
 
 export type BrandRegistrationResult =
@@ -161,6 +174,11 @@ export async function updateStandaloneBrand(brandId: string, input: BrandRegistr
     description: input.description?.trim() || input.tagline.trim(),
     website: input.website?.trim() || null,
     logo_url: input.logoUrl || null,
+    seo_title: seoTitle(input.seoTitle, `${input.name.trim()} 기업 소개`),
+    seo_description: conciseSeoDescription(input.seoDescription || input.description || input.tagline),
+    primary_keyword: input.primaryKeyword?.trim() || input.name.trim(),
+    secondary_keywords: normalizeKeywords(input.secondaryKeywords),
+    og_image_url: input.ogImageUrl || input.logoUrl || null,
     updated_at: new Date().toISOString(),
   }).eq("id", brandId).select("id,slug").maybeSingle();
   if (error || !brand) return { ok: false, error: "기업 정보 수정에 실패했습니다." };
@@ -186,6 +204,7 @@ export async function updateStandaloneProduct(productId: string, input: ProductR
   const storyImages = input.story
     .filter((block): block is Extract<StoryBlock, { type: "image" }> => block.type === "image")
     .map((block) => block.src).filter(Boolean);
+  const publishedAt = input.publish ? new Date().toISOString() : null;
   const { data: product, error } = await supabase.from("products").update({
     name: input.name.trim(),
     tagline: input.tagline.trim(),
@@ -199,10 +218,17 @@ export async function updateStandaloneProduct(productId: string, input: ProductR
     images: [input.heroUrl, ...storyImages].filter(Boolean),
     story: input.story,
     status: input.publish ? "published" : "draft",
+    seo_title: seoTitle(input.seoTitle, input.name.trim()),
+    seo_description: conciseSeoDescription(input.seoDescription || `${input.tagline} ${input.solution || input.problem || storyText(input.story)}`),
+    primary_keyword: input.primaryKeyword?.trim() || input.name.trim(),
+    secondary_keywords: normalizeKeywords(input.secondaryKeywords),
+    og_image_url: input.ogImageUrl || input.heroUrl || null,
+    is_indexable: input.publish,
+    published_at: publishedAt,
     updated_at: new Date().toISOString(),
   }).eq("id", productId).eq("brand_id", brand.id).select("slug").maybeSingle();
   if (error || !product) return { ok: false, error: "프로덕트 수정에 실패했습니다." };
-  if (input.publish) await supabase.from("brands").update({ status: "published" }).eq("id", brand.id);
+  if (input.publish) await supabase.from("brands").update({ status: "published", is_indexable: true, published_at: new Date().toISOString() }).eq("id", brand.id);
   revalidatePath("/my");
   revalidatePath("/products");
   revalidatePath(`/products/${product.slug}`);
@@ -245,7 +271,7 @@ export async function createStandaloneBrand(input: BrandRegistrationInput): Prom
     founder = created;
   }
 
-  const slug = slugify(input.name) || `brand-${randomSuffix()}`;
+  const slug = cleanSeoSlug(input.slug || "") || slugify(input.name) || `brand-${randomSuffix()}`;
   const result = await insertWithSlugRetry(
     async (row) => {
       const { error } = await supabase.from("brands").insert(row);
@@ -261,6 +287,12 @@ export async function createStandaloneBrand(input: BrandRegistrationInput): Prom
       website: input.website?.trim() || null,
       logo_url: input.logoUrl || null,
       status: "draft",
+      seo_title: seoTitle(input.seoTitle, `${input.name.trim()} 기업 소개`),
+      seo_description: conciseSeoDescription(input.seoDescription || input.description || input.tagline),
+      primary_keyword: input.primaryKeyword?.trim() || input.name.trim(),
+      secondary_keywords: normalizeKeywords(input.secondaryKeywords),
+      og_image_url: input.ogImageUrl || input.logoUrl || null,
+      is_indexable: false,
     } as never,
   );
   if ("error" in result) return { ok: false, error: result.error };
@@ -292,7 +324,7 @@ export async function createStandaloneProduct(input: ProductRegistrationInput): 
       return { error };
     },
     {
-      slug: slugify(input.name) || `product-${randomSuffix()}`,
+      slug: cleanSeoSlug(input.slug || "") || slugify(input.name) || `product-${randomSuffix()}`,
       brand_id: brand.id,
       name: input.name.trim(),
       tagline: input.tagline.trim(),
@@ -306,10 +338,17 @@ export async function createStandaloneProduct(input: ProductRegistrationInput): 
       images: [input.heroUrl, ...storyImages].filter(Boolean),
       story: input.story,
       status: input.publish ? "published" : "draft",
+      seo_title: seoTitle(input.seoTitle, input.name.trim()),
+      seo_description: conciseSeoDescription(input.seoDescription || `${input.tagline} ${input.solution || input.problem || storyText(input.story)}`),
+      primary_keyword: input.primaryKeyword?.trim() || input.name.trim(),
+      secondary_keywords: normalizeKeywords(input.secondaryKeywords),
+      og_image_url: input.ogImageUrl || input.heroUrl || null,
+      is_indexable: input.publish,
+      published_at: input.publish ? new Date().toISOString() : null,
     } as never,
   );
   if ("error" in result) return { ok: false, error: result.error };
-  if (input.publish) await supabase.from("brands").update({ status: "published" }).eq("id", brand.id);
+  if (input.publish) await supabase.from("brands").update({ status: "published", is_indexable: true, published_at: new Date().toISOString() }).eq("id", brand.id);
   revalidatePath("/my");
   revalidatePath("/brands");
   revalidatePath("/products");

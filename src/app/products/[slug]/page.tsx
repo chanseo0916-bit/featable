@@ -12,6 +12,7 @@ import { SaveButton } from "@/components/save-button";
 import { ProductStoryRenderer } from "@/components/product-story-renderer";
 import { ProductGallery } from "./product-interactions";
 import { absoluteUrl, breadcrumbJsonLd, createDetailMetadata, entityId, JsonLd, type SeoSchema } from "@/components/seo-json-ld";
+import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -20,10 +21,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!product) return {};
   const brand = brands.find((item) => item.slug === product.brandSlug);
   return createDetailMetadata({
-    title: product.name,
-    description: `${product.tagline}${brand ? ` | ${brand.name}` : ""}`.slice(0, 160),
+    title: seoTitle(product.seoTitle, `${product.name}${brand ? ` | ${brand.name}` : ""}`),
+    description: conciseSeoDescription(product.seoDescription || `${product.tagline}${brand ? ` ${brand.name}` : ""}`),
     path: `/products/${product.slug}`,
-    image: product.heroUrl,
+    image: product.ogImageUrl ?? product.heroUrl,
+    indexable: product.isIndexable !== false,
   });
 }
 
@@ -35,6 +37,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const brand = brands.find((item) => item.slug === product.brandSlug);
   const founder = founders.find((item) => item.slug === product.founderSlug);
   const productPath = `/products/${product.slug}`;
+  const numericPrice = product.price?.replace(/[^0-9]/g, "");
 
   const productJsonLd: SeoSchema = {
     "@type": "Product",
@@ -44,8 +47,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     image: [product.heroUrl, ...product.images].filter(Boolean).map(absoluteUrl),
     description: `${product.tagline} ${product.solution}`.slice(0, 500),
     category: product.category,
+    keywords: [product.primaryKeyword, ...(product.secondaryKeywords ?? [])].filter(Boolean),
+    ...(product.updatedAt ? { dateModified: product.updatedAt } : {}),
     ...(brand ? { brand: { "@type": "Organization", "@id": entityId(`/brands/${brand.slug}`, "organization"), name: brand.name } } : {}),
-    ...(product.price ? { offers: { "@type": "Offer", url: absoluteUrl(product.officialUrl || productPath), priceCurrency: "KRW", availability: "https://schema.org/InStock" } } : {}),
+    ...(numericPrice ? { offers: { "@type": "Offer", url: absoluteUrl(product.officialUrl || productPath), price: numericPrice, priceCurrency: "KRW", availability: "https://schema.org/InStock" } } : {}),
   };
   const jsonLd = {
     "@context": "https://schema.org",
