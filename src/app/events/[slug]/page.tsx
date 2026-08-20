@@ -11,6 +11,7 @@ import {
   type SeoSchema,
 } from "@/components/seo-json-ld";
 import { partners } from "@/lib/mock";
+import { SaveButton } from "@/components/save-button";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -68,7 +69,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
         <h1>{event.name}</h1>
         <p className="detail-lede">{event.host}가 만드는 창업가를 위한 만남입니다.</p>
         <img className="detail-cover" src={event.coverUrl} alt={event.name} />
-        <div className="info-panel"><div><span>일시</span><strong>{new Date(event.startsAt).toLocaleString("ko-KR")}</strong></div><div><span>장소</span><strong>{event.location}</strong></div><div><span>참가비</span><strong>{event.fee ?? "무료"}</strong></div><a className="button" href={event.applyUrl}>신청하기 ↗</a></div>
+        <div className="info-panel"><div><span>일시</span><strong>{new Date(event.startsAt).toLocaleString("ko-KR")}</strong></div><div><span>장소</span><strong>{event.location}</strong></div><div><span>참가비</span><strong>{event.fee ?? "무료"}</strong></div><SaveButton itemType="event" slug={event.slug} /><a className="button" href={event.applyUrl}>신청하기 ↗</a></div>
       </main>
       <Footer partners={partners} />
     </>

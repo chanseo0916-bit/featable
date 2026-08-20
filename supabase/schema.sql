@@ -85,6 +85,14 @@ create table founder_supports (
   primary key (user_id, founder_id)
 );
 
+create table saved_items (
+  user_id uuid not null references profiles(id) on delete cascade,
+  item_type text not null check (item_type in ('product', 'feature', 'event', 'support')),
+  item_slug text not null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, item_type, item_slug)
+);
+
 -- ---------- Brand ----------
 create table brands (
   id uuid primary key default uuid_generate_v4(),
@@ -368,6 +376,7 @@ grant execute on function public.set_brand_publication_state(uuid, boolean) to a
 alter table profiles enable row level security;
 alter table founders enable row level security;
 alter table founder_supports enable row level security;
+alter table saved_items enable row level security;
 alter table brands enable row level security;
 alter table products enable row level security;
 alter table features enable row level security;
@@ -394,6 +403,11 @@ create policy "founders_delete_own" on founders for delete using (user_id = auth
 create policy "founder_supports_select_all" on founder_supports for select using (true);
 create policy "founder_supports_insert_own" on founder_supports for insert with check (user_id = auth.uid());
 create policy "founder_supports_delete_own" on founder_supports for delete using (user_id = auth.uid());
+
+-- saved_items: 저장 목록은 본인만 조회·추가·삭제
+create policy "saved_items_select_own" on saved_items for select using (user_id = auth.uid());
+create policy "saved_items_insert_own" on saved_items for insert with check (user_id = auth.uid());
+create policy "saved_items_delete_own" on saved_items for delete using (user_id = auth.uid());
 
 -- brands: published 공개, 소유자는 draft 포함 전체
 create policy "brands_select_published" on brands for select

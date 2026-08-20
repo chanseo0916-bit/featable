@@ -8,6 +8,8 @@ import { BrandStatusButton } from "./brand-status-button";
 import { ProfileEditor } from "./profile-editor";
 import { StudioBrand } from "@/components/site-shell";
 import { isMemberType, type MemberType } from "@/lib/auth";
+import { updateMemberType } from "./actions";
+import { getCatalog, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -24,10 +26,24 @@ interface MyBrand {
 
 interface MyProduct { id: string; brand_id: string; name: string; view_count: number; status: string; }
 interface SavedDraft { draft_key: string; payload: Record<string, unknown>; current_step: number; updated_at: string; }
+interface SavedCollectionItem { type: string; slug: string; title: string; meta: string; href: string; }
 
 const draftFieldNames = ["brandName", "tagline", "founderName", "founderHeadline", "description", "productName", "productTagline", "logoUrl", "heroUrl"];
 function draftCompletion(draft: SavedDraft) {
   return Math.round((draftFieldNames.filter((key) => typeof draft.payload[key] === "string" && String(draft.payload[key]).trim()).length / draftFieldNames.length) * 100);
+}
+
+function RoleSwitcher({ memberType }: { memberType: MemberType }) {
+  return <form action={updateMemberType} className="role-switcher">
+    <label htmlFor="member-role">현재 역할</label>
+    <select id="member-role" name="memberType" defaultValue={memberType}>
+      <option value="founder">창업가·대표</option>
+      <option value="team">팀 멤버</option>
+      <option value="explorer">예비 창업가</option>
+      <option value="partner">파트너</option>
+    </select>
+    <button type="submit">변경</button>
+  </form>;
 }
 
 const roleDashboard = {
@@ -84,7 +100,7 @@ const roleDashboard = {
   cards: { href: string; kicker: string; title: string; copy: string }[];
 }>;
 
-function MemberDashboard({ memberType, name, email }: { memberType: Exclude<MemberType, "founder">; name: string; email: string }) {
+function MemberDashboard({ memberType, name, email, savedItems }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[] }) {
   const role = roleDashboard[memberType];
 
   return <>
@@ -98,12 +114,17 @@ function MemberDashboard({ memberType, name, email }: { memberType: Exclude<Memb
         </header>
         <section className="role-dashboard-state">
           <div className="role-dashboard-avatar">{name.slice(0, 1) || "F"}</div>
-          <div><span>MY ROLE · {role.label}</span><strong>{role.emptyTitle}</strong><p>{role.emptyCopy}</p></div>
+          <div><span>MY ROLE · {role.label}</span><strong>{savedItems.length ? `${savedItems.length}개의 항목을 저장했어요.` : role.emptyTitle}</strong><p>{savedItems.length ? "관심 있는 콘텐츠를 다시 확인하고 다음 행동으로 이어가세요." : role.emptyCopy}</p></div>
           <small>{email}</small>
         </section>
+        <RoleSwitcher memberType={memberType} />
         <section className="role-dashboard-links">
           <div className="studio-panel-heading"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
           <div>{role.cards.map((card, index) => <Link href={card.href} key={card.href}><i>0{index + 1}</i><span>{card.kicker}</span><strong>{card.title}</strong><p>{card.copy}</p><b>바로가기 →</b></Link>)}</div>
+        </section>
+        <section className="role-dashboard-collection">
+          <div className="studio-panel-heading"><strong>내 저장 목록</strong><span>프로덕트·피처·행사·지원사업을 한곳에 모았어요.</span></div>
+          {savedItems.length ? <div>{savedItems.map((item) => <Link href={item.href} key={`${item.type}-${item.slug}`}><span>{item.type}</span><strong>{item.title}</strong><small>{item.meta}</small><b>→</b></Link>)}</div> : <p>상세 페이지의 ♡ 저장 버튼을 누르면 여기에 표시됩니다.</p>}
         </section>
       </div>
     </main>
@@ -120,7 +141,38 @@ export default async function MyPage() {
   const memberName = profile?.full_name?.trim() || user.user_metadata?.full_name || user.user_metadata?.name || "Featable 멤버";
 
   if (memberType !== "founder") {
-    return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} />;
+    const [{ data: savedRows }, { data: followedRows }, { data: supportedRows }, catalog, features, events, supportPrograms] = await Promise.all([
+      supabase.from("saved_items").select("item_type,item_slug,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(12),
+      supabase.from("brand_follows").select("brand:brands(slug,name,tagline)").eq("user_id", user.id).limit(12),
+      supabase.from("founder_supports").select("founder:founders(slug,name,headline)").eq("user_id", user.id).limit(12),
+      getCatalog(),
+      getFeatures(),
+      getEvents(),
+      getSupportPrograms(),
+    ]);
+    const savedItems = (savedRows ?? []).flatMap((row): SavedCollectionItem[] => {
+      if (row.item_type === "product") {
+        const item = catalog.products.find((product) => product.slug === row.item_slug);
+        return item ? [{ type: "프로덕트", slug: item.slug, title: item.name, meta: item.tagline, href: `/products/${item.slug}` }] : [];
+      }
+      if (row.item_type === "feature") {
+        const item = features.find((feature) => feature.slug === row.item_slug);
+        return item ? [{ type: "피처", slug: item.slug, title: item.title, meta: item.excerpt, href: `/stories/${item.slug}` }] : [];
+      }
+      if (row.item_type === "event") {
+        const item = events.find((event) => event.slug === row.item_slug);
+        return item ? [{ type: "행사", slug: item.slug, title: item.name, meta: `${item.host} · ${item.location}`, href: `/events/${item.slug}` }] : [];
+      }
+      const item = supportPrograms.find((program) => program.slug === row.item_slug);
+      return item ? [{ type: "지원사업", slug: item.slug, title: item.name, meta: `${item.agency} · ${item.closeAt}`, href: `/support/${item.slug}` }] : [];
+    });
+    for (const row of (followedRows ?? []) as unknown as { brand: { slug: string; name: string; tagline: string } | null }[]) {
+      if (row.brand) savedItems.push({ type: "팔로우", slug: row.brand.slug, title: row.brand.name, meta: row.brand.tagline, href: `/brands/${row.brand.slug}` });
+    }
+    for (const row of (supportedRows ?? []) as unknown as { founder: { slug: string; name: string; headline: string } | null }[]) {
+      if (row.founder) savedItems.push({ type: "Founder 응원", slug: row.founder.slug, title: row.founder.name, meta: row.founder.headline, href: `/founders/${row.founder.slug}` });
+    }
+    return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} savedItems={savedItems} />;
   }
 
   const { data: founder } = await supabase.from("founders").select("id,slug,name,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
@@ -153,6 +205,8 @@ export default async function MyPage() {
           <div><p>FOUNDER WORKSPACE</p><h1>{founder?.name ?? "Founder"}님의 스튜디오</h1><span>{founder?.headline || "브랜드와 프로덕트를 한 곳에서 관리하세요."}</span></div>
           <Link href="/submit">새 프로젝트 만들기 <b>＋</b></Link>
         </header>
+
+        <RoleSwitcher memberType={memberType} />
 
         <section className="studio-overview-panel">
           <div className="studio-panel-heading"><strong>워크스페이스 인사이트</strong><span>현재 등록된 프로젝트를 기준으로 집계됩니다.</span></div>

@@ -7,7 +7,8 @@ import { ShareButton } from "@/components/share-button";
 import { ViewTracker } from "@/components/view-tracker";
 import { MentorNotes } from "@/components/mentor-notes";
 import { Comments } from "@/components/comments";
-import { FavoriteButton, ProductGallery } from "./product-interactions";
+import { ProductGallery } from "./product-interactions";
+import { SaveButton } from "@/components/save-button";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -88,7 +89,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <div className="commerce-buy-panel">
             <div className="commerce-brand-line">
               <Link href={`/brands/${brand?.slug}`}><img src={brand?.logoUrl} alt="" />{brand?.name}<span>›</span></Link>
-              <FavoriteButton slug={product.slug} />
+              <SaveButton itemType="product" slug={product.slug} variant="icon" />
             </div>
             <Badge tone="orange">{product.category}</Badge>
             <h1>{product.name}</h1>

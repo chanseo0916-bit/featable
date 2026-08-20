@@ -9,6 +9,7 @@ import {
   type SeoSchema,
 } from "@/components/seo-json-ld";
 import { partners } from "@/lib/mock";
+import { SaveButton } from "@/components/save-button";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -47,7 +48,7 @@ export default async function SupportDetailPage({ params }: { params: Promise<{ 
         <h1>{program.name}</h1>
         <p className="detail-lede">{program.agency}에서 진행하는 창업 지원 프로그램입니다.</p>
         <div className="support-detail-grid"><div><p className="eyebrow">지원 대상</p><h2>{program.target}</h2></div><div><p className="eyebrow">지원 규모</p><h2>{program.amount ?? "사업별 상이"}</h2></div><div><p className="eyebrow">지원 지역</p><h2>{program.region}</h2></div><div><p className="eyebrow">주요 내용</p><h2>{program.benefits}</h2></div></div>
-        <a className="button" href={program.applyUrl}>공식 공고 확인하기 ↗</a>
+        <div className="detail-actions"><SaveButton itemType="support" slug={program.slug} /><a className="button" href={program.applyUrl}>공식 공고 확인하기 ↗</a></div>
       </main>
       <Footer partners={partners} />
     </>

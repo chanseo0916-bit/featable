@@ -3,6 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
+import { isMemberType } from "@/lib/auth";
+
+export async function updateMemberType(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const memberType = String(formData.get("memberType") ?? "");
+  if (!isMemberType(memberType)) return;
+
+  await supabase.from("profiles").update({ member_type: memberType }).eq("id", user.id);
+  revalidatePath("/my");
+}
 
 export async function toggleBrandVisibility(brandId: string, publish: boolean): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();
