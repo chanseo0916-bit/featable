@@ -1,10 +1,9 @@
--- 피터블 자체 SEO 블로그 20편. 카라멜랩 관련 데모 글은 완전히 제거한다.
+-- 피터블 자체 SEO 블로그 20편. 기존 데모 스토리는 완전히 제거한다.
 delete from public.features
-where slug in ('caramel-founder-story', 'first-100-users');
-
-update public.features
-set status = 'draft', is_indexable = false, updated_at = timezone('utc', now())
-where slug in ('grain-launch-story', 'flow-small-team', 'mood-taste-map', 'student-founder-week');
+where slug in (
+  'caramel-founder-story', 'first-100-users', 'grain-launch-story',
+  'flow-small-team', 'mood-taste-map', 'student-founder-week'
+);
 
 with posts (slug, title, excerpt, body, seo_title, seo_description, primary_keyword, secondary_keywords, published_at) as (
   values
@@ -49,3 +48,42 @@ on conflict (slug) do update set
   secondary_keywords = excluded.secondary_keywords,
   is_indexable = true,
   updated_at = excluded.updated_at;
+
+-- 각 글은 요약문이 아니라 실행 가능한 긴 SEO 아티클로 노출한다.
+update public.features
+set body = body || jsonb_build_array(
+  jsonb_build_object(
+    'type', 'text',
+    'heading', primary_keyword || ', 시작 전에 정리할 기준',
+    'body', excerpt || E'\n\n이 주제에서 성과를 만드는 팀은 실행 목록부터 늘리지 않습니다. 고객이 처한 상황과 바꾸려는 결과를 한 문장으로 적고, 지금 확인할 수 있는 가장 작은 행동을 정해야 합니다. 기준이 선명해지면 채널과 도구는 바뀌어도 메시지와 우선순위는 흔들리지 않습니다.'
+  ),
+  jsonb_build_object(
+    'type', 'features',
+    'heading', '실무에서 바로 쓰는 실행 순서',
+    'items', jsonb_build_array(
+      jsonb_build_object('title', '1. 현재 상황을 한 장으로 정리하기', 'body', '고객의 문제, 기존 대안, 만들 변화, 확인할 지표를 한 문서에 적고 팀의 표현을 맞춥니다.'),
+      jsonb_build_object('title', '2. 한 번에 하나만 실험하기', 'body', '메시지와 고객군, 채널을 동시에 바꾸지 말고 가장 불확실한 가설 하나를 짧게 검증합니다.'),
+      jsonb_build_object('title', '3. 고객의 언어로 다시 쓰기', 'body', '조회수뿐 아니라 문의, 이탈 이유, 인터뷰 표현을 모아 다음 콘텐츠와 랜딩페이지에 반영합니다.')
+    )
+  ),
+  jsonb_build_object(
+    'type', 'text',
+    'heading', '실행할 때 가장 자주 놓치는 점',
+    'body', '한 번의 게시물이나 캠페인으로 결과를 단정하지 마세요. 기능명보다 고객이 겪는 장면을 먼저 말하고, 실험의 가설·결과·다음 행동을 남겨야 같은 시행착오를 반복하지 않습니다.'
+  ),
+  jsonb_build_object(
+    'type', 'text',
+    'heading', '7일 안에 시작하는 실전 계획',
+    'body', '첫날에는 고객 문제를 한 문장으로 씁니다. 둘째 날에는 고객 대화에서 반복된 표현을 찾습니다. 셋째 날에는 그 표현으로 제목을 고칩니다. 넷째와 다섯째 날에는 고객 다섯 명에게 보여 주고, 여섯째 날에는 반응을 기록합니다. 마지막 날에는 다음 주에 검증할 한 가지를 정합니다.'
+  )
+)
+where slug in (
+  'startup-promotion-guide', 'product-launch-checklist', 'brand-story-writing',
+  'customer-interview-questions', 'landing-page-conversion', 'seo-keyword-research',
+  'mvp-validation', 'customer-persona-guide', 'product-positioning',
+  'early-adopter-acquisition', 'startup-pr-checklist', 'founder-personal-branding',
+  'startup-content-marketing', 'customer-review-collection', 'community-marketing',
+  'product-demo-guide', 'b2b-lead-generation', 'startup-growth-metrics',
+  'startup-pivot-decision', 'startup-funding-preparation'
+)
+and jsonb_array_length(body) < 7;

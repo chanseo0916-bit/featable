@@ -54,12 +54,7 @@ export const products: Product[] = [
   { slug: "mood-archive", name: "무드 아카이브", heroUrl: image("product-mood", 1200, 900), images: [], brandSlug: "moodboard", founderSlug: "sora-han", tagline: "좋아하는 것에서 시작하는 취향 탐색", story: [{ type: "text", heading: "취향은 발견하는 것", body: "저장해둔 이미지와 장소를 연결해 나만의 취향 지도를 만듭니다." }], problem: "좋아하는 것들이 저장함 속에서 서로 연결되지 않습니다.", solution: "취향의 패턴을 발견하고 다음 영감을 추천합니다.", features: ["취향 컬렉션", "공간별 큐레이션", "새로운 발견"], category: "콘텐츠", officialUrl: "https://example.com", viewCount: 391 },
 ];
 
-export const features: Feature[] = [
-  { slug: "grain-launch-story", title: "매일 먹는 것부터 바꾸고 싶었습니다", coverUrl: image("feature-grain", 1400, 900), kind: "brand-story", excerpt: "그레인테이블이 건강한 식사의 기준을 다시 묻는 방법", body: [{ type: "text", body: "좋은 식사가 특별한 날의 일이 되지 않도록." }], brandSlug: "grain-table", founderSlug: "jiyoon-lee", publishedAt: "2026-08-08", viewCount: 6507 },
-  { slug: "flow-small-team", title: "세 명의 개발팀이 복잡한 협업툴을 버린 이유", coverUrl: image("feature-flow-team", 1400, 900), kind: "case-study", excerpt: "기능을 더하기보다 일의 흐름을 지키기로 한 플로우노트", body: [{ type: "text", heading: "작을수록 가볍게", body: "좋은 협업은 도구를 관리하는 시간이 아니라 서로의 맥락을 이해하는 데서 시작합니다." }], brandSlug: "flow-note", founderSlug: "doheon-park", publishedAt: "2026-08-18", viewCount: 18742 },
-  { slug: "mood-taste-map", title: "저장만 하던 취향이 하나의 지도가 되기까지", coverUrl: image("feature-mood-map", 1400, 900), kind: "product-feature", excerpt: "무드보드가 흩어진 영감을 연결하는 새로운 방식", body: [{ type: "text", heading: "좋아하는 것에는 패턴이 있습니다", body: "무드보드는 사용자가 모은 장면에서 아직 발견하지 못한 취향을 찾아줍니다." }], brandSlug: "moodboard", founderSlug: "sora-han", publishedAt: "2026-08-17", viewCount: 8931 },
-  { slug: "student-founder-week", title: "요즘 대학생 창업가는 무엇을 만들고 있을까", coverUrl: image("feature-student-founder", 1400, 900), kind: "update", excerpt: "캠퍼스에서 시작해 시장으로 향하는 네 팀의 이번 주", body: [{ type: "text", heading: "작게 시작하고 빠르게 만나는 팀들", body: "아이디어를 오래 품기보다 사용자에게 먼저 보여주는 창업가들을 만났습니다." }], founderSlug: "minseo-kim", publishedAt: "2026-08-19", viewCount: 12560 },
-];
+export const features: Feature[] = [];
 
 export const events: EventItem[] = [
   { slug: "seoul-demo-day", name: "서울 초기 창업가 데모데이", coverUrl: image("event-demo"), host: "서울창업허브", startsAt: "2026-08-28T18:00:00+09:00", location: "서울 마포구", isOnline: false, fee: "무료", deadline: "2026-08-26", category: "데모데이", audience: "초기 창업가·투자자", applyUrl: "https://example.com" },
