@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Footer, Header, Badge } from "@/components/site-shell";
-import { getEvents } from "@/lib/data";
+import { getEvents, getPartners } from "@/lib/data";
 import {
   absoluteUrl,
   breadcrumbJsonLd,
@@ -10,7 +10,6 @@ import {
   JsonLd,
   type SeoSchema,
 } from "@/components/seo-json-ld";
-import { partners } from "@/lib/mock";
 import { SaveButton } from "@/components/save-button";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -25,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
 }
 
-export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) { const partners = await getPartners();
   const { slug } = await params;
   const event = (await getEvents()).find((item) => item.slug === slug);
   if (!event) notFound();

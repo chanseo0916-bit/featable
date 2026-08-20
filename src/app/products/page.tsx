@@ -1,7 +1,6 @@
 import { Header, Footer } from "@/components/site-shell";
 import { ProductCard } from "@/components/content-cards";
-import { partners } from "@/lib/mock";
-import { getCatalog } from "@/lib/data";
+import { getCatalog, getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
 import Link from "next/link";
 
@@ -12,4 +11,4 @@ export const metadata = createPageMetadata({
   path: "/products",
 });
 
-export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) { const query = await searchParams; const { brands, products } = await getCatalog(); const filtered = query.category && query.category !== "전체" ? products.filter((p) => p.category === query.category) : products; return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><p className="eyebrow">PRODUCT DISCOVERY</p><h1>프로덕트</h1><p>만든 사람의 이야기가 있는 제품을 발견하세요.</p></div><div className="filter-chips"><Link className={!query.category ? "active" : ""} href="/products">전체</Link>{["AI", "SaaS", "F&B", "콘텐츠"].map((cat) => <Link className={query.category === cat ? "active" : ""} href={`/products?category=${cat}`} key={cat}>{cat}</Link>)}</div></div><div className="listing-grid">{filtered.map((product) => <ProductCard key={product.slug} product={product} brandName={brands.find((b) => b.slug === product.brandSlug)?.name} />)}</div></main><Footer partners={partners} /></>; }
+export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) { const partners = await getPartners(); const query = await searchParams; const { brands, products } = await getCatalog(); const filtered = query.category && query.category !== "전체" ? products.filter((p) => p.category === query.category) : products; return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><p className="eyebrow">PRODUCT DISCOVERY</p><h1>프로덕트</h1><p>만든 사람의 이야기가 있는 제품을 발견하세요.</p></div><div className="filter-chips"><Link className={!query.category ? "active" : ""} href="/products">전체</Link>{["AI", "SaaS", "F&B", "콘텐츠"].map((cat) => <Link className={query.category === cat ? "active" : ""} href={`/products?category=${cat}`} key={cat}>{cat}</Link>)}</div></div><div className="listing-grid">{filtered.map((product) => <ProductCard key={product.slug} product={product} brandName={brands.find((b) => b.slug === product.brandSlug)?.name} />)}</div></main><Footer partners={partners} /></>; }

@@ -52,6 +52,32 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const product = catalog.products.find((item) => item.brandSlug === feature.brandSlug);
   const discoveryCount = feature.viewCount ?? 0;
   const storyPath = `/stories/${feature.slug}`;
+  const articleBody = feature.body.length > 0
+    ? feature.body
+    : [
+        {
+          type: "text" as const,
+          heading: "시작의 이유",
+          body: brand?.problem ?? feature.excerpt,
+        },
+        {
+          type: "text" as const,
+          heading: `${brand?.name ?? "이 팀"}이 만들고 있는 변화`,
+          body: brand
+            ? `${brand.description}\n\n${brand.tagline}`
+            : feature.excerpt,
+        },
+        ...(product
+          ? [{
+              type: "features" as const,
+              heading: "한눈에 보기",
+              items: [
+                { title: product.name, body: product.tagline },
+                { title: "카테고리", body: product.category },
+              ],
+            }]
+          : []),
+      ];
   const articleSubjects: SeoSchema[] = [
     ...(founder
       ? [{
@@ -149,7 +175,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <p className="feature-lead">{feature.excerpt}</p>
             <img className="feature-article-cover" src={feature.coverUrl} alt="" />
 
-            {feature.body.map((block, index) => {
+            {articleBody.map((block, index) => {
               if (block.type === "text") return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<p>{block.body}</p></section>;
               if (block.type === "image") return <figure key={`${block.type}-${index}`}><img src={block.src} alt={block.alt} />{block.caption && <figcaption>{block.caption}</figcaption>}</figure>;
               return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<ol className="feature-article-features">{block.items.map((item, itemIndex) => <li key={itemIndex}><strong>{item.title}</strong><p>{item.body}</p></li>)}</ol></section>;

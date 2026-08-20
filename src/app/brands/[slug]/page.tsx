@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components/site-shell";
-import { partners } from "@/lib/mock";
-import { getCatalog } from "@/lib/data";
+import { getCatalog, getPartners } from "@/lib/data";
 import { FollowButton } from "@/components/follow-button";
 import { absoluteUrl, breadcrumbJsonLd, createDetailMetadata, entityId, JsonLd, type SeoSchema } from "@/components/seo-json-ld";
 import { createClient } from "@/lib/supabase/server";
@@ -34,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
 }
 
-export default async function BrandDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BrandDetailPage({ params }: { params: Promise<{ slug: string }> }) { const partners = await getPartners();
   const { slug } = await params;
   const { brands, founders, products } = await getCatalog();
   const brand = brands.find((item) => item.slug === slug);

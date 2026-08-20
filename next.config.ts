@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/blogs",
+        destination: "/stories",
+        permanent: true,
+      },
+      {
+        source: "/blogs/:slug",
+        destination: "/stories/:slug",
+        permanent: true,
+      },
+      {
         source: "/:path*",
         has: [{ type: "host", value: "www.featable.kr" }],
         destination: "https://featable.kr/:path*",

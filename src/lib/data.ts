@@ -371,7 +371,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       audience: e.audience ?? undefined,
       applyUrl: e.apply_url,
     }));
-    return mergeBySlug(live, mockEvents);
+    return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("events", error);
     return mockEvents;
@@ -410,7 +410,7 @@ export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
       applyUrl: s.apply_url,
       status: supportStatus(s.open_at, s.close_at),
     }));
-    return mergeBySlug(live, mockSupport);
+    return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("support-programs", error);
     return mockSupport;
@@ -496,7 +496,7 @@ export const getCommunities = cache(async (): Promise<Community[]> => {
       eventSlugs: (community.events ?? []).map((event) => event.slug),
       featureSlugs: [],
     }));
-    return mergeBySlug(live, mockCommunities);
+    return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("communities", error);
     return mockCommunities;
@@ -536,7 +536,7 @@ export const getJobs = cache(async (): Promise<Job[]> => {
         location: job.location,
         applyUrl: job.apply_url ?? undefined,
       }));
-    return mergeBySlug(live, mockJobs);
+    return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("jobs", error);
     return mockJobs;
@@ -588,8 +588,7 @@ export const getPartners = cache(async (): Promise<Partner[]> => {
       description: p.description ?? undefined,
       field: p.field ?? undefined,
     }));
-    const liveNames = new Set(live.map((p) => p.name));
-    return [...live, ...mockPartners.filter((p) => !liveNames.has(p.name))];
+    return live; // 실데이터만 노출 (데모 파트너 제거)
   } catch (error) {
     reportPublicDataFallback("partners", error);
     return mockPartners;
@@ -632,7 +631,10 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
       }
     } catch (error) {
       reportPublicDataFallback("founder", error);
+      return mockFounders.find((f) => f.slug === slug) ?? null;
     }
+    // 라이브 조회가 정상 수행됐고 결과가 없으면 데모 폴백 없이 404
+    return null;
   }
 
   return mockFounders.find((f) => f.slug === slug) ?? null;
@@ -642,11 +644,9 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
 export const getCatalog = cache(async (): Promise<Catalog> => {
   const live = await fetchLive();
   if (!live) {
+    // DB 미설정/장애 시에만 데모 폴백 (로컬 UI 개발용)
     return { brands: mockBrands, products: mockProducts, founders: mockFounders };
   }
-  return {
-    brands: mergeBySlug(live.brands, mockBrands),
-    products: mergeBySlug(live.products, mockProducts),
-    founders: mergeBySlug(live.founders, mockFounders),
-  };
+  // 실데이터만 노출 — 데모 브랜드·프로덕트·파운더는 공개 사이트에서 제거 (스토리는 getFeatures에서 SEO용으로 유지)
+  return live;
 });

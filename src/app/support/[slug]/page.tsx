@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Footer, Header, Badge } from "@/components/site-shell";
-import { getSupportPrograms } from "@/lib/data";
+import { getSupportPrograms, getPartners } from "@/lib/data";
 import {
   breadcrumbJsonLd,
   createDetailMetadata,
   JsonLd,
   type SeoSchema,
 } from "@/components/seo-json-ld";
-import { partners } from "@/lib/mock";
 import { SaveButton } from "@/components/save-button";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -22,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
 }
 
-export default async function SupportDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function SupportDetailPage({ params }: { params: Promise<{ slug: string }> }) { const partners = await getPartners();
   const { slug } = await params;
   const program = (await getSupportPrograms()).find((item) => item.slug === slug);
   if (!program) notFound();

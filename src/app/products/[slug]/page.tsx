@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components/site-shell";
-import { partners } from "@/lib/mock";
-import { getCatalog } from "@/lib/data";
+import { getCatalog, getPartners } from "@/lib/data";
 import { ShareButton } from "@/components/share-button";
 import { ViewTracker } from "@/components/view-tracker";
 import { TrackedLink } from "@/components/tracked-link";
@@ -29,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
 }
 
-export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) { const partners = await getPartners();
   const { slug } = await params;
   const { brands, founders, products } = await getCatalog();
   const product = products.find((item) => item.slug === slug);

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Footer, Header, Badge, ImageCard } from "@/components/site-shell";
-import { partners } from "@/lib/mock";
-import { getEvents } from "@/lib/data";
+import { getEvents, getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
 
 export const metadata = createPageMetadata({
@@ -11,4 +10,4 @@ export const metadata = createPageMetadata({
   path: "/events",
 });
 
-export default async function EventsPage() { const events = await getEvents(); return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><p className="eyebrow">EVENTS</p><h1>행사</h1><p>창업가와 만드는 사람들이 만나는 자리.</p></div></div><div className="event-grid">{events.map((event) => <Link href={`/events/${event.slug}`} className="event-card" key={event.slug}><ImageCard src={event.coverUrl} alt={event.name} /><div className="card-body"><div className="event-date"><strong>{new Date(event.startsAt).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</strong><Badge>{event.category}</Badge></div><h3>{event.name}</h3><p>{event.host} · {event.location}</p><span className="text-link">신청하기 →</span></div></Link>)}</div></main><Footer partners={partners} /></>; }
+export default async function EventsPage() { const partners = await getPartners(); const events = await getEvents(); return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><p className="eyebrow">EVENTS</p><h1>행사</h1><p>창업가와 만드는 사람들이 만나는 자리.</p></div></div><div className="event-grid">{events.map((event) => <Link href={`/events/${event.slug}`} className="event-card" key={event.slug}><ImageCard src={event.coverUrl} alt={event.name} /><div className="card-body"><div className="event-date"><strong>{new Date(event.startsAt).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</strong><Badge>{event.category}</Badge></div><h3>{event.name}</h3><p>{event.host} · {event.location}</p><span className="text-link">신청하기 →</span></div></Link>)}</div></main><Footer partners={partners} /></>; }
