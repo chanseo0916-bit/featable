@@ -108,6 +108,39 @@ export type ProductRegistrationResult =
   | { ok: true; productSlug: string }
   | { ok: false; error: string };
 
+export type ProductDraftInput = Omit<ProductRegistrationInput, "features" | "publish"> & { features: string };
+
+export async function loadProductDraft(draftKey: string): Promise<{ draft: ProductDraftInput; savedAt: number } | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase.from("submission_drafts").select("payload,updated_at").eq("user_id", user.id).eq("draft_key", `product:${draftKey}`.slice(0, 80)).maybeSingle();
+  if (!data?.payload || typeof data.payload !== "object") return null;
+  return { draft: data.payload as ProductDraftInput, savedAt: Date.parse(data.updated_at) || 0 };
+}
+
+export async function saveProductDraft(draftKey: string, draft: ProductDraftInput): Promise<{ ok: boolean; savedAt?: number }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false };
+  const savedAt = Date.now();
+  const { error } = await supabase.from("submission_drafts").upsert({
+    user_id: user.id,
+    draft_key: `product:${draftKey}`.slice(0, 80),
+    payload: draft,
+    current_step: 1,
+    updated_at: new Date(savedAt).toISOString(),
+  }, { onConflict: "user_id,draft_key" });
+  return error ? { ok: false } : { ok: true, savedAt };
+}
+
+export async function deleteProductDraft(draftKey: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("submission_drafts").delete().eq("user_id", user.id).eq("draft_key", `product:${draftKey}`.slice(0, 80));
+}
+
 export async function updateStandaloneBrand(brandId: string, input: BrandRegistrationInput): Promise<BrandRegistrationResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

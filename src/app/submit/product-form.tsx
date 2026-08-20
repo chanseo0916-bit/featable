@@ -59,8 +59,8 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
 
   useEffect(() => {
     if (!draftKey) return;
-    setSyncState("saving");
     const timer = window.setTimeout(async () => {
+      setSyncState("saving");
       const result = await saveProductDraft(draftKey, form);
       setSyncState(result.ok ? "saved" : "error");
     }, 1300);

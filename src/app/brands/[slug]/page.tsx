@@ -1,27 +1,20 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Footer, Header, Badge, SectionHeader } from "@/components/site-shell";
-import { partners, features } from "@/lib/mock";
+import { notFound } from "next/navigation";
+import { Footer, Header } from "@/components/site-shell";
+import { partners } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 import { FollowButton } from "@/components/follow-button";
-import type { Metadata } from "next";
-import {
-  absoluteUrl,
-  breadcrumbJsonLd,
-  createDetailMetadata,
-  entityId,
-  JsonLd,
-  type SeoSchema,
-} from "@/components/seo-json-ld";
+import { absoluteUrl, breadcrumbJsonLd, createDetailMetadata, entityId, JsonLd, type SeoSchema } from "@/components/seo-json-ld";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const { brands } = await getCatalog();
-  const brand = brands.find((b) => b.slug === slug);
+  const brand = brands.find((item) => item.slug === slug);
   if (!brand) return {};
   return createDetailMetadata({
     title: brand.name,
-    description: brand.description.slice(0, 160),
+    description: (brand.description || brand.tagline).slice(0, 160),
     path: `/brands/${brand.slug}`,
     image: brand.coverUrl ?? brand.logoUrl,
   });
@@ -30,11 +23,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BrandDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { brands, founders, products } = await getCatalog();
-  const brand = brands.find((b) => b.slug === slug);
+  const brand = brands.find((item) => item.slug === slug);
   if (!brand) notFound();
-  const founder = founders.find((f) => f.slug === brand.founderSlug);
-  const brandProducts = products.filter((p) => brand.productSlugs.includes(p.slug));
-  const brandFeatures = features.filter((f) => brand.featureSlugs.includes(f.slug));
+  const founder = founders.find((item) => item.slug === brand.founderSlug);
+  const brandProducts = products.filter((item) => item.brandSlug === brand.slug);
   const brandPath = `/brands/${brand.slug}`;
   const organizationJsonLd: SeoSchema = {
     "@type": "Organization",
@@ -43,51 +35,56 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
     url: absoluteUrl(brandPath),
     logo: absoluteUrl(brand.logoUrl),
     ...(brand.coverUrl ? { image: absoluteUrl(brand.coverUrl) } : {}),
-    description: brand.description,
+    description: brand.description || brand.tagline,
     ...(brand.website ? { sameAs: [absoluteUrl(brand.website)] } : {}),
     ...(brand.foundedAt ? { foundingDate: brand.foundedAt } : {}),
-    ...(founder
-      ? {
-          founder: {
-            "@type": "Person",
-            "@id": entityId(`/founders/${founder.slug}`, "person"),
-            name: founder.name,
-          },
-        }
-      : {}),
+    ...(founder ? { founder: { "@type": "Person", "@id": entityId(`/founders/${founder.slug}`, "person"), name: founder.name } } : {}),
   };
   const jsonLd = {
     "@context": "https://schema.org",
-    "@graph": [
-      organizationJsonLd,
-      breadcrumbJsonLd([
-        { name: "Featable", path: "/" },
-        { name: "브랜드", path: "/brands" },
-        { name: brand.name, path: brandPath },
-      ]),
-    ],
+    "@graph": [organizationJsonLd, breadcrumbJsonLd([
+      { name: "Featable", path: "/" },
+      { name: "브랜드", path: "/brands" },
+      { name: brand.name, path: brandPath },
+    ])],
   } satisfies SeoSchema;
 
-  return (
-    <>
-      <JsonLd data={jsonLd} />
-      <Header />
-      <main className="brand-detail">
-        <div className="brand-banner" style={{ backgroundImage: `url(${brand.coverUrl ?? brand.logoUrl})` }}><div className="brand-banner-shade" /></div>
-        <div className="shell brand-profile">
-          <img className="brand-logo profile-logo" src={brand.logoUrl} alt="" />
-          <div className="brand-profile-copy"><Badge tone="orange">{brand.category}</Badge><h1>{brand.name}</h1><p>{brand.tagline}</p><span>{founder?.name} Founder · {brand.foundedAt}</span></div>
-          <div className="brand-profile-actions"><FollowButton brandSlug={brand.slug} />{brand.website && <a className="button button-small" href={brand.website}>홈페이지 ↗</a>}</div>
+  return <>
+    <JsonLd data={jsonLd} />
+    <Header />
+    <main className="company-page">
+      <div className="company-cover">{brand.coverUrl ? <img src={brand.coverUrl} alt="" /> : <div />}</div>
+      <section className="shell company-identity">
+        <div className="company-logo">{brand.logoUrl ? <img src={brand.logoUrl} alt={`${brand.name} 로고`} /> : <span>{brand.name.slice(0, 1)}</span>}</div>
+        <div className="company-title"><span>{brand.category}</span><h1>{brand.name}</h1><p>{brand.tagline}</p></div>
+        <div className="company-actions"><FollowButton brandSlug={brand.slug} />{brand.website && <a href={brand.website} target="_blank" rel="noreferrer">웹사이트 방문 <span>↗</span></a>}</div>
+      </section>
+
+      <nav className="company-tabs"><div className="shell"><a href="#products">프로덕트 <b>{brandProducts.length}</b></a><a href="#about">기업 소개</a>{founder && <a href="#founder">Founder</a>}</div></nav>
+
+      <div className="shell company-layout">
+        <div className="company-main">
+          <section id="products" className="company-products">
+            <header><div><span>PRODUCTS</span><h2>{brand.name}의 프로덕트</h2></div><small>{brandProducts.length}개</small></header>
+            {brandProducts.length > 0 ? <div className="company-product-grid">{brandProducts.map((product) => <Link href={`/products/${product.slug}`} key={product.slug}>
+              <div className="company-product-image">{product.heroUrl ? <img src={product.heroUrl} alt={product.name} /> : <span>이미지 준비 중</span>}<i>{product.category}</i></div>
+              <div className="company-product-copy"><span>{brand.name}</span><h3>{product.name}</h3><p>{product.tagline}</p><footer>{product.price ? <strong>{product.price}</strong> : <strong>자세히 보기</strong>}<b>→</b></footer></div>
+            </Link>)}</div> : <div className="company-product-empty"><strong>아직 공개된 프로덕트가 없어요.</strong><p>{brand.name}의 새로운 제품과 서비스가 등록되면 이곳에서 만날 수 있습니다.</p></div>}
+          </section>
+
+          <section id="about" className="company-about-v2">
+            <header><span>ABOUT</span><h2>기업 소개</h2></header>
+            <p>{brand.description || brand.tagline}</p>
+            {(brand.problem || brand.audience) && <dl>{brand.problem && <div><dt>해결하는 문제</dt><dd>{brand.problem}</dd></div>}{brand.audience && <div><dt>주요 고객</dt><dd>{brand.audience}</dd></div>}</dl>}
+          </section>
         </div>
-        <nav className="brand-tabs"><div className="shell"><a href="#about">소개</a><a href="#products">프로덕트</a><a href="#founder">Founder</a><a href="#story">Story</a><a href="#jobs">Jobs</a></div></nav>
-        <div className="shell brand-body">
-          <section id="about"><SectionHeader title="브랜드 소개" /><p className="large-copy">{brand.description}</p>{brand.problem && <div className="two-column brand-overview"><div><p className="eyebrow">PROBLEM</p><p>{brand.problem}</p></div><div><p className="eyebrow">FOR</p><p>{brand.audience}</p></div></div>}</section>
-          <section id="products"><SectionHeader title="프로덕트" href="/products" /><div className="product-grid">{brandProducts.map((p) => <Link href={`/products/${p.slug}`} className="product-card" key={p.slug}><div className="image-card"><img src={p.heroUrl} alt={p.name} /></div><div className="card-body"><Badge>{p.category}</Badge><h3>{p.name}</h3><p>{p.tagline}</p></div></Link>)}</div></section>
-          <section id="founder" className="founder-callout"><span className="avatar large"><img src={founder?.avatarUrl} alt="" /></span><div><p className="eyebrow">FOUNDER</p><h2>{founder?.name}</h2><p>{founder?.headline}</p></div></section>
-          {brandFeatures.length > 0 && <section id="story"><SectionHeader title="Story" href="/stories" />{brandFeatures.map((f) => <Link href={`/stories/${f.slug}`} className="inline-feature" key={f.slug}><img src={f.coverUrl} alt="" /><div><Badge>{f.kind}</Badge><h3>{f.title}</h3><p>{f.excerpt}</p></div><span className="arrow">→</span></Link>)}</section>}
-        </div>
-      </main>
-      <Footer partners={partners} />
-    </>
-  );
+
+        <aside className="company-sidebar">
+          <section><span>COMPANY INFO</span><dl><div><dt>기업명</dt><dd>{brand.name}</dd></div><div><dt>분야</dt><dd>{brand.category}</dd></div>{brand.foundedAt && <div><dt>설립</dt><dd>{brand.foundedAt}</dd></div>}<div><dt>프로덕트</dt><dd>{brandProducts.length}개</dd></div></dl>{brand.website && <a href={brand.website} target="_blank" rel="noreferrer">공식 웹사이트 ↗</a>}</section>
+          {founder && <Link id="founder" className="company-founder-card" href={`/founders/${founder.slug}`}><span>FOUNDER</span><div>{founder.avatarUrl ? <img src={founder.avatarUrl} alt="" /> : <i>{founder.name.slice(0, 1)}</i>}<div><strong>{founder.name}</strong><p>{founder.headline}</p></div></div><b>Founder 프로필 보기 →</b></Link>}
+        </aside>
+      </div>
+    </main>
+    <Footer partners={partners} />
+  </>;
 }
