@@ -129,7 +129,7 @@ export function StoryForm({
       {open && (
         <div className={initial ? "" : "mt-2"}>
           <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
-            <div className="sm:col-span-2"><label className={labelCls}>제목 *</label><input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="대학생 때 시작해 6개월 만에 1만 사용자를 만든 팀" /></div>
+            <div className="sm:col-span-2"><label className={labelCls}>제목 *</label><input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="스타트업 홍보를 처음 시작하는 방법" /></div>
             <div>
               <label className={labelCls}>종류</label>
               <select className={inputCls} value={kind} onChange={(e) => setKind(e.target.value)}>
