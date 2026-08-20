@@ -1,14 +1,12 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { SITE_URL } from "@/lib/site";
 
 export const alt = "Featable — 창업가가 세상에 발견되기 시작하는 곳.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function OpenGraphImage() {
-  const logo = await readFile(join(process.cwd(), "public", "featable-logo.png"));
-  const logoSrc = `data:image/png;base64,${logo.toString("base64")}`;
+export default function OpenGraphImage() {
+  const logoSrc = new URL("/featable-logo.png", SITE_URL).toString();
   return new ImageResponse(
     (
       <div
