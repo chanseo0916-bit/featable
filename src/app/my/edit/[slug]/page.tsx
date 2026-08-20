@@ -14,10 +14,11 @@ export default async function EditBrandPage({ params }: { params: Promise<{ slug
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/my/edit/${slug}`);
 
-  const { data: founder } = await supabase.from("founders").select("id,name,headline,bio").eq("user_id", user.id).maybeSingle();
-  if (!founder) notFound();
-  const { data: brand } = await supabase.from("brands").select("id,slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,status,updated_at").eq("slug", slug).eq("founder_id", founder.id).maybeSingle();
+  const { data: brand } = await supabase.from("brands").select("id,founder_id,slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,status,updated_at").eq("slug", slug).maybeSingle();
   if (!brand) notFound();
+  const { data: founder } = await supabase.from("founders").select("id,user_id,name,headline,bio").eq("id", brand.founder_id).maybeSingle();
+  // 본인 소유 브랜드만 편집 화면 진입 가능 (RLS는 저장만 막으므로 노출도 차단)
+  if (!founder || founder.user_id !== user.id) notFound();
   const { data: product } = await supabase.from("products").select("id,slug,name,hero_url,tagline,story,problem,solution,features,price,official_url").eq("brand_id", brand.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
   if (!product) redirect("/submit");
 
