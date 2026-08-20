@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Partner } from "@/lib/types";
 import { HeaderAuthActions } from "@/components/header-auth-actions";
+import { bypassImageOptimization } from "@/lib/images";
 
 function FeatableLogo({ priority = false }: { priority?: boolean }) {
   return <Image src="/featable-logo.png" alt="FEATABLE" width={2061} height={385} priority={priority} />;
@@ -25,4 +26,4 @@ export function SectionHeader({ eyebrow, title, href = "#" }: { eyebrow?: string
 
 export function Badge({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "orange" | "dark" }) { return <span className={`badge badge-${tone}`}>{children}</span>; }
 
-export function ImageCard({ src, alt, className = "" }: { src: string; alt: string; className?: string }) { return <div className={`image-card ${className}`}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 25vw" /></div>; }
+export function ImageCard({ src, alt, className = "" }: { src: string; alt: string; className?: string }) { return <div className={`image-card ${className}`}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 25vw" unoptimized={bypassImageOptimization(src)} /></div>; }

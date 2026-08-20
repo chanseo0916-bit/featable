@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { bypassImageOptimization } from "@/lib/images";
 
 export type DiscoveryBannerSlide = {
   href: string;
@@ -43,7 +44,7 @@ export function DiscoveryBanner({ slides }: { slides: DiscoveryBannerSlide[] }) 
             aria-hidden={i !== index}
             tabIndex={i === index ? 0 : -1}
           >
-            <Image src={slide.imageUrl} alt="" fill sizes="(max-width: 700px) 100vw, 1200px" preload={i === 0} />
+            <Image src={slide.imageUrl} alt="" fill sizes="(max-width: 700px) 100vw, 1200px" preload={i === 0} unoptimized={bypassImageOptimization(slide.imageUrl)} />
             <div className="discovery-banner-shade" />
             <div className="discovery-banner-copy">
               {slide.eyebrow && <span>{slide.eyebrow}</span>}
