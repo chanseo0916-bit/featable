@@ -25,4 +25,4 @@ export function SectionHeader({ eyebrow, title, href = "#" }: { eyebrow?: string
 
 export function Badge({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "orange" | "dark" }) { return <span className={`badge badge-${tone}`}>{children}</span>; }
 
-export function ImageCard({ src, alt, className = "" }: { src: string; alt: string; className?: string }) { return <div className={`image-card ${className}`}><img src={src} alt={alt} /></div>; }
+export function ImageCard({ src, alt, className = "" }: { src: string; alt: string; className?: string }) { return <div className={`image-card ${className}`}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 25vw" /></div>; }

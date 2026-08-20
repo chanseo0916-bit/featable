@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 
 type ProductGalleryProps = {
   name: string;
@@ -14,7 +15,7 @@ export function ProductGallery({ name, heroUrl, images }: ProductGalleryProps) {
 
   return (
     <div className="commerce-gallery">
-      <img className="commerce-hero-image" src={selectedImage} alt={`${name} 대표 이미지`} />
+      <Image className="commerce-hero-image" src={selectedImage} alt={`${name} 대표 이미지`} width={1200} height={1154} sizes="(max-width: 700px) 100vw, (max-width: 1100px) 60vw, 650px" preload={selectedImage === heroUrl} />
       <div className="commerce-thumbs" role="group" aria-label={`${name} 이미지 선택`}>
         {galleryImages.map((src, index) => {
           const isSelected = selectedImage === src;
@@ -27,7 +28,7 @@ export function ProductGallery({ name, heroUrl, images }: ProductGalleryProps) {
               aria-current={isSelected ? "true" : undefined}
               onClick={() => setSelectedImage(src)}
             >
-              <img src={src} alt="" aria-hidden="true" />
+              <Image src={src} alt="" aria-hidden="true" width={144} height={144} sizes="72px" />
             </button>
           );
         })}

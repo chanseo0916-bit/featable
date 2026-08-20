@@ -13,6 +13,7 @@ import type {
   EventItem,
   Feature,
   Founder,
+  Job,
   MentorNote,
   Partner,
   Product,
@@ -26,6 +27,7 @@ import {
   events as mockEvents,
   founders as mockFounders,
   features as mockFeatures,
+  jobs as mockJobs,
   partners as mockPartners,
   products as mockProducts,
   supportPrograms as mockSupport,
@@ -39,6 +41,36 @@ export interface Catalog {
 
 const placeholder = (seed: string, w = 1200, h = 800) =>
   `https://picsum.photos/seed/${seed}/${w}/${h}`;
+
+type PublicDataError = {
+  code?: string;
+  message?: string;
+  details?: string;
+  hint?: string;
+};
+
+/**
+ * 공개 화면은 목데이터로 계속 응답하되, 운영 환경의 Supabase/RLS/스키마 문제는
+ * 배포 런타임 로그에서 즉시 식별할 수 있도록 안전한 오류 요약만 남긴다.
+ */
+function reportPublicDataFallback(resource: string, error: unknown) {
+  if (process.env.NODE_ENV !== "production") return;
+
+  const source = error && typeof error === "object" ? error as PublicDataError : undefined;
+  console.error("[featable:data-fallback]", {
+    resource,
+    code: source?.code,
+    message: source?.message ?? (error instanceof Error ? error.message : String(error)),
+    details: source?.details,
+    hint: source?.hint,
+  });
+}
+
+function hasPublicSupabaseConfig(url: string | undefined, key: string | undefined, resource: string) {
+  if (url && key) return true;
+  reportPublicDataFallback(resource, "Supabase public environment variables are missing");
+  return false;
+}
 
 interface FounderRow {
   slug: string;
@@ -88,11 +120,11 @@ interface ProductRow {
 async function fetchLive(): Promise<Catalog | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
+  if (!hasPublicSupabaseConfig(url, key, "catalog")) return null;
 
   try {
     // 공개 데이터 조회 전용 — 쿠키/세션 불필요 (RLS가 published만 허용)
-    const supabase = createClient(url, key);
+    const supabase = createClient(url!, key!);
 
     const [brandsRes, productsRes] = await Promise.all([
       supabase
@@ -113,7 +145,10 @@ async function fetchLive(): Promise<Catalog | null> {
         .order("created_at", { ascending: false }),
     ]);
 
-    if (brandsRes.error || productsRes.error) return null;
+    if (brandsRes.error || productsRes.error) {
+      reportPublicDataFallback("catalog", brandsRes.error ?? productsRes.error);
+      return null;
+    }
 
     const brandRows = (brandsRes.data ?? []) as unknown as BrandRow[];
     const productRows = (productsRes.data ?? []) as unknown as ProductRow[];
@@ -182,7 +217,8 @@ async function fetchLive(): Promise<Catalog | null> {
     }
 
     return { brands, products, founders: [...founderMap.values()] };
-  } catch {
+  } catch (error) {
+    reportPublicDataFallback("catalog", error);
     return null;
   }
 }
@@ -243,6 +279,16 @@ interface CommunityRow {
   events: Array<{ slug: string }> | null;
 }
 
+interface JobRow {
+  slug: string;
+  title: string;
+  role: string;
+  type: Job["type"];
+  location: string;
+  apply_url: string | null;
+  brand: { slug: string } | null;
+}
+
 function supportStatus(openAt: string | null, closeAt: string): SupportProgram["status"] {
   const now = Date.now();
   if (openAt && new Date(openAt).getTime() > now) return "예정";
@@ -255,10 +301,10 @@ function supportStatus(openAt: string | null, closeAt: string): SupportProgram["
 export const getEvents = cache(async (): Promise<EventItem[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return mockEvents;
+  if (!hasPublicSupabaseConfig(url, key, "events")) return mockEvents;
 
   try {
-    const supabase = createClient(url, key);
+    const supabase = createClient(url!, key!);
     const { data, error } = await supabase
       .from("events")
       .select(
@@ -266,7 +312,10 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       )
       .eq("status", "published")
       .order("starts_at", { ascending: true });
-    if (error) return mockEvents;
+    if (error) {
+      reportPublicDataFallback("events", error);
+      return mockEvents;
+    }
 
     const live: EventItem[] = ((data ?? []) as unknown as EventRow[]).map((e) => ({
       slug: e.slug,
@@ -284,7 +333,8 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       applyUrl: e.apply_url,
     }));
     return mergeBySlug(live, mockEvents);
-  } catch {
+  } catch (error) {
+    reportPublicDataFallback("events", error);
     return mockEvents;
   }
 });
@@ -293,16 +343,19 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
 export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return mockSupport;
+  if (!hasPublicSupabaseConfig(url, key, "support-programs")) return mockSupport;
 
   try {
-    const supabase = createClient(url, key);
+    const supabase = createClient(url!, key!);
     const { data, error } = await supabase
       .from("support_programs")
       .select("slug,name,agency,target,benefits,amount,open_at,close_at,region,field,apply_url")
       .eq("status", "published")
       .order("close_at", { ascending: true });
-    if (error) return mockSupport;
+    if (error) {
+      reportPublicDataFallback("support-programs", error);
+      return mockSupport;
+    }
 
     const live: SupportProgram[] = ((data ?? []) as unknown as SupportRow[]).map((s) => ({
       slug: s.slug,
@@ -319,7 +372,8 @@ export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
       status: supportStatus(s.open_at, s.close_at),
     }));
     return mergeBySlug(live, mockSupport);
-  } catch {
+  } catch (error) {
+    reportPublicDataFallback("support-programs", error);
     return mockSupport;
   }
 });
@@ -328,16 +382,19 @@ export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
 export const getFeatures = cache(async (): Promise<Feature[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return mockFeatures;
+  if (!hasPublicSupabaseConfig(url, key, "features")) return mockFeatures;
 
   try {
-    const supabase = createClient(url, key);
+    const supabase = createClient(url!, key!);
     const { data, error } = await supabase
       .from("features")
       .select("slug,title,cover_url,kind,excerpt,body,published_at,view_count,brand:brands(slug),founder:founders(slug)")
       .eq("status", "published")
       .order("published_at", { ascending: false });
-    if (error) return mockFeatures;
+    if (error) {
+      reportPublicDataFallback("features", error);
+      return mockFeatures;
+    }
 
     const live: Feature[] = ((data ?? []) as unknown as FeatureRow[]).map((feature) => ({
       slug: feature.slug,
@@ -352,7 +409,8 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
       viewCount: feature.view_count ?? 0,
     }));
     return mergeBySlug(live, mockFeatures);
-  } catch {
+  } catch (error) {
+    reportPublicDataFallback("features", error);
     return mockFeatures;
   }
 });
@@ -365,16 +423,19 @@ export const getFeature = cache(async (slug: string): Promise<Feature | null> =>
 export const getCommunities = cache(async (): Promise<Community[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return mockCommunities;
+  if (!hasPublicSupabaseConfig(url, key, "communities")) return mockCommunities;
 
   try {
-    const supabase = createClient(url, key);
+    const supabase = createClient(url!, key!);
     const { data, error } = await supabase
       .from("communities")
       .select("slug,name,logo_url,intro,field,website,sns,community_founders(founder:founders(slug)),community_brands(brand:brands(slug)),events(slug)")
       .eq("status", "published")
       .order("created_at", { ascending: false });
-    if (error) return mockCommunities;
+    if (error) {
+      reportPublicDataFallback("communities", error);
+      return mockCommunities;
+    }
 
     const live: Community[] = ((data ?? []) as unknown as CommunityRow[]).map((community) => ({
       slug: community.slug,
@@ -390,13 +451,54 @@ export const getCommunities = cache(async (): Promise<Community[]> => {
       featureSlugs: [],
     }));
     return mergeBySlug(live, mockCommunities);
-  } catch {
+  } catch (error) {
+    reportPublicDataFallback("communities", error);
     return mockCommunities;
   }
 });
 
 export const getCommunity = cache(async (slug: string): Promise<Community | null> =>
   (await getCommunities()).find((community) => community.slug === slug) ?? null,
+);
+
+/** 공개 채용 — 브랜드 연결을 포함해 실데이터를 목데이터보다 우선한다. */
+export const getJobs = cache(async (): Promise<Job[]> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!hasPublicSupabaseConfig(url, key, "jobs")) return mockJobs;
+
+  try {
+    const supabase = createClient(url!, key!);
+    const { data, error } = await supabase
+      .from("jobs")
+      .select("slug,title,role,type,location,apply_url,brand:brands(slug)")
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+    if (error) {
+      reportPublicDataFallback("jobs", error);
+      return mockJobs;
+    }
+
+    const live: Job[] = ((data ?? []) as unknown as JobRow[])
+      .filter((job) => Boolean(job.brand?.slug))
+      .map((job) => ({
+        slug: job.slug,
+        title: job.title,
+        brandSlug: job.brand!.slug,
+        role: job.role,
+        type: job.type,
+        location: job.location,
+        applyUrl: job.apply_url ?? undefined,
+      }));
+    return mergeBySlug(live, mockJobs);
+  } catch (error) {
+    reportPublicDataFallback("jobs", error);
+    return mockJobs;
+  }
+});
+
+export const getJob = cache(async (slug: string): Promise<Job | null> =>
+  (await getJobs()).find((job) => job.slug === slug) ?? null,
 );
 
 function mergeBySlug<T extends { slug: string }>(live: T[], mock: T[]): T[] {
@@ -417,17 +519,20 @@ interface PartnerRow {
 export const getPartners = cache(async (): Promise<Partner[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return mockPartners;
+  if (!hasPublicSupabaseConfig(url, key, "partners")) return mockPartners;
 
   try {
-    const supabase = createClient(url, key);
+    const supabase = createClient(url!, key!);
     const { data, error } = await supabase
       .from("partners")
       .select("name,logo_url,href,intro,description,field")
       .eq("status", "published")
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });
-    if (error) return mockPartners;
+    if (error) {
+      reportPublicDataFallback("partners", error);
+      return mockPartners;
+    }
 
     const live: Partner[] = ((data ?? []) as unknown as PartnerRow[]).map((p) => ({
       name: p.name,
@@ -439,7 +544,8 @@ export const getPartners = cache(async (): Promise<Partner[]> => {
     }));
     const liveNames = new Set(live.map((p) => p.name));
     return [...live, ...mockPartners.filter((p) => !liveNames.has(p.name))];
-  } catch {
+  } catch (error) {
+    reportPublicDataFallback("partners", error);
     return mockPartners;
   }
 });
@@ -452,14 +558,17 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (url && key) {
+  if (hasPublicSupabaseConfig(url, key, "founder")) {
     try {
-      const supabase = createClient(url, key);
-      const { data } = await supabase
+      const supabase = createClient(url!, key!);
+      const { data, error } = await supabase
         .from("founders")
         .select("slug,name,avatar_url,headline,bio,sns")
         .eq("slug", slug)
         .maybeSingle();
+      if (error) {
+        reportPublicDataFallback("founder", error);
+      }
       if (data) {
         const f = data as unknown as FounderRow;
         const { brands } = await getCatalog();
@@ -475,8 +584,8 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
             .map((b) => b.slug),
         };
       }
-    } catch {
-      // 조회 실패 시 목데이터 폴백
+    } catch (error) {
+      reportPublicDataFallback("founder", error);
     }
   }
 

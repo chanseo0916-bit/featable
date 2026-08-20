@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Footer, Header, Badge } from "@/components/site-shell";
-import { brands, jobs, partners } from "@/lib/mock";
+import { getCatalog, getJob, getPartners } from "@/lib/data";
 import {
   breadcrumbJsonLd,
   createDetailMetadata,
@@ -11,8 +11,9 @@ import {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const job = jobs.find((item) => item.slug === slug);
+  const job = await getJob(slug);
   if (!job) return {};
+  const { brands } = await getCatalog();
   const brand = brands.find((item) => item.slug === job.brandSlug);
   return createDetailMetadata({
     title: job.title,
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function JobDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const job = jobs.find((item) => item.slug === slug);
+  const [job, { brands }, partners] = await Promise.all([getJob(slug), getCatalog(), getPartners()]);
   if (!job) notFound();
   const brand = brands.find((b) => b.slug === job.brandSlug);
   const jobPath = `/jobs/${job.slug}`;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export type DiscoveryBannerSlide = {
   href: string;
@@ -42,8 +43,7 @@ export function DiscoveryBanner({ slides }: { slides: DiscoveryBannerSlide[] }) 
             aria-hidden={i !== index}
             tabIndex={i === index ? 0 : -1}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={slide.imageUrl} alt="" />
+            <Image src={slide.imageUrl} alt="" fill sizes="(max-width: 700px) 100vw, 1200px" preload={i === 0} />
             <div className="discovery-banner-shade" />
             <div className="discovery-banner-copy">
               {slide.eyebrow && <span>{slide.eyebrow}</span>}

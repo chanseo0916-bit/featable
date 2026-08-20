@@ -10,6 +10,11 @@ function revalidateCuration() {
   revalidatePath("/support");
   revalidatePath("/partners");
   revalidatePath("/admin");
+  revalidatePath("/admin/brands");
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/events");
+  revalidatePath("/admin/support");
+  revalidatePath("/admin/partners");
 }
 
 async function requireAdmin() {
@@ -29,6 +34,94 @@ async function requireAdmin() {
 }
 
 export type AdminTable = "brands" | "products" | "events" | "support_programs" | "partners";
+export type AdminEditableTable = AdminTable;
+export type AdminEditPayload = Record<string, string | boolean>;
+
+function clean(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function publicPath(table: AdminTable, slug?: string | null) {
+  if (!slug) return null;
+  if (table === "support_programs") return `/support/${slug}`;
+  return `/${table}/${slug}`;
+}
+
+export async function updateAdminContent(
+  table: AdminEditableTable,
+  id: string,
+  input: AdminEditPayload,
+): Promise<{ error?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  if (!clean(input.name)) return { error: "이름은 필수입니다." };
+
+  const { data: current } = table === "partners"
+    ? { data: null }
+    : await supabase.from(table).select("slug").eq("id", id).maybeSingle();
+  let error: { message: string } | null = null;
+
+  if (table === "brands") {
+    ({ error } = await supabase.from("brands").update({
+      name: clean(input.name), tagline: clean(input.tagline), category: clean(input.category) || "기타",
+      description: clean(input.description), website: clean(input.website) || null,
+      logo_url: clean(input.logoUrl) || null, cover_url: clean(input.coverUrl) || null,
+      problem: clean(input.problem) || null, audience: clean(input.audience) || null,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id));
+  } else if (table === "products") {
+    ({ error } = await supabase.from("products").update({
+      name: clean(input.name), tagline: clean(input.tagline), category: clean(input.category) || "기타",
+      problem: clean(input.problem), solution: clean(input.solution), price: clean(input.price) || null,
+      buy_url: clean(input.buyUrl) || null, official_url: clean(input.officialUrl) || null,
+      hero_url: clean(input.heroUrl) || null,
+      features: clean(input.features).split("\n").map((item) => item.trim()).filter(Boolean),
+      updated_at: new Date().toISOString(),
+    }).eq("id", id));
+  } else if (table === "events") {
+    const startsAt = clean(input.startsAt);
+    if (!startsAt || Number.isNaN(Date.parse(startsAt))) return { error: "행사 일시를 확인해주세요." };
+    ({ error } = await supabase.from("events").update({
+      name: clean(input.name), host: clean(input.host), starts_at: new Date(startsAt).toISOString(),
+      location: clean(input.location), is_online: Boolean(input.isOnline), fee: clean(input.fee) || null,
+      category: clean(input.category) || "기타", audience: clean(input.audience) || null,
+      apply_url: clean(input.applyUrl), cover_url: clean(input.coverUrl) || null,
+    }).eq("id", id));
+  } else if (table === "support_programs") {
+    if (!clean(input.closeAt)) return { error: "마감일은 필수입니다." };
+    ({ error } = await supabase.from("support_programs").update({
+      name: clean(input.name), agency: clean(input.agency), target: clean(input.target),
+      benefits: clean(input.benefits), amount: clean(input.amount) || null,
+      open_at: clean(input.openAt) || null, close_at: clean(input.closeAt),
+      region: clean(input.region) || "전국", field: clean(input.field) || null,
+      apply_url: clean(input.applyUrl),
+    }).eq("id", id));
+  } else {
+    ({ error } = await supabase.from("partners").update({
+      name: clean(input.name), logo_url: clean(input.logoUrl), href: clean(input.href),
+      intro: clean(input.intro), field: clean(input.field) || null,
+      description: clean(input.description) || null,
+    }).eq("id", id));
+  }
+  if (error) return { error: `수정에 실패했습니다: ${error.message}` };
+
+  revalidateCuration();
+  const target = publicPath(table, current?.slug);
+  if (target) revalidatePath(target);
+  return {};
+}
+
+export async function deleteAdminContent(
+  table: AdminEditableTable,
+  id: string,
+): Promise<{ error?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  const { error } = await supabase.from(table).delete().eq("id", id);
+  if (error) return { error: `삭제에 실패했습니다: ${error.message}` };
+  revalidateCuration();
+  return {};
+}
 
 export async function setFeatured(
   table: AdminTable,
@@ -46,6 +139,7 @@ export async function setFeatured(
 
   revalidatePath("/");
   revalidatePath("/admin");
+  revalidatePath(`/admin/${table}`);
   return {};
 }
 

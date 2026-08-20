@@ -1,5 +1,4 @@
-import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
-import { jobs } from "@/lib/mock";
+import { getCatalog, getCommunities, getEvents, getFeatures, getJobs, getSupportPrograms } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -10,12 +9,13 @@ const markdownItem = (label: string, path: string, description: string) =>
   `- [${clean(label)}](${siteLink(path)}): ${clean(description)}`;
 
 export async function GET() {
-  const [{ brands, products, founders }, features, events, supportPrograms, communities] = await Promise.all([
+  const [{ brands, products, founders }, features, events, supportPrograms, communities, jobs] = await Promise.all([
     getCatalog(),
     getFeatures(),
     getEvents(),
     getSupportPrograms(),
     getCommunities(),
+    getJobs(),
   ]);
 
   const brandBySlug = new Map(brands.map((brand) => [brand.slug, brand]));
