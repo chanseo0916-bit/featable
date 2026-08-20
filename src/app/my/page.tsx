@@ -232,6 +232,7 @@ export default async function MyPage() {
   const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
 
   // 임시저장: ① 비공개(draft) 상태로 저장된 프로덕트 ② 아직 등록 전인 작성 중 서버 초안
+  const publishedProducts = products.filter((product) => product.status === "published");
   const draftProducts = products.filter((product) => product.status !== "published");
   const { data: draftRows } = await supabase
     .from("submission_drafts")
@@ -357,6 +358,28 @@ export default async function MyPage() {
 
         {brands.length > 0 && <ProductAnalytics series={analyticsSeries} />}
 
+        {publishedProducts.length > 0 && <section id="products" className="ig-post-section studio-product-section">
+          <div className="studio-panel-heading"><strong>내 프로덕트</strong><span>{publishedProducts.length}개 · 현재 공개 중</span></div>
+          <div className="ig-post-grid">
+            <Link href="/submit/product" className="ig-post-tile ig-post-tile-add"><span>＋</span><strong>새 프로덕트 등록</strong></Link>
+            {publishedProducts.map((product) => {
+              const brand = brands.find((item) => item.id === product.brand_id);
+              return <article className="ig-post-tile studio-product-tile" key={product.id}>
+                <div className="ig-post-tile-image">
+                  {product.hero_url ? <img src={product.hero_url} alt={`${product.name} 대표 이미지`} /> : <span>{product.name.slice(0, 1)}</span>}
+                  <div className="studio-product-status">공개 중</div>
+                  <div className="ig-post-tile-views"><span aria-hidden="true">◉</span> {(product.view_count ?? 0).toLocaleString("ko-KR")}</div>
+                </div>
+                <div className="ig-post-tile-body">
+                  <strong>{product.name}</strong>
+                  <small>{brand?.name ?? "브랜드"}</small>
+                </div>
+                <div className="studio-row-actions"><Link href={`/my/product/${product.slug}`}>수정</Link><Link href={`/products/${product.slug}`} target="_blank">공개 페이지</Link></div>
+              </article>;
+            })}
+          </div>
+        </section>}
+
         {(draftProducts.length > 0 || writingDrafts.length > 0) && <section className="ig-post-section">
           <div className="studio-panel-heading"><strong>임시저장한 프로덕트</strong><span>{draftProducts.length + writingDrafts.length}개 · 이어서 완성해보세요</span></div>
           <div className="grid gap-2">
@@ -377,6 +400,7 @@ export default async function MyPage() {
                     <p className="truncate text-xs text-muted">{brand?.name ?? "브랜드"} · 공개하면 홈 피드에 노출됩니다</p>
                   </div>
                   <Link href={`/my/product/${product.slug}`} className="flex-none rounded-lg bg-accent px-4 py-2 text-xs font-bold text-white hover:bg-accent-hover">이어서 수정 →</Link>
+                  <DraftDeleteButton kind="product" id={product.id} name={product.name} />
                 </div>
               );
             })}

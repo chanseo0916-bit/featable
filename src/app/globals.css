@@ -1126,6 +1126,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .ig-post-tile-status { position: absolute; top: 8px; left: 8px; z-index: 2; }
 .ig-post-tile-status .studio-status-toggle { height: 24px; padding: 0 8px 0 6px; background: rgba(255,255,255,.92); backdrop-filter: blur(2px); }
 .ig-post-tile-status .studio-status-toggle.on { background: rgba(239,255,246,.94); }
+.studio-product-status { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 5px 8px; border-radius: 99px; background: rgba(255,255,255,.94); color: #15803d; font-size: 9px; font-weight: 800; backdrop-filter: blur(3px); }
 .ig-post-tile-views { position: absolute; right: 8px; bottom: 8px; z-index: 2; padding: 4px 8px; display: flex; align-items: center; gap: 4px; border-radius: 99px; background: rgba(0,0,0,.55); color: #fff; font-size: 9px; font-weight: 700; backdrop-filter: blur(2px); }
 .ig-post-tile-views span { font-size: 7px; }
 .ig-post-tile-body { padding: 10px 12px 4px; display: grid; gap: 3px; }
