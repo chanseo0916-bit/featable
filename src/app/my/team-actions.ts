@@ -10,6 +10,27 @@ export type TeamProfileResult = { ok: true } | { ok: false; error: string };
 export type TeamManagementResult = { ok: true } | { ok: false; error: string };
 export type BrandMemberRole = "editor" | "viewer";
 
+export interface InviteCandidate {
+  userId: string;
+  displayName: string;
+  avatarUrl: string | null;
+  headline: string | null;
+  memberType: string | null;
+}
+
+export interface SiteNotification {
+  id: string;
+  invitationId: string | null;
+  type: "team_invite" | "system";
+  title: string;
+  message: string;
+  href: string | null;
+  data: { brand_name?: string; member_role?: BrandMemberRole };
+  readAt: string | null;
+  actionStatus: "accepted" | "declined" | null;
+  createdAt: string;
+}
+
 export interface TeamProfileInput {
   brandId: string;
   displayName: string;
@@ -39,6 +60,87 @@ export async function createBrandInvitation(brandId: string, emailInput: string,
   if (error || !data) return { ok: false, error: "초대 링크를 만들지 못했습니다. 권한을 확인해주세요." };
   revalidatePath("/my");
   return { ok: true, url: `${SITE_URL}/invite/${data.token}` };
+}
+
+export async function searchInviteCandidates(brandId: string, query: string): Promise<{ ok: true; members: InviteCandidate[] } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  if (query.trim().length < 2) return { ok: true, members: [] };
+
+  const { data, error } = await supabase.rpc("search_brand_invite_candidates", {
+    p_brand_id: brandId,
+    p_query: query.trim(),
+  });
+  if (error) return { ok: false, error: "멤버를 검색하지 못했습니다. 최신 SQL 적용 여부를 확인해주세요." };
+  const members = ((data ?? []) as { user_id: string; display_name: string; avatar_url: string | null; headline: string | null; member_type: string | null }[]).map((member) => ({
+    userId: member.user_id,
+    displayName: member.display_name,
+    avatarUrl: member.avatar_url,
+    headline: member.headline,
+    memberType: member.member_type,
+  }));
+  return { ok: true, members };
+}
+
+export async function createInAppBrandInvitation(brandId: string, inviteeUserId: string, memberRole: BrandMemberRole): Promise<TeamManagementResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  const { error } = await supabase.rpc("create_in_app_brand_invitation", {
+    p_brand_id: brandId,
+    p_invitee_user_id: inviteeUserId,
+    p_member_role: memberRole,
+  });
+  if (error) {
+    const message = error.message.includes("already a team member") ? "이미 참여 중인 팀원입니다." : "사이트 초대를 보내지 못했습니다.";
+    return { ok: false, error: message };
+  }
+  revalidatePath("/my");
+  return { ok: true };
+}
+
+export async function getMyNotifications(): Promise<SiteNotification[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("id,invitation_id,type,title,message,href,data,read_at,action_status,created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  if (error) return [];
+  return ((data ?? []) as { id: string; invitation_id: string | null; type: "team_invite" | "system"; title: string; message: string; href: string | null; data: SiteNotification["data"] | null; read_at: string | null; action_status: "accepted" | "declined" | null; created_at: string }[]).map((item) => ({
+    id: item.id,
+    invitationId: item.invitation_id,
+    type: item.type,
+    title: item.title,
+    message: item.message,
+    href: item.href,
+    data: item.data ?? {},
+    readAt: item.read_at,
+    actionStatus: item.action_status,
+    createdAt: item.created_at,
+  }));
+}
+
+export async function markNotificationsRead(): Promise<void> {
+  const supabase = await createClient();
+  await supabase.rpc("mark_my_notifications_read");
+}
+
+export async function respondToInAppInvitation(invitationId: string, accept: boolean): Promise<{ ok: true; brandSlug: string | null } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  const { data, error } = await supabase.rpc("respond_to_brand_invitation", {
+    p_invitation_id: invitationId,
+    p_accept: accept,
+  });
+  if (error) return { ok: false, error: "초대가 만료되었거나 이미 처리되었습니다." };
+  revalidatePath("/my");
+  return { ok: true, brandSlug: typeof data === "string" ? data : null };
 }
 
 export async function acceptBrandInvitation(formData: FormData): Promise<void> {

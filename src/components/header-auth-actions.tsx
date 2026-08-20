@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LoginModal } from "@/components/login-modal";
+import { NotificationCenter } from "@/components/notification-center";
 
 /**
  * 헤더 우측 액션 이원화:
@@ -25,12 +26,15 @@ export function HeaderAuthActions() {
 
   if (authed) {
     return (
-      <div className="nav-submit-wrap">
-        <Link className="button button-small nav-submit" href="/my">
-          파운더 센터 <span>↗</span>
-        </Link>
-        <span className="nav-submit-hint">등록한 피쳐를 <b>한곳에서 관리</b></span>
-      </div>
+      <>
+        <NotificationCenter />
+        <div className="nav-submit-wrap">
+          <Link className="button button-small nav-submit" href="/my">
+            파운더 센터 <span>↗</span>
+          </Link>
+          <span className="nav-submit-hint">등록한 피쳐를 <b>한곳에서 관리</b></span>
+        </div>
+      </>
     );
   }
 
