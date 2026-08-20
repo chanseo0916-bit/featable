@@ -12,7 +12,7 @@ export interface TeamProfileCardProps {
   muted?: boolean;
 }
 
-function CardContent({ name, title, avatarUrl, bio, label = "TEAM", meta, actionLabel, muted }: TeamProfileCardProps) {
+function CardContent({ name, title, avatarUrl, bio, label = "TEAM", actionLabel, muted }: TeamProfileCardProps) {
   return <>
     <div className="founder-spot-photo team-card-photo">
       {avatarUrl ? <img src={avatarUrl} alt={name} /> : <div className="founder-spot-placeholder" aria-hidden>{name.slice(0, 1) || "T"}</div>}
@@ -23,9 +23,9 @@ function CardContent({ name, title, avatarUrl, bio, label = "TEAM", meta, action
       <h3>{name}<span className="founder-spot-verified" title="Featable Team" aria-label="인증된 팀 프로필">✓</span></h3>
       <strong>{title}</strong>
       {bio && <p>{bio}</p>}
+      {/* 브랜드명은 카드 위 섹션 헤더에 이미 있어 푸터에서는 상태와 CTA만 보여준다 */}
       <div className="founder-spot-foot">
-        {meta && <span>{meta}</span>}
-        <span className={muted ? "team-card-state muted" : "team-card-state"}>{muted ? "PRIVATE" : "PUBLIC"}</span>
+        <span className={muted ? "team-card-state muted" : "team-card-state"}>{muted ? "비공개" : "공개 중"}</span>
         {actionLabel && <em className="founder-spot-cta">{actionLabel} →</em>}
       </div>
     </div>
