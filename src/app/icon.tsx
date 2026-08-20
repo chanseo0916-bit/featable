@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const size = { width: 32, height: 32 };
+export const size = { width: 64, height: 64 };
 export const contentType = "image/png";
 
 export default function Icon() {
@@ -13,15 +13,20 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#ef4125",
-          borderRadius: 7,
-          color: "#fff",
-          fontSize: 22,
-          fontWeight: 900,
-          fontFamily: "system-ui, sans-serif",
+          position: "relative",
+          overflow: "hidden",
+          background: "#fff",
         }}
       >
-        F
+        <div style={{ position: "absolute", left: 14, top: 4, width: 37, height: 56, overflow: "hidden", display: "flex" }}>
+          <img
+            src="https://featable.kr/featable-logo.png"
+            alt=""
+            width="300"
+            height="56"
+            style={{ position: "absolute", left: 0, top: 0, width: 300, height: 56 }}
+          />
+        </div>
       </div>
     ),
     { ...size },

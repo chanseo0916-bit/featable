@@ -13,14 +13,20 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#ef4125",
-          color: "#fff",
-          fontSize: 110,
-          fontWeight: 900,
-          fontFamily: "system-ui, sans-serif",
+          position: "relative",
+          overflow: "hidden",
+          background: "#fff",
         }}
       >
-        F
+        <div style={{ position: "absolute", left: 47, top: 24, width: 87, height: 132, overflow: "hidden", display: "flex" }}>
+          <img
+            src="https://featable.kr/featable-logo.png"
+            alt=""
+            width="707"
+            height="132"
+            style={{ position: "absolute", left: 0, top: 0, width: 707, height: 132 }}
+          />
+        </div>
       </div>
     ),
     { ...size },
