@@ -92,14 +92,14 @@ export function ProfileEditor({
                 </div>
               )}
               <div>
-                <h2 className="font-bold">{form.name || "파운더 프로필"}</h2>
+                <h2 className="font-bold">{form.name || "팀 프로필"}</h2>
                 <p className="text-xs text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               {slug && (
                 <Link href={`/founders/${slug}`} className="text-xs font-semibold text-accent hover:underline">
-                  공개 프로필 →
+                  공개 프로필 보기 →
                 </Link>
               )}
               <button
@@ -114,8 +114,8 @@ export function ProfileEditor({
 
           {!open && (
             <p className="mt-6 border-t border-border pt-5 text-xs leading-relaxed text-muted">
-              오른쪽 카드가 홈 &lsquo;주목할 파운더&rsquo;와 검색 결과에 노출되는 내 공개 카드입니다.
-              &lsquo;프로필 편집&rsquo;을 누르면 입력하는 대로 카드가 실시간으로 바뀝니다.
+              대표자는 브랜드 팀의 첫 번째 멤버로 표시됩니다. &lsquo;프로필 편집&rsquo;을 누르면
+              팀 카드와 Founder 페이지에 쓰이는 정보를 함께 수정할 수 있습니다.
             </p>
           )}
 
@@ -199,7 +199,7 @@ export function ProfileEditor({
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
         <aside className="self-start lg:sticky lg:top-6">
-          <p className="mb-2 text-xs font-semibold text-muted">내 공개 카드</p>
+          <p className="mb-2 text-xs font-semibold text-muted">대표자 팀 카드</p>
           <div className="pointer-events-none">
             <FounderCard
               founder={{
@@ -215,7 +215,7 @@ export function ProfileEditor({
             />
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted">
-            홈 &lsquo;주목할 파운더&rsquo;와 검색 결과에 이 카드로 노출됩니다.
+            브랜드의 TEAM PROFILE에서 대표자 카드로 노출됩니다.
           </p>
         </aside>
       </div>

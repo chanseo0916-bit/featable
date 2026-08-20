@@ -10,8 +10,6 @@ import { TeamInviteButton } from "./team-invite-button";
 import { StudioNav } from "./studio-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
-import { FounderCard } from "@/components/founder-card";
-import type { Founder } from "@/lib/types";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -60,6 +58,7 @@ function buildAnalyticsSeries(
 }
 interface SavedCollectionItem { type: string; slug: string; title: string; meta: string; href: string; }
 interface TeamBrand { id: string; slug: string; name: string; tagline: string; logoUrl: string | null; role: string; }
+interface OwnedTeamMember { brand_id: string; user_id: string; display_name: string | null; title: string; bio: string | null; avatar_url: string | null; is_public: boolean; }
 
 const roleDashboard = {
   team: {
@@ -143,7 +142,7 @@ function MemberDashboard({ memberType, name, email, savedItems, teamBrands }: { 
         </section>
         {teamBrands.length > 0 && <section className="role-team-brands">
           <div className="studio-panel-heading"><strong>참여 중인 브랜드</strong><span>편집 권한이 연결된 워크스페이스입니다.</span></div>
-          <div>{teamBrands.map((brand) => <article key={brand.id}>{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <i>{brand.name.slice(0, 1)}</i>}<div><span>{brand.role === "editor" ? "EDITOR" : "VIEWER"}</span><strong>{brand.name}</strong><small>{brand.tagline}</small></div><Link href={brand.role === "editor" ? `/my/edit/${brand.slug}` : `/brands/${brand.slug}`}>{brand.role === "editor" ? "워크스페이스 열기" : "브랜드 보기"} →</Link></article>)}</div>
+          <div>{teamBrands.map((brand) => <article key={brand.id}>{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <i>{brand.name.slice(0, 1)}</i>}<div><span>{brand.role === "editor" ? "EDITOR" : "VIEWER"}</span><strong>{brand.name}</strong><small>{brand.tagline}</small></div><Link href={`/my/team/${brand.id}`}>내 팀 프로필 →</Link></article>)}</div>
         </section>}
         <section className="role-dashboard-links">
           <div className="studio-panel-heading"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
@@ -207,12 +206,18 @@ export default async function MyPage() {
   const { data: founder } = await supabase.from("founders").select("id,slug,name,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
   let brands: MyBrand[] = [];
   let products: MyProduct[] = [];
+  let ownedTeamMembers: OwnedTeamMember[] = [];
   if (founder) {
     const { data: brandRows } = await supabase.from("brands").select("id,slug,name,logo_url,tagline,category,status,updated_at").eq("founder_id", founder.id).order("updated_at", { ascending: false });
     brands = (brandRows ?? []) as MyBrand[];
     if (brands.length) {
-      const { data: productRows } = await supabase.from("products").select("id,brand_id,slug,name,hero_url,view_count,status").in("brand_id", brands.map((brand) => brand.id));
+      const brandIds = brands.map((brand) => brand.id);
+      const [{ data: productRows }, { data: teamRows }] = await Promise.all([
+        supabase.from("products").select("id,brand_id,slug,name,hero_url,view_count,status").in("brand_id", brandIds),
+        supabase.from("brand_members").select("brand_id,user_id,display_name,title,bio,avatar_url,is_public").in("brand_id", brandIds).order("sort_order", { ascending: true }),
+      ]);
       products = (productRows ?? []) as MyProduct[];
+      ownedTeamMembers = (teamRows ?? []) as OwnedTeamMember[];
     }
   }
 
@@ -285,33 +290,37 @@ export default async function MyPage() {
           </div>
         </header>
 
-        <section className="ig-founder-preview">
+        <section className="ig-founder-preview team-profile-hub">
           <div className="studio-panel-heading">
-            <strong>공개 프로필 카드</strong>
-            <span>다른 사람들에게 이렇게 보여요.</span>
-            {founder?.slug && <Link href={`/founders/${founder.slug}`} target="_blank">전체 보기 →</Link>}
+            <strong>TEAM PROFILE</strong>
+            <span>브랜드에 함께하는 사람과 공개 프로필을 관리하세요.</span>
           </div>
-          {founder?.slug ? (
-            <div className="ig-founder-preview-card">
-              <FounderCard
-                founder={{
-                  slug: founder.slug,
-                  name: founder.name,
-                  avatarUrl: founder.avatar_url || "",
-                  headline: founder.headline,
-                  bio: founder.bio ?? undefined,
-                  sns: (founder.sns ?? undefined) as Founder["sns"],
-                  brandSlugs: brands.map((brand) => brand.slug),
-                }}
-                brandCount={brands.length}
-                productCount={products.length}
-                viewCount={totalViews}
-              />
-            </div>
-          ) : (
+          {brands.length ? <div className="team-profile-brand-list">{brands.map((brand) => {
+            const members = ownedTeamMembers.filter((member) => member.brand_id === brand.id);
+            return <article className="team-profile-brand" key={brand.id}>
+              <header>
+                <div className="team-profile-brand-logo">{brand.logo_url ? <img src={brand.logo_url} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
+                <div><small>BRAND TEAM</small><h3>{brand.name}</h3><p>대표 포함 {members.length + 1}명</p></div>
+                <TeamInviteButton brandId={brand.id} brandName={brand.name} />
+              </header>
+              <div className="team-profile-member-list">
+                {founder && <div className="team-profile-member owner">
+                  <div>{founder.avatar_url ? <img src={founder.avatar_url} alt="" /> : <span>{founder.name.slice(0, 1)}</span>}</div>
+                  <p><small>OWNER</small><strong>{founder.name}</strong><span>{founder.headline || "Founder"}</span></p>
+                  <Link href="/my/profile">편집</Link>
+                </div>}
+                {members.map((member) => <div className="team-profile-member" key={member.user_id}>
+                  <div>{member.avatar_url ? <img src={member.avatar_url} alt="" /> : <span>{member.display_name?.slice(0, 1) || "T"}</span>}</div>
+                  <p><small>{member.is_public ? "PUBLIC" : "PRIVATE"}</small><strong>{member.display_name || "팀 멤버"}</strong><span>{member.title || "팀 멤버"}</span></p>
+                </div>)}
+                {!members.length && <div className="team-profile-member-empty"><strong>팀원을 초대해보세요.</strong><span>초대받은 팀원은 자신의 역할과 소개를 직접 완성합니다.</span></div>}
+              </div>
+              <footer><Link href={`/brands/${brand.slug}`} target="_blank">공개 팀 페이지 보기 →</Link></footer>
+            </article>;
+          })}</div> : (
             <div className="ig-founder-preview-empty">
-              <p>아직 공개 프로필 카드가 없어요. Founder 프로필을 등록하면 여기에 표시됩니다.</p>
-              <Link href="/my/profile">프로필 등록하기 →</Link>
+              <p>팀 프로필은 브랜드를 등록하면 자동으로 시작됩니다.</p>
+              <Link href="/submit">브랜드 등록하기 →</Link>
             </div>
           )}
         </section>

@@ -120,6 +120,12 @@ create table brand_members (
   user_id uuid not null references profiles(id) on delete cascade,
   member_role text not null default 'editor' check (member_role in ('editor', 'viewer')),
   invited_by uuid references profiles(id) on delete set null,
+  display_name text default '팀 멤버',
+  title text not null default '팀 멤버',
+  bio text,
+  avatar_url text,
+  is_public boolean not null default true,
+  sort_order integer not null default 100,
   joined_at timestamptz not null default now(),
   primary key (brand_id, user_id)
 );
@@ -429,6 +435,64 @@ $$;
 revoke execute on function public.accept_brand_invitation(uuid) from public, anon;
 grant execute on function public.accept_brand_invitation(uuid) to authenticated;
 
+create or replace function public.get_public_brand_team(p_brand_slug text)
+returns table (
+  member_key text,
+  display_name text,
+  title text,
+  bio text,
+  avatar_url text,
+  sort_order integer
+)
+language sql security definer set search_path = public stable as $$
+  select
+    bm.brand_id::text || ':' || bm.user_id::text,
+    coalesce(nullif(trim(bm.display_name), ''), '팀 멤버'),
+    coalesce(nullif(trim(bm.title), ''), '팀 멤버'),
+    bm.bio,
+    bm.avatar_url,
+    bm.sort_order
+  from public.brand_members bm
+  join public.brands b on b.id = bm.brand_id
+  where b.slug = p_brand_slug and b.status = 'published' and bm.is_public = true
+  order by bm.sort_order asc, bm.joined_at asc;
+$$;
+
+revoke execute on function public.get_public_brand_team(text) from public;
+grant execute on function public.get_public_brand_team(text) to anon, authenticated;
+
+create or replace function public.update_my_brand_team_profile(
+  p_brand_id uuid,
+  p_display_name text,
+  p_title text,
+  p_bio text,
+  p_avatar_url text,
+  p_is_public boolean
+)
+returns boolean
+language plpgsql security definer set search_path = public as $$
+declare
+  changed_count integer;
+begin
+  if auth.uid() is null then raise exception 'authentication required'; end if;
+  if nullif(trim(p_display_name), '') is null or nullif(trim(p_title), '') is null then
+    raise exception 'display name and title are required';
+  end if;
+  update public.brand_members
+  set display_name = trim(p_display_name),
+      title = trim(p_title),
+      bio = nullif(trim(coalesce(p_bio, '')), ''),
+      avatar_url = nullif(trim(coalesce(p_avatar_url, '')), ''),
+      is_public = p_is_public
+  where brand_id = p_brand_id and user_id = auth.uid();
+  get diagnostics changed_count = row_count;
+  return changed_count = 1;
+end;
+$$;
+
+revoke execute on function public.update_my_brand_team_profile(uuid, text, text, text, text, boolean) from public, anon;
+grant execute on function public.update_my_brand_team_profile(uuid, text, text, text, text, boolean) to authenticated;
+
 alter table profiles enable row level security;
 alter table founders enable row level security;
 alter table founder_supports enable row level security;
@@ -471,6 +535,9 @@ create policy "brand_members_select_related" on brand_members for select
   using (user_id = auth.uid() or is_brand_owner(brand_id) or is_admin());
 create policy "brand_members_delete_owner" on brand_members for delete
   using (user_id = auth.uid() or is_brand_owner(brand_id) or is_admin());
+create policy "brand_members_update_related" on brand_members for update
+  using (is_brand_owner(brand_id) or is_admin())
+  with check (is_brand_owner(brand_id) or is_admin());
 create policy "brand_invitations_select_related" on brand_invitations for select
   using (is_brand_owner(brand_id) or is_admin() or lower(email) = lower(coalesce(auth.jwt() ->> 'email', '')));
 create policy "brand_invitations_insert_owner" on brand_invitations for insert

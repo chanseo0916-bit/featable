@@ -16,7 +16,7 @@ export function StudioNav({
         <nav aria-label="스튜디오 메뉴">
           <Link className={active === "home" ? "active" : ""} href="/my">홈</Link>
           {founder && <Link href="/my#brands">내 브랜드</Link>}
-          {founder && <Link className={active === "profile" ? "active" : ""} href="/my/profile">Founder 프로필</Link>}
+          {founder && <Link className={active === "profile" ? "active" : ""} href="/my/profile">내 팀 프로필</Link>}
           <Link className={active === "settings" ? "active" : ""} href="/my/settings">계정 설정</Link>
         </nav>
         <form action={signout}><button>로그아웃</button></form>

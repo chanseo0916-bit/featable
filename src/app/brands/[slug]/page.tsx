@@ -6,6 +6,16 @@ import { partners } from "@/lib/mock";
 import { getCatalog } from "@/lib/data";
 import { FollowButton } from "@/components/follow-button";
 import { absoluteUrl, breadcrumbJsonLd, createDetailMetadata, entityId, JsonLd, type SeoSchema } from "@/components/seo-json-ld";
+import { createClient } from "@/lib/supabase/server";
+
+interface PublicTeamMember {
+  member_key: string;
+  display_name: string;
+  title: string;
+  bio: string | null;
+  avatar_url: string | null;
+  sort_order: number;
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -27,6 +37,9 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
   if (!brand) notFound();
   const founder = founders.find((item) => item.slug === brand.founderSlug);
   const brandProducts = products.filter((item) => item.brandSlug === brand.slug);
+  const supabase = await createClient();
+  const { data: publicTeamRows } = await supabase.rpc("get_public_brand_team", { p_brand_slug: brand.slug });
+  const publicTeam = (publicTeamRows ?? []) as PublicTeamMember[];
   const brandPath = `/brands/${brand.slug}`;
   const organizationJsonLd: SeoSchema = {
     "@type": "Organization",
@@ -60,7 +73,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
         <div className="company-actions"><FollowButton brandSlug={brand.slug} />{brand.website && <a href={brand.website} target="_blank" rel="noreferrer">웹사이트 방문 <span>↗</span></a>}</div>
       </section>
 
-      <nav className="company-tabs"><div className="shell"><a href="#products">프로덕트 <b>{brandProducts.length}</b></a><a href="#about">기업 소개</a>{founder && <a href="#founder">Founder</a>}</div></nav>
+      <nav className="company-tabs"><div className="shell"><a href="#products">프로덕트 <b>{brandProducts.length}</b></a><a href="#about">기업 소개</a>{(founder || publicTeam.length > 0) && <a href="#team">팀 <b>{publicTeam.length + (founder ? 1 : 0)}</b></a>}</div></nav>
 
       <div className="shell company-layout">
         <div className="company-main">
@@ -77,11 +90,25 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
             <p>{brand.description || brand.tagline}</p>
             {(brand.problem || brand.audience) && <dl>{brand.problem && <div><dt>해결하는 문제</dt><dd>{brand.problem}</dd></div>}{brand.audience && <div><dt>주요 고객</dt><dd>{brand.audience}</dd></div>}</dl>}
           </section>
+
+          {(founder || publicTeam.length > 0) && <section id="team" className="company-team-section">
+            <header><span>TEAM</span><h2>{brand.name}을 만드는 사람들</h2><p>아이디어를 실제 프로덕트로 함께 만들어가는 팀입니다.</p></header>
+            <div className="company-team-grid">
+              {founder && <Link className="company-team-card owner" href={`/founders/${founder.slug}`}>
+                <div>{founder.avatarUrl ? <img src={founder.avatarUrl} alt={founder.name} /> : <span>{founder.name.slice(0, 1)}</span>}</div>
+                <small>FOUNDER</small><h3>{founder.name}</h3><strong>{founder.headline}</strong><p>{founder.bio}</p><b>프로필 보기 →</b>
+              </Link>}
+              {publicTeam.map((member) => <article className="company-team-card" key={member.member_key}>
+                <div>{member.avatar_url ? <img src={member.avatar_url} alt={member.display_name} /> : <span>{member.display_name.slice(0, 1)}</span>}</div>
+                <small>TEAM</small><h3>{member.display_name}</h3><strong>{member.title}</strong>{member.bio && <p>{member.bio}</p>}
+              </article>)}
+            </div>
+          </section>}
         </div>
 
         <aside className="company-sidebar">
           <section><span>COMPANY INFO</span><dl><div><dt>기업명</dt><dd>{brand.name}</dd></div><div><dt>분야</dt><dd>{brand.category}</dd></div>{brand.foundedAt && <div><dt>설립</dt><dd>{brand.foundedAt}</dd></div>}<div><dt>프로덕트</dt><dd>{brandProducts.length}개</dd></div></dl>{brand.website && <a href={brand.website} target="_blank" rel="noreferrer">공식 웹사이트 ↗</a>}</section>
-          {founder && <Link id="founder" className="company-founder-card" href={`/founders/${founder.slug}`}><span>FOUNDER</span><div>{founder.avatarUrl ? <img src={founder.avatarUrl} alt="" /> : <i>{founder.name.slice(0, 1)}</i>}<div><strong>{founder.name}</strong><p>{founder.headline}</p></div></div><b>Founder 프로필 보기 →</b></Link>}
+          {(founder || publicTeam.length > 0) && <a className="company-team-summary" href="#team"><span>OUR TEAM</span><strong>{publicTeam.length + (founder ? 1 : 0)}명이 함께 만들고 있어요</strong><p>브랜드 뒤에 있는 사람들을 만나보세요.</p><b>팀 프로필 보기 ↓</b></a>}
         </aside>
       </div>
     </main>
