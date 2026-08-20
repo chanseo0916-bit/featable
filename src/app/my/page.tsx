@@ -7,6 +7,7 @@ import { BrandStatusButton } from "./brand-status-button";
 import { isMemberType, type MemberType } from "@/lib/auth";
 import { getCatalog, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
 import { TeamInviteButton } from "./team-invite-button";
+import { DraftDeleteButton } from "./draft-delete-button";
 import { StudioNav } from "./studio-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
@@ -417,6 +418,7 @@ export default async function MyPage() {
                     <p className="truncate text-xs text-muted">{brand?.name ?? "브랜드"} · 마지막 저장 {fmtDraftDate(draft.updated_at)}</p>
                   </div>
                   <Link href={resumeHref} className="flex-none rounded-lg border border-border px-4 py-2 text-xs font-bold hover:border-accent hover:text-accent">이어서 작성 →</Link>
+                  <DraftDeleteButton kind="draft" id={draft.draft_key} name={draft.payload.name?.trim() || "제목 없는 프로덕트"} />
                 </div>
               );
             })}

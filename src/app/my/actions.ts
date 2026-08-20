@@ -34,6 +34,37 @@ export async function toggleBrandVisibility(brandId: string, publish: boolean): 
   return { ok: true };
 }
 
+/** 작성 중 서버 초안 삭제 — draft_key는 "product:xxx" 형태의 전체 키를 그대로 받는다 */
+export async function deleteStudioDraft(draftKey: string): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+
+  const { error } = await supabase
+    .from("submission_drafts")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("draft_key", draftKey);
+  if (error) return { ok: false, error: "삭제에 실패했습니다." };
+
+  revalidatePath("/my");
+  return { ok: true };
+}
+
+/** 비공개(draft) 프로덕트 삭제 — RLS(products_delete_own)가 소유권을 보장한다 */
+export async function deleteMyProduct(productId: string): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+
+  const { error } = await supabase.from("products").delete().eq("id", productId);
+  if (error) return { ok: false, error: "삭제에 실패했습니다." };
+
+  revalidatePath("/my");
+  revalidatePath("/products");
+  return { ok: true };
+}
+
 export interface ProfileInput {
   name: string;
   headline: string;
