@@ -1816,8 +1816,37 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-hero-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #cfcfd6; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; }
 .founder-hero-status i { width: 6px; height: 6px; border-radius: 50%; background: #3ddc84; }
 
+/* 브랜드 TEAM PROFILE — 공개 페이지와 스튜디오가 같은 카드 언어를 사용 */
+.team-profile-visual-card { width: 100%; min-width: 0; display: block; }
+.team-profile-visual-card .team-card-photo { overflow: hidden; background: #24242a; }
+.team-profile-visual-card .team-card-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 45%, #ef41251f); }
+.team-card-label { position: absolute; z-index: 2; top: 14px; left: 14px; padding: 6px 9px; border: 1px solid #ffffff38; border-radius: 999px; background: #1111119c; color: #fff; font-size: 8px; font-weight: 850; letter-spacing: .11em; backdrop-filter: blur(8px); }
+.team-card-body { min-height: 132px; }
+.team-card-body > strong { display: block; margin: -1px 0 9px; color: #ff745b; font-size: 11px; line-height: 1.35; }
+.team-card-body > p { min-height: 35px; margin: 0 0 16px; display: -webkit-box; overflow: hidden; color: #aeb0b8; font-size: 10px; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.team-card-body .founder-spot-foot { min-width: 0; }
+.team-card-body .founder-spot-foot > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-card-state { flex: 0 0 auto; color: #66d18f; font-size: 8px; font-weight: 850; letter-spacing: .08em; }
+.team-card-state.muted { color: #8d9097; }
+.team-profile-visual-card.is-private { filter: saturate(.35); opacity: .72; }
+.team-profile-visual-card.is-private:hover { transform: none; box-shadow: none; }
+.company-team-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 310px)); align-items: start; justify-content: start; gap: 16px; }
+.team-profile-card-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); align-items: start; gap: 14px; }
+.team-profile-admin-card { min-width: 0; overflow: hidden; border: 1px solid #dde0e3; border-radius: 20px; background: #fff; box-shadow: 0 14px 30px #1110; transition: box-shadow .2s, transform .2s; }
+.team-profile-admin-card:hover { transform: translateY(-2px); box-shadow: 0 18px 34px #1111; }
+.team-profile-admin-card > .team-profile-visual-card { border: 0; border-radius: 19px 19px 0 0; }
+.team-profile-admin-card > .team-profile-visual-card:hover { transform: none; box-shadow: none; }
+.team-profile-admin-card > .team-member-admin, .team-owner-card-action { min-height: 52px; margin: 0; padding: 10px 13px; border-top: 0; background: #fff; }
+.team-owner-card-action { display: flex; align-items: center; justify-content: space-between; }
+.team-owner-card-action span { color: #8a9197; font-size: 8px; font-weight: 750; }
+.team-owner-card-action a { color: var(--accent); font-size: 9px; font-weight: 800; }
+.team-profile-add-card { min-height: 380px; padding: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #bfc4c8; border-radius: 20px; background: linear-gradient(145deg, #fafafa, #f1f2f3); text-align: center; }
+.team-profile-add-card i { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: #111; color: #fff; font-size: 21px; font-style: normal; }
+.team-profile-add-card strong { margin-top: 18px; font-size: 12px; }
+.team-profile-add-card span { max-width: 210px; margin-top: 7px; color: #8b9298; font-size: 9px; line-height: 1.55; }
+
 @media (max-width: 800px) {
-  .team-profile-member-list, .company-team-grid { grid-template-columns: 1fr 1fr; }
+  .team-profile-member-list, .company-team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .team-profile-editor-grid { grid-template-columns: 1fr; }
   .team-profile-live-card { position: static; }
 }

@@ -12,6 +12,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
 import { PendingInviteControl, TeamMemberControls } from "./team-management-controls";
 import type { BrandMemberRole } from "./team-actions";
+import { TeamProfileCard } from "@/components/team-profile-card";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -310,18 +311,16 @@ export default async function MyPage() {
                 <div><small>BRAND TEAM</small><h3>{brand.name}</h3><p>대표 포함 {members.length + 1}명</p></div>
                 <TeamInviteButton brandId={brand.id} brandName={brand.name} />
               </header>
-              <div className="team-profile-member-list">
-                {founder && <div className="team-profile-member owner">
-                  <div>{founder.avatar_url ? <img src={founder.avatar_url} alt="" /> : <span>{founder.name.slice(0, 1)}</span>}</div>
-                  <p><small>OWNER</small><strong>{founder.name}</strong><span>{founder.headline || "Founder"}</span></p>
-                  <Link href="/my/profile">편집</Link>
+              <div className="team-profile-member-list team-profile-card-grid">
+                {founder && <div className="team-profile-admin-card owner">
+                  <TeamProfileCard name={founder.name} title={founder.headline || "Founder"} avatarUrl={founder.avatar_url} bio={founder.bio} label="OWNER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" />
+                  <div className="team-owner-card-action"><span>브랜드 대표</span><Link href="/my/profile">내 카드 편집 →</Link></div>
                 </div>}
-                {members.map((member, index) => <div className="team-profile-member" key={member.user_id}>
-                  <div>{member.avatar_url ? <img src={member.avatar_url} alt="" /> : <span>{member.display_name?.slice(0, 1) || "T"}</span>}</div>
-                  <p><small>{member.is_public ? "PUBLIC" : "PRIVATE"}</small><strong>{member.display_name || "팀 멤버"}</strong><span>{member.title || "팀 멤버"}</span></p>
+                {members.map((member, index) => <div className="team-profile-admin-card" key={member.user_id}>
+                  <TeamProfileCard name={member.display_name || "팀 멤버"} title={member.title || "팀 멤버"} avatarUrl={member.avatar_url} bio={member.bio} label={member.member_role === "editor" ? "EDITOR" : "VIEWER"} meta={brand.name} muted={!member.is_public} />
                   <TeamMemberControls brandId={brand.id} userId={member.user_id} name={member.display_name || "팀 멤버"} role={member.member_role} first={index === 0} last={index === members.length - 1} />
                 </div>)}
-                {!members.length && <div className="team-profile-member-empty"><strong>팀원을 초대해보세요.</strong><span>초대받은 팀원은 자신의 역할과 소개를 직접 완성합니다.</span></div>}
+                {!members.length && <div className="team-profile-add-card"><i>＋</i><strong>첫 팀원을 초대해보세요.</strong><span>위의 팀 초대 버튼으로 링크를 만들 수 있어요.</span></div>}
               </div>
               {invitations.length > 0 && <div className="team-pending-invites">
                 <strong>초대 대기 {invitations.length}</strong>

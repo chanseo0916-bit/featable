@@ -7,6 +7,7 @@ import { getCatalog } from "@/lib/data";
 import { FollowButton } from "@/components/follow-button";
 import { absoluteUrl, breadcrumbJsonLd, createDetailMetadata, entityId, JsonLd, type SeoSchema } from "@/components/seo-json-ld";
 import { createClient } from "@/lib/supabase/server";
+import { TeamProfileCard } from "@/components/team-profile-card";
 
 interface PublicTeamMember {
   member_key: string;
@@ -94,14 +95,8 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
           {(founder || publicTeam.length > 0) && <section id="team" className="company-team-section">
             <header><span>TEAM</span><h2>{brand.name}을 만드는 사람들</h2><p>아이디어를 실제 프로덕트로 함께 만들어가는 팀입니다.</p></header>
             <div className="company-team-grid">
-              {founder && <Link className="company-team-card owner" href={`/founders/${founder.slug}`}>
-                <div>{founder.avatarUrl ? <img src={founder.avatarUrl} alt={founder.name} /> : <span>{founder.name.slice(0, 1)}</span>}</div>
-                <small>FOUNDER</small><h3>{founder.name}</h3><strong>{founder.headline}</strong><p>{founder.bio}</p><b>프로필 보기 →</b>
-              </Link>}
-              {publicTeam.map((member) => <article className="company-team-card" key={member.member_key}>
-                <div>{member.avatar_url ? <img src={member.avatar_url} alt={member.display_name} /> : <span>{member.display_name.slice(0, 1)}</span>}</div>
-                <small>TEAM</small><h3>{member.display_name}</h3><strong>{member.title}</strong>{member.bio && <p>{member.bio}</p>}
-              </article>)}
+              {founder && <TeamProfileCard name={founder.name} title={founder.headline || "Founder"} avatarUrl={founder.avatarUrl} bio={founder.bio} label="FOUNDER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" />}
+              {publicTeam.map((member) => <TeamProfileCard key={member.member_key} name={member.display_name} title={member.title} avatarUrl={member.avatar_url} bio={member.bio} label="TEAM" meta={brand.name} />)}
             </div>
           </section>}
         </div>
