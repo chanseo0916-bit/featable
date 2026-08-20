@@ -835,6 +835,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .community-join-link { width: fit-content; margin-top: 18px; padding: 11px 16px; display: inline-flex; border-radius: 8px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 750; }
 .publish-console-nav .shell > form { margin-left: auto; }
 .publish-console-nav .shell > form button { padding: 12px 15px; border: 0; border-radius: 7px; background: #2b2b2b; color: #fff; cursor: pointer; font-size: 10px; font-weight: 700; }
+.publish-console-nav .studio-nav-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.publish-console-nav .studio-nav-actions form { margin-left: 0; }
+.publish-console-nav .studio-nav-actions form button { padding: 12px 15px; border: 0; border-radius: 7px; background: #2b2b2b; color: #fff; cursor: pointer; font-size: 10px; font-weight: 700; }
+.publish-console-nav .studio-exit-link { padding: 12px 15px; border-radius: 7px; border: 1px solid #3d3d3d; color: #ddd; font-size: 10px; font-weight: 700; transition: border-color .2s, color .2s, background .2s; }
+.publish-console-nav .studio-exit-link:hover { border-color: var(--accent); background: var(--accent); color: #fff; }
 .studio-dashboard { min-height: calc(100vh - 130px); padding: 38px 0 80px; background: #f3f5f6; }
 .studio-dashboard-inner { max-width: 1180px; }
 .studio-owner-head { min-height: 92px; display: flex; align-items: center; gap: 16px; }
