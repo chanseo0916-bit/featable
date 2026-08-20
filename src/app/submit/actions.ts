@@ -121,7 +121,7 @@ export type ProductRegistrationResult =
   | { ok: true; productSlug: string }
   | { ok: false; error: string };
 
-export type ProductDraftInput = Omit<ProductRegistrationInput, "features" | "publish"> & { features: string };
+export type ProductDraftInput = Omit<ProductRegistrationInput, "features" | "publish" | "secondaryKeywords"> & { features: string; secondaryKeywords?: string };
 
 export async function loadProductDraft(draftKey: string): Promise<{ draft: ProductDraftInput; savedAt: number } | null> {
   const supabase = await createClient();

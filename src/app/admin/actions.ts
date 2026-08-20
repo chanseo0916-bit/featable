@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
+import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
 
 function revalidateCuration() {
   revalidatePath("/");
@@ -335,6 +336,11 @@ export async function createStory(input: StoryInput): Promise<{ error?: string; 
     founder_id: await founderIdForBrand(supabase, input.brandId),
     status: input.publish ? "published" : "draft",
     published_at: input.publish ? new Date().toISOString() : null,
+    seo_title: seoTitle(undefined, input.title.trim()),
+    seo_description: conciseSeoDescription(input.excerpt),
+    primary_keyword: input.title.trim(),
+    og_image_url: input.coverUrl?.trim() || null,
+    is_indexable: input.publish,
   });
   if (error) return { error: `스토리 저장에 실패했습니다: ${error.message}` };
 
@@ -362,6 +368,11 @@ export async function updateStory(id: string, input: StoryInput): Promise<{ erro
     founder_id: await founderIdForBrand(supabase, input.brandId),
     status: input.publish ? "published" : "draft",
     published_at: input.publish ? (current.published_at ?? new Date().toISOString()) : current.published_at,
+    seo_title: seoTitle(undefined, input.title.trim()),
+    seo_description: conciseSeoDescription(input.excerpt),
+    primary_keyword: input.title.trim(),
+    og_image_url: input.coverUrl?.trim() || null,
+    is_indexable: input.publish,
     updated_at: new Date().toISOString(),
   }).eq("id", id);
   if (error) return { error: `스토리 수정에 실패했습니다: ${error.message}` };

@@ -13,7 +13,7 @@ import { cleanSeoSlug, storyText } from "@/lib/content-seo";
 interface BrandChoice { id: string; name: string; }
 const categories = ["AI", "SaaS", "F&B", "패션", "뷰티", "콘텐츠", "커머스", "라이프스타일", "교육", "개발", "기타"];
 
-type ProductFormInitial = Omit<ProductRegistrationInput, "features" | "publish"> & { features: string; published?: boolean };
+type ProductFormInitial = Omit<ProductRegistrationInput, "features" | "publish" | "secondaryKeywords"> & { features: string; secondaryKeywords?: string; published?: boolean };
 
 interface ProductFormState {
   brandId: string;
@@ -41,7 +41,7 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
   const defaultBrandId = initial?.brandId || initialBrandId || brands[0]?.id || "";
   const initialCacheKey = editProductId ? `featable:product-edit:${editProductId}` : `featable:product-draft:${defaultBrandId}`;
   const [form, setForm] = useState<ProductFormState>(() => {
-    const defaults: ProductFormState = { brandId: defaultBrandId, name: initial?.name ?? "", tagline: initial?.tagline ?? "", category: initial?.category ?? "기타", problem: initial?.problem ?? "", solution: initial?.solution ?? "", features: initial?.features ?? "", price: initial?.price ?? "", officialUrl: initial?.officialUrl ?? "", heroUrl: initial?.heroUrl ?? "", story: initial?.story ?? [], slug: initial?.slug ?? "", seoTitle: initial?.seoTitle ?? "", seoDescription: initial?.seoDescription ?? "", primaryKeyword: initial?.primaryKeyword ?? "", secondaryKeywords: initial?.secondaryKeywords?.join(", ") ?? "", ogImageUrl: initial?.ogImageUrl ?? "" };
+    const defaults: ProductFormState = { brandId: defaultBrandId, name: initial?.name ?? "", tagline: initial?.tagline ?? "", category: initial?.category ?? "기타", problem: initial?.problem ?? "", solution: initial?.solution ?? "", features: initial?.features ?? "", price: initial?.price ?? "", officialUrl: initial?.officialUrl ?? "", heroUrl: initial?.heroUrl ?? "", story: initial?.story ?? [], slug: initial?.slug ?? "", seoTitle: initial?.seoTitle ?? "", seoDescription: initial?.seoDescription ?? "", primaryKeyword: initial?.primaryKeyword ?? "", secondaryKeywords: initial?.secondaryKeywords ?? "", ogImageUrl: initial?.ogImageUrl ?? "" };
     if (typeof window === "undefined") return defaults;
     try {
       const cached = window.localStorage.getItem(initialCacheKey);

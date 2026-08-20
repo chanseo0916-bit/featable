@@ -917,6 +917,43 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .admin-dashboard-row { grid-template-columns: 1fr; }
 }
 
+.seo-publish-panel { margin-top: 28px; border: 1px solid #dfe3e8; border-radius: 18px; background: #fff; overflow: hidden; }
+.seo-publish-panel > summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; cursor: pointer; list-style: none; }
+.seo-publish-panel > summary::-webkit-details-marker { display: none; }
+.seo-publish-panel > summary span { display: flex; align-items: baseline; gap: 10px; }
+.seo-publish-panel > summary b { font-size: 15px; }
+.seo-publish-panel > summary small { color: #8b929b; font-size: 12px; }
+.seo-publish-panel > summary i { min-width: 52px; padding: 7px 10px; border-radius: 999px; background: #f1f3f5; color: #616975; text-align: center; font-style: normal; font-size: 12px; font-weight: 800; }
+.seo-publish-panel > summary i.ready { background: #eaf8ef; color: #15803d; }
+.seo-publish-panel > summary i.progress { background: #fff1ed; color: #ef4125; }
+.seo-publish-body { padding: 0 22px 24px; border-top: 1px solid #edf0f2; }
+.seo-search-preview { margin: 22px 0; padding: 18px 20px; border-radius: 14px; background: #f7f8fa; }
+.seo-search-preview small, .seo-search-preview strong, .seo-search-preview p { display: block; }
+.seo-search-preview small { color: #16833a; font-size: 12px; }
+.seo-search-preview strong { margin-top: 7px; color: #1a0dab; font-size: 19px; font-weight: 600; }
+.seo-search-preview p { margin: 5px 0 0; color: #4d5156; font-size: 13px; line-height: 1.55; }
+.seo-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.seo-fields-grid label { display: flex; flex-direction: column; gap: 8px; }
+.seo-fields-grid label.full { grid-column: 1 / -1; }
+.seo-fields-grid label > span { font-size: 13px; font-weight: 700; }
+.seo-fields-grid label > span small, .seo-fields-grid label > small { color: #9097a1; font-size: 11px; font-weight: 400; }
+.seo-fields-grid input, .seo-fields-grid textarea { width: 100%; border: 1px solid #dfe3e8; border-radius: 10px; padding: 13px 14px; font: inherit; outline: none; }
+.seo-fields-grid input:focus, .seo-fields-grid textarea:focus { border-color: #ef4125; box-shadow: 0 0 0 3px rgba(239,65,37,.08); }
+.seo-fields-grid textarea { min-height: 88px; resize: vertical; }
+.seo-slug-input { display: flex; align-items: center; border: 1px solid #dfe3e8; border-radius: 10px; overflow: hidden; }
+.seo-slug-input em { padding-left: 14px; color: #8b929b; font-style: normal; font-size: 13px; white-space: nowrap; }
+.seo-slug-input input { border: 0; box-shadow: none !important; }
+.seo-score-guide { margin: 18px 0 0; color: #5f6772; font-size: 12px; }
+.semantic-description section + section { margin-top: 38px; }
+.semantic-description h3 { margin: 0 0 14px; font-size: clamp(22px, 2vw, 30px); }
+.semantic-description p { white-space: pre-line; }
+
+@media (max-width: 720px) {
+  .seo-publish-panel > summary span { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .seo-fields-grid { grid-template-columns: 1fr; }
+  .seo-fields-grid label.full { grid-column: auto; }
+}
+
 @media (max-width: 640px) {
   .admin-topbar { height: auto; }
   .admin-topbar-inner { height: auto; padding-top: 15px; display: grid; grid-template-columns: 1fr; }

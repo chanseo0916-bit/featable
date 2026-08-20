@@ -14,7 +14,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ sl
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/my/product/${slug}`);
-  const { data: product } = await supabase.from("products").select("id,brand_id,name,tagline,category,problem,solution,features,price,official_url,hero_url,story,status").eq("slug", slug).maybeSingle();
+  const { data: product } = await supabase.from("products").select("id,brand_id,slug,name,tagline,category,problem,solution,features,price,official_url,hero_url,story,status,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url").eq("slug", slug).maybeSingle();
   if (!product) notFound();
   const { data: brand } = await supabase.from("brands").select("id,name,founder_id").eq("id", product.brand_id).maybeSingle();
   if (!brand) notFound();
@@ -28,6 +28,6 @@ export default async function ProductEditPage({ params }: { params: Promise<{ sl
 
   return <>
     <div className="publish-console-nav simple-register-nav"><div className="shell"><StudioBrand /><nav><span className="active">프로덕트 수정</span></nav><Link href="/my">나가기</Link></div></div>
-    <main className="simple-registration-page product-registration-page"><div className="shell"><ProductRegistrationForm brands={[{ id: brand.id, name: brand.name }]} initialBrandId={product.brand_id} editProductId={product.id} draftKey={`edit:${product.id}`} initialSavedAt={saved?.savedAt} initial={persisted ?? { brandId: product.brand_id, name: product.name, tagline: product.tagline, category: product.category, problem: product.problem, solution: product.solution, features: (product.features ?? []).join("\n"), price: product.price ?? "", officialUrl: product.official_url ?? "", heroUrl: product.hero_url ?? "", story: (product.story ?? []) as StoryBlock[], published: product.status === "published" }} /></div></main>
+    <main className="simple-registration-page product-registration-page"><div className="shell"><ProductRegistrationForm brands={[{ id: brand.id, name: brand.name }]} initialBrandId={product.brand_id} editProductId={product.id} draftKey={`edit:${product.id}`} initialSavedAt={saved?.savedAt} initial={persisted ?? { brandId: product.brand_id, slug: product.slug, name: product.name, tagline: product.tagline, category: product.category, problem: product.problem, solution: product.solution, features: (product.features ?? []).join("\n"), price: product.price ?? "", officialUrl: product.official_url ?? "", heroUrl: product.hero_url ?? "", story: (product.story ?? []) as StoryBlock[], seoTitle: product.seo_title ?? "", seoDescription: product.seo_description ?? "", primaryKeyword: product.primary_keyword ?? "", secondaryKeywords: (product.secondary_keywords ?? []).join(", "), ogImageUrl: product.og_image_url ?? "", published: product.status === "published" }} /></div></main>
   </>;
 }

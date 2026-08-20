@@ -111,6 +111,13 @@ create table brands (
   founded_at text,                            -- "2025-03"
   status content_status not null default 'draft',
   is_featured boolean not null default false,
+  seo_title text,
+  seo_description text,
+  primary_keyword text,
+  secondary_keywords text[] not null default '{}',
+  og_image_url text,
+  is_indexable boolean not null default false,
+  published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -163,6 +170,13 @@ create table products (
   status content_status not null default 'draft',
   is_featured boolean not null default false,
   view_count integer not null default 0,
+  seo_title text,
+  seo_description text,
+  primary_keyword text,
+  secondary_keywords text[] not null default '{}',
+  og_image_url text,
+  is_indexable boolean not null default false,
+  published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -183,6 +197,12 @@ create table features (
   view_count integer not null default 0,
   is_featured boolean not null default false, -- THIS WEEK'S FEATURE 지정
   published_at timestamptz,
+  seo_title text,
+  seo_description text,
+  primary_keyword text,
+  secondary_keywords text[] not null default '{}',
+  og_image_url text,
+  is_indexable boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
