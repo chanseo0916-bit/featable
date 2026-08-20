@@ -1468,6 +1468,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .team-profile-live-card strong { margin-top: 7px; color: #ff785e; font-size: 11px; }
 .team-profile-live-card p { min-height: 50px; margin: 20px 0 0; color: #b3b7ba; font-size: 10px; line-height: 1.7; }
 .team-profile-live-card small { margin-top: 25px; display: block; color: #747a7e; font-size: 8px; }
+.team-profile-live-card.team-profile-card-preview { min-height: 0; padding: 0; background: transparent; color: inherit; box-shadow: none; }
+.team-profile-card-preview .team-profile-preview-label { min-height: 0; margin: 0 0 10px; color: #ff4c34; font-size: 9px; font-weight: 850; letter-spacing: .14em; }
+.team-profile-card-preview .team-profile-visual-card { width: min(100%, 340px); }
 .company-sidebar { position: sticky; top: 84px; display: grid; gap: 12px; }
 .company-sidebar > section, .company-founder-card { padding: 22px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
 .company-sidebar dl { margin: 17px 0 0; }

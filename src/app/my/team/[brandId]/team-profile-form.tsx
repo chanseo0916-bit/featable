@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { TeamProfileCard } from "@/components/team-profile-card";
 import { updateTeamProfile, type TeamProfileInput } from "../../team-actions";
 
 export function TeamProfileForm({ initial }: { initial: TeamProfileInput }) {
@@ -63,13 +64,24 @@ export function TeamProfileForm({ initial }: { initial: TeamProfileInput }) {
       <button type="button" disabled={pending || uploading} onClick={save}>{pending ? "저장 중…" : "팀 프로필 저장"}</button>
     </section>
 
-    <aside className="team-profile-live-card">
+    <aside className="team-profile-live-card team-profile-card-preview">
+      <p className="team-profile-preview-label">PREVIEW</p>
+      <TeamProfileCard
+        name={form.displayName || "이름"}
+        title={form.title || "팀 내 역할"}
+        avatarUrl={form.avatarUrl}
+        bio={form.bio || "팀에서 맡고 있는 일을 한 줄로 소개해주세요."}
+        label="TEAM"
+        muted={!form.isPublic}
+      />
+      <div hidden>
       <span>PREVIEW</span>
       <div>{form.avatarUrl ? <img src={form.avatarUrl} alt="" /> : <i>{form.displayName.slice(0, 1) || "T"}</i>}</div>
       <h2>{form.displayName || "이름"}</h2>
       <strong>{form.title || "팀 내 역할"}</strong>
       <p>{form.bio || "팀에서 맡고 있는 일을 한 줄로 소개해주세요."}</p>
       <small>{form.isPublic ? "브랜드 페이지에 공개됩니다" : "현재 비공개 상태입니다"}</small>
+      </div>
     </aside>
   </div>;
 }

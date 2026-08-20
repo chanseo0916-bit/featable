@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { FounderCard } from "@/components/founder-card";
+import { TeamProfileCard } from "@/components/team-profile-card";
 import { updateFounderProfile, type ProfileInput } from "./actions";
 
 export interface ProfileEditorInitial extends ProfileInput {
@@ -201,17 +201,13 @@ export function ProfileEditor({
         <aside className="self-start lg:sticky lg:top-6">
           <p className="mb-2 text-xs font-semibold text-muted">대표자 팀 카드</p>
           <div className="pointer-events-none">
-            <FounderCard
-              founder={{
-                slug: slug ?? "preview",
-                name: form.name || "이름을 입력하세요",
-                avatarUrl: form.avatarUrl ?? "",
-                headline: form.headline || "한 줄 소개가 여기에 표시됩니다",
-                brandSlugs: [],
-              }}
-              brandCount={brandCount}
-              productCount={0}
-              viewCount={0}
+            <TeamProfileCard
+              name={form.name || "이름을 입력하세요"}
+              title={form.headline || "한 줄 소개가 여기에 표시됩니다"}
+              avatarUrl={form.avatarUrl ?? ""}
+              bio={form.bio || "브랜드에서 맡은 역할과 만드는 사람으로서의 이야기를 소개합니다."}
+              label="OWNER"
+              actionLabel="프로필"
             />
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted">
