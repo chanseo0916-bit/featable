@@ -106,10 +106,3 @@ export async function signup(
     message: "가입 확인 메일을 보냈습니다. 이메일 인증을 마치면 바로 시작할 수 있어요.",
   };
 }
-
-export async function signout() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  revalidatePath("/", "layout");
-  redirect("/");
-}

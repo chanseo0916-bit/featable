@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { signout } from "@/app/login/actions";
 import { NotificationCenter } from "@/components/notification-center";
+import { LogoutButton } from "@/components/logout-button";
 import { StudioBrand } from "@/components/site-shell";
 
 export function StudioNav({
@@ -23,7 +23,7 @@ export function StudioNav({
         <div className="studio-nav-actions">
           <NotificationCenter />
           <Link className="studio-exit-link" href="/">Featable 홈 ↗</Link>
-          <form action={signout}><button>로그아웃</button></form>
+          <LogoutButton variant="studio" />
         </div>
       </div>
     </div>

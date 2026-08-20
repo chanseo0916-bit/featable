@@ -84,9 +84,9 @@ summary::-webkit-details-marker { display: none; }
 .notification-error { margin: 10px 14px 0; padding: 9px 11px; border-radius: 7px; background: #fff0ec; color: #c83b25; font-size: 9px; }
 .notification-panel-footer { padding: 13px 18px; border-top: 1px solid #eceef0; text-align: right; }
 .notification-panel-footer a { color: #555d64; font-size: 9px; font-weight: 750; }
-.header-logout-form { margin: 0; }
 .header-logout { min-height: 40px; padding: 0 7px; display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: #686e74; cursor: pointer; font-size: 11px; font-weight: 650; white-space: nowrap; transition: color .16s; }
 .header-logout:hover { color: var(--accent); }
+.header-logout:disabled { cursor: wait; opacity: .55; }
 .header-logout:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 32%, white); outline-offset: 2px; border-radius: 6px; }
 .header-logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .search-link { font-size: 27px; line-height: 1; transform: rotate(-20deg); display: inline-block; }
@@ -879,8 +879,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .publish-console-nav .notification-bell { color: #fff; }
 .publish-console-nav .notification-bell:hover, .publish-console-nav .notification-bell[aria-expanded="true"] { border-color: #3d3d3d; background: #292929; }
 .publish-console-nav .notification-bell b { border-color: #171717; }
-.publish-console-nav .studio-nav-actions form { margin-left: 0; }
-.publish-console-nav .studio-nav-actions form button { padding: 12px 15px; border: 0; border-radius: 7px; background: #2b2b2b; color: #fff; cursor: pointer; font-size: 10px; font-weight: 700; }
+.publish-console-nav .studio-nav-actions > button { padding: 12px 15px; border: 0; border-radius: 7px; background: #2b2b2b; color: #fff; cursor: pointer; font-size: 10px; font-weight: 700; }
+.publish-console-nav .studio-nav-actions > button:disabled { cursor: wait; opacity: .55; }
 .publish-console-nav .studio-exit-link { padding: 12px 15px; border-radius: 7px; border: 1px solid #3d3d3d; color: #ddd; font-size: 10px; font-weight: 700; transition: border-color .2s, color .2s, background .2s; }
 .publish-console-nav .studio-exit-link:hover { border-color: var(--accent); background: var(--accent); color: #fff; }
 
