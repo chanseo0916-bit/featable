@@ -5,7 +5,7 @@ import { SITE_URL } from "@/lib/site";
 const absoluteUrl = (path: string) => new URL(path, `${SITE_URL}/`).toString();
 
 const imageUrls = (...urls: Array<string | undefined>) =>
-  [...new Set(urls.filter((url): url is string => Boolean(url)))];
+  [...new Set(urls.filter((url): url is string => Boolean(url)).map(absoluteUrl))];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [{ brands, products, founders }, features, events, supportPrograms, communities, jobs] = await Promise.all([
