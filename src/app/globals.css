@@ -396,6 +396,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .header-search > span { position: relative; width: 17px; height: 17px; flex: 0 0 17px; border: 2px solid #9299a2; border-radius: 50%; }.header-search > span::after { content: ""; position: absolute; width: 7px; height: 2px; right: -5px; bottom: -2px; background: #9299a2; transform: rotate(45deg); }
 .header-search input { flex: 1; min-width: 0; padding: 0 13px; border: 0; outline: 0; background: transparent; color: #222; font-size: 12px; }.header-search input::placeholder { color: #b6bbc2; }.header-search button { display: none; }
 .header-primary .nav-actions { margin-left: auto; }.mobile-search-link { display: none; }.header-channel-row { background: #fff; }.channel-nav { height: 60px; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }.channel-nav::-webkit-scrollbar { display: none; }.channel-nav a { flex: 0 0 auto; padding: 10px 20px; border: 1px solid #e5e7eb; border-radius: 999px; color: #374151; font-size: 13px; font-weight: 650; background: #fff; transition: border-color .2s, color .2s, background .2s; }.channel-nav a:hover { color: #111; border-color: #111; }.channel-nav > i { display: none; }.channel-nav .channel-highlight { color: #fff; border-color: #111; background: #111; }.channel-nav .channel-highlight:hover { color: #fff; background: #1a1a1a; }
+.home-intro { padding-top: 30px; }
+.home-intro p:not(.eyebrow) { max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.7; }
 .home-banner-wrap { padding-top: 12px; width: 100%; }
 .home-banner-wrap .discovery-banner-wrap { max-width: 1180px; margin: 0 auto; }
 .home-banner-wrap .discovery-banner { aspect-ratio: 1000 / 300; border-radius: 16px; }
@@ -896,6 +898,32 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .studio-profile-panel > .studio-panel-heading { height: 62px; align-items: center; border-bottom: 1px solid #e7e9eb; }
 .studio-profile-panel > section { margin: 18px 0 0; border-radius: 8px; }
 
+/* Role-aware member dashboard */
+.role-dashboard-hero { min-height: 290px; padding: 42px 46px; display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; border-radius: 16px; background: #111; color: #fff; }
+.role-dashboard-hero > div { max-width: 690px; }
+.role-dashboard-hero p { margin: 0 0 12px; color: #ff6b52; font-size: 10px; font-weight: 850; letter-spacing: .16em; }
+.role-dashboard-hero span { display: inline-flex; margin-bottom: 18px; padding: 6px 9px; border: 1px solid #ffffff2b; border-radius: 99px; color: #ffffffb8; font-size: 9px; font-weight: 700; }
+.role-dashboard-hero h1 { margin: 0; font-size: clamp(34px, 4.2vw, 58px); line-height: 1.08; letter-spacing: -.06em; }
+.role-dashboard-hero small { display: block; margin-top: 17px; color: #ffffff8f; font-size: 12px; line-height: 1.7; }
+.role-dashboard-hero > a { width: 180px; height: 52px; flex: 0 0 180px; padding: 0 17px; display: flex; align-items: center; justify-content: space-between; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; }
+.role-dashboard-hero > a b { font-size: 16px; }
+.role-dashboard-state { min-height: 118px; margin-top: 16px; padding: 22px 25px; display: grid; grid-template-columns: 58px 1fr auto; align-items: center; gap: 17px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
+.role-dashboard-avatar { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; background: #fff0ec; color: var(--accent); font-size: 20px; font-weight: 900; }
+.role-dashboard-state > div:nth-child(2) { display: grid; gap: 4px; }
+.role-dashboard-state span { color: var(--accent); font-size: 8px; font-weight: 850; letter-spacing: .08em; }
+.role-dashboard-state strong { font-size: 14px; }
+.role-dashboard-state p { margin: 0; color: #858c93; font-size: 9px; }
+.role-dashboard-state > small { color: #9aa0a6; font-size: 9px; }
+.role-dashboard-links { margin-top: 22px; padding: 24px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
+.role-dashboard-links > div:last-child { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.role-dashboard-links > div:last-child > a { min-height: 190px; padding: 21px; display: flex; flex-direction: column; border: 1px solid #e1e4e7; border-radius: 10px; transition: border-color .16s, transform .16s, box-shadow .16s; }
+.role-dashboard-links > div:last-child > a:hover { border-color: #ffad9e; box-shadow: 0 10px 28px #1111110a; transform: translateY(-2px); }
+.role-dashboard-links i { color: #b7bcc1; font-size: 10px; font-style: normal; font-weight: 800; }
+.role-dashboard-links a > span { margin-top: 24px; color: var(--accent); font-size: 8px; font-weight: 850; letter-spacing: .1em; }
+.role-dashboard-links a > strong { margin-top: 7px; font-size: 17px; letter-spacing: -.035em; }
+.role-dashboard-links a > p { margin: 8px 0 18px; color: #858c93; font-size: 10px; line-height: 1.6; }
+.role-dashboard-links a > b { margin-top: auto; font-size: 9px; }
+
 @media (max-width: 900px) {
   .studio-brand-table-head, .studio-brand-row { grid-template-columns: minmax(210px, 1.5fr) 80px 90px 165px; }
   .studio-brand-table-head span:nth-child(2), .studio-brand-row > div:nth-child(2) { display: none; }
@@ -916,6 +944,13 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .studio-status-toggle { justify-self: end; }
   .studio-row-actions { grid-column: 1 / -1; justify-content: start; padding-top: 10px; border-top: 1px solid #eceef0; }
   .studio-profile-panel { padding: 0 14px 14px; }
+  .role-dashboard-hero { min-height: 360px; padding: 28px 24px; align-items: stretch; flex-direction: column; }
+  .role-dashboard-hero > a { width: 100%; height: 48px; flex-basis: auto; }
+  .role-dashboard-state { grid-template-columns: 48px 1fr; padding: 18px; }
+  .role-dashboard-avatar { width: 48px; height: 48px; }
+  .role-dashboard-state > small { grid-column: 2; }
+  .role-dashboard-links { padding: 16px; }
+  .role-dashboard-links > div:last-child { grid-template-columns: 1fr; }
 }
 
 /* Three-pane publishing editor */

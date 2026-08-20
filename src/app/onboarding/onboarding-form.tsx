@@ -6,10 +6,10 @@ import { completeOnboarding, type OnboardingState } from "./actions";
 const initialState: OnboardingState = {};
 
 const memberTypes = [
-  { value: "founder", label: "Founder", copy: "브랜드나 제품을 세상에 알리고 싶어요" },
-  { value: "team", label: "Team member", copy: "팀에서 제품을 함께 만들고 있어요" },
-  { value: "explorer", label: "Explorer", copy: "새로운 창업가와 제품을 발견하고 싶어요" },
-  { value: "partner", label: "Partner", copy: "행사·커뮤니티·지원사업을 운영해요" },
+  { value: "founder", label: "창업가·대표", copy: "브랜드나 프로덕트를 만들고 있어요" },
+  { value: "team", label: "팀 멤버", copy: "스타트업이나 프로젝트 팀에서 함께 일해요" },
+  { value: "explorer", label: "예비 창업가", copy: "창업을 준비하며 새로운 기회를 찾고 있어요" },
+  { value: "partner", label: "파트너", copy: "투자·지원사업·행사·커뮤니티를 운영해요" },
 ] as const;
 
 export function OnboardingForm({ defaultName, next }: { defaultName: string; next: string }) {
@@ -34,7 +34,8 @@ export function OnboardingForm({ defaultName, next }: { defaultName: string; nex
       </div>
 
       <fieldset>
-        <legend className="mb-3 text-sm font-bold">Featable에서 무엇을 하고 싶나요?</legend>
+        <legend className="mb-1 text-sm font-bold">현재 어떤 역할로 활동하고 있나요?</legend>
+        <p className="mb-3 text-xs text-muted">가장 가까운 역할을 선택해주세요.</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {memberTypes.map((item) => (
             <label key={item.value} className="cursor-pointer rounded-xl border border-border p-4 transition hover:border-accent has-[:checked]:border-accent has-[:checked]:bg-accent-soft">

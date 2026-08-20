@@ -6,6 +6,7 @@ import { DiscoveryStage, type DiscoveryTab } from "@/components/discovery-stage"
 import type { DiscoveryBannerSlide } from "@/components/discovery-banner";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
+import { SITE_DESCRIPTION } from "@/lib/site";
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
@@ -31,6 +32,11 @@ export default async function Home() {
     <>
       <Header />
       <main>
+        <section className="shell home-intro">
+          <p className="eyebrow">FEATABLE</p>
+          <p>{SITE_DESCRIPTION}</p>
+        </section>
+
         <section className="home-banner-wrap">
           <DiscoveryBanner
             slides={features.slice(0, 5).map((feature) => ({

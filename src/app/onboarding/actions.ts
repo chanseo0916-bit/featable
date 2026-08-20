@@ -26,7 +26,7 @@ export async function completeOnboarding(
     return { error: "이름은 2자 이상 40자 이하로 입력해주세요." };
   }
   if (!isMemberType(memberType)) {
-    return { error: "Featable에서 하고 싶은 활동을 선택해주세요." };
+    return { error: "현재 역할과 가장 가까운 항목을 선택해주세요." };
   }
   if (!termsAccepted || !privacyAccepted) {
     return { error: "필수 약관에 동의해주세요." };
@@ -48,6 +48,6 @@ export async function completeOnboarding(
   if (error) return { error: "프로필 저장에 실패했습니다. 잠시 후 다시 시도해주세요." };
 
   revalidatePath("/", "layout");
-  redirect(next);
+  redirect(next === "/" ? "/my" : next);
 }
 

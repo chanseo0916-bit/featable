@@ -8,10 +8,10 @@ import { login, signup, type AuthState } from "./actions";
 
 const initialState: AuthState = {};
 const memberTypes = [
-  { value: "founder", label: "Founder", copy: "브랜드·제품을 알리고 싶어요", icon: "↗" },
-  { value: "team", label: "Team", copy: "팀에서 제품을 만들고 있어요", icon: "+" },
-  { value: "explorer", label: "Explorer", copy: "새로운 팀을 발견하고 싶어요", icon: "⌕" },
-  { value: "partner", label: "Partner", copy: "행사·커뮤니티를 운영해요", icon: "◎" },
+  { value: "founder", label: "창업가·대표", copy: "브랜드나 프로덕트를 만들고 있어요", icon: "↗" },
+  { value: "team", label: "팀 멤버", copy: "팀에서 제품을 함께 만들고 있어요", icon: "+" },
+  { value: "explorer", label: "예비 창업가", copy: "창업을 준비하며 기회를 찾고 있어요", icon: "⌕" },
+  { value: "partner", label: "파트너", copy: "투자·지원·행사·커뮤니티를 운영해요", icon: "◎" },
 ] as const;
 const fieldClass = "w-full rounded-xl border border-border bg-white px-4 py-3.5 text-sm outline-none transition placeholder:text-[#b2b2b2] focus:border-accent focus:ring-2 focus:ring-[#EF41251A]";
 
@@ -80,7 +80,8 @@ export function AuthForm() {
 
         {mode === "signup" && (
           <fieldset className="pt-2">
-            <legend className="mb-3 text-xs font-bold">Featable에서 하고 싶은 활동</legend>
+            <legend className="mb-1 text-xs font-bold">현재 어떤 역할로 활동하고 있나요?</legend>
+            <p className="mb-3 text-[11px] text-muted">가장 가까운 역할을 선택해주세요.</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {memberTypes.map((item) => (
                 <label key={item.value} className="group flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3.5 transition hover:border-[#bbb] has-[:checked]:border-accent has-[:checked]:bg-accent-soft">

@@ -7,6 +7,7 @@ import { DeleteBrandButton } from "./delete-button";
 import { BrandStatusButton } from "./brand-status-button";
 import { ProfileEditor } from "./profile-editor";
 import { StudioBrand } from "@/components/site-shell";
+import { isMemberType, type MemberType } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -29,10 +30,98 @@ function draftCompletion(draft: SavedDraft) {
   return Math.round((draftFieldNames.filter((key) => typeof draft.payload[key] === "string" && String(draft.payload[key]).trim()).length / draftFieldNames.length) * 100);
 }
 
+const roleDashboard = {
+  team: {
+    eyebrow: "TEAM WORKSPACE",
+    label: "팀 멤버",
+    title: "팀의 다음 작업을 이어가세요.",
+    description: "참여 중인 브랜드와 공동 작업을 한곳에서 확인하는 공간입니다.",
+    primary: { href: "/brands", label: "브랜드 둘러보기" },
+    emptyTitle: "아직 연결된 팀이 없어요.",
+    emptyCopy: "팀 초대를 받으면 참여 중인 브랜드와 작성 중인 콘텐츠가 여기에 표시됩니다.",
+    cards: [
+      { href: "/stories", kicker: "REFERENCE", title: "잘 만든 피처 살펴보기", copy: "다른 팀의 스토리와 구성 방식을 참고해보세요." },
+      { href: "/events", kicker: "NETWORK", title: "팀과 함께할 행사 찾기", copy: "데모데이와 네트워킹 일정을 확인하세요." },
+      { href: "/support", kicker: "OPPORTUNITY", title: "지원사업 확인하기", copy: "지금 지원할 수 있는 프로그램을 모아봅니다." },
+    ],
+  },
+  explorer: {
+    eyebrow: "DISCOVERY HOME",
+    label: "예비 창업가",
+    title: "다음 시작을 발견해보세요.",
+    description: "먼저 시작한 사람과 제품, 지금 참여할 수 있는 기회를 모았습니다.",
+    primary: { href: "/stories", label: "추천 피처 보기" },
+    emptyTitle: "관심 있는 Founder를 찾아보세요.",
+    emptyCopy: "저장과 팔로우 기능이 연결되면 나만의 발견 목록이 이곳에 쌓입니다.",
+    cards: [
+      { href: "/founders", kicker: "PEOPLE", title: "Founder 만나기", copy: "제품보다 먼저, 만드는 사람의 이야기를 발견하세요." },
+      { href: "/products", kicker: "PRODUCT", title: "새 프로덕트 보기", copy: "막 나온 제품과 서비스를 빠르게 살펴보세요." },
+      { href: "/events", kicker: "EVENT", title: "이번 주 행사 찾기", copy: "직접 만나고 연결될 수 있는 자리를 확인하세요." },
+    ],
+  },
+  partner: {
+    eyebrow: "PARTNER CENTER",
+    label: "파트너",
+    title: "좋은 기회를 더 멀리 연결하세요.",
+    description: "행사와 지원사업, 커뮤니티를 Founder에게 소개하는 파트너 공간입니다.",
+    primary: { href: "/events", label: "행사 페이지 보기" },
+    emptyTitle: "파트너 등록 도구를 준비하고 있어요.",
+    emptyCopy: "곧 행사·지원사업을 직접 등록하고 성과를 확인할 수 있습니다.",
+    cards: [
+      { href: "/events", kicker: "EVENT", title: "행사 큐레이션", copy: "현재 공개된 행사와 운영 방식을 살펴보세요." },
+      { href: "/support", kicker: "PROGRAM", title: "지원사업 모아보기", copy: "Founder에게 필요한 지원 기회를 확인하세요." },
+      { href: "/communities", kicker: "COMMUNITY", title: "커뮤니티 연결하기", copy: "함께 성장하는 창업 커뮤니티를 만나보세요." },
+    ],
+  },
+} satisfies Record<Exclude<MemberType, "founder">, {
+  eyebrow: string;
+  label: string;
+  title: string;
+  description: string;
+  primary: { href: string; label: string };
+  emptyTitle: string;
+  emptyCopy: string;
+  cards: { href: string; kicker: string; title: string; copy: string }[];
+}>;
+
+function MemberDashboard({ memberType, name, email }: { memberType: Exclude<MemberType, "founder">; name: string; email: string }) {
+  const role = roleDashboard[memberType];
+
+  return <>
+    <div className="publish-console-nav"><div className="shell"><StudioBrand /><nav><Link className="active" href="/my">마이페이지</Link><Link href="/stories">피처</Link><Link href="/events">이벤트</Link><Link href="/support">기회</Link></nav><form action={signout}><button>로그아웃</button></form></div></div>
+    <div className="publish-console-tabs"><div className="shell"><Link className="active" href="/my">홈</Link><Link href="/founders">Founder</Link><Link href="/products">프로덕트</Link><Link href="/communities">커뮤니티</Link></div></div>
+    <main className="studio-dashboard role-dashboard">
+      <div className="shell studio-dashboard-inner">
+        <header className="role-dashboard-hero">
+          <div><p>{role.eyebrow}</p><span>{role.label}</span><h1>{name}님,<br />{role.title}</h1><small>{role.description}</small></div>
+          <Link href={role.primary.href}>{role.primary.label}<b>→</b></Link>
+        </header>
+        <section className="role-dashboard-state">
+          <div className="role-dashboard-avatar">{name.slice(0, 1) || "F"}</div>
+          <div><span>MY ROLE · {role.label}</span><strong>{role.emptyTitle}</strong><p>{role.emptyCopy}</p></div>
+          <small>{email}</small>
+        </section>
+        <section className="role-dashboard-links">
+          <div className="studio-panel-heading"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
+          <div>{role.cards.map((card, index) => <Link href={card.href} key={card.href}><i>0{index + 1}</i><span>{card.kicker}</span><strong>{card.title}</strong><p>{card.copy}</p><b>바로가기 →</b></Link>)}</div>
+        </section>
+      </div>
+    </main>
+  </>;
+}
+
 export default async function MyPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/my");
+
+  const { data: profile } = await supabase.from("profiles").select("full_name,member_type").eq("id", user.id).maybeSingle();
+  const memberType = isMemberType(profile?.member_type ?? "") ? (profile?.member_type as MemberType) : "founder";
+  const memberName = profile?.full_name?.trim() || user.user_metadata?.full_name || user.user_metadata?.name || "Featable 멤버";
+
+  if (memberType !== "founder") {
+    return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} />;
+  }
 
   const { data: founder } = await supabase.from("founders").select("id,slug,name,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
   const sns = (founder?.sns ?? {}) as { instagram?: string; x?: string; linkedin?: string; website?: string };

@@ -69,7 +69,7 @@ export async function signup(
     return { error: "비밀번호가 서로 일치하지 않습니다." };
   }
   if (!isMemberType(memberType)) {
-    return { error: "Featable에서 하고 싶은 활동을 선택해주세요." };
+    return { error: "현재 역할과 가장 가까운 항목을 선택해주세요." };
   }
   if (!termsAccepted || !privacyAccepted) {
     return { error: "필수 약관에 동의해주세요." };
@@ -99,7 +99,7 @@ export async function signup(
 
   if (data.session) {
     revalidatePath("/", "layout");
-    redirect(next);
+    redirect(next === "/" ? "/my" : next);
   }
 
   return {
