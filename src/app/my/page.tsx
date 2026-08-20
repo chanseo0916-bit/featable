@@ -10,6 +10,8 @@ import { TeamInviteButton } from "./team-invite-button";
 import { StudioNav } from "./studio-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
+import { FounderCard } from "@/components/founder-card";
+import type { Founder } from "@/lib/types";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -25,6 +27,7 @@ interface MyBrand {
 }
 
 interface MyProduct { id: string; brand_id: string; slug: string; name: string; hero_url: string | null; view_count: number; status: string; }
+interface ProductDraftRow { draft_key: string; payload: { name?: string; tagline?: string; brandId?: string }; updated_at: string; }
 
 function ninetyDaysAgoIso(): string {
   return new Date(Date.now() - 90 * 86_400_000).toISOString();
@@ -216,6 +219,20 @@ export default async function MyPage() {
   const publishedCount = brands.filter((brand) => brand.status === "published").length;
   const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
 
+  // 임시저장: ① 비공개(draft) 상태로 저장된 프로덕트 ② 아직 등록 전인 작성 중 서버 초안
+  const draftProducts = products.filter((product) => product.status !== "published");
+  const { data: draftRows } = await supabase
+    .from("submission_drafts")
+    .select("draft_key,payload,updated_at")
+    .eq("user_id", user.id)
+    .like("draft_key", "product:%")
+    .order("updated_at", { ascending: false });
+  const writingDrafts = ((draftRows ?? []) as ProductDraftRow[]).filter(
+    (row) => typeof row.payload === "object" && (row.payload.name?.trim() || row.payload.tagline?.trim()),
+  );
+  const fmtDraftDate = (iso: string) =>
+    new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+
   let analyticsSeries: AnalyticsDay[] = [];
   if (products.length) {
     const ninetyDaysAgo = ninetyDaysAgoIso();
@@ -268,6 +285,37 @@ export default async function MyPage() {
           </div>
         </header>
 
+        <section className="ig-founder-preview">
+          <div className="studio-panel-heading">
+            <strong>공개 프로필 카드</strong>
+            <span>다른 사람들에게 이렇게 보여요.</span>
+            {founder?.slug && <Link href={`/founders/${founder.slug}`} target="_blank">전체 보기 →</Link>}
+          </div>
+          {founder?.slug ? (
+            <div className="ig-founder-preview-card">
+              <FounderCard
+                founder={{
+                  slug: founder.slug,
+                  name: founder.name,
+                  avatarUrl: founder.avatar_url || "",
+                  headline: founder.headline,
+                  bio: founder.bio ?? undefined,
+                  sns: (founder.sns ?? undefined) as Founder["sns"],
+                  brandSlugs: brands.map((brand) => brand.slug),
+                }}
+                brandCount={brands.length}
+                productCount={products.length}
+                viewCount={totalViews}
+              />
+            </div>
+          ) : (
+            <div className="ig-founder-preview-empty">
+              <p>아직 공개 프로필 카드가 없어요. Founder 프로필을 등록하면 여기에 표시됩니다.</p>
+              <Link href="/my/profile">프로필 등록하기 →</Link>
+            </div>
+          )}
+        </section>
+
         {teamBrands.length > 0 && <section className="role-team-brands">
           <div className="studio-panel-heading"><strong>다른 팀에서 참여 중</strong><span>초대받아 공동 편집 중인 브랜드입니다.</span></div>
           <div>{teamBrands.map((brand) => <article key={brand.id}>{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <i>{brand.name.slice(0, 1)}</i>}<div><span>{brand.role === "editor" ? "EDITOR" : "VIEWER"}</span><strong>{brand.name}</strong><small>{brand.tagline}</small></div><Link href={brand.role === "editor" ? `/my/edit/${brand.slug}` : `/brands/${brand.slug}`}>{brand.role === "editor" ? "워크스페이스 열기" : "브랜드 보기"} →</Link></article>)}</div>
@@ -288,6 +336,48 @@ export default async function MyPage() {
         </section>}
 
         {brands.length > 0 && <ProductAnalytics series={analyticsSeries} />}
+
+        {(draftProducts.length > 0 || writingDrafts.length > 0) && <section className="ig-post-section">
+          <div className="studio-panel-heading"><strong>임시저장한 프로덕트</strong><span>{draftProducts.length + writingDrafts.length}개 · 이어서 완성해보세요</span></div>
+          <div className="grid gap-2">
+            {draftProducts.map((product) => {
+              const brand = brands.find((item) => item.id === product.brand_id);
+              return (
+                <div key={product.id} className="flex items-center gap-4 rounded-xl border border-border bg-white p-4">
+                  {product.hero_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={product.hero_url} alt="" className="h-12 w-12 flex-none rounded-lg border border-border object-cover" />
+                  ) : (
+                    <div className="grid h-12 w-12 flex-none place-items-center rounded-lg bg-accent-soft text-sm font-black text-accent">{product.name.slice(0, 1)}</div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold">{product.name}
+                      <span className="ml-2 rounded bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-muted">비공개 저장됨</span>
+                    </p>
+                    <p className="truncate text-xs text-muted">{brand?.name ?? "브랜드"} · 공개하면 홈 피드에 노출됩니다</p>
+                  </div>
+                  <Link href={`/my/product/${product.slug}`} className="flex-none rounded-lg bg-accent px-4 py-2 text-xs font-bold text-white hover:bg-accent-hover">이어서 수정 →</Link>
+                </div>
+              );
+            })}
+            {writingDrafts.map((draft) => {
+              const brand = brands.find((item) => item.id === draft.payload.brandId);
+              const resumeHref = brand ? `/submit/product?brand=${brand.id}` : "/submit/product";
+              return (
+                <div key={draft.draft_key} className="flex items-center gap-4 rounded-xl border border-dashed border-border bg-white p-4">
+                  <div className="grid h-12 w-12 flex-none place-items-center rounded-lg bg-gray-100 text-sm font-black text-muted">✎</div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold">{draft.payload.name?.trim() || "제목 없는 프로덕트"}
+                      <span className="ml-2 rounded bg-accent-soft px-2 py-0.5 text-[10px] font-bold text-accent">작성 중</span>
+                    </p>
+                    <p className="truncate text-xs text-muted">{brand?.name ?? "브랜드"} · 마지막 저장 {fmtDraftDate(draft.updated_at)}</p>
+                  </div>
+                  <Link href={resumeHref} className="flex-none rounded-lg border border-border px-4 py-2 text-xs font-bold hover:border-accent hover:text-accent">이어서 작성 →</Link>
+                </div>
+              );
+            })}
+          </div>
+        </section>}
 
         {brands.length > 0 && <section id="brands" className="ig-post-section">
           <div className="studio-panel-heading"><strong>내가 올린 브랜드</strong><span>{brands.length}개</span></div>
