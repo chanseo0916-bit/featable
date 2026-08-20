@@ -17,7 +17,7 @@ function noContent() {
 /** ViewTracker가 페이지/feature 상세 진입 때 호출하는 조회수 API */
 export async function POST(request: Request) {
   const admin = createAdminClient();
-  if (!admin) return noContent();
+  if (!admin) return NextResponse.json({ error: "view tracking is not configured" }, { status: 503 });
 
   let body: ViewRequestBody;
   try {

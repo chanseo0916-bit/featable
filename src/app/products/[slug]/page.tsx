@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components/site-shell";
 import { getCatalog, getPartners } from "@/lib/data";
 import { ShareButton } from "@/components/share-button";
-import { ViewTracker } from "@/components/view-tracker";
+import { ProductViewMetric } from "@/components/product-view-metric";
 import { TrackedLink } from "@/components/tracked-link";
 import { Comments } from "@/components/comments";
 import { SaveButton } from "@/components/save-button";
@@ -68,7 +68,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     <JsonLd data={jsonLd} />
     <Header />
     <main className="commerce-product product-page-v2">
-      <ViewTracker slug={product.slug} />
       <div className="shell product-breadcrumb"><Link href="/products">프로덕트</Link><span>›</span>{brand && <><Link href={`/brands/${brand.slug}`}>{brand.name}</Link><span>›</span></>}<strong>{product.name}</strong></div>
 
       <section className="shell commerce-summary">
@@ -81,7 +80,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <span className="product-category-chip">{product.category}</span>
           <h1>{product.name}</h1>
           <p className="commerce-tagline">{product.tagline}</p>
-          <div className="commerce-social-proof">{typeof product.viewCount === "number" && <span>조회 {product.viewCount.toLocaleString("ko-KR")}</span>}<span>Featable 등록 프로덕트</span></div>
+          <div className="commerce-social-proof">{typeof product.viewCount === "number" && <ProductViewMetric slug={product.slug} initialCount={product.viewCount} />}<span>Featable 등록 프로덕트</span></div>
           {product.price && <div className="commerce-price"><span>가격</span><strong>{product.price}</strong></div>}
           {founder && <div className="commerce-founder-mini"><img src={founder.avatarUrl} alt="" /><div><span>만든 사람</span><strong>{founder.name} Founder</strong></div><Link href={`/founders/${founder.slug}`}>프로필 보기 →</Link></div>}
           <div className="commerce-actions">{officialCta}<ShareButton className="commerce-share" title={product.name} text={product.tagline} /></div>
