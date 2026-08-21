@@ -73,6 +73,7 @@ function hasPublicSupabaseConfig(url: string | undefined, key: string | undefine
 }
 
 interface FounderRow {
+  founder_number: number | null;
   slug: string;
   name: string;
   avatar_url: string | null;
@@ -146,7 +147,7 @@ async function fetchLive(): Promise<Catalog | null> {
       supabase
         .from("brands")
         .select(
-          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,published_at,updated_at,founder:founders(slug,name,avatar_url,headline,bio,sns)",
+          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,published_at,updated_at,founder:founders(founder_number,slug,name,avatar_url,headline,bio,sns)",
         )
         .eq("status", "published")
         .order("is_featured", { ascending: false })
@@ -237,6 +238,7 @@ async function fetchLive(): Promise<Catalog | null> {
         existing.brandSlugs.push(b.slug);
       } else {
         founderMap.set(f.slug, {
+          founderNumber: f.founder_number ?? undefined,
           slug: f.slug,
           name: f.name,
           avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),
@@ -611,7 +613,7 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
       const supabase = createClient(url!, key!);
       const { data, error } = await supabase
         .from("founders")
-        .select("slug,name,avatar_url,headline,bio,sns")
+        .select("founder_number,slug,name,avatar_url,headline,bio,sns")
         .eq("slug", slug)
         .maybeSingle();
       if (error) {
@@ -621,6 +623,7 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
         const f = data as unknown as FounderRow;
         const { brands } = await getCatalog();
         return {
+          founderNumber: f.founder_number ?? undefined,
           slug: f.slug,
           name: f.name,
           avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),

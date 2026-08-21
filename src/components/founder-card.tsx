@@ -28,6 +28,9 @@ export function FounderCard({
           </div>
         )}
         <div className="founder-spot-fade" aria-hidden />
+        {founder.founderNumber != null && (
+          <span className="founder-hero-id">FOUNDER ID · {String(founder.founderNumber).padStart(4, "0")}</span>
+        )}
       </div>
       <div className="founder-spot-body">
         <h3>

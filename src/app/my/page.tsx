@@ -208,7 +208,7 @@ export default async function MyPage() {
     return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} />;
   }
 
-  const { data: founder } = await supabase.from("founders").select("id,slug,name,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
+  const { data: founder } = await supabase.from("founders").select("id,founder_number,slug,name,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
   let brands: MyBrand[] = [];
   let products: MyProduct[] = [];
   let ownedTeamMembers: OwnedTeamMember[] = [];
@@ -315,7 +315,7 @@ export default async function MyPage() {
               </header>
               <div className="team-profile-member-list team-profile-card-grid">
                 {founder && <div className="team-profile-admin-card owner">
-                  <TeamProfileCard name={founder.name} title={founder.headline || "Founder"} avatarUrl={founder.avatar_url} bio={founder.bio} label="OWNER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" />
+                  <TeamProfileCard name={founder.name} title={founder.headline || "Founder"} avatarUrl={founder.avatar_url} bio={founder.bio} label="OWNER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founder_number} />
                   <div className="team-owner-card-action"><span>브랜드 대표</span><Link href="/my/profile">내 카드 편집 →</Link></div>
                 </div>}
                 {members.map((member, index) => <div className="team-profile-admin-card" key={member.user_id}>

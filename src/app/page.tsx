@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shell";
 import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-feature-ranking";
-import { DiscoveryBanner } from "@/components/discovery-banner";
-import { DiscoveryStage, type DiscoveryTab } from "@/components/discovery-stage";
-import type { DiscoveryBannerSlide } from "@/components/discovery-banner";
+import { HomeOpportunityBanner, type HomeOpportunitySlide } from "@/components/home-opportunity-banner";
+import { ProductSquareRail, type ProductSquareRailItem } from "@/components/product-square-rail";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
 import { SITE_DESCRIPTION } from "@/lib/site";
@@ -14,8 +13,37 @@ const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() -
 export default async function Home() {
   const { brands, products, founders } = await getCatalog();
   const [events, supportPrograms, features, partners] = await Promise.all([getEvents(), getSupportPrograms(), getFeatures(), getPartners()]);
-  const mainFeature = features[5];
-  const discoveryFeatures = [mainFeature, features[2], features[3], features[1]];
+  const productRailItems: ProductSquareRailItem[] = products.map((product) => ({
+    slug: product.slug,
+    name: product.name,
+    tagline: product.tagline,
+    heroUrl: product.heroUrl,
+    category: product.category,
+    brandName: brands.find((brand) => brand.slug === product.brandSlug)?.name ?? "FEATABLE",
+  }));
+  const opportunitySlides: HomeOpportunitySlide[] = [
+    ...[...supportPrograms]
+      .sort((a, b) => a.closeAt.localeCompare(b.closeAt))
+      .slice(0, 2)
+      .map((program) => ({
+        href: `/support/${program.slug}`,
+        type: "지원사업" as const,
+        title: program.name,
+        detail: `${program.agency} · ${program.target}${program.amount ? ` · ${program.amount}` : ""}`,
+        badge: `D-${dday(program.closeAt)}`,
+      })),
+    ...[...events]
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+      .slice(0, 3)
+      .map((event) => ({
+        href: `/events/${event.slug}`,
+        type: "행사" as const,
+        title: event.name,
+        detail: `${event.host} · ${event.location}${event.fee ? ` · ${event.fee}` : ""}`,
+        badge: dateLabel(event.startsAt),
+        imageUrl: event.coverUrl,
+      })),
+  ];
   const productRankingItems: RankedFeatureItem[] = products.map((product) => {
     const founder = founders.find((item) => item.slug === product.founderSlug);
     const brand = brands.find((item) => item.slug === product.brandSlug);
@@ -37,64 +65,11 @@ export default async function Home() {
           <p>{SITE_DESCRIPTION}</p>
         </section>
 
-        <section className="home-banner-wrap">
-          <DiscoveryBanner
-            slides={features.slice(0, 5).map((feature) => ({
-              href: `/stories/${feature.slug}`,
-              imageUrl: feature.coverUrl,
-              eyebrow: feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 스토리",
-              title: feature.title,
-              subtitle: feature.excerpt,
-            }))}
-          />
-        </section>
+        <HomeOpportunityBanner slides={opportunitySlides} />
 
         <section className="shell live-stage">
           <div className="live-main">
-            <DiscoveryStage
-              updateLabel={`${new Intl.DateTimeFormat("ko-KR", { month: "2-digit", day: "2-digit" }).format(new Date()).replace(/\. ?/g, ".").replace(/\.$/, "")} UPDATE`}
-              tabs={[
-                {
-                  key: "discover",
-                  label: "오늘의 발견",
-                  slides: discoveryFeatures.map((feature): DiscoveryBannerSlide => ({
-                    href: `/stories/${feature.slug}`,
-                    imageUrl: feature.coverUrl,
-                    eyebrow: feature.kind === "interview" ? "창업가 인터뷰" : "브랜드 스토리",
-                    title: feature.title,
-                    subtitle: feature.excerpt,
-                  })),
-                },
-                {
-                  key: "new-stories",
-                  label: "새로운 이야기",
-                  slides: [...features]
-                    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-                    .slice(0, 4)
-                    .map((feature): DiscoveryBannerSlide => ({
-                      href: `/stories/${feature.slug}`,
-                      imageUrl: feature.coverUrl,
-                      eyebrow: `NEW · ${dateLabel(feature.publishedAt)} 발행`,
-                      title: feature.title,
-                      subtitle: feature.excerpt,
-                    })),
-                },
-                {
-                  key: "new-products",
-                  label: "막 나온 제품",
-                  slides: products.slice(0, 4).map((product): DiscoveryBannerSlide => {
-                    const brand = brands.find((item) => item.slug === product.brandSlug);
-                    return {
-                      href: `/products/${product.slug}`,
-                      imageUrl: product.heroUrl,
-                      eyebrow: `${product.category} · ${brand?.name ?? "FEATABLE"}`,
-                      title: product.name,
-                      subtitle: product.tagline,
-                    };
-                  }),
-                },
-              ] satisfies DiscoveryTab[]}
-            />
+            <ProductSquareRail items={productRailItems} />
           </div>
 
           <LiveFeatureRanking productItems={productRankingItems} featureItems={featureRankingItems} />

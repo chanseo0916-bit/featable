@@ -50,7 +50,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
   const supportState = await getFounderSupportState(founder.slug);
   const snsEntries = Object.entries(founder.sns ?? {}).filter(([, value]) => value);
   const categories = Array.from(new Set(founderBrands.map((brand) => brand.category)));
-  const founderNumber = [...founder.slug].reduce((sum, character) => sum + character.charCodeAt(0), 0) % 10000;
+  const founderNumber = founder.founderNumber ?? 0;
   const founderPath = `/founders/${founder.slug}`;
   const sameAs = snsEntries.map(([key, value]) => snsHref(key, value as string));
   const personJsonLd: SeoSchema = {

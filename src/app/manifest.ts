@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "FEATABLE — 창업가와 제품을 발견하는 곳",
-    short_name: "FEATABLE",
-    description: "창업가, 브랜드, 제품, 스토리와 기회를 연결하는 발견 플랫폼",
+    name: "Featable 피터블 — 창업가와 제품을 발견하는 곳",
+    short_name: "피터블",
+    description: "Featable(피터블)은 창업가, 브랜드, 제품, 스토리와 기회를 연결하는 발견 플랫폼입니다.",
     start_url: "/",
     scope: "/",
     id: "/",

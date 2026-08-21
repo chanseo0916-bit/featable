@@ -21,9 +21,9 @@ export async function GET() {
   const brandBySlug = new Map(brands.map((brand) => [brand.slug, brand]));
 
   const content = [
-    "# Featable",
+    "# Featable 피터블",
     "",
-    "> Featable은 창업가, 브랜드, 제품, 스토리와 창업 기회를 연결하는 공개 발견 플랫폼입니다.",
+    "> Featable(피터블)은 창업가, 브랜드, 제품, 스토리와 창업 기회를 연결하는 공개 발견 플랫폼입니다.",
     "",
     "## 브랜드",
     "",

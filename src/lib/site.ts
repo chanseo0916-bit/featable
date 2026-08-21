@@ -9,14 +9,17 @@ export const SITE_URL = process.env.NODE_ENV === "production"
   : configuredSiteUrl || "http://localhost:3000";
 
 export const SITE_NAME = "Featable";
+export const SITE_NAME_KO = "피터블";
+export const SITE_NAME_DISPLAY = `${SITE_NAME} ${SITE_NAME_KO}`;
 export const SITE_SOCIAL_IMAGE = `${SITE_URL}/featable-og-v2.png`;
 
 export const SITE_DESCRIPTION =
-  "초기 사용자 확보를 고민하는 창업가를 위한 Featable. 신생 브랜드와 스타트업 제품, 창업가 인터뷰와 창업 지원사업·행사·커뮤니티를 한곳에서 만나보세요.";
+  "초기 사용자 확보를 고민하는 창업가를 위한 Featable(피터블). 신생 브랜드와 스타트업 제품, 창업가 인터뷰와 창업 지원사업·행사·커뮤니티를 한곳에서 만나보세요.";
 
 export const SITE_KEYWORDS = [
   "Featable",
-  "피처블",
+  "피터블",
+  "Featable 피터블",
   "초기 사용자 확보",
   "창업가 인터뷰",
   "신생 브랜드",
@@ -37,7 +40,7 @@ export function createPageMetadata({
   description,
   path,
 }: PageMetadataOptions): Metadata {
-  const pageTitle = `${title} — ${SITE_NAME}`;
+  const pageTitle = `${title} — ${SITE_NAME_DISPLAY}`;
 
   return {
     title,
@@ -45,7 +48,7 @@ export function createPageMetadata({
     alternates: { canonical: path },
     openGraph: {
       type: "website",
-      siteName: SITE_NAME,
+      siteName: SITE_NAME_DISPLAY,
       locale: "ko_KR",
       url: new URL(path, SITE_URL).toString(),
       title: pageTitle,
@@ -54,7 +57,7 @@ export function createPageMetadata({
         url: SITE_SOCIAL_IMAGE,
         width: 1200,
         height: 630,
-        alt: "Featable — 창업가가 세상에 발견되기 시작하는 곳.",
+        alt: "Featable 피터블 — 창업가가 세상에 발견되기 시작하는 곳.",
       }],
     },
     twitter: {

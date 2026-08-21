@@ -4,9 +4,9 @@ export const dynamic = "force-dynamic";
 
 const link = (path: string) => `${SITE_URL}${path}`;
 
-const content = `# Featable
+const content = `# Featable 피터블
 
-> Featable은 창업가, 브랜드, 제품, 스토리와 창업 기회를 연결하는 공개 발견 플랫폼입니다.
+> Featable(피터블)은 창업가, 브랜드, 제품, 스토리와 창업 기회를 연결하는 공개 발견 플랫폼입니다.
 
 ## 공개 서비스
 

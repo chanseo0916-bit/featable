@@ -17,6 +17,7 @@ export type Category =
   | "기타";
 
 export interface Founder {
+  founderNumber?: number;
   slug: string;
   name: string;
   avatarUrl: string;

@@ -10,9 +10,10 @@ export interface TeamProfileCardProps {
   href?: string;
   actionLabel?: string;
   muted?: boolean;
+  founderNumber?: number;
 }
 
-function CardContent({ name, title, avatarUrl, bio, label = "TEAM", meta, href, actionLabel, muted }: TeamProfileCardProps) {
+function CardContent({ name, title, avatarUrl, bio, label = "TEAM", meta, href, actionLabel, muted, founderNumber }: TeamProfileCardProps) {
   return <>
     <div className="founder-spot-photo team-card-photo">
       {/* Dynamic profile photos keep the existing full-bleed crop. */}
@@ -20,7 +21,9 @@ function CardContent({ name, title, avatarUrl, bio, label = "TEAM", meta, href, 
       {avatarUrl ? <img src={avatarUrl} alt={name} /> : <div className="founder-spot-placeholder" aria-hidden>{name.slice(0, 1) || "T"}</div>}
       <div className="founder-spot-fade" aria-hidden />
       <span className="team-card-label">{label}</span>
-      {href && <span className="team-card-corner-action" aria-hidden="true">
+      {founderNumber != null ? (
+        <span className="team-card-founder-id">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
+      ) : href && <span className="team-card-corner-action" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg>
       </span>}
     </div>

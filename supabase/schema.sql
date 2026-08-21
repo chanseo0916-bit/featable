@@ -65,6 +65,7 @@ create trigger on_auth_user_created
 -- ---------- Founder ----------
 create table founders (
   id uuid primary key default uuid_generate_v4(),
+  founder_number integer unique,
   user_id uuid not null references profiles(id) on delete cascade,
   slug text not null unique,
   name text not null,
@@ -75,6 +76,46 @@ create table founders (
   updated_at timestamptz not null default now(),
   unique (user_id)  -- MVP: 계정당 Founder 프로필 1개
 );
+
+create or replace function assign_founder_number()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  account_email text;
+  candidate integer;
+  attempts integer := 0;
+begin
+  perform pg_advisory_xact_lock(hashtext('featable_founder_number_assignment'));
+
+  select lower(email) into account_email
+  from auth.users
+  where id = new.user_id;
+
+  if account_email = 'chanseo0916@gmail.com' then
+    new.founder_number := 1;
+    return new;
+  end if;
+
+  loop
+    candidate := floor(random() * 9998)::integer + 2;
+    exit when not exists (select 1 from founders where founder_number = candidate);
+    attempts := attempts + 1;
+    if attempts >= 10000 then
+      raise exception 'No available Founder IDs remain';
+    end if;
+  end loop;
+
+  new.founder_number := candidate;
+  return new;
+end;
+$$;
+
+create trigger assign_founder_number_before_insert
+  before insert on founders
+  for each row execute function assign_founder_number();
 
 -- ---------- Founder Support ----------
 -- 로그인 사용자는 Founder를 한 번만 응원할 수 있고, 취소할 수 있다.

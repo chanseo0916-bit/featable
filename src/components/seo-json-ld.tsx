@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME_DISPLAY, SITE_URL } from "@/lib/site";
 
 export type SeoSchema = Record<string, unknown>;
 
@@ -41,7 +41,7 @@ export function createDetailMetadata({
     robots: indexable ? { index: true, follow: true } : { index: false, follow: true },
     openGraph: {
       type,
-      siteName: SITE_NAME,
+      siteName: SITE_NAME_DISPLAY,
       locale: "ko_KR",
       url,
       title,

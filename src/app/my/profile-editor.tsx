@@ -7,6 +7,7 @@ import { TeamProfileCard } from "@/components/team-profile-card";
 import { updateFounderProfile, type ProfileInput } from "./actions";
 
 export interface ProfileEditorInitial extends ProfileInput {
+  founderNumber?: number;
   slug?: string;
 }
 
@@ -207,6 +208,7 @@ export function ProfileEditor({
               avatarUrl={form.avatarUrl ?? ""}
               bio={form.bio || "브랜드에서 맡은 역할과 만드는 사람으로서의 이야기를 소개합니다."}
               label="OWNER"
+              founderNumber={initial.founderNumber}
               actionLabel="프로필"
             />
           </div>

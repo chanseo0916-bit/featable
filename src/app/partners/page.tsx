@@ -21,7 +21,7 @@ export default async function PartnersPage() {
           <div>
             <p className="eyebrow">PARTNERS</p>
             <h1>파트너</h1>
-            <p>피처블과 함께 창업가의 다음 발견을 만드는 파트너들입니다.</p>
+            <p>피터블과 함께 창업가의 다음 발견을 만드는 파트너들입니다.</p>
           </div>
         </div>
         {(() => {
@@ -60,7 +60,7 @@ export default async function PartnersPage() {
             <>
               {featuredPartners.length > 0 && (
                 <>
-                  <div className="partner-tier-heading"><strong>Featured Partners</strong><span>피처블과 긴밀하게 함께하는 파트너</span></div>
+                  <div className="partner-tier-heading"><strong>Featured Partners</strong><span>피터블과 긴밀하게 함께하는 파트너</span></div>
                   <div className="partner-org-grid partner-featured-grid">{featuredPartners.map(renderCard)}</div>
                 </>
               )}
@@ -78,7 +78,7 @@ export default async function PartnersPage() {
         )}
         <section className="partner-org-cta">
           <div>
-            <strong>피처블과 함께하고 싶으신가요?</strong>
+            <strong>피터블과 함께하고 싶으신가요?</strong>
             <p>커뮤니티, 지원기관, 미디어 등 창업 생태계 파트너를 기다립니다.</p>
           </div>
           <a href={`mailto:${CONTACT_EMAIL}`}>파트너 제안하기</a>
