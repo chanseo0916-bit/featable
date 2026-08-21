@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminPageHeader, formatAdminDate, StatusBadge } from "../../admin-ui";
-import { memberLabels } from "../page";
+import { memberLabels } from "../member-labels";
 
 export const metadata: Metadata = { title: "사용자 상세" };
 
@@ -136,7 +136,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         <div><dt>한 줄 소개</dt><dd>{founder.headline || "-"}</dd></div>
         <div><dt>공개 주소</dt><dd><Link href={`/founders/${founder.slug}`}>/founders/{founder.slug}</Link></dd></div>
         <div><dt>생성일</dt><dd>{dateTime(founder.created_at)}</dd></div>
-      </div> : <p className="admin-empty">아직 Founder 프로필을 만들지 않았습니다.</p>}
+      </dl> : <p className="admin-empty">아직 Founder 프로필을 만들지 않았습니다.</p>}
     </section>
 
     <section className="admin-list-panel">

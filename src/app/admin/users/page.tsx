@@ -3,16 +3,9 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ADMIN_PAGE_SIZE, AdminPageHeader, formatAdminDate } from "../admin-ui";
 import { MEMBER_TYPES } from "@/lib/auth";
+import { memberLabels } from "./member-labels";
 
 export const metadata: Metadata = { title: "사용자 관리" };
-
-export const memberLabels: Record<string, string> = {
-  founder: "창업가·대표",
-  team: "팀 멤버",
-  explorer: "예비 창업가",
-  partner: "파트너",
-  unknown: "역할 미설정",
-};
 
 interface UserRow {
   id: string;

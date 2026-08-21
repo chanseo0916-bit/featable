@@ -968,6 +968,27 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .admin-status-draft { background: #f0f1f2; color: #7d838a; }
 .admin-status-hidden { background: #f4f4f4; color: #aaa; }
 .admin-empty { padding: 45px !important; text-align: center; color: #999 !important; font-size: 12px !important; }
+
+/* 사용자 상세 */
+.admin-back-link { margin: -8px 0 18px; }
+.admin-back-link a { color: #7d838a; font-size: 12px; font-weight: 650; }
+.admin-back-link a:hover { color: var(--accent); }
+.admin-main > .admin-list-panel + .admin-list-panel { margin-top: 18px; }
+.admin-main > .admin-growth-metrics + .admin-list-panel { margin-top: 18px; }
+.admin-detail-grid { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px 24px; }
+.admin-detail-grid > div { display: grid; gap: 5px; }
+.admin-detail-grid dt { color: #8b9298; font-size: 10px; font-weight: 700; letter-spacing: .02em; }
+.admin-detail-grid dd { margin: 0; color: #222; font-size: 13px; line-height: 1.55; word-break: break-word; }
+.admin-detail-grid dd a { color: var(--accent); font-weight: 650; }
+.admin-detail-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px !important; color: #6b7280 !important; }
+.admin-tag-list { display: flex; flex-wrap: wrap; gap: 7px; }
+.admin-tag-list span { padding: 6px 10px; border: 1px solid #e4e6e8; border-radius: 999px; color: #555d65; font-size: 11px; }
+.admin-comment-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.admin-comment-list li { padding: 13px 15px; border: 1px solid #e4e6e8; border-radius: 10px; }
+.admin-comment-list li p { margin: 0 0 6px; color: #333; font-size: 12.5px; line-height: 1.6; word-break: break-word; }
+.admin-comment-list li time { color: #9ca3af; font-size: 10px; }
+.admin-row-link { padding: 7px 11px; border: 1px solid #e0e3e6; border-radius: 6px; color: #555d65; font-size: 11px; font-weight: 650; }
+.admin-row-link:hover { border-color: var(--accent); color: var(--accent); }
 .admin-stack-list { border-top: 1px solid #e4e6e8; }
 .admin-stack-list article { min-height: 82px; padding: 15px 4px; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 20px; border-bottom: 1px solid #eceef0; }
 .admin-stack-list article > div:first-child > a, .admin-partner-name a { color: #111; font-size: 13px; font-weight: 750; }
