@@ -417,6 +417,7 @@ create table jobs (
 -- ---------- Partner (푸터 로고) ----------
 create table partners (
   id uuid primary key default uuid_generate_v4(),
+  owner_user_id uuid references profiles(id) on delete set null,
   name text not null,
   logo_url text not null,
   href text not null,
@@ -427,6 +428,7 @@ create table partners (
 -- ---------- Partnership inquiries (advertisers / community partners) ----------
 create table partnership_inquiries (
   id uuid primary key default uuid_generate_v4(),
+  applicant_user_id uuid references profiles(id) on delete set null,
   inquiry_type text not null check (inquiry_type in ('advertiser', 'community_partner')),
   organization text not null,
   contact_name text not null,
@@ -443,6 +445,24 @@ create table partnership_inquiries (
   review_note text,
   reviewed_at timestamptz,
   reviewed_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table publishing_invitations (
+  id uuid primary key default uuid_generate_v4(),
+  inquiry_id uuid not null unique references partnership_inquiries(id) on delete cascade,
+  token uuid not null default uuid_generate_v4() unique,
+  registration_type text not null check (registration_type in ('partner', 'community')),
+  invitee_email text not null,
+  user_id uuid references profiles(id) on delete set null,
+  notification_id uuid references notifications(id) on delete set null,
+  draft_payload jsonb not null default '{}',
+  status text not null default 'pending' check (status in ('pending', 'editing', 'published', 'expired')),
+  entity_id uuid,
+  expires_at timestamptz not null default (now() + interval '30 days'),
+  claimed_at timestamptz,
+  published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -474,6 +494,9 @@ create index partner_submissions_user_updated_idx on partner_submissions(user_id
 create index partner_submissions_status_created_idx on partner_submissions(status, created_at asc);
 create index partnership_inquiries_status_created_idx on partnership_inquiries(status, created_at desc);
 create index partnership_inquiries_email_created_idx on partnership_inquiries(lower(contact_email), created_at desc);
+create index publishing_invitations_user_status_idx on publishing_invitations(user_id, status, created_at desc);
+create index publishing_invitations_email_status_idx on publishing_invitations(lower(invitee_email), status, created_at desc);
+create index partners_owner_idx on partners(owner_user_id, created_at desc);
 create index idx_founder_supports_founder on founder_supports(founder_id);
 create index brand_members_user_idx on brand_members(user_id);
 create index brand_invitations_brand_idx on brand_invitations(brand_id, created_at desc);
@@ -731,6 +754,7 @@ alter table partner_submissions enable row level security;
 alter table jobs enable row level security;
 alter table partners enable row level security;
 alter table partnership_inquiries enable row level security;
+alter table publishing_invitations enable row level security;
 alter table community_founders enable row level security;
 alter table community_brands enable row level security;
 
@@ -842,6 +866,8 @@ create policy "partners_write" on partners for all using (is_admin()) with check
 create policy "partnership_inquiries_admin_select" on partnership_inquiries for select using (is_admin());
 create policy "partnership_inquiries_admin_update" on partnership_inquiries for update using (is_admin()) with check (is_admin());
 create policy "partnership_inquiries_admin_delete" on partnership_inquiries for delete using (is_admin());
+create policy "publishing_invitations_select_own" on publishing_invitations for select using (user_id = auth.uid() or is_admin());
+create policy "publishing_invitations_admin_write" on publishing_invitations for all using (is_admin()) with check (is_admin());
 
 create policy "community_founders_select" on community_founders for select using (true);
 create policy "community_founders_write" on community_founders for all using (is_admin()) with check (is_admin());

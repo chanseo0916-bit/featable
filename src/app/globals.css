@@ -1709,6 +1709,46 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .event-publish-mode .featured span { color: var(--accent); }
 .event-publish-mode strong { font-size: 13px; }
 .event-publish-mode p { margin: 7px 0 0; color: #858c92; font-size: 9px; line-height: 1.5; }
+
+/* Approved partner/community self-publishing */
+.approved-publishing-page { min-height: 100vh; padding: 54px 0 90px; background: #f4f5f6; }
+.approved-publishing-heading { margin-bottom: 30px; }
+.approved-publishing-heading > span { color: var(--accent); font-size: 9px; font-weight: 900; letter-spacing: .14em; }
+.approved-publishing-heading h2 { margin: 11px 0 0; font-size: clamp(38px, 4vw, 58px); line-height: 1.02; letter-spacing: -.065em; }
+.approved-publishing-heading p { margin: 16px 0 0; color: #7f878e; font-size: 11px; }
+.approved-publishing-layout { display: grid; grid-template-columns: minmax(0, 1fr) 410px; gap: 16px; align-items: start; }
+.approved-publishing-form, .approved-publishing-preview { border: 1px solid #dfe2e5; border-radius: 15px; background: #fff; }
+.approved-publishing-form { overflow: hidden; }
+.approved-publishing-form > header { padding: 30px 32px 25px; border-bottom: 1px solid #e9ebed; }
+.approved-publishing-form > header span, .approved-publishing-preview > header span { color: var(--accent); font-size: 8px; font-weight: 900; letter-spacing: .12em; }
+.approved-publishing-form > header h1 { margin: 8px 0 0; font-size: 26px; letter-spacing: -.045em; }
+.approved-publishing-form > header p, .approved-publishing-preview > header p { margin: 8px 0 0; color: #8b9298; font-size: 9px; line-height: 1.55; }
+.approved-form-fields { padding: 28px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
+.approved-form-fields label.wide, .approved-logo-field { grid-column: 1 / -1; }
+.approved-form-fields label > span { display: block; margin-bottom: 7px; color: #555d63; font-size: 9px; font-weight: 800; }
+.approved-form-fields input:not([type="file"]), .approved-form-fields textarea { width: 100%; min-height: 45px; padding: 11px 12px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; color: #111; font: inherit; font-size: 11px; outline: none; }
+.approved-form-fields textarea { min-height: 125px; resize: vertical; line-height: 1.65; }
+.approved-form-fields input:focus, .approved-form-fields textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 9%, transparent); }
+.approved-logo-field > div { display: flex; align-items: center; gap: 13px; }
+.approved-logo-field img, .approved-logo-field b { width: 66px; height: 66px; display: grid; place-items: center; border: 1px solid #e0e3e5; border-radius: 15px; background: #f5f6f7; object-fit: cover; font-size: 22px; }
+.approved-logo-field input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.approved-logo-field small { padding: 10px 13px; border: 1px solid #dfe2e5; border-radius: 8px; color: #555d63; font-size: 9px; font-weight: 800; cursor: pointer; }
+.approved-publishing-message { margin: 0 32px 18px; padding: 11px 13px; border-radius: 8px; background: #fff3f0; color: #b83725; font-size: 9px; }
+.approved-publishing-form > footer { min-height: 76px; padding: 15px 32px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #e9ebed; background: #fafafa; }
+.approved-publishing-form > footer > span { margin-right: auto; display: flex; align-items: center; gap: 7px; color: #858c92; font-size: 8px; }
+.approved-publishing-form > footer > span i { width: 7px; height: 7px; border-radius: 50%; background: #b9bec2; }
+.approved-publishing-form > footer > span i[data-state="saving"] { background: #f3a51b; }
+.approved-publishing-form > footer > span i[data-state="saved"] { background: #29b36b; }
+.approved-publishing-form > footer button { height: 42px; padding: 0 18px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 850; cursor: pointer; }
+.approved-publishing-form > footer button.secondary { border-color: #d8dcdf; background: #fff; color: #555c62; }
+.approved-publishing-form > footer button:disabled { opacity: .5; cursor: wait; }
+.approved-publishing-preview { position: sticky; top: 18px; padding: 22px; background: #eef0f1; }
+.approved-publishing-preview > header { margin-bottom: 16px; padding: 2px 2px 14px; }
+.approved-publishing-preview > header strong { display: block; margin-top: 6px; font-size: 14px; }
+.publishing-card-preview { width: 100%; min-height: 310px; margin: 0; pointer-events: none; }
+.partner-org-logo > span, .publishing-logo-placeholder { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 18px; background: #111; color: #fff; font-size: 23px; font-weight: 850; }
+.publishing-card-preview .badge { padding: 5px 8px; border-radius: 99px; background: #f2f3f4; color: #697077; font-size: 8px; }
+.inquiry-registration-state { width: fit-content; margin-top: 9px !important; padding: 6px 9px; border-radius: 99px; background: #eef8f2; color: #237a48 !important; font-size: 8px !important; font-weight: 800; }
 .partner-review-note { margin: 22px 32px 0; padding: 14px 15px; border-radius: 9px; background: #fff1ed; }
 .partner-review-note strong { color: #c63c2f; font-size: 9px; }
 .partner-review-note p { margin: 6px 0 0; color: #7d554e; font-size: 9px; line-height: 1.6; }
@@ -1872,6 +1912,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .partner-register-grid label.wide { grid-column: auto; }
   .partner-register-form-shell > header, .partner-register-types, .partner-register-form-shell > footer { padding-right: 18px; padding-left: 18px; }
   .event-publish-mode { margin-right: 18px; margin-left: 18px; grid-template-columns: 1fr; }
+  .approved-publishing-layout { grid-template-columns: 1fr; }
+  .approved-publishing-preview { position: static; }
+  .approved-form-fields { grid-template-columns: 1fr; padding: 22px 18px; }
+  .approved-form-fields label.wide, .approved-logo-field { grid-column: auto; }
+  .approved-publishing-form > header, .approved-publishing-form > footer { padding-right: 18px; padding-left: 18px; }
   .partner-register-form-shell > footer { flex-wrap: wrap; }
   .invite-page > section { padding: 32px 24px; }
   .studio-first-start { padding: 28px 22px; grid-template-columns: 1fr; gap: 30px; }
@@ -2525,3 +2570,79 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 /* 팀원 대시보드의 팀 카드 편집 링크 (초대 버튼 자리) */
 .team-profile-brand header .team-hub-edit-link { margin-left: auto; align-self: center; padding: 10px 16px; border-radius: 9px; border: 1px solid var(--border); font-size: 12px; font-weight: 750; transition: border-color .2s, color .2s; }
 .team-profile-brand header .team-hub-edit-link:hover { border-color: var(--accent); color: var(--accent); }
+.event-registration-badge { width: fit-content; margin: 12px 0 6px; padding: 5px 8px; border-radius: 99px; background: #f1f2f3; color: #6e7479; font-size: 9px; font-weight: 800; }
+.event-registration-badge[data-mode="internal"] { background: var(--accent-soft); color: var(--accent); }
+.event-registration-panel { margin: 32px 0 72px; padding: 30px; border: 1px solid #dfe2e5; border-radius: 18px; background: #fff; box-shadow: 0 18px 50px rgb(22 25 28 / 5%); }
+.event-registration-panel > span { color: var(--accent); font-size: 10px; font-weight: 850; letter-spacing: .12em; }
+.event-registration-panel h2 { margin: 10px 0 8px; font-size: 26px; letter-spacing: -.045em; }
+.event-registration-panel > p { margin: 0 0 22px; color: #747b81; font-size: 14px; line-height: 1.65; }
+.event-registration-panel form { display: grid; gap: 15px; }
+.event-registration-panel form > label:not(.event-registration-consent) { display: grid; gap: 7px; }
+.event-registration-panel label > span { font-size: 12px; font-weight: 750; }
+.event-registration-panel label small { color: #969ca1; font-weight: 500; }
+.event-registration-panel input:not([type="checkbox"]), .event-registration-panel textarea { width: 100%; padding: 13px 14px; border: 1px solid #d9dde0; border-radius: 9px; background: #fff; color: #17191b; font: inherit; font-size: 14px; }
+.event-registration-panel textarea { min-height: 96px; resize: vertical; }
+.event-registration-panel input:focus, .event-registration-panel textarea:focus { outline: 2px solid color-mix(in srgb, var(--accent) 30%, transparent); border-color: var(--accent); }
+.event-registration-consent { display: flex; align-items: flex-start; gap: 9px; padding: 13px; border-radius: 9px; background: #f6f7f8; }
+.event-registration-consent input { margin-top: 3px; accent-color: var(--accent); }
+.event-registration-consent span { color: #626970; font-size: 12px !important; font-weight: 500 !important; line-height: 1.55; }
+.event-registration-consent a { color: #25292c; text-decoration: underline; }
+.event-registration-panel .button { width: fit-content; min-width: 210px; justify-content: center; }
+.event-registration-panel.status { border-color: color-mix(in srgb, var(--accent) 30%, #dfe2e5); }
+.event-registration-panel.status h2 { color: var(--accent); }
+.event-registration-panel.status form { display: inline; margin-left: 18px; }
+.event-cancel-button { border: 0; background: transparent; color: #8a9196; font-size: 12px; text-decoration: underline; cursor: pointer; }
+.event-registration-error { margin: 0; color: #c63c2d; font-size: 12px; font-weight: 700; }
+.event-registration-method > span { display: block; margin-bottom: 8px; font-size: 10px; font-weight: 800; }
+.event-registration-method > div { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.event-registration-method button { padding: 16px; display: grid; gap: 6px; border: 1px solid #dfe2e5; border-radius: 10px; background: #fff; text-align: left; cursor: pointer; }
+.event-registration-method button.active { border-color: var(--accent); background: var(--accent-soft); }
+.event-registration-method strong { font-size: 12px; }
+.event-registration-method small { color: #777f85; font-size: 10px; line-height: 1.5; }
+.my-events-heading, .event-attendees-heading { padding: 42px 0 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid #dfe2e5; }
+.my-events-heading p, .event-attendees-heading p { margin: 0; color: var(--accent); font-size: 9px; font-weight: 850; letter-spacing: .12em; }
+.my-events-heading h1, .event-attendees-heading h1 { margin: 8px 0; font-size: 38px; letter-spacing: -.055em; }
+.my-events-heading span, .event-attendees-heading span { color: #7b8288; font-size: 12px; }
+.my-events-heading > a, .event-attendees-heading > a { font-size: 12px; font-weight: 750; }
+.my-event-section { margin-top: 24px; padding: 25px; border: 1px solid #dfe2e5; border-radius: 14px; background: #fff; }
+.my-event-section > header span { color: var(--accent); font-size: 9px; font-weight: 850; letter-spacing: .1em; }
+.my-event-section > header h2 { margin: 7px 0 18px; font-size: 22px; }
+.my-event-list { display: grid; }
+.my-event-list > a { min-height: 76px; padding: 13px 4px; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto 20px; align-items: center; gap: 14px; border-top: 1px solid #eceeef; }
+.my-event-list time { color: var(--accent); font-size: 12px; font-weight: 800; }
+.my-event-list div { display: grid; gap: 5px; }
+.my-event-list strong { font-size: 14px; }
+.my-event-list div span { color: #848b90; font-size: 11px; }
+.my-event-list em { padding: 6px 9px; border-radius: 99px; background: #f0f2f3; color: #666d72; font-size: 10px; font-style: normal; font-weight: 750; }
+.my-event-list em[data-status="confirmed"] { background: #e9f7ee; color: #247747; }
+.my-event-list em[data-status="pending"], .my-event-list em[data-status="waitlisted"] { background: #fff3df; color: #9e5b06; }
+.my-event-empty { padding: 36px 10px; display: grid; justify-items: start; gap: 8px; color: #7e858b; }
+.my-event-empty strong { color: #262a2d; font-size: 15px; }
+.my-event-empty a { margin-top: 8px; color: var(--accent); font-size: 12px; font-weight: 800; }
+.event-attendee-list { margin-top: 24px; padding: 25px; border: 1px solid #dfe2e5; border-radius: 14px; background: #fff; }
+.event-attendee-list > header { padding-bottom: 18px; display: flex; justify-content: space-between; border-bottom: 1px solid #e6e9eb; }
+.event-attendee-list > header span { color: #858c92; font-size: 11px; }
+.event-attendee-list > article { padding: 16px 0; display: grid; grid-template-columns: 36px minmax(0, 1fr) 150px auto auto; align-items: center; gap: 14px; border-bottom: 1px solid #eceeef; }
+.event-attendee-list article > i { color: #a0a6ab; font-size: 10px; font-style: normal; }
+.event-attendee-list article > div:nth-child(2) { display: grid; gap: 4px; }
+.event-attendee-list article a { color: #727980; font-size: 11px; }
+.event-attendee-list article p { margin: 5px 0 0; color: #555d63; font-size: 12px; }
+.event-attendee-list article time { color: #8b9297; font-size: 10px; }
+.event-attendee-list article > em { padding: 6px 8px; border-radius: 99px; background: #f0f2f3; font-size: 9px; font-style: normal; font-weight: 800; }
+.event-registration-controls { display: flex; gap: 5px; }
+.event-registration-controls button { padding: 7px 10px; border: 1px solid #d8dcdf; border-radius: 7px; background: #fff; font-size: 10px; font-weight: 750; cursor: pointer; }
+.event-registration-controls button:first-child { border-color: var(--accent); color: var(--accent); }
+.event-registration-controls small { color: #bd3527; }
+@media (max-width: 700px) {
+  .detail-page .info-panel { align-items: stretch; flex-direction: column; gap: 16px; }
+  .event-registration-panel { margin: 22px 0 50px; padding: 22px 18px; }
+  .event-registration-panel .button { width: 100%; min-width: 0; }
+  .event-registration-method > div { grid-template-columns: 1fr; }
+  .my-events-heading, .event-attendees-heading { align-items: flex-start; flex-direction: column; }
+  .my-event-list > a { grid-template-columns: 52px minmax(0, 1fr) auto; }
+  .my-event-list > a > b { display: none; }
+  .event-attendee-list > header { gap: 8px; flex-direction: column; }
+  .event-attendee-list > article { grid-template-columns: 24px minmax(0, 1fr) auto; align-items: start; }
+  .event-attendee-list article time { display: none; }
+  .event-registration-controls { grid-column: 2 / -1; }
+}

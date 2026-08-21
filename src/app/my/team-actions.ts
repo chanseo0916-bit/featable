@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_URL } from "@/lib/site";
+import { ensurePublishingInvitationsForUser } from "@/lib/publishing-invitations";
 
 export type InviteResult = { ok: true; url: string } | { ok: false; error: string };
 export type TeamProfileResult = { ok: true } | { ok: false; error: string };
@@ -25,7 +26,7 @@ export interface SiteNotification {
   title: string;
   message: string;
   href: string | null;
-  data: { brand_name?: string; member_role?: BrandMemberRole };
+  data: { brand_name?: string; member_role?: BrandMemberRole; kind?: string; publishing_invitation_id?: string; registration_type?: "partner" | "community"; organization?: string };
   readAt: string | null;
   actionStatus: "accepted" | "declined" | null;
   createdAt: string;
@@ -104,6 +105,7 @@ export async function getMyNotifications(): Promise<SiteNotification[]> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
+  await ensurePublishingInvitationsForUser(user.id, user.email);
   const { data, error } = await supabase
     .from("notifications")
     .select("id,invitation_id,type,title,message,href,data,read_at,action_status,created_at")

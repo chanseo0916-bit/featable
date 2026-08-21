@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { notifySlackPartnershipInquiry } from "@/lib/slack";
 
 export type PartnershipInquiryState = { ok?: boolean; error?: string };
@@ -38,12 +39,14 @@ export async function submitPartnershipInquiry(_previous: PartnershipInquiryStat
 
   const supabase = createAdminClient();
   if (!supabase) return { error: "문의 접수 기능을 준비 중입니다. 잠시 후 다시 시도해주세요." };
+  const auth = await createClient();
+  const { data: { user } } = await auth.auth.getUser();
 
   const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
   const { count } = await supabase.from("partnership_inquiries").select("id", { count: "exact", head: true }).eq("contact_email", contactEmail).gte("created_at", tenMinutesAgo);
   if ((count ?? 0) >= 3) return { error: "짧은 시간에 너무 많은 문의가 접수됐습니다. 잠시 후 다시 시도해주세요." };
 
-  const { data, error } = await supabase.from("partnership_inquiries").insert({ inquiry_type: inquiryType, organization, contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone || null, website: website || null, objective, budget: inquiryType === "advertiser" ? budget || null : null, timeline: timeline || null, audience: audience || null, community_size: inquiryType === "community_partner" ? communitySize || null : null, message, status: "new" }).select("id").single();
+  const { data, error } = await supabase.from("partnership_inquiries").insert({ applicant_user_id: user?.id ?? null, inquiry_type: inquiryType, organization, contact_name: contactName, contact_email: contactEmail, contact_phone: contactPhone || null, website: website || null, objective, budget: inquiryType === "advertiser" ? budget || null : null, timeline: timeline || null, audience: audience || null, community_size: inquiryType === "community_partner" ? communitySize || null : null, message, status: "new" }).select("id").single();
   if (error || !data) return { error: "문의 접수에 실패했습니다. 최신 SQL 적용 여부를 확인해주세요." };
 
   await notifySlackPartnershipInquiry({ id: data.id, inquiryType, organization, contactName, contactEmail, objective, budget: inquiryType === "advertiser" ? budget : communitySize });

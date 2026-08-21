@@ -58,9 +58,12 @@ export async function POST(request: Request) {
     const inquiryResult = await reviewPartnershipInquiryWithClient(supabase, { id: action.value, decision: "approve", reviewedBy: null, note: `Slack에서 ${payload.user?.name || payload.user?.username || "관리자"}님이 승인` });
     if (!inquiryResult.ok) return NextResponse.json({ replace_original: false, response_type: "ephemeral", text: `승인 실패: ${inquiryResult.error}` });
     revalidatePath("/admin/inquiries");
-    return NextResponse.json({ replace_original: true, text: "파트너 제휴 승인 완료", blocks: [
-      { type: "header", text: { type: "plain_text", text: "✅ 제휴 승인 완료", emoji: true } },
-      { type: "section", text: { type: "mrkdwn", text: `*${inquiryResult.organization}* 문의를 ${payload.user?.name || payload.user?.username || "관리자"}님이 승인했습니다.\n<${SITE_URL}/admin/inquiries|관리자 문의함 열기>` } },
+    revalidatePath("/my");
+    const target = inquiryResult.registrationType === "partner" ? "파트너 프로필" : "커뮤니티 페이지";
+    const delivery = inquiryResult.linked ? "사이트 알림 발송 완료" : "동일 이메일 계정의 다음 로그인 시 알림 발송";
+    return NextResponse.json({ replace_original: true, text: "등록 초대 발급 완료", blocks: [
+      { type: "header", text: { type: "plain_text", text: "✅ 등록 권한 승인 완료", emoji: true } },
+      { type: "section", text: { type: "mrkdwn", text: `*${inquiryResult.organization}*에 ${target} 등록 권한을 발급했습니다.\n• ${delivery}\n• 신청자가 정보를 완성한 뒤 직접 공개합니다.\n<${SITE_URL}/admin/inquiries|등록 진행 상태 확인>` } },
     ] });
   }
 
