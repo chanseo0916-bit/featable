@@ -47,8 +47,11 @@ function validWebUrl(value: string) {
 }
 
 function dateParts(value: string) {
-  const matches = value.match(/(?:19|20)\d{6}/g) ?? [];
-  return matches.map((date) => `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`);
+  const matches = value.match(/(?:19|20)\d{2}[.\/-]?\d{2}[.\/-]?\d{2}/g) ?? [];
+  return matches.map((value) => {
+    const date = value.replace(/\D/g, "");
+    return `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+  });
 }
 
 function todayInKorea() {
@@ -101,9 +104,16 @@ export async function syncBizinfoSupportPrograms(): Promise<BizinfoSyncResult> {
   const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
   if (!response.ok) throw new Error(`기업마당 API 요청 실패 (${response.status})`);
 
-  const payload = await response.json() as { jsonArray?: { item?: BizinfoItem | BizinfoItem[] } };
-  const rawItems = payload?.jsonArray?.item;
-  const items = Array.isArray(rawItems) ? rawItems : rawItems ? [rawItems] : [];
+  const payload = await response.json() as unknown;
+  const root = payload && typeof payload === "object" && !Array.isArray(payload) && "jsonArray" in payload
+    ? (payload as { jsonArray: unknown }).jsonArray
+    : payload;
+  const rawItems = root && typeof root === "object" && !Array.isArray(root) && "item" in root
+    ? (root as { item: unknown }).item
+    : root;
+  const items = (Array.isArray(rawItems) ? rawItems : rawItems ? [rawItems] : [])
+    .filter((item): item is BizinfoItem => Boolean(item) && typeof item === "object" && !Array.isArray(item));
+  if (!items.length) throw new Error("기업마당 API가 공고 데이터를 반환하지 않았습니다.");
   const rows = items.map((item) => normalizeItem(item, todayInKorea())).filter((row) => row !== null);
   const slugs = rows.map((row) => row.slug);
   const { data: existing, error: existingError } = slugs.length
