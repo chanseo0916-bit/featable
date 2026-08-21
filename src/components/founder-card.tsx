@@ -10,11 +10,17 @@ export function FounderCard({
   brandCount,
   productCount,
   viewCount,
+  weeklyRank,
+  activityLabel,
+  activeThisWeek = false,
 }: {
   founder: Founder;
   brandCount: number;
   productCount: number;
   viewCount: number;
+  weeklyRank?: number;
+  activityLabel?: string;
+  activeThisWeek?: boolean;
 }) {
   return (
     <Link href={`/founders/${founder.slug}`} className="founder-spot-card">
@@ -28,6 +34,7 @@ export function FounderCard({
           </div>
         )}
         <div className="founder-spot-fade" aria-hidden />
+        {weeklyRank != null && <span className="weekly-builder-rank"><b>{String(weeklyRank).padStart(2, "0")}</b> THIS WEEK</span>}
         {founder.founderNumber != null && (
           <span className="founder-hero-id">FOUNDER ID · {String(founder.founderNumber).padStart(4, "0")}</span>
         )}
@@ -39,8 +46,10 @@ export function FounderCard({
         </h3>
         {founder.role && <strong className="founder-card-role">{founder.role}</strong>}
         <p>{founder.headline}</p>
+        {activityLabel && <div className={`weekly-builder-activity${activeThisWeek ? " is-active" : ""}`}><i /> <span>{activityLabel}</span></div>}
         <div className="founder-spot-foot">
           <span>◈ 브랜드 {brandCount}</span>
+          <span>프로덕트 {productCount}</span>
           <span>◉ 조회 {viewCount.toLocaleString("ko-KR")}</span>
           <em className="founder-spot-cta">프로필 보기 →</em>
         </div>
