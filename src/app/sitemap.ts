@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/communities",
     "/jobs",
     "/partners",
+    "/partners/apply",
   ].map((path) => ({
     url: absoluteUrl(path),
     ...(path === "" ? { images: [absoluteUrl("/featable-logo.png")] } : {}),

@@ -67,6 +67,7 @@ export async function deleteMyProduct(productId: string): Promise<{ ok: boolean;
 
 export interface ProfileInput {
   name: string;
+  role: string;
   headline: string;
   bio?: string;
   avatarUrl?: string;
@@ -91,6 +92,8 @@ export async function updateFounderProfile(
   if (!user) return { ok: false, error: "로그인이 필요합니다." };
 
   if (!input.name.trim()) return { ok: false, error: "이름은 필수입니다." };
+  if (!input.role.trim()) return { ok: false, error: "역할을 선택하거나 입력해주세요." };
+  if (input.role.trim().length > 40) return { ok: false, error: "역할은 40자 이내로 입력해주세요." };
 
   const sns = {
     ...(input.instagram?.trim() ? { instagram: input.instagram.trim() } : {}),
@@ -110,6 +113,7 @@ export async function updateFounderProfile(
       .from("founders")
       .update({
         name: input.name.trim(),
+        role_title: input.role.trim(),
         headline: input.headline.trim(),
         bio: input.bio?.trim() || null,
         avatar_url: input.avatarUrl || null,
@@ -119,6 +123,9 @@ export async function updateFounderProfile(
       .eq("id", existing.id);
     if (error) return { ok: false, error: "저장에 실패했습니다." };
     revalidatePath("/my");
+    revalidatePath("/my/profile");
+    revalidatePath("/submit");
+    revalidatePath("/brands");
     revalidatePath(`/founders/${existing.slug}`);
     return { ok: true, slug: existing.slug };
   }
@@ -129,6 +136,7 @@ export async function updateFounderProfile(
     user_id: user.id,
     slug,
     name: input.name.trim(),
+    role_title: input.role.trim(),
     headline: input.headline.trim(),
     bio: input.bio?.trim() || null,
     avatar_url: input.avatarUrl || null,
@@ -136,5 +144,9 @@ export async function updateFounderProfile(
   });
   if (error) return { ok: false, error: "프로필 생성에 실패했습니다." };
   revalidatePath("/my");
+  revalidatePath("/my/profile");
+  revalidatePath("/submit");
+  revalidatePath("/brands");
+  revalidatePath(`/founders/${slug}`);
   return { ok: true, slug };
 }

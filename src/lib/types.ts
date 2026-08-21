@@ -21,6 +21,7 @@ export interface Founder {
   slug: string;
   name: string;
   avatarUrl: string;
+  role?: string; // 공개 프로필 카드에 표시할 역할/직무
   headline: string; // 한 줄 소개
   bio?: string;
   sns?: {

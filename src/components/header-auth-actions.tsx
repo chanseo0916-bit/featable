@@ -87,9 +87,9 @@ export function HeaderAuthActions() {
       </button>
       <div className="nav-submit-wrap">
         <Link className="button button-small nav-submit" href="/submit">
-          브랜드 올리기 <span>↗</span>
+          프로필 만들기 <span>↗</span>
         </Link>
-        <span className="nav-submit-hint">브랜드와 제품을 <b>직접 등록해보세요</b></span>
+        <span className="nav-submit-hint">나만의 <b>프로필 카드 만들기</b></span>
       </div>
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>

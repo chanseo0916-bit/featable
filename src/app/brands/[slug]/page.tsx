@@ -99,7 +99,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
           {(founder || publicTeam.length > 0) && <section id="team" className="company-team-section">
             <header><span>TEAM</span><h2>{brand.name}을 만드는 사람들</h2><p>아이디어를 실제 프로덕트로 함께 만들어가는 팀입니다.</p></header>
             <div className="company-team-grid">
-              {founder && <TeamProfileCard name={founder.name} title={founder.headline || "Founder"} avatarUrl={founder.avatarUrl} bio={founder.bio} label="FOUNDER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founderNumber} />}
+              {founder && <TeamProfileCard name={founder.name} title={founder.role || "Founder"} headline={founder.headline} avatarUrl={founder.avatarUrl} bio={founder.bio} label="FOUNDER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founderNumber} />}
               {publicTeam.map((member) => <TeamProfileCard key={member.member_key} name={member.display_name} title={member.title} avatarUrl={member.avatar_url} bio={member.bio} label="TEAM" meta={brand.name} />)}
             </div>
           </section>}

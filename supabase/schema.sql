@@ -70,6 +70,7 @@ create table founders (
   slug text not null unique,
   name text not null,
   avatar_url text,
+  role_title text not null default '',
   headline text not null default '',
   bio text,
   created_at timestamptz not null default now(),
@@ -99,8 +100,13 @@ begin
     return new;
   end if;
 
+  if account_email = 'dasarom4@gmail.com' then
+    new.founder_number := 2;
+    return new;
+  end if;
+
   loop
-    candidate := floor(random() * 9998)::integer + 2;
+    candidate := floor(random() * 9997)::integer + 3;
     exit when not exists (select 1 from founders where founder_number = candidate);
     attempts := attempts + 1;
     if attempts >= 10000 then
@@ -371,6 +377,23 @@ create table communities (
   created_at timestamptz not null default now()
 );
 
+-- ---------- Partner self-serve submission queue ----------
+create table partner_submissions (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  submission_type text not null check (submission_type in ('event', 'support', 'community')),
+  status text not null default 'draft' check (status in ('draft', 'submitted', 'in_review', 'approved', 'rejected')),
+  title text not null default '',
+  payload jsonb not null default '{}',
+  review_note text,
+  submitted_at timestamptz,
+  reviewed_at timestamptz,
+  reviewed_by uuid references profiles(id) on delete set null,
+  published_path text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 alter table events
   add constraint events_community_fk
   foreign key (community_id) references communities(id) on delete set null;
@@ -399,6 +422,29 @@ create table partners (
   created_at timestamptz not null default now()
 );
 
+-- ---------- Partnership inquiries (advertisers / community partners) ----------
+create table partnership_inquiries (
+  id uuid primary key default uuid_generate_v4(),
+  inquiry_type text not null check (inquiry_type in ('advertiser', 'community_partner')),
+  organization text not null,
+  contact_name text not null,
+  contact_email text not null,
+  contact_phone text,
+  website text,
+  objective text not null default '',
+  budget text,
+  timeline text,
+  audience text,
+  community_size text,
+  message text not null default '',
+  status text not null default 'new' check (status in ('new', 'reviewing', 'approved', 'rejected', 'closed')),
+  review_note text,
+  reviewed_at timestamptz,
+  reviewed_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- ---------- 커뮤니티 연결 (Community ↔ Founder/Brand) ----------
 create table community_founders (
   community_id uuid references communities(id) on delete cascade,
@@ -422,6 +468,10 @@ create index idx_features_status on features(status);
 create index idx_features_brand on features(brand_id);
 create index idx_support_close_at on support_programs(close_at);
 create index idx_events_starts_at on events(starts_at);
+create index partner_submissions_user_updated_idx on partner_submissions(user_id, updated_at desc);
+create index partner_submissions_status_created_idx on partner_submissions(status, created_at asc);
+create index partnership_inquiries_status_created_idx on partnership_inquiries(status, created_at desc);
+create index partnership_inquiries_email_created_idx on partnership_inquiries(lower(contact_email), created_at desc);
 create index idx_founder_supports_founder on founder_supports(founder_id);
 create index brand_members_user_idx on brand_members(user_id);
 create index brand_invitations_brand_idx on brand_invitations(brand_id, created_at desc);
@@ -675,8 +725,10 @@ alter table mentor_notes enable row level security;
 alter table events enable row level security;
 alter table support_programs enable row level security;
 alter table communities enable row level security;
+alter table partner_submissions enable row level security;
 alter table jobs enable row level security;
 alter table partners enable row level security;
+alter table partnership_inquiries enable row level security;
 alter table community_founders enable row level security;
 alter table community_brands enable row level security;
 
@@ -763,11 +815,28 @@ create policy "communities_write" on communities for all
   using (manager_user_id = auth.uid() or is_admin())
   with check (manager_user_id = auth.uid() or is_admin());
 
+create policy "partner_submissions_select" on partner_submissions for select
+  using (user_id = auth.uid() or is_admin());
+create policy "partner_submissions_insert" on partner_submissions for insert
+  with check (
+    user_id = auth.uid()
+    and exists (select 1 from profiles where id = auth.uid() and member_type = 'partner')
+  );
+create policy "partner_submissions_update" on partner_submissions for update
+  using ((user_id = auth.uid() and status in ('draft', 'rejected')) or is_admin())
+  with check (user_id = auth.uid() or is_admin());
+create policy "partner_submissions_delete" on partner_submissions for delete
+  using ((user_id = auth.uid() and status in ('draft', 'rejected')) or is_admin());
+
 create policy "jobs_select" on jobs for select using (status = 'published' or owns_brand(brand_id) or is_admin());
 create policy "jobs_write" on jobs for all using (owns_brand(brand_id) or is_admin()) with check (owns_brand(brand_id) or is_admin());
 
 create policy "partners_select" on partners for select using (true);
 create policy "partners_write" on partners for all using (is_admin()) with check (is_admin());
+
+create policy "partnership_inquiries_admin_select" on partnership_inquiries for select using (is_admin());
+create policy "partnership_inquiries_admin_update" on partnership_inquiries for update using (is_admin()) with check (is_admin());
+create policy "partnership_inquiries_admin_delete" on partnership_inquiries for delete using (is_admin());
 
 create policy "community_founders_select" on community_founders for select using (true);
 create policy "community_founders_write" on community_founders for all using (is_admin()) with check (is_admin());

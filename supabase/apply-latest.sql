@@ -3,6 +3,10 @@
 
 begin;
 
+-- 0) Founder 공개 역할 (한 줄 소개와 분리)
+alter table public.founders
+  add column if not exists role_title text not null default '';
+
 -- 1) 프로덕트 조회수 원자 증가
 create or replace function public.increment_product_view_count(p_slug text)
 returns integer

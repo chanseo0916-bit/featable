@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type IconName = "home" | "brand" | "product" | "story" | "calendar" | "support" | "partner" | "external";
+type IconName = "home" | "brand" | "product" | "story" | "calendar" | "support" | "partner" | "inbox" | "external";
 
 const NAV_GROUPS: { label: string; items: { href: string; label: string; icon: IconName; exact?: boolean }[] }[] = [
   { label: "개요", items: [{ href: "/admin", label: "대시보드", icon: "home", exact: true }] },
@@ -14,6 +14,8 @@ const NAV_GROUPS: { label: string; items: { href: string; label: string; icon: I
     { href: "/admin/stories", label: "스토리", icon: "story" },
   ] },
   { label: "큐레이션", items: [
+    { href: "/admin/inquiries", label: "파트너 문의", icon: "partner" },
+    { href: "/admin/submissions", label: "제안 검수", icon: "inbox" },
     { href: "/admin/events", label: "행사", icon: "calendar" },
     { href: "/admin/support", label: "지원사업", icon: "support" },
     { href: "/admin/partners", label: "파트너", icon: "partner" },
@@ -29,6 +31,7 @@ function AdminIcon({ name }: { name: IconName }) {
   if (name === "calendar") return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" /></svg>;
   if (name === "support") return <svg {...common}><path d="M12 22a9 9 0 1 0-9-9c0 2.2.8 4.2 2 5.8L4 22l3.3-1.1A9 9 0 0 0 12 22Z" /><path d="M9.4 10a2.7 2.7 0 1 1 4.1 2.3c-.9.5-1.5 1-1.5 2M12 18h.01" /></svg>;
   if (name === "partner") return <svg {...common}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
+  if (name === "inbox") return <svg {...common}><path d="M4 4h16v16H4z" /><path d="M4 14h4l2 3h4l2-3h4" /></svg>;
   return <svg {...common}><path d="M14 3h7v7M10 14 21 3M21 14v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6" /></svg>;
 }
 

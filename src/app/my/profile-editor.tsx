@@ -16,15 +16,38 @@ const AVATAR_PRESETS = Array.from({ length: 6 }, (_, index) => ({
   label: `캐릭터 ${index + 1}`,
 }));
 
+const PROFILE_ROLES = [
+  "대표 / CEO",
+  "공동창업자",
+  "CTO",
+  "CMO",
+  "COO",
+  "CPO",
+  "마케터",
+  "프로덕트 매니저",
+  "프로덕트 디자이너",
+  "프로덕트 엔지니어",
+  "소프트웨어 엔지니어",
+  "디자이너",
+  "기획자",
+  "커뮤니티 매니저",
+  "투자자",
+  "파트너",
+] as const;
+
+const CUSTOM_ROLE = "__custom__";
+
 export function ProfileEditor({
   initial,
-  brandCount = 0,
+  setupMode = false,
 }: {
   initial: ProfileEditorInitial;
-  brandCount?: number;
+  setupMode?: boolean;
 }) {
+  const initialRole = initial.role?.trim() ?? "";
   const [form, setForm] = useState<ProfileInput>({
     name: initial.name ?? "",
+    role: initialRole,
     headline: initial.headline ?? "",
     bio: initial.bio ?? "",
     avatarUrl: initial.avatarUrl ?? "",
@@ -33,8 +56,15 @@ export function ProfileEditor({
     linkedin: initial.linkedin ?? "",
     website: initial.website ?? "",
   });
+  const [roleOption, setRoleOption] = useState(
+    PROFILE_ROLES.includes(initialRole as (typeof PROFILE_ROLES)[number])
+      ? initialRole
+      : initialRole
+        ? CUSTOM_ROLE
+        : "",
+  );
   const [slug, setSlug] = useState(initial.slug);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(setupMode);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
@@ -79,10 +109,11 @@ export function ProfileEditor({
   const label = "mb-1 mt-3 block text-xs font-semibold text-muted";
 
   return (
-    <section className="rounded-2xl border border-border bg-white p-6">
+    <section className={setupMode ? "simple-registration-card profile-setup-card" : "rounded-2xl border border-border bg-white p-6"}>
+      {setupMode && <div className="simple-registration-heading profile-setup-heading"><span>MY PROFILE</span><h1>내 프로필 카드를 만들어보세요.</h1><p>역할과 소개를 입력하면 공개 프로필 카드에 바로 반영됩니다.</p></div>}
       <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
         <div>
-          <div className="flex items-center justify-between">
+          {!setupMode && <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {form.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -111,9 +142,9 @@ export function ProfileEditor({
                 {open ? "접기" : "프로필 편집"}
               </button>
             </div>
-          </div>
+          </div>}
 
-          {!open && (
+          {!setupMode && !open && (
             <p className="mt-6 border-t border-border pt-5 text-xs leading-relaxed text-muted">
               대표자는 브랜드 팀의 첫 번째 멤버로 표시됩니다. &lsquo;프로필 편집&rsquo;을 누르면
               팀 카드와 Founder 페이지에 쓰이는 정보를 함께 수정할 수 있습니다.
@@ -121,7 +152,7 @@ export function ProfileEditor({
           )}
 
           {open && (
-        <div className="mt-6 border-t border-border pt-5">
+        <div className={setupMode ? "profile-setup-fields" : "mt-6 border-t border-border pt-5"}>
           <label className={label}>프로필 캐릭터</label>
           <div className="founder-avatar-picker">
             {AVATAR_PRESETS.map((avatar) => (
@@ -146,11 +177,23 @@ export function ProfileEditor({
               <input className={input} value={form.name} onChange={(e) => set({ name: e.target.value })} />
             </div>
             <div>
-              <label className={label}>한 줄 소개</label>
-              <input className={input} value={form.headline} placeholder="기록을 사랑하는 개발자"
-                onChange={(e) => set({ headline: e.target.value })} />
+              <label className={label}>역할 *</label>
+              <select className={input} value={roleOption} onChange={(e) => {
+                const value = e.target.value;
+                setRoleOption(value);
+                set({ role: value === CUSTOM_ROLE ? "" : value });
+              }}>
+                <option value="">역할을 선택해주세요</option>
+                {PROFILE_ROLES.map((role) => <option value={role} key={role}>{role}</option>)}
+                <option value={CUSTOM_ROLE}>기타 · 직접 입력</option>
+              </select>
+              {roleOption === CUSTOM_ROLE && <input className={`${input} mt-2`} value={form.role} maxLength={40} autoFocus placeholder="나의 역할을 직접 입력해주세요" onChange={(e) => set({ role: e.target.value })} />}
             </div>
           </div>
+
+          <label className={label}>한 줄 소개</label>
+          <input className={input} value={form.headline} placeholder="기록을 사랑하는 개발자"
+            onChange={(e) => set({ headline: e.target.value })} />
 
           <label className={label}>이야기</label>
           <textarea className={`${input} min-h-24`} value={form.bio}
@@ -192,7 +235,7 @@ export function ProfileEditor({
             disabled={saving}
             className="mt-4 rounded-lg bg-accent px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
-            {saving ? "저장 중…" : "프로필 저장"}
+            {saving ? "저장 중…" : setupMode ? "내 프로필 저장하기" : "프로필 저장"}
           </button>
         </div>
           )}
@@ -200,20 +243,21 @@ export function ProfileEditor({
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
         <aside className="self-start lg:sticky lg:top-6">
-          <p className="mb-2 text-xs font-semibold text-muted">대표자 팀 카드</p>
+          <p className="mb-2 text-xs font-semibold text-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 팀 카드"}</p>
           <div className="pointer-events-none">
             <TeamProfileCard
               name={form.name || "이름을 입력하세요"}
-              title={form.headline || "한 줄 소개가 여기에 표시됩니다"}
+              title={form.role || "역할을 선택해주세요"}
+              headline={form.headline || "한 줄 소개가 여기에 표시됩니다"}
               avatarUrl={form.avatarUrl ?? ""}
               bio={form.bio || "브랜드에서 맡은 역할과 만드는 사람으로서의 이야기를 소개합니다."}
-              label="OWNER"
+              label={setupMode ? "PROFILE" : "OWNER"}
               founderNumber={initial.founderNumber}
               actionLabel="프로필"
             />
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted">
-            브랜드의 TEAM PROFILE에서 대표자 카드로 노출됩니다.
+            {setupMode ? "저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다." : "브랜드의 TEAM PROFILE에서 대표자 카드로 노출됩니다."}
           </p>
         </aside>
       </div>

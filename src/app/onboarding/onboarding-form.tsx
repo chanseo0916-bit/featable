@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import Link from "next/link";
+import { useActionState, useState } from "react";
 import { completeOnboarding, type OnboardingState } from "./actions";
 
 const initialState: OnboardingState = {};
@@ -14,6 +15,13 @@ const memberTypes = [
 
 export function OnboardingForm({ defaultName, next }: { defaultName: string; next: string }) {
   const [state, action, pending] = useActionState(completeOnboarding, initialState);
+  const [consents, setConsents] = useState({ terms: false, privacy: false, marketing: false });
+  const allAgreed = consents.terms && consents.privacy && consents.marketing;
+
+  function toggleAllConsents() {
+    const checked = !allAgreed;
+    setConsents({ terms: checked, privacy: checked, marketing: checked });
+  }
 
   return (
     <form action={action} className="space-y-7">
@@ -48,9 +56,13 @@ export function OnboardingForm({ defaultName, next }: { defaultName: string; nex
       </fieldset>
 
       <div className="space-y-3 rounded-xl bg-[#f7f7f7] p-4 text-xs text-[#555]">
-        <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="termsAccepted" required /><span><b className="text-foreground">[필수]</b> Featable 이용약관에 동의합니다.</span></label>
-        <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="privacyAccepted" required /><span><b className="text-foreground">[필수]</b> 개인정보 수집 및 이용에 동의합니다.</span></label>
-        <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="marketingAccepted" /><span>[선택] 새로운 Founder와 행사 소식을 받아봅니다.</span></label>
+        <label className="flex items-start gap-3 border-b border-[#e3e3e3] pb-3">
+          <input className="mt-0.5 accent-[#EF4125]" type="checkbox" checked={allAgreed} onChange={toggleAllConsents} />
+          <span className="text-[13px] font-bold text-foreground">전체 동의합니다.</span>
+        </label>
+        <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="termsAccepted" required checked={consents.terms} onChange={(event) => setConsents((current) => ({ ...current, terms: event.target.checked }))} /><span><b className="text-foreground">[필수]</b> Featable <Link href="/terms" target="_blank" className="underline hover:text-accent">이용약관</Link>에 동의합니다.</span></label>
+        <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="privacyAccepted" required checked={consents.privacy} onChange={(event) => setConsents((current) => ({ ...current, privacy: event.target.checked }))} /><span><b className="text-foreground">[필수]</b> <Link href="/privacy" target="_blank" className="underline hover:text-accent">개인정보 수집 및 이용</Link>에 동의합니다.</span></label>
+        <label className="flex items-start gap-3"><input className="mt-0.5 accent-[#EF4125]" type="checkbox" name="marketingAccepted" checked={consents.marketing} onChange={(event) => setConsents((current) => ({ ...current, marketing: event.target.checked }))} /><span>[선택] 새로운 Founder와 행사 소식을 받아봅니다.</span></label>
       </div>
 
       {state.error && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-600">{state.error}</p>}

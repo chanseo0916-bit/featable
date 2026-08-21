@@ -77,6 +77,7 @@ interface FounderRow {
   slug: string;
   name: string;
   avatar_url: string | null;
+  role_title?: string | null;
   headline: string;
   bio: string | null;
   sns?: Founder["sns"] | null;
@@ -143,15 +144,19 @@ async function fetchLive(): Promise<Catalog | null> {
     // 공개 데이터 조회 전용 — 쿠키/세션 불필요 (RLS가 published만 허용)
     const supabase = createClient(url!, key!);
 
-    const [brandsRes, productsRes] = await Promise.all([
-      supabase
+    const loadBrands = (includeRole: boolean) => supabase
         .from("brands")
         .select(
-          "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,published_at,updated_at,founder:founders(founder_number,slug,name,avatar_url,headline,bio,sns)",
+          includeRole
+            ? "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,published_at,updated_at,founder:founders(founder_number,slug,name,avatar_url,role_title,headline,bio,sns)"
+            : "slug,name,logo_url,cover_url,tagline,description,problem,audience,category,website,sns,founded_at,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,published_at,updated_at,founder:founders(founder_number,slug,name,avatar_url,headline,bio,sns)",
         )
         .eq("status", "published")
         .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false }),
+        .order("created_at", { ascending: false });
+
+    const [initialBrandsRes, productsRes] = await Promise.all([
+      loadBrands(true),
       supabase
         .from("products")
         .select(
@@ -161,6 +166,12 @@ async function fetchLive(): Promise<Catalog | null> {
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false }),
     ]);
+
+    let brandsRes = initialBrandsRes;
+    // 새 역할 마이그레이션 적용 전에도 기존 공개 카탈로그는 정상 노출한다.
+    if (brandsRes.error?.code === "42703" && brandsRes.error.message.includes("role_title")) {
+      brandsRes = await loadBrands(false);
+    }
 
     if (brandsRes.error || productsRes.error) {
       reportPublicDataFallback("catalog", brandsRes.error ?? productsRes.error);
@@ -242,6 +253,7 @@ async function fetchLive(): Promise<Catalog | null> {
           slug: f.slug,
           name: f.name,
           avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),
+          role: f.role_title || undefined,
           headline: f.headline,
           bio: f.bio ?? undefined,
           sns: f.sns ?? undefined,
@@ -611,11 +623,19 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
   if (hasPublicSupabaseConfig(url, key, "founder")) {
     try {
       const supabase = createClient(url!, key!);
-      const { data, error } = await supabase
+      let founderRes = await supabase
         .from("founders")
-        .select("founder_number,slug,name,avatar_url,headline,bio,sns")
+        .select("founder_number,slug,name,avatar_url,role_title,headline,bio,sns")
         .eq("slug", slug)
         .maybeSingle();
+      if (founderRes.error?.code === "42703" && founderRes.error.message.includes("role_title")) {
+        founderRes = await supabase
+          .from("founders")
+          .select("founder_number,slug,name,avatar_url,headline,bio,sns")
+          .eq("slug", slug)
+          .maybeSingle();
+      }
+      const { data, error } = founderRes;
       if (error) {
         reportPublicDataFallback("founder", error);
       }
@@ -627,6 +647,7 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
           slug: f.slug,
           name: f.name,
           avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),
+          role: f.role_title || undefined,
           headline: f.headline,
           bio: f.bio ?? undefined,
           sns: f.sns ?? undefined,

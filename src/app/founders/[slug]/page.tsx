@@ -105,6 +105,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
                 {founder.name}
                 <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
               </h3>
+              <strong className="founder-hero-role">{founder.role || "Founder"}</strong>
               <p>{founder.headline}</p>
               <div className="founder-spot-foot">
                 <span className="founder-hero-status"><i /> NOW BUILDING</span>

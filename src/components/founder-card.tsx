@@ -37,6 +37,7 @@ export function FounderCard({
           {founder.name}
           <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
         </h3>
+        {founder.role && <strong className="founder-card-role">{founder.role}</strong>}
         <p>{founder.headline}</p>
         <div className="founder-spot-foot">
           <span>◈ 브랜드 {brandCount}</span>

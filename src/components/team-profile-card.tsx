@@ -3,6 +3,7 @@ import Link from "next/link";
 export interface TeamProfileCardProps {
   name: string;
   title: string;
+  headline?: string | null;
   avatarUrl?: string | null;
   bio?: string | null;
   label?: string;
@@ -13,7 +14,8 @@ export interface TeamProfileCardProps {
   founderNumber?: number;
 }
 
-function CardContent({ name, title, avatarUrl, bio, label = "TEAM", meta, href, actionLabel, muted, founderNumber }: TeamProfileCardProps) {
+function CardContent({ name, title, headline, avatarUrl, bio, label = "TEAM", meta, href, actionLabel, muted, founderNumber }: TeamProfileCardProps) {
+  const summary = headline || bio;
   return <>
     <div className="founder-spot-photo team-card-photo">
       {/* Dynamic profile photos keep the existing full-bleed crop. */}
@@ -34,10 +36,10 @@ function CardContent({ name, title, avatarUrl, bio, label = "TEAM", meta, href, 
         <span>{label}</span>
         {meta && <span>{meta}</span>}
       </div>
-      {bio && <p>{bio}</p>}
+      {summary && <p>{summary}</p>}
       <div className="team-card-facts">
         <span><b>{meta || "Featable"}</b><small>소속</small></span>
-        <span><b>{label}</b><small>역할</small></span>
+        <span><b>{title}</b><small>역할</small></span>
         <span><b className={muted ? "muted" : "active"}>{muted ? "비공개" : "공개"}</b><small>상태</small></span>
       </div>
       <div className="founder-spot-foot team-card-foot">

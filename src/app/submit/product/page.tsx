@@ -16,13 +16,13 @@ export default async function ProductSubmitPage({ searchParams }: { searchParams
   if (!founder) redirect("/submit");
   const { data } = await supabase.from("brands").select("id,name").eq("founder_id", founder.id).order("created_at", { ascending: true });
   const brands = data ?? [];
-  if (!brands.length) redirect("/submit");
+  if (!brands.length) redirect("/my/brand/new");
   const { brand } = await searchParams;
   const initialBrandId = brands.some((item) => item.id === brand) ? brand : brands[0].id;
   const saved = await loadProductDraft(`new:${initialBrandId}`);
 
   return <>
-    <div className="publish-console-nav simple-register-nav"><div className="shell"><StudioBrand /><nav><Link href="/submit">기업 정보</Link><span className="active">프로덕트 등록</span></nav><Link href="/my">나가기</Link></div></div>
+    <div className="publish-console-nav simple-register-nav"><div className="shell"><StudioBrand /><nav><Link href="/my/brand/new">기업 정보</Link><span className="active">프로덕트 등록</span></nav><Link href="/my">나가기</Link></div></div>
     <main className="simple-registration-page product-registration-page"><div className="shell"><ProductRegistrationForm brands={brands} initialBrandId={initialBrandId} initial={saved?.draft} draftKey={`new:${initialBrandId}`} initialSavedAt={saved?.savedAt} /></div></main>
   </>;
 }

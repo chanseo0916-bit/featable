@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Badge, Footer, Header } from "@/components/site-shell";
 import { getPartners } from "@/lib/data";
-import { CONTACT_EMAIL, createPageMetadata } from "@/lib/site";
+import { createPageMetadata } from "@/lib/site";
 
 export const metadata = createPageMetadata({
-  title: "창업 생태계 파트너",
+  title: "광고·커뮤니티 파트너",
   description:
-    "커뮤니티, 지원기관, 미디어 등 창업 생태계를 함께 만드는 Featable의 파트너를 소개합니다.",
+    "Featable의 광고주와 공식 커뮤니티 파트너를 소개하고 광고·제휴 문의를 접수합니다.",
   path: "/partners",
 });
 
@@ -21,7 +21,7 @@ export default async function PartnersPage() {
           <div>
             <p className="eyebrow">PARTNERS</p>
             <h1>파트너</h1>
-            <p>피터블과 함께 창업가의 다음 발견을 만드는 파트너들입니다.</p>
+            <p>Founder에게 닿고 싶은 광고주와 새로운 연결을 만드는 공식 커뮤니티 파트너입니다.</p>
           </div>
         </div>
         {(() => {
@@ -79,9 +79,9 @@ export default async function PartnersPage() {
         <section className="partner-org-cta">
           <div>
             <strong>피터블과 함께하고 싶으신가요?</strong>
-            <p>커뮤니티, 지원기관, 미디어 등 창업 생태계 파트너를 기다립니다.</p>
+            <p>광고·스폰서십을 집행하려는 브랜드와 공동 기획을 원하는 커뮤니티를 기다립니다.</p>
           </div>
-          <a href={`mailto:${CONTACT_EMAIL}`}>파트너 제안하기</a>
+          <Link href="/partners/apply">파트너 문의·신청하기</Link>
         </section>
       </main>
       <Footer partners={partners} />

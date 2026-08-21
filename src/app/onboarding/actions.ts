@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { isMemberType, safeNextPath } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { notifySlackNewSignup } from "@/lib/slack";
 
 export type OnboardingState = { error?: string };
 
@@ -46,6 +47,8 @@ export async function completeOnboarding(
     .eq("id", user.id);
 
   if (error) return { error: "프로필 저장에 실패했습니다. 잠시 후 다시 시도해주세요." };
+
+  await notifySlackNewSignup({ name: fullName, email: user.email ?? "이메일 없음", memberType, marketingAccepted });
 
   revalidatePath("/", "layout");
   redirect(next === "/" ? "/my" : next);

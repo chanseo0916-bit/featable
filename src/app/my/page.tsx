@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DeleteBrandButton } from "./delete-button";
 import { BrandStatusButton } from "./brand-status-button";
 import { isMemberType, type MemberType } from "@/lib/auth";
-import { getCatalog, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
+import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
 import { TeamInviteButton } from "./team-invite-button";
 import { DraftDeleteButton } from "./draft-delete-button";
 import { StudioNav } from "./studio-nav";
@@ -14,6 +14,7 @@ import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
 import { PendingInviteControl, TeamMemberControls } from "./team-management-controls";
 import type { BrandMemberRole } from "./team-actions";
 import { TeamProfileCard } from "@/components/team-profile-card";
+import { PartnerDashboard } from "./partner-dashboard";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -174,7 +175,7 @@ export default async function MyPage() {
   const teamBrands = ((membershipRows ?? []) as unknown as { member_role: string; brand: { id: string; slug: string; name: string; tagline: string; logo_url: string | null } | null }[]).flatMap((row): TeamBrand[] => row.brand ? [{ id: row.brand.id, slug: row.brand.slug, name: row.brand.name, tagline: row.brand.tagline, logoUrl: row.brand.logo_url, role: row.member_role }] : []);
 
   if (memberType !== "founder") {
-    const [{ data: savedRows }, { data: followedRows }, { data: supportedRows }, catalog, features, events, supportPrograms] = await Promise.all([
+    const [{ data: savedRows }, { data: followedRows }, { data: supportedRows }, catalog, features, events, supportPrograms, communities] = await Promise.all([
       supabase.from("saved_items").select("item_type,item_slug,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(12),
       supabase.from("brand_follows").select("brand:brands(slug,name,tagline)").eq("user_id", user.id).limit(12),
       supabase.from("founder_supports").select("founder:founders(slug,name,headline)").eq("user_id", user.id).limit(12),
@@ -182,6 +183,7 @@ export default async function MyPage() {
       getFeatures(),
       getEvents(),
       getSupportPrograms(),
+      getCommunities(),
     ]);
     const savedItems = (savedRows ?? []).flatMap((row): SavedCollectionItem[] => {
       if (row.item_type === "product") {
@@ -205,10 +207,18 @@ export default async function MyPage() {
     for (const row of (supportedRows ?? []) as unknown as { founder: { slug: string; name: string; headline: string } | null }[]) {
       if (row.founder) savedItems.push({ type: "Founder 응원", slug: row.founder.slug, title: row.founder.name, meta: row.founder.headline, href: `/founders/${row.founder.slug}` });
     }
+    if (memberType === "partner") {
+      const { data: submissionRows } = await supabase
+        .from("partner_submissions")
+        .select("id,title,submission_type,status,updated_at")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
+      return <PartnerDashboard name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} events={events} supportPrograms={supportPrograms} communities={communities} submissions={submissionRows ?? []} />;
+    }
     return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} />;
   }
 
-  const { data: founder } = await supabase.from("founders").select("id,founder_number,slug,name,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
+  const { data: founder } = await supabase.from("founders").select("id,founder_number,slug,name,role_title,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
   let brands: MyBrand[] = [];
   let products: MyProduct[] = [];
   let ownedTeamMembers: OwnedTeamMember[] = [];
@@ -287,7 +297,7 @@ export default async function MyPage() {
             <div className="ig-profile-top">
               <h1>{founder?.name ?? "Founder"}</h1>
               <Link className="ig-btn" href="/my/profile">프로필 편집</Link>
-              <Link className="ig-btn primary" href={brands.length ? "/submit/product" : "/submit"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
+              <Link className="ig-btn primary" href={brands.length ? "/submit/product" : "/my/brand/new"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
             </div>
             <div className="ig-profile-stats">
               <div><strong>{brands.length}</strong><span>브랜드</span></div>
@@ -315,7 +325,7 @@ export default async function MyPage() {
               </header>
               <div className="team-profile-member-list team-profile-card-grid">
                 {founder && <div className="team-profile-admin-card owner">
-                  <TeamProfileCard name={founder.name} title={founder.headline || "Founder"} avatarUrl={founder.avatar_url} bio={founder.bio} label="OWNER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founder_number} />
+                  <TeamProfileCard name={founder.name} title={founder.role_title || "Founder"} headline={founder.headline} avatarUrl={founder.avatar_url} bio={founder.bio} label="OWNER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founder_number} />
                   <div className="team-owner-card-action"><span>브랜드 대표</span><Link href="/my/profile">내 카드 편집 →</Link></div>
                 </div>}
                 {members.map((member, index) => <div className="team-profile-admin-card" key={member.user_id}>
@@ -333,7 +343,7 @@ export default async function MyPage() {
           })}</div> : (
             <div className="ig-founder-preview-empty">
               <p>팀 프로필은 브랜드를 등록하면 자동으로 시작됩니다.</p>
-              <Link href="/submit">브랜드 등록하기 →</Link>
+              <Link href="/my/brand/new">브랜드 등록하기 →</Link>
             </div>
           )}
         </section>
@@ -348,7 +358,7 @@ export default async function MyPage() {
             <span>START HERE</span>
             <h2>내 기업 정보를 먼저 등록해주세요.</h2>
             <p>기업 정보는 한 번만 만들고, 프로덕트와 상세페이지는 이후 자유롭게 추가할 수 있어요.</p>
-            <Link href="/submit">기업 정보 등록<b>→</b></Link>
+            <Link href="/my/brand/new">기업 정보 등록<b>→</b></Link>
           </div>
           <ol>
             <li><i>1</i><div><strong>기업 정보 등록</strong><span>회사명, 로고, 한 줄 소개만 입력해요.</span></div></li>
@@ -428,7 +438,7 @@ export default async function MyPage() {
         {brands.length > 0 && <section id="brands" className="ig-post-section">
           <div className="studio-panel-heading"><strong>내가 올린 브랜드</strong><span>{brands.length}개</span></div>
           <div className="ig-post-grid">
-            <Link href="/submit" className="ig-post-tile ig-post-tile-add"><span>＋</span><strong>새 브랜드 등록</strong></Link>
+            <Link href="/my/brand/new" className="ig-post-tile ig-post-tile-add"><span>＋</span><strong>새 브랜드 등록</strong></Link>
             {brands.map((brand) => {
               const brandProducts = products.filter((product) => product.brand_id === brand.id);
               const brandViews = brandProducts.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
