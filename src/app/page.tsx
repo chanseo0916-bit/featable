@@ -5,7 +5,6 @@ import { HomeOpportunityBanner, type HomeOpportunitySlide } from "@/components/h
 import { ProductSquareRail, type ProductSquareRailItem } from "@/components/product-square-rail";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
-import { SITE_DESCRIPTION } from "@/lib/site";
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
@@ -68,11 +67,6 @@ export default async function Home() {
     <>
       <Header />
       <main>
-        <section className="shell home-intro">
-          <p className="eyebrow">FEATABLE</p>
-          <p>{SITE_DESCRIPTION}</p>
-        </section>
-
         <HomeOpportunityBanner slides={opportunitySlides} />
 
         <section className="shell live-stage">
@@ -126,7 +120,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="new-final-cta"><div className="shell"><div><h2>만들고 있는 브랜드와 제품을 알리세요</h2><p>누구나 직접 등록하고 피쳐를 시작할 수 있습니다.</p></div><Link className="button" href="/submit">브랜드 올리기 <span>→</span></Link></div></section>
+        <section className="new-final-cta"><div className="shell"><div><h2>만드는 사람으로 발견되세요</h2><p>역할과 이야기를 담은 나만의 프로필 카드를 만들어보세요.</p></div><Link className="button" href="/submit">프로필 만들기 <span>→</span></Link></div></section>
       </main>
       <Footer partners={partners} />
     </>
