@@ -10,11 +10,13 @@ export function SaveButton({
   itemType,
   slug,
   variant = "default",
+  labelMode = "save",
   className,
 }: {
   itemType: SaveItemType;
   slug: string;
   variant?: "default" | "icon";
+  labelMode?: "save" | "like";
   className?: string;
 }) {
   const [saved, setSaved] = useState(false);
@@ -73,15 +75,19 @@ export function SaveButton({
     setBusy(false);
   }
 
-  const label = saved ? "저장됨" : "저장하기";
+  const label = labelMode === "like"
+    ? saved ? "좋아요 취소" : "좋아요"
+    : saved ? "저장됨" : "저장하기";
   return <>
     <button
       type="button"
       onClick={toggle}
       disabled={busy || !loaded}
       aria-pressed={saved}
-      aria-label={saved ? "저장 목록에서 제거" : "내 저장 목록에 추가"}
-      className={`${variant === "icon" ? "product-favorite" : "save-item-button"}${saved ? " is-favorite saved" : ""}${className ? ` ${className}` : ""}`}
+      aria-label={labelMode === "like"
+        ? saved ? "좋아요 취소" : "좋아요 누르기"
+        : saved ? "저장 목록에서 제거" : "내 저장 목록에 추가"}
+      className={`${variant === "icon" ? "product-favorite" : "save-item-button"}${labelMode === "like" ? " like-item-button" : ""}${saved ? " is-favorite saved" : ""}${className ? ` ${className}` : ""}`}
     >
       <span aria-hidden="true">{saved ? "♥" : "♡"}</span>
       {variant === "default" && <strong>{label}</strong>}

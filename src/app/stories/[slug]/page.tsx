@@ -78,6 +78,32 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             }]
           : []),
       ];
+  const briefItems = articleBody.slice(0, 3).map((block, index) => {
+    if (block.type === "text") {
+      return {
+        title: block.heading || `${index + 1}번째 이야기`,
+        body: block.body,
+      };
+    }
+
+    if (block.type === "features") {
+      return {
+        title: block.heading || `${index + 1}번째 이야기`,
+        body: block.items.map((item) => `${item.title}: ${item.body}`).join(" · "),
+      };
+    }
+
+    return {
+      title: block.caption || `${index + 1}번째 장면`,
+      body: block.alt || feature.excerpt,
+    };
+  });
+  const fallbackBriefs = [
+    { title: `${brand?.name ?? "새로운 팀"}이 해결하는 문제`, body: brand?.problem ?? feature.excerpt },
+    { title: "지금 주목해야 하는 이유", body: feature.excerpt },
+    { title: "만든 사람의 관점", body: founder?.headline ?? "제품 뒤에 있는 사람의 이야기를 확인해보세요." },
+  ];
+  const summaryBriefs = fallbackBriefs.map((fallback, index) => briefItems[index] ?? fallback);
   const articleSubjects: SeoSchema[] = [
     ...(founder
       ? [{
@@ -146,9 +172,9 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
               <h1>{feature.title}</h1>
               <p className="feature-brief-excerpt">{feature.excerpt}</p>
 
-              <div className="feature-brief-metrics">
+              <div id="likes" className="feature-brief-metrics">
                 <FeatureViewMetric slug={feature.slug} initialCount={discoveryCount} />
-                <SaveButton itemType="feature" slug={feature.slug} />
+                <SaveButton itemType="feature" slug={feature.slug} labelMode="like" />
               </div>
             </div>
 
@@ -160,18 +186,16 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
 
           <div className="feature-summary-strip">
             <div className="feature-summary-label"><span>✦</span><strong>3줄 브리핑</strong><small>핵심만 먼저 보기</small></div>
-            <div><b>01</b><p><strong>{brand?.name ?? "새로운 팀"}이 해결하는 문제</strong><span>{brand?.problem ?? feature.excerpt}</span></p></div>
-            <div><b>02</b><p><strong>지금 주목해야 하는 이유</strong><span>{feature.excerpt}</span></p></div>
-            <div><b>03</b><p><strong>만든 사람의 관점</strong><span>{founder?.headline ?? "제품 뒤에 있는 사람의 이야기를 확인해보세요."}</span></p></div>
+            {summaryBriefs.map((brief, index) => <div key={`${brief.title}-${index}`}><b>{String(index + 1).padStart(2, "0")}</b><p><strong>{brief.title}</strong><span>{brief.body}</span></p></div>)}
           </div>
 
-          <div id="cheers" className="feature-social-proof">
-            <p><strong>Founder 응원</strong>이 다음 여정을 시작하는 데 힘이 됩니다.</p>
-            <span>스토리를 읽고 댓글로 응원을 남겨보세요.</span>
+          <div className="feature-social-proof">
+            <p><strong>이 스토리가 좋았다면</strong> 하트를 눌러주세요.</p>
+            <span>좋아요는 내 계정에 저장되고 언제든 취소할 수 있어요.</span>
           </div>
         </section>
 
-        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">스토리</a>{founder && <a href="#founder">Founder</a>}{product && <a href="#product">프로덕트</a>}<a href="#cheers">응원</a></div></nav>
+        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">스토리</a>{founder && <a href="#founder">Founder</a>}{product && <a href="#product">프로덕트</a>}<a href="#likes">좋아요</a></div></nav>
 
         <section id="story" className="shell feature-story-layout">
           <article className="feature-long-article">
@@ -190,7 +214,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             {product && <section id="product" className="feature-related-product"><p>RELATED PRODUCT</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
           </article>
 
-          <aside className="feature-article-aside"><div><p>FEATURED</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>{founder?.name} Founder</span></div><div><p>DISCOVERED</p><strong>{discoveryCount.toLocaleString()}</strong><span>people</span></div><a href="#comments">Founder 응원하기 →</a></aside>
+          <aside className="feature-article-aside"><div><p>FEATURED</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>{founder?.name} Founder</span></div><div><p>DISCOVERED</p><strong>{discoveryCount.toLocaleString()}</strong><span>people</span></div><a href="#likes">♡ 좋아요 누르기 →</a></aside>
         </section>
 
         <Comments type="feature" slug={feature.slug} />

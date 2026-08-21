@@ -4,6 +4,7 @@ import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-fe
 import { HomeOpportunityBanner, type HomeOpportunitySlide } from "@/components/home-opportunity-banner";
 import { ProductSquareRail, type ProductSquareRailItem } from "@/components/product-square-rail";
 import { FounderInterviewRail, type FounderInterviewRailItem } from "@/components/founder-interview-rail";
+import { FreshProductRail } from "@/components/fresh-product-rail";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
 
@@ -108,14 +109,13 @@ export default async function Home() {
         <section className="shell live-stage">
           <div className="live-main">
             {freshProducts.length > 0 ? <div className="fresh-products-panel">
-              <SectionHeader eyebrow="JUST IN" title="새로 등록된 프로덕트" href={null} />
-              <div className="product-grid fresh-products-side">
-                {freshProducts.slice(0, 6).map((product, index) => {
+              <FreshProductRail header={<SectionHeader eyebrow="JUST IN" title="새로 등록된 프로덕트" href={null} />} showControls={freshProducts.length > 2}>
+                {freshProducts.slice(0, 10).map((product, index) => {
                   const brand = brands.find((item) => item.slug === product.brandSlug);
                   const founder = founders.find((item) => item.slug === product.founderSlug);
                   return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card commerce-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="product-chip">{product.category}</span>{index < 2 && <span className="drop-label">NEW</span>}</div><div className="card-body"><div className="product-brand-line"><img src={brand?.logoUrl} alt="" /><span>{brand?.name}</span><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="product-meta-row"><span className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span>{founder?.name}</span>{product.price ? <strong>{product.price}</strong> : <strong className="meta-cta">피쳐 보기 →</strong>}</div></div></Link>;
                 })}
-              </div>
+              </FreshProductRail>
             </div> : interviewItems.length > 0
               ? <FounderInterviewRail items={interviewItems} />
               : <ProductSquareRail items={productRailItems} />}

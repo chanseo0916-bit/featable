@@ -153,7 +153,7 @@ export function Comments({
           onChange={(e) => setBody(e.target.value)}
           onFocus={() => { if (!me) setLoginOpen(true); }}
           maxLength={1000}
-          placeholder={me ? "응원과 피드백을 남겨보세요" : "로그인하고 댓글을 남겨보세요"}
+          placeholder={me ? "생각과 피드백을 남겨보세요" : "로그인하고 댓글을 남겨보세요"}
           className="min-h-20 w-full rounded-xl border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-accent"
         />
         {notice && <p className="mt-2 rounded-lg bg-red-50 px-4 py-2 text-xs text-red-600">{notice}</p>}
