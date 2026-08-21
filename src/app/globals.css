@@ -3030,3 +3030,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (max-width: 430px) {
   .product-preview-device { width: 246px; height: 500px; }
 }
+
+/* 검증 후속 보정 */
+.role-gate-page > .role-gate-card { max-width: 560px; }
+@media (max-width: 760px) {
+  .simple-register-nav .shell > a::after { content: none; }
+}
