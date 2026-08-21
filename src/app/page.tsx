@@ -13,7 +13,15 @@ const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() -
 export default async function Home() {
   const { brands, products, founders } = await getCatalog();
   const [events, supportPrograms, features, partners] = await Promise.all([getEvents(), getSupportPrograms(), getFeatures(), getPartners()]);
-  const productRailItems: ProductSquareRailItem[] = products.map((product) => ({
+  const featuredProducts = products.filter((product) => product.isFeatured);
+  const editorPickProducts = featuredProducts.length > 0
+    ? featuredProducts.slice(0, 6)
+    : [...products].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)).slice(0, 3);
+  const editorPickSlugs = new Set(editorPickProducts.map((product) => product.slug));
+  const freshProducts = products
+    .filter((product) => !editorPickSlugs.has(product.slug))
+    .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
+  const productRailItems: ProductSquareRailItem[] = editorPickProducts.map((product) => ({
     slug: product.slug,
     name: product.name,
     tagline: product.tagline,
@@ -75,16 +83,16 @@ export default async function Home() {
           <LiveFeatureRanking productItems={productRankingItems} featureItems={featureRankingItems} />
         </section>
 
-        <section className="shell section fresh-products">
-          <SectionHeader title="새로 등록된 프로덕트" href="/products" />
+        {freshProducts.length > 0 && <section className="shell section fresh-products">
+          <SectionHeader eyebrow="JUST IN" title="새로 등록된 프로덕트" href="/products" />
           <div className="product-grid">
-            {products.map((product, index) => {
+            {freshProducts.map((product, index) => {
               const brand = brands.find((item) => item.slug === product.brandSlug);
               const founder = founders.find((item) => item.slug === product.founderSlug);
               return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card commerce-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="product-chip">{product.category}</span>{index < 2 && <span className="drop-label">NEW</span>}</div><div className="card-body"><div className="product-brand-line"><img src={brand?.logoUrl} alt="" /><span>{brand?.name}</span><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="product-meta-row"><span className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span>{founder?.name}</span>{product.price ? <strong>{product.price}</strong> : <strong className="meta-cta">피쳐 보기 →</strong>}</div></div></Link>;
             })}
           </div>
-        </section>
+        </section>}
 
         <section className="shell section">
           <SectionHeader eyebrow="MEET THE FOUNDERS" title="주목할 파운더" href="/brands" />

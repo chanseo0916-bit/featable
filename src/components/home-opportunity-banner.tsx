@@ -14,19 +14,35 @@ export type HomeOpportunitySlide = {
   imageUrl?: string;
 };
 
+const fallbackSlides: HomeOpportunitySlide[] = [
+  {
+    href: "/support",
+    type: "지원사업",
+    title: "창업에 필요한 다음 기회를 찾아보세요",
+    detail: "정부지원사업과 성장 기회를 한곳에서 확인하세요.",
+    badge: "OPEN",
+  },
+  {
+    href: "/events",
+    type: "행사",
+    title: "만드는 사람들의 다음 만남",
+    detail: "창업가와 빌더를 위한 행사 소식을 준비하고 있어요.",
+    badge: "COMING SOON",
+  },
+];
+
 export function HomeOpportunityBanner({ slides }: { slides: HomeOpportunitySlide[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const visibleSlides = slides.length > 0 ? slides : fallbackSlides;
 
   useEffect(() => {
-    if (paused || slides.length < 2) return;
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % slides.length), 6000);
+    if (paused || visibleSlides.length < 2) return;
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % visibleSlides.length), 6000);
     return () => window.clearInterval(timer);
-  }, [paused, slides.length]);
+  }, [paused, visibleSlides.length]);
 
-  if (slides.length === 0) return null;
-
-  const go = (direction: number) => setIndex((current) => (current + direction + slides.length) % slides.length);
+  const go = (direction: number) => setIndex((current) => (current + direction + visibleSlides.length) % visibleSlides.length);
 
   return (
     <section className="home-opportunity-wrap" aria-label="다가오는 행사와 지원사업">
@@ -35,11 +51,11 @@ export function HomeOpportunityBanner({ slides }: { slides: HomeOpportunitySlide
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        {slides.map((slide, slideIndex) => (
+        {visibleSlides.map((slide, slideIndex) => (
           <Link
             href={slide.href}
             key={`${slide.type}-${slide.href}`}
-            className={`home-opportunity-slide ${slide.type === "지원사업" ? "is-support" : "is-event"}${slideIndex === index ? " active" : ""}`}
+            className={`home-opportunity-slide ${slide.type === "지원사업" ? "is-support" : "is-event"} ${slide.imageUrl ? "has-image" : "no-image"}${slideIndex === index ? " active" : ""}`}
             aria-hidden={slideIndex !== index}
             tabIndex={slideIndex === index ? 0 : -1}
           >
@@ -64,7 +80,7 @@ export function HomeOpportunityBanner({ slides }: { slides: HomeOpportunitySlide
           </Link>
         ))}
 
-        {slides.length > 1 && (
+        {visibleSlides.length > 1 && (
           <div className="home-opportunity-control" aria-label="배너 탐색">
             <button type="button" onClick={() => go(-1)} aria-label="이전 배너">‹</button>
             <span><b>{String(index + 1).padStart(2, "0")}</b> / {String(slides.length).padStart(2, "0")}</span>

@@ -28,7 +28,7 @@ export function ProductSquareRail({ items }: { items: ProductSquareRailItem[] })
   return (
     <section className="product-discovery-rail" aria-labelledby="product-discovery-title">
       <header>
-        <div><span>PRODUCT DISCOVERY</span><h2 id="product-discovery-title">지금 발견할 프로덕트</h2></div>
+        <div><span>WEEKLY EDITOR&apos;S PICK</span><h2 id="product-discovery-title">이번 주 에디터 픽</h2></div>
         <div className="product-rail-actions">
           <Link href="/products">전체보기</Link>
           <button type="button" onClick={() => scroll(-1)} aria-label="이전 프로덕트">←</button>
