@@ -1969,6 +1969,21 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .studio-settings-card { padding: 18px; grid-template-columns: 1fr; }
   .role-settings-grid { grid-template-columns: 1fr; }
   .simple-registration-page { padding-top: 24px; }
+
+/* /submit 역할 확인 게이트 — 창업가가 아닌 역할로 들어왔을 때 */
+.role-gate-page { display: grid; place-items: center; }
+.role-gate-card { max-width: 560px; padding: 44px 40px; border: 1px solid #dfe2e5; border-radius: 16px; background: #fff; text-align: center; }
+.role-gate-card > span { color: var(--accent); font-size: 9px; font-weight: 850; letter-spacing: .14em; }
+.role-gate-card h1 { margin: 14px 0 0; font-size: clamp(24px, 3.4vw, 32px); line-height: 1.25; letter-spacing: -.05em; }
+.role-gate-card > p { margin: 16px 0 0; color: #5f666d; font-size: 13px; line-height: 1.85; word-break: keep-all; }
+.role-gate-card > p b { color: var(--foreground); font-weight: 750; }
+.role-gate-actions { margin-top: 28px; display: grid; gap: 12px; justify-items: center; }
+.role-gate-actions button { height: 48px; padding: 0 26px; display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; cursor: pointer; font-size: 13px; font-weight: 750; }
+.role-gate-actions button:hover { background: var(--accent-hover); }
+.role-gate-actions button b { font-weight: 500; }
+.role-gate-actions > a { color: var(--muted); font-size: 12px; font-weight: 650; }
+.role-gate-actions > a:hover { color: var(--accent); }
+@media (max-width: 640px) { .role-gate-card { padding: 32px 22px; } }
   .simple-registration-context { display: none; }
   .simple-registration-card { padding: 28px 20px 22px; }
   .simple-brand-form { grid-template-columns: 1fr; }
