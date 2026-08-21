@@ -21,6 +21,7 @@ create table profiles (
   terms_agreed_at timestamptz,
   privacy_agreed_at timestamptz,
   marketing_agreed_at timestamptz,
+  signup_notified_at timestamptz,
   onboarding_completed_at timestamptz,
   created_at timestamptz not null default now()
 );
@@ -527,7 +528,7 @@ create index publishing_invitations_email_status_idx on publishing_invitations(l
 create index partners_owner_idx on partners(owner_user_id, created_at desc);
 create index event_registrations_event_status_idx on event_registrations(event_id, status, applied_at);
 create index event_registrations_user_idx on event_registrations(user_id, applied_at desc);
-create unique index event_registrations_guest_email_unique on event_registrations(event_id, lower(applicant_email)) where user_id is null;
+create unique index event_registrations_event_email_unique on event_registrations(event_id, lower(applicant_email));
 create unique index event_registrations_guest_token_unique on event_registrations(guest_token_hash) where guest_token_hash is not null;
 create index idx_founder_supports_founder on founder_supports(founder_id);
 create index brand_members_user_idx on brand_members(user_id);

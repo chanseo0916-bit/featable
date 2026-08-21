@@ -42,6 +42,15 @@ function clean(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function isWebUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function publicPath(table: AdminTable, slug?: string | null) {
   if (!slug) return null;
   if (table === "support_programs") return `/support/${slug}`;
@@ -83,11 +92,20 @@ export async function updateAdminContent(
   } else if (table === "events") {
     const startsAt = clean(input.startsAt);
     if (!startsAt || Number.isNaN(Date.parse(startsAt))) return { error: "행사 일시를 확인해주세요." };
+    const registrationMode = clean(input.registrationMode) === "internal" ? "internal" : "external";
+    if (registrationMode === "external" && !isWebUrl(clean(input.applyUrl))) return { error: "외부 신청 URL을 확인해주세요." };
+    const capacity = clean(input.capacity) ? Number(clean(input.capacity)) : null;
+    if (capacity !== null && (!Number.isInteger(capacity) || capacity < 1)) return { error: "정원은 1명 이상으로 입력해주세요." };
     ({ error } = await supabase.from("events").update({
       name: clean(input.name), host: clean(input.host), starts_at: new Date(startsAt).toISOString(),
       location: clean(input.location), is_online: Boolean(input.isOnline), fee: clean(input.fee) || null,
       category: clean(input.category) || "기타", audience: clean(input.audience) || null,
-      apply_url: clean(input.applyUrl), cover_url: clean(input.coverUrl) || null,
+      apply_url: registrationMode === "internal" ? null : clean(input.applyUrl),
+      registration_mode: registrationMode,
+      approval_mode: clean(input.approvalMode) === "manual" ? "manual" : "instant",
+      capacity,
+      waitlist_enabled: Boolean(input.waitlistEnabled),
+      cover_url: clean(input.coverUrl) || null,
     }).eq("id", id));
   } else if (table === "support_programs") {
     if (!clean(input.closeAt)) return { error: "마감일은 필수입니다." };
@@ -169,16 +187,24 @@ export interface EventInput {
   fee?: string;
   category: string;
   audience?: string;
-  applyUrl: string;
+  applyUrl?: string;
   coverUrl?: string;
+  registrationMode: "external" | "internal";
+  approvalMode: "instant" | "manual";
+  capacity?: string;
+  waitlistEnabled: boolean;
 }
 
 export async function createEvent(input: EventInput): Promise<{ error?: string }> {
   const supabase = await requireAdmin();
   if (!supabase) return { error: "관리자 권한이 없습니다." };
-  if (!input.name.trim() || !input.startsAt || !input.applyUrl.trim()) {
-    return { error: "행사명, 일시, 신청 링크는 필수입니다." };
+  if (!input.name.trim() || !input.startsAt) {
+    return { error: "행사명과 일시는 필수입니다." };
   }
+  if (Number.isNaN(Date.parse(input.startsAt))) return { error: "행사 일시를 확인해주세요." };
+  if (input.registrationMode === "external" && !isWebUrl(input.applyUrl?.trim() ?? "")) return { error: "외부 신청 URL을 확인해주세요." };
+  const capacity = input.capacity?.trim() ? Number(input.capacity) : null;
+  if (capacity !== null && (!Number.isInteger(capacity) || capacity < 1)) return { error: "정원은 1명 이상으로 입력해주세요." };
 
   const slug = `${slugify(input.name) || "event"}-${randomSuffix()}`;
   const { error } = await supabase.from("events").insert({
@@ -191,7 +217,11 @@ export async function createEvent(input: EventInput): Promise<{ error?: string }
     fee: input.fee?.trim() || null,
     category: input.category,
     audience: input.audience?.trim() || null,
-    apply_url: input.applyUrl.trim(),
+    apply_url: input.registrationMode === "internal" ? null : input.applyUrl?.trim(),
+    registration_mode: input.registrationMode,
+    approval_mode: input.approvalMode,
+    capacity,
+    waitlist_enabled: input.waitlistEnabled,
     cover_url: input.coverUrl?.trim() || null,
     status: "published",
   });

@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { deleteAdminContent, updateAdminContent, type AdminEditableTable, type AdminEditPayload } from "./actions";
 
-type Field = { key: string; label: string; type?: "text" | "url" | "date" | "datetime-local" | "textarea" | "checkbox"; required?: boolean; wide?: boolean };
+type Field = { key: string; label: string; type?: "text" | "url" | "number" | "date" | "datetime-local" | "textarea" | "checkbox" | "select"; options?: Array<{ value: string; label: string }>; required?: boolean; wide?: boolean };
 
 const FIELDS: Record<AdminEditableTable, Field[]> = {
   brands: [
@@ -27,7 +27,11 @@ const FIELDS: Record<AdminEditableTable, Field[]> = {
     { key: "name", label: "행사명", required: true, wide: true }, { key: "host", label: "주최" },
     { key: "startsAt", label: "행사 일시", type: "datetime-local", required: true }, { key: "location", label: "장소" },
     { key: "category", label: "카테고리" }, { key: "fee", label: "참가비" },
-    { key: "audience", label: "참가 대상", wide: true }, { key: "applyUrl", label: "신청 URL", type: "url", required: true },
+    { key: "audience", label: "참가 대상", wide: true },
+    { key: "registrationMode", label: "신청 방식", type: "select", options: [{ value: "external", label: "외부 링크" }, { value: "internal", label: "Featable 내부 신청" }] },
+    { key: "approvalMode", label: "승인 방식", type: "select", options: [{ value: "instant", label: "즉시 확정" }, { value: "manual", label: "주최자 승인" }] },
+    { key: "applyUrl", label: "외부 신청 URL", type: "url", wide: true }, { key: "capacity", label: "정원", type: "number" },
+    { key: "waitlistEnabled", label: "정원 초과 시 대기 신청", type: "checkbox" },
     { key: "coverUrl", label: "커버 URL", type: "url" }, { key: "isOnline", label: "온라인 행사", type: "checkbox" },
   ],
   support_programs: [
@@ -73,6 +77,7 @@ export function AdminEditButton({ table, id, initial, label }: { table: AdminEdi
           <span>{field.label}{field.required && " *"}</span>
           {field.type === "textarea" ? <textarea value={String(values[field.key] ?? "")} onChange={(event) => set(field.key, event.target.value)} />
             : field.type === "checkbox" ? <input type="checkbox" checked={Boolean(values[field.key])} onChange={(event) => set(field.key, event.target.checked)} />
+            : field.type === "select" ? <select value={String(values[field.key] ?? "")} onChange={(event) => set(field.key, event.target.value)}>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
             : <input type={field.type ?? "text"} required={field.required} value={String(values[field.key] ?? "")} onChange={(event) => set(field.key, event.target.value)} />}
         </label>)}
       </div>

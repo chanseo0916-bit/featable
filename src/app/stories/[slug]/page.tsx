@@ -135,8 +135,12 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           <div className="feature-brief-hero">
             <div className="feature-brief-copy">
               <div className="feature-brief-brand">
-                <img src={brand?.logoUrl ?? founder?.avatarUrl} alt="" />
-                <div><span>FEATURED BY</span><Link href={brand ? `/brands/${brand.slug}` : "#"}>{brand?.name ?? founder?.name}</Link></div>
+                {(brand?.logoUrl || founder?.avatarUrl) && <img src={brand?.logoUrl ?? founder?.avatarUrl} alt="" />}
+                <div><span>FEATURED BY</span>{brand
+                  ? <Link href={`/brands/${brand.slug}`}>{brand.name}</Link>
+                  : founder
+                    ? <Link href={`/founders/${founder.slug}`}>{founder.name}</Link>
+                    : <strong>FEATABLE</strong>}</div>
               </div>
               <p className="feature-brief-kicker">{kindLabel[feature.kind]}</p>
               <h1>{feature.title}</h1>
@@ -167,7 +171,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           </div>
         </section>
 
-        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">스토리</a><a href="#founder">Founder</a><a href="#product">프로덕트</a><a href="#cheers">응원</a></div></nav>
+        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">스토리</a>{founder && <a href="#founder">Founder</a>}{product && <a href="#product">프로덕트</a>}<a href="#cheers">응원</a></div></nav>
 
         <section id="story" className="shell feature-story-layout">
           <article className="feature-long-article">

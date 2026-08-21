@@ -65,6 +65,15 @@ export async function cancelGuestRegistration(slug: string, token: string, _prev
     slug: result.event_slug,
     status: "cancelled",
   });
+  if (result.promoted_registration_id && result.promoted_email && result.promoted_name) await sendRegistrationStatusEmail({
+    registrationId: result.promoted_registration_id,
+    email: result.promoted_email,
+    name: result.promoted_name,
+    eventName: result.event_name,
+    slug: result.event_slug,
+    status: "confirmed",
+    version: new Date().toISOString(),
+  });
   revalidatePath(`/events/${slug}`);
   revalidatePath(`/my/events/${slug}`);
   return { ok: true, status: "cancelled", eventName: result.event_name, cancelled: true };

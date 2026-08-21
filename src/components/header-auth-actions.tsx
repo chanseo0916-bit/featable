@@ -68,7 +68,7 @@ export function HeaderAuthActions() {
         </Link>
         <div className="nav-submit-wrap">
           <Link className="button button-small nav-submit" href="/my">
-            파운더 센터 <span>↗</span>
+            마이페이지 <span>↗</span>
           </Link>
           <span className="nav-submit-hint">등록한 피쳐를 <b>한곳에서 관리</b></span>
         </div>

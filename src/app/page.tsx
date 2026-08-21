@@ -89,7 +89,7 @@ export default async function Home() {
         </section>}
 
         <section className="shell section">
-          <SectionHeader eyebrow="MEET THE FOUNDERS" title="주목할 파운더" href="/brands" />
+          <SectionHeader eyebrow="MEET THE FOUNDERS" title="브랜드를 만드는 사람들" href="/brands" />
           <div className="founder-spotlight-grid">
             {founders.slice(0, 4).map((f) => {
               const fProducts = products.filter((p) => p.founderSlug === f.slug);

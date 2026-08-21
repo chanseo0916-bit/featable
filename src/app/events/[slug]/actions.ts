@@ -109,7 +109,8 @@ export async function cancelEventRegistration(eventId: string, slug: string) {
     supabase.from("event_registrations").select("id,applicant_name,applicant_email").eq("event_id", eventId).eq("user_id", user.id).maybeSingle(),
     supabase.from("events").select("name,slug").eq("id", eventId).maybeSingle(),
   ]);
-  const { error } = await supabase.rpc("cancel_my_event_registration", { target_event_id: eventId });
+  const { data, error } = await supabase.rpc("cancel_my_event_registration", { target_event_id: eventId });
+  const result = Array.isArray(data) ? data[0] : data;
   if (!error && registration && event) await sendRegistrationStatusEmail({
     registrationId: registration.id,
     email: registration.applicant_email,
@@ -118,6 +119,17 @@ export async function cancelEventRegistration(eventId: string, slug: string) {
     slug: event.slug,
     status: "cancelled",
   });
+  if (!error && result?.promoted_registration_id && result.promoted_email && result.promoted_name) {
+    await sendRegistrationStatusEmail({
+      registrationId: result.promoted_registration_id,
+      email: result.promoted_email,
+      name: result.promoted_name,
+      eventName: result.event_name ?? event?.name ?? "행사",
+      slug: result.event_slug ?? slug,
+      status: "confirmed",
+      version: new Date().toISOString(),
+    });
+  }
   revalidatePath(`/events/${slug}`);
   revalidatePath("/my/events");
 }

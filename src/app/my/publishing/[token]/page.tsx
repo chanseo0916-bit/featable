@@ -19,7 +19,9 @@ export default async function ApprovedPublishingPage({ params }: { params: Promi
   if (!admin) notFound();
   const { data } = await admin.from("publishing_invitations").select("id,registration_type,invitee_email,user_id,draft_payload,status,expires_at,entity_id,inquiry:partnership_inquiries(organization,website,objective,message)").eq("token", token).maybeSingle();
   if (!data || data.user_id !== user.id) notFound();
-  if (data.status === "expired" || new Date(data.expires_at).getTime() < Date.now()) redirect("/my?publishing=expired");
+  // ensurePublishingInvitationsForUser marks expired invitations immediately before this query.
+  // Mutations also enforce expires_at again, so rendering only needs the persisted status.
+  if (data.status === "expired") redirect("/my?publishing=expired");
   if (data.status === "published") {
     if (data.registration_type === "community" && data.entity_id) {
       const { data: community } = await admin.from("communities").select("slug").eq("id", data.entity_id).maybeSingle();

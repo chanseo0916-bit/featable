@@ -28,6 +28,7 @@ async function postSlack(webhookUrl: string | undefined, text: string, blocks: S
 }
 
 const roleLabel = (type: string) => ({ founder: "창업가·대표", team: "팀 멤버", explorer: "예비 창업가", partner: "파트너" })[type] ?? type;
+const slackText = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 export async function notifySlackNewSignup(input: { userId: string; name: string; email: string; memberType: string; marketingAccepted: boolean }) {
   const admin = createAdminClient();
@@ -37,7 +38,7 @@ export async function notifySlackNewSignup(input: { userId: string; name: string
   }
 
   const [{ data: profile, error: profileError }, { count, error: countError }] = await Promise.all([
-    admin.from("profiles").select("id").eq("id", input.userId).maybeSingle(),
+    admin.from("profiles").select("id,signup_notified_at").eq("id", input.userId).maybeSingle(),
     admin.from("profiles").select("id", { count: "exact", head: true }),
   ]);
 
@@ -48,20 +49,34 @@ export async function notifySlackNewSignup(input: { userId: string; name: string
   if (countError) {
     console.error("[slack] Failed to calculate the signup number.", countError);
   }
+  if (profile.signup_notified_at) return { ok: true, skipped: true };
+
+  const claimedAt = new Date().toISOString();
+  const { data: claimed, error: claimError } = await admin.from("profiles")
+    .update({ signup_notified_at: claimedAt })
+    .eq("id", input.userId)
+    .is("signup_notified_at", null)
+    .select("id")
+    .maybeSingle();
+  if (claimError || !claimed) return { ok: !claimError, skipped: true };
 
   const signupNumber = count ?? null;
   const signupLabel = signupNumber ? `${signupNumber}번째 가입자` : "새 가입자";
-  const text = `${signupLabel}: ${input.name} (${input.email})`;
-  return postSlack(process.env.SLACK_SIGNUP_WEBHOOK_URL ?? process.env.SLACK_WEBHOOK_URL, text, [
+  const name = slackText(input.name);
+  const email = slackText(input.email);
+  const text = `${signupLabel}: ${name} (${email})`;
+  const delivery = await postSlack(process.env.SLACK_SIGNUP_WEBHOOK_URL ?? process.env.SLACK_WEBHOOK_URL, text, [
     { type: "header", text: { type: "plain_text", text: `👋 Featable ${signupLabel}`, emoji: true } },
     { type: "section", fields: [
-      { type: "mrkdwn", text: `*이름*\n${input.name}` },
+      { type: "mrkdwn", text: `*이름*\n${name}` },
       { type: "mrkdwn", text: `*역할*\n${roleLabel(input.memberType)}` },
-      { type: "mrkdwn", text: `*이메일*\n${input.email}` },
+      { type: "mrkdwn", text: `*이메일*\n${email}` },
       { type: "mrkdwn", text: `*마케팅 수신*\n${input.marketingAccepted ? "동의" : "미동의"}` },
     ] },
     { type: "context", elements: [{ type: "mrkdwn", text: `가입 완료 · ${new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" }).format(new Date())}` }] },
   ]);
+  if (!delivery.ok) await admin.from("profiles").update({ signup_notified_at: null }).eq("id", input.userId).eq("signup_notified_at", claimedAt);
+  return delivery;
 }
 
 export async function notifySlackPartnerSubmission(input: { id: string; title: string; type: "event" | "support" | "community"; partnerName: string; partnerEmail: string }) {

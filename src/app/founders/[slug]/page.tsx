@@ -139,15 +139,15 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
         </section>
 
         <section className="founder-activity-bar">
-          <div className="shell"><strong>{founder.name}의 활동</strong><nav><a href="#brands">브랜드</a><a href="#products">프로덕트</a><a href="#stories">피처</a></nav><span>마지막 업데이트 · 최근</span></div>
+          <div className="shell"><strong>{founder.name}의 활동</strong><nav>{founderBrands.length > 0 && <a href="#brands">브랜드</a>}{founderProducts.length > 0 && <a href="#products">프로덕트</a>}{founderFeatures.length > 0 && <a href="#stories">피처</a>}</nav><span>마지막 업데이트 · 최근</span></div>
         </section>
 
         <div className="founder-journey">
           <div className="shell founder-flow" aria-label="Founder 활동 흐름">
             <div className="active"><i>01</i><span>Founder</span><strong>{founder.name}</strong></div><b>→</b>
-            <a href="#brands"><i>02</i><span>Brand</span><strong>{founderBrands[0]?.name ?? "준비 중"}</strong></a><b>→</b>
-            <a href="#products"><i>03</i><span>Product</span><strong>{founderProducts[0]?.name ?? "준비 중"}</strong></a><b>→</b>
-            <a href="#stories"><i>04</i><span>Feature</span><strong>{founderFeatures.length ? `${founderFeatures.length}개의 이야기` : "준비 중"}</strong></a>
+            {founderBrands.length > 0 ? <a href="#brands"><i>02</i><span>Brand</span><strong>{founderBrands[0].name}</strong></a> : <span aria-disabled="true"><i>02</i><span>Brand</span><strong>준비 중</strong></span>}<b>→</b>
+            {founderProducts.length > 0 ? <a href="#products"><i>03</i><span>Product</span><strong>{founderProducts[0].name}</strong></a> : <span aria-disabled="true"><i>03</i><span>Product</span><strong>준비 중</strong></span>}<b>→</b>
+            {founderFeatures.length > 0 ? <a href="#stories"><i>04</i><span>Feature</span><strong>{founderFeatures.length}개의 이야기</strong></a> : <span aria-disabled="true"><i>04</i><span>Feature</span><strong>준비 중</strong></span>}
           </div>
 
           {founderBrands.length > 0 && <section id="brands" className="shell section founder-work-section"><SectionHeader eyebrow="BUILDING" title={`${founder.name}의 브랜드`} href="/brands" /><div className="brand-grid">{founderBrands.map((brand) => <Link href={`/brands/${brand.slug}`} className="brand-card" key={brand.slug}><img className="brand-logo" src={brand.logoUrl} alt="" /><div><Badge>{brand.category}</Badge><h3>{brand.name}</h3><p>{brand.tagline}</p></div></Link>)}</div></section>}

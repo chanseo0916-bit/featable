@@ -25,6 +25,7 @@ export function EventForm() {
   const [form, setForm] = useState<EventInput>({
     name: "", host: "", startsAt: "", location: "", isOnline: false,
     fee: "", category: "기타", audience: "", applyUrl: "", coverUrl: "",
+    registrationMode: "external", approvalMode: "instant", capacity: "", waitlistEnabled: true,
   });
   const [pending, startTransition] = useTransition();
   const [notice, setNotice] = useState<string | null>(null);
@@ -37,7 +38,7 @@ export function EventForm() {
       if (result.error) setNotice(result.error);
       else {
         setNotice("행사가 등록되었습니다.");
-        setForm({ name: "", host: "", startsAt: "", location: "", isOnline: false, fee: "", category: "기타", audience: "", applyUrl: "", coverUrl: "" });
+        setForm({ name: "", host: "", startsAt: "", location: "", isOnline: false, fee: "", category: "기타", audience: "", applyUrl: "", coverUrl: "", registrationMode: "external", approvalMode: "instant", capacity: "", waitlistEnabled: true });
         router.refresh();
       }
     });
@@ -62,12 +63,15 @@ export function EventForm() {
                 {EVENT_CATEGORIES.map((c) => <option key={c}>{c}</option>)}
               </select>
             </div>
-            <div><label className={labelCls}>신청 링크 *</label><input className={inputCls} value={form.applyUrl} placeholder="https://" onChange={(e) => set({ applyUrl: e.target.value })} /></div>
+            <div><label className={labelCls}>신청 방식</label><select className={inputCls} value={form.registrationMode} onChange={(e) => set({ registrationMode: e.target.value as EventInput["registrationMode"] })}><option value="external">외부 링크</option><option value="internal">Featable 내부 신청</option></select></div>
+            <div><label className={labelCls}>승인 방식</label><select className={inputCls} value={form.approvalMode} onChange={(e) => set({ approvalMode: e.target.value as EventInput["approvalMode"] })}><option value="instant">신청 즉시 확정</option><option value="manual">주최자 승인 후 확정</option></select></div>
+            {form.registrationMode === "external" ? <div><label className={labelCls}>신청 링크 *</label><input className={inputCls} value={form.applyUrl} placeholder="https://" onChange={(e) => set({ applyUrl: e.target.value })} /></div> : <div><label className={labelCls}>정원</label><input type="number" min="1" className={inputCls} value={form.capacity ?? ""} placeholder="비워두면 제한 없음" onChange={(e) => set({ capacity: e.target.value })} /></div>}
             <div><label className={labelCls}>대표 이미지 URL (선택)</label><input className={inputCls} value={form.coverUrl} placeholder="https://" onChange={(e) => set({ coverUrl: e.target.value })} /></div>
           </div>
           <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-muted">
             <input type="checkbox" checked={form.isOnline} onChange={(e) => set({ isOnline: e.target.checked })} /> 온라인 행사
           </label>
+          {form.registrationMode === "internal" && <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-muted"><input type="checkbox" checked={form.waitlistEnabled} onChange={(e) => set({ waitlistEnabled: e.target.checked })} /> 정원 초과 시 대기 신청 받기</label>}
           {notice && <p className="mt-3 rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">{notice}</p>}
           <button type="button" onClick={submit} disabled={pending}
             className="mt-3 rounded-lg bg-accent px-5 py-2 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50">

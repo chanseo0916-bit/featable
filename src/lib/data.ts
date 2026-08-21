@@ -72,6 +72,11 @@ function hasPublicSupabaseConfig(url: string | undefined, key: string | undefine
   return false;
 }
 
+/** Demo records are for local UI work only; production must never expose placeholder CTAs. */
+function developmentFallback<T>(records: T[]): T[] {
+  return process.env.NODE_ENV === "production" ? [] : records;
+}
+
 interface FounderRow {
   founder_number: number | null;
   slug: string;
@@ -361,7 +366,7 @@ function supportStatus(openAt: string | null, closeAt: string): SupportProgram["
 export const getEvents = cache(async (): Promise<EventItem[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!hasPublicSupabaseConfig(url, key, "events")) return mockEvents;
+  if (!hasPublicSupabaseConfig(url, key, "events")) return developmentFallback(mockEvents);
 
   try {
     const supabase = createClient(url!, key!);
@@ -375,7 +380,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       .order("starts_at", { ascending: true });
     if (error) {
       reportPublicDataFallback("events", error);
-      return mockEvents;
+      return developmentFallback(mockEvents);
     }
 
     const live: EventItem[] = ((data ?? []) as unknown as EventRow[]).map((e) => ({
@@ -404,7 +409,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("events", error);
-    return mockEvents;
+    return developmentFallback(mockEvents);
   }
 });
 
@@ -412,7 +417,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
 export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!hasPublicSupabaseConfig(url, key, "support-programs")) return mockSupport;
+  if (!hasPublicSupabaseConfig(url, key, "support-programs")) return developmentFallback(mockSupport);
 
   try {
     const supabase = createClient(url!, key!);
@@ -423,7 +428,7 @@ export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
       .order("close_at", { ascending: true });
     if (error) {
       reportPublicDataFallback("support-programs", error);
-      return mockSupport;
+      return developmentFallback(mockSupport);
     }
 
     const live: SupportProgram[] = ((data ?? []) as unknown as SupportRow[]).map((s) => ({
@@ -443,7 +448,7 @@ export const getSupportPrograms = cache(async (): Promise<SupportProgram[]> => {
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("support-programs", error);
-    return mockSupport;
+    return developmentFallback(mockSupport);
   }
 });
 
@@ -499,7 +504,7 @@ export const getFeature = cache(async (slug: string): Promise<Feature | null> =>
 export const getCommunities = cache(async (): Promise<Community[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!hasPublicSupabaseConfig(url, key, "communities")) return mockCommunities;
+  if (!hasPublicSupabaseConfig(url, key, "communities")) return developmentFallback(mockCommunities);
 
   try {
     const supabase = createClient(url!, key!);
@@ -510,7 +515,7 @@ export const getCommunities = cache(async (): Promise<Community[]> => {
       .order("created_at", { ascending: false });
     if (error) {
       reportPublicDataFallback("communities", error);
-      return mockCommunities;
+      return developmentFallback(mockCommunities);
     }
 
     const live: Community[] = ((data ?? []) as unknown as CommunityRow[]).map((community) => ({
@@ -529,7 +534,7 @@ export const getCommunities = cache(async (): Promise<Community[]> => {
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("communities", error);
-    return mockCommunities;
+    return developmentFallback(mockCommunities);
   }
 });
 
@@ -541,7 +546,7 @@ export const getCommunity = cache(async (slug: string): Promise<Community | null
 export const getJobs = cache(async (): Promise<Job[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!hasPublicSupabaseConfig(url, key, "jobs")) return mockJobs;
+  if (!hasPublicSupabaseConfig(url, key, "jobs")) return developmentFallback(mockJobs);
 
   try {
     const supabase = createClient(url!, key!);
@@ -552,7 +557,7 @@ export const getJobs = cache(async (): Promise<Job[]> => {
       .order("created_at", { ascending: false });
     if (error) {
       reportPublicDataFallback("jobs", error);
-      return mockJobs;
+      return developmentFallback(mockJobs);
     }
 
     const live: Job[] = ((data ?? []) as unknown as JobRow[])
@@ -569,7 +574,7 @@ export const getJobs = cache(async (): Promise<Job[]> => {
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
     reportPublicDataFallback("jobs", error);
-    return mockJobs;
+    return developmentFallback(mockJobs);
   }
 });
 
@@ -596,7 +601,7 @@ interface PartnerRow {
 export const getPartners = cache(async (): Promise<Partner[]> => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!hasPublicSupabaseConfig(url, key, "partners")) return mockPartners;
+  if (!hasPublicSupabaseConfig(url, key, "partners")) return developmentFallback(mockPartners);
 
   try {
     const supabase = createClient(url!, key!);
@@ -609,7 +614,7 @@ export const getPartners = cache(async (): Promise<Partner[]> => {
       .order("created_at", { ascending: true });
     if (error) {
       reportPublicDataFallback("partners", error);
-      return mockPartners;
+      return developmentFallback(mockPartners);
     }
 
     const live: Partner[] = ((data ?? []) as unknown as PartnerRow[]).map((p) => ({
@@ -624,7 +629,7 @@ export const getPartners = cache(async (): Promise<Partner[]> => {
     return live; // 실데이터만 노출 (데모 파트너 제거)
   } catch (error) {
     reportPublicDataFallback("partners", error);
-    return mockPartners;
+    return developmentFallback(mockPartners);
   }
 });
 
@@ -674,13 +679,13 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
       }
     } catch (error) {
       reportPublicDataFallback("founder", error);
-      return mockFounders.find((f) => f.slug === slug) ?? null;
+      return process.env.NODE_ENV === "production" ? null : mockFounders.find((f) => f.slug === slug) ?? null;
     }
     // 라이브 조회가 정상 수행됐고 결과가 없으면 데모 폴백 없이 404
     return null;
   }
 
-  return mockFounders.find((f) => f.slug === slug) ?? null;
+  return process.env.NODE_ENV === "production" ? null : mockFounders.find((f) => f.slug === slug) ?? null;
 });
 
 /** 실데이터 + 목데이터 병합 카탈로그. 렌더 1회당 캐시됨. */
@@ -688,7 +693,9 @@ export const getCatalog = cache(async (): Promise<Catalog> => {
   const live = await fetchLive();
   if (!live) {
     // DB 미설정/장애 시에만 데모 폴백 (로컬 UI 개발용)
-    return { brands: mockBrands, products: mockProducts, founders: mockFounders };
+    return process.env.NODE_ENV === "production"
+      ? { brands: [], products: [], founders: [] }
+      : { brands: mockBrands, products: mockProducts, founders: mockFounders };
   }
   // 실데이터만 노출 — 데모 브랜드·프로덕트·파운더는 공개 사이트에서 제거 (스토리는 getFeatures에서 SEO용으로 유지)
   return live;
