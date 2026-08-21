@@ -318,6 +318,7 @@ interface FeatureRow {
   kind: Feature["kind"];
   excerpt: string;
   hook_intro: string | null;
+  hook_label: string | null;
   body: StoryBlock[] | null;
   published_at: string | null;
   view_count: number | null;
@@ -464,10 +465,10 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
     const baseColumns = "slug,title,cover_url,kind,excerpt,body,published_at,view_count,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,updated_at,brand:brands(slug),founder:founders(slug)";
     let { data, error }: { data: unknown; error: { message?: string } | null } = await supabase
       .from("features")
-      .select(`${baseColumns},hook_intro`)
+      .select(`${baseColumns},hook_intro,hook_label`)
       .eq("status", "published")
       .order("published_at", { ascending: false });
-    if (error && /hook_intro/.test(error.message ?? "")) {
+    if (error && /hook_intro|hook_label/.test(error.message ?? "")) {
       // migration-30(hook_intro) 적용 전 DB 호환 폴백
       ({ data, error } = await supabase
         .from("features")
@@ -487,6 +488,7 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
       kind: feature.kind,
       excerpt: feature.excerpt,
       hookIntro: feature.hook_intro ?? undefined,
+      hookLabel: feature.hook_label ?? undefined,
       body: feature.body ?? [],
       brandSlug: feature.brand?.slug,
       founderSlug: feature.founder?.slug,

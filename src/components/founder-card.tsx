@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Founder } from "@/lib/types";
+import { InteractiveProfileCard } from "@/components/interactive-profile-card";
 
 /**
  * 파운더 스포트라이트 카드 — 인물 사진이 카드 배경으로 녹아드는 다크 카드.
@@ -7,23 +8,12 @@ import type { Founder } from "@/lib/types";
  */
 export function FounderCard({
   founder,
-  brandCount,
-  productCount,
-  viewCount,
-  weeklyRank,
-  activityLabel,
-  activeThisWeek = false,
 }: {
   founder: Founder;
-  brandCount: number;
-  productCount: number;
-  viewCount: number;
-  weeklyRank?: number;
-  activityLabel?: string;
-  activeThisWeek?: boolean;
 }) {
   return (
-    <Link href={`/founders/${founder.slug}`} className="founder-spot-card">
+    <Link href={`/founders/${founder.slug}`} className="founder-card-interactive-link">
+      <InteractiveProfileCard className="founder-spot-card">
       <div className="founder-spot-photo">
         {founder.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -34,7 +24,6 @@ export function FounderCard({
           </div>
         )}
         <div className="founder-spot-fade" aria-hidden />
-        {weeklyRank != null && <span className="weekly-builder-rank"><b>{String(weeklyRank).padStart(2, "0")}</b> THIS WEEK</span>}
         {founder.founderNumber != null && (
           <span className="founder-hero-id">FOUNDER ID · {String(founder.founderNumber).padStart(4, "0")}</span>
         )}
@@ -44,17 +33,14 @@ export function FounderCard({
           {founder.name}
           <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
         </h3>
-        {founder.role && <strong className="founder-card-role">{founder.role}</strong>}
+        <strong className="founder-hero-role">{founder.role || "Founder"}</strong>
         <p>{founder.headline}</p>
-        {activityLabel && <div className={`weekly-builder-activity${activeThisWeek ? " is-active" : ""}`}><i /> <span>{activityLabel}</span></div>}
         <div className="founder-spot-foot">
-          <span>◈ 브랜드 {brandCount}</span>
-          <span>프로덕트 {productCount}</span>
-          <span>◉ 조회 {viewCount.toLocaleString("ko-KR")}</span>
-          <em className="founder-spot-cta">프로필 보기 →</em>
+          <span className="founder-hero-status"><i /> NOW BUILDING</span>
         </div>
       </div>
-      <span className="sr-only">프로덕트 {productCount}개</span>
+      <span className="sr-only">{founder.name} Founder 프로필 보기</span>
+      </InteractiveProfileCard>
     </Link>
   );
 }

@@ -89,29 +89,40 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
       <Header />
       <main className="founder-page">
         <section className="shell founder-id-section">
-          <InteractiveProfileCard className="founder-spot-card founder-hero-card">
-            <div className="founder-spot-photo">
-              {founder.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={founder.avatarUrl} alt={founder.name} />
-              ) : (
-                <div className="founder-spot-placeholder" aria-hidden>{founder.name.slice(0, 1)}</div>
-              )}
-              <div className="founder-spot-fade" aria-hidden />
-              <span className="founder-hero-id">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
-            </div>
-            <div className="founder-spot-body">
-              <h3>
-                {founder.name}
-                <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
-              </h3>
-              <strong className="founder-hero-role">{founder.role || "Founder"}</strong>
-              <p>{founder.headline}</p>
-              <div className="founder-spot-foot">
-                <span className="founder-hero-status"><i /> NOW BUILDING</span>
+          <div className="founder-card-column">
+            <InteractiveProfileCard className="founder-spot-card founder-hero-card">
+              <div className="founder-spot-photo">
+                {founder.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={founder.avatarUrl} alt={founder.name} />
+                ) : (
+                  <div className="founder-spot-placeholder" aria-hidden>{founder.name.slice(0, 1)}</div>
+                )}
+                <div className="founder-spot-fade" aria-hidden />
+                <span className="founder-hero-id">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
               </div>
+              <div className="founder-spot-body">
+                <h3>
+                  {founder.name}
+                  <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
+                </h3>
+                <strong className="founder-hero-role">{founder.role || "Founder"}</strong>
+                <p>{founder.headline}</p>
+                <div className="founder-spot-foot">
+                  <span className="founder-hero-status"><i /> NOW BUILDING</span>
+                </div>
+              </div>
+            </InteractiveProfileCard>
+
+            <div className="founder-profile-actions">
+              <FounderSupportButton
+                founderSlug={founder.slug}
+                initialCount={supportState.count}
+                initialSupported={supportState.supported}
+              />
+              {snsEntries.map(([key, value]) => <a key={key} href={snsHref(key, value as string)} target="_blank" rel="noopener noreferrer">{SNS_LABELS[key] ?? key} ↗</a>)}
             </div>
-          </InteractiveProfileCard>
+          </div>
 
           <div className="founder-id-copy">
             <p className="founder-profile-label">MEET THE FOUNDER</p>
@@ -126,15 +137,6 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
             </div>
 
             {founder.bio && <p className="founder-profile-bio">{founder.bio}</p>}
-
-            <div className="founder-profile-actions">
-              <FounderSupportButton
-                founderSlug={founder.slug}
-                initialCount={supportState.count}
-                initialSupported={supportState.supported}
-              />
-              {snsEntries.map(([key, value]) => <a key={key} href={snsHref(key, value as string)} target="_blank" rel="noopener noreferrer">{SNS_LABELS[key] ?? key} ↗</a>)}
-            </div>
           </div>
         </section>
 

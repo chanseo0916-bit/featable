@@ -336,6 +336,7 @@ export default async function MyPage() {
               <h1>{founder?.name ?? "Founder"}</h1>
               <Link className="ig-btn" href="/my/profile">프로필 편집</Link>
               <Link className="ig-btn primary" href={brands.length ? "/submit/product" : "/my/brand/new"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
+              {brands.length > 0 && <Link className="ig-btn" href="/submit/interview">인터뷰 등록</Link>}
             </div>
             <div className="ig-profile-stats">
               <div><strong>{brands.length}</strong><span>브랜드</span></div>

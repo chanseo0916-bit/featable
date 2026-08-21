@@ -34,6 +34,21 @@ export async function toggleBrandVisibility(brandId: string, publish: boolean): 
   return { ok: true };
 }
 
+/**
+ * 프로필 설정(/submit)은 창업가 전용 흐름이라, 다른 역할로 가입한 사용자가
+ * 홈·푸터의 "프로필 만들기" CTA를 눌렀을 때 역할을 founder로 전환해준다.
+ */
+export async function switchToFounderRole(): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase.from("profiles").update({ member_type: "founder" }).eq("id", user.id);
+  revalidatePath("/my");
+  revalidatePath("/my/settings");
+  revalidatePath("/submit");
+}
+
 /** 작성 중 서버 초안 삭제 — draft_key는 "product:xxx" 형태의 전체 키를 그대로 받는다 */
 export async function deleteStudioDraft(draftKey: string): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();

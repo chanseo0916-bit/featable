@@ -712,6 +712,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 /* Founder identity — collectible profile without the NFT/neon visual language */
 .founder-page { background: #f6f7f8; }
 .founder-id-section { padding-top: 48px; padding-bottom: 48px; display: grid; grid-template-columns: minmax(320px, .82fr) minmax(0, 1.18fr); gap: 64px; align-items: start; }
+.founder-card-column { min-width: 0; }
+.founder-card-column .founder-profile-actions { max-width: 420px; flex-wrap: wrap; }
 .founder-id-visual { min-height: 520px; position: relative; overflow: hidden; border-radius: 24px; background: #ef4125; box-shadow: 0 20px 50px #ef412523; }
 .founder-card-grid { position: absolute; inset: 0; opacity: .16; background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 38px 38px; mask-image: linear-gradient(to bottom, #000, transparent 75%); }
 .founder-id-mark { position: absolute; z-index: 2; top: 26px; left: 27px; color: #fff; font-size: 31px; font-weight: 900; letter-spacing: -.08em; }
@@ -2383,6 +2385,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 
 /* 파운더 스포트라이트 카드 — 인물 사진이 배경으로 녹아드는 다크 카드 */
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.founder-card-interactive-link { display: block; min-width: 0; color: inherit; }
+.founder-card-interactive-link .founder-spot-card { height: 100%; }
 .founder-spot-card { position: relative; display: block; border-radius: 20px; background: #17171b; color: white; overflow: hidden; border: 1px solid #26262c; transition: transform .25s ease, box-shadow .3s ease, border-color .25s ease; }
 .founder-spot-card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--accent) 55%, #26262c); box-shadow: 0 24px 48px -20px color-mix(in srgb, var(--accent) 45%, transparent); }
 .founder-spot-photo { position: relative; aspect-ratio: 1 / 1; }
@@ -2403,16 +2407,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .weekly-builders-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 24px; }
 .weekly-builders-heading h2 { margin: 6px 0 0; font-size: clamp(28px, 3vw, 42px); line-height: 1.05; letter-spacing: -.055em; }
 .weekly-builders-heading > p { max-width: 430px; margin: 0 0 3px; color: #777; font-size: 14px; line-height: 1.6; text-align: right; }
-.weekly-builder-rank { position: absolute; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(15,15,17,.72); color: rgba(255,255,255,.72); font-size: 8px; font-weight: 800; letter-spacing: .12em; backdrop-filter: blur(10px); }
-.weekly-builder-rank b { color: white; font-size: 11px; letter-spacing: 0; }
-.weekly-builder-activity { display: flex; align-items: center; gap: 7px; min-width: 0; margin: -3px 0 15px; padding: 9px 10px; border-radius: 9px; background: #222228; color: #aaaab2; font-size: 10px; font-weight: 700; }
-.weekly-builder-activity i { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: #777; }
-.weekly-builder-activity span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.weekly-builder-activity.is-active { background: color-mix(in srgb, var(--accent) 14%, #222228); color: #ffd2c9; }
-.weekly-builder-activity.is-active i { background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
-.weekly-builders-section .founder-spot-foot { gap: 9px; }
-.weekly-builders-section .founder-spot-foot > span { white-space: nowrap; }
-@media (max-width: 800px) { .weekly-builders-section { padding-top: 58px; } .weekly-builders-heading { display: block; margin-bottom: 18px; } .weekly-builders-heading > p { margin-top: 10px; text-align: left; } .weekly-builders-section .founder-spot-foot > span:nth-child(2) { display: none; } }
+@media (max-width: 800px) { .weekly-builders-section { padding-top: 58px; } .weekly-builders-heading { display: block; margin-bottom: 18px; } .weekly-builders-heading > p { margin-top: 10px; text-align: left; } }
 
 /* 공개 프로필 히어로 — 스포트라이트 카드 확장 */
 .founder-hero-card { width: min(380px, 100%); }
@@ -2726,3 +2721,19 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-hook-copy small { margin-top: 5px; font-size: 11.5px; font-weight: 700; opacity: .95; letter-spacing: -.01em; text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
 @media (max-width: 1100px) { .founder-hook-card { flex-basis: min(72vw, 300px); } }
 @media (max-width: 560px) { .founder-hook-card { flex-basis: 76vw; } }
+
+/* 인터뷰 등록 폼 */
+.interview-form-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px; align-items: start; }
+.interview-form-main { min-width: 0; }
+.interview-questions { display: grid; gap: 18px; margin: 28px 0; }
+.interview-questions label { display: grid; gap: 8px; }
+.interview-questions label > span { font-size: 12px; font-weight: 800; letter-spacing: -.02em; }
+.interview-questions textarea { padding: 13px 14px; border: 1px solid var(--border); border-radius: 10px; font: inherit; font-size: 13px; line-height: 1.65; resize: vertical; }
+.interview-questions textarea:focus { outline: none; border-color: var(--accent); }
+.interview-form-note { margin-top: 12px; color: var(--muted); font-size: 11.5px; line-height: 1.6; }
+.interview-preview { position: sticky; top: 90px; }
+.interview-preview-title { margin: 0 0 10px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.interview-preview-card { width: 100%; flex: none; display: block; }
+.interview-preview-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.interview-preview-empty { position: absolute; inset: 0; display: grid; place-items: center; color: #9a9ca1; font-size: 12px; font-weight: 700; line-height: 1.7; text-align: center; }
+@media (max-width: 900px) { .interview-form-layout { display: block; } .interview-preview { position: static; margin-top: 34px; max-width: 320px; } }

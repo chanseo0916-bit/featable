@@ -40,7 +40,7 @@ export default async function Home() {
         slug: feature.slug,
         hookIntro: feature.hookIntro,
         title: feature.title,
-        label: [brand?.name, founder?.name].filter(Boolean).join(" ") || "Featable",
+        label: feature.hookLabel || [brand?.name, founder?.name].filter(Boolean).join(" ") || "Featable",
         coverUrl: feature.coverUrl,
       };
     });
@@ -88,23 +88,9 @@ export default async function Home() {
       const recentFeatures = founderFeatures.filter((feature) => isWithinLastWeek(feature.publishedAt));
       const recentActivityCount = recentBrands.length + recentProducts.length + recentFeatures.length;
       const totalViews = [...founderProducts, ...founderFeatures].reduce((sum, item) => sum + (item.viewCount ?? 0), 0);
-      const activityLabel = recentProducts[0]
-        ? `새 프로덕트 ‘${recentProducts[0].name}’ 공개`
-        : recentFeatures[0]
-          ? `새 Feature ‘${recentFeatures[0].title}’ 공개`
-          : recentBrands[0]
-            ? `새 브랜드 ‘${recentBrands[0].name}’ 공개`
-            : founderProducts[0]
-              ? `‘${founderProducts[0].name}’을 만들고 있어요`
-              : "Founder 프로필을 공개했어요";
 
       return {
         founder,
-        brandCount: founderBrands.length,
-        productCount: founderProducts.length,
-        viewCount: totalViews,
-        recentActivityCount,
-        activityLabel,
         score: recentActivityCount * 1_000_000 + totalViews * 10 + founderProducts.length * 100 + founderBrands.length,
       };
     })
@@ -144,17 +130,11 @@ export default async function Home() {
             <p>새로운 것을 공개하고 사람들의 관심을 받은 Founder를 소개합니다.</p>
           </div>
           <div className="founder-spotlight-grid">
-            {weeklyBuilders.map((builder, index) => {
+            {weeklyBuilders.map((builder) => {
               return (
                 <FounderCard
                   key={builder.founder.slug}
                   founder={builder.founder}
-                  brandCount={builder.brandCount}
-                  productCount={builder.productCount}
-                  viewCount={builder.viewCount}
-                  weeklyRank={index + 1}
-                  activityLabel={builder.activityLabel}
-                  activeThisWeek={builder.recentActivityCount > 0}
                 />
               );
             })}

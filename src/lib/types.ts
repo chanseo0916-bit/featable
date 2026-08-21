@@ -120,6 +120,8 @@ export interface Feature {
   excerpt: string;
   /** 인터뷰 훅 카드 1줄 (예: "03년생, 24살"). kind=interview에서만 사용 */
   hookIntro?: string;
+  /** 인터뷰 훅 카드 꺾쇠 라벨 (예: "카라멜 랩 이찬서"). 비면 브랜드+파운더 이름 */
+  hookLabel?: string;
   body: StoryBlock[];
   brandSlug?: string;
   founderSlug?: string;

@@ -4,5 +4,7 @@
 --   2줄(title)      = "연구용 AI 스타트업 대표"
 --   3줄(파생)       = <브랜드명 파운더이름> — brands/founders 조인으로 렌더링
 alter table public.features add column if not exists hook_intro text;
+alter table public.features add column if not exists hook_label text;
 
 comment on column public.features.hook_intro is '인터뷰 훅 카드 1줄 (예: 03년생, 24살). kind=interview에서만 사용.';
+comment on column public.features.hook_label is '인터뷰 훅 카드 꺾쇠 라벨 (예: 카라멜 랩 이찬서). 비면 브랜드+파운더 이름으로 렌더링.';
