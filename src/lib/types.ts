@@ -118,6 +118,8 @@ export interface Feature {
     | "case-study"
     | "qna";
   excerpt: string;
+  /** 인터뷰 훅 카드 1줄 (예: "03년생, 24살"). kind=interview에서만 사용 */
+  hookIntro?: string;
   body: StoryBlock[];
   brandSlug?: string;
   founderSlug?: string;

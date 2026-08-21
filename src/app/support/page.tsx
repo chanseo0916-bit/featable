@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Footer, Header, Badge } from "@/components/site-shell";
+import { Footer, Header } from "@/components/site-shell";
 import { getPartners, getSupportPrograms } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
 
@@ -13,7 +13,10 @@ export const metadata = createPageMetadata({
 type SupportSearchParams = {
   region?: string | string[];
   field?: string | string[];
+  page?: string | string[];
 };
+
+const PAGE_SIZE = 12;
 
 const dday = (date: string) =>
   Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86400000));
@@ -51,6 +54,12 @@ export default async function SupportPage({
       (!selectedField || program.field === selectedField),
   );
   const hasFilters = Boolean(selectedRegion || selectedField);
+  const pageCount = Math.max(1, Math.ceil(filteredPrograms.length / PAGE_SIZE));
+  const requestedPage = Number.parseInt(firstParam(query.page) ?? "1", 10);
+  const currentPage = Number.isFinite(requestedPage)
+    ? Math.min(Math.max(requestedPage, 1), pageCount)
+    : 1;
+  const pagePrograms = filteredPrograms.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const filterHref = (next: { region?: string; field?: string }) => {
     const params = new URLSearchParams();
@@ -58,6 +67,15 @@ export default async function SupportPage({
     const field = "field" in next ? next.field : selectedField;
     if (region) params.set("region", region);
     if (field) params.set("field", field);
+    const queryString = params.toString();
+    return queryString ? `/support?${queryString}` : "/support";
+  };
+
+  const pageHref = (page: number) => {
+    const params = new URLSearchParams();
+    if (selectedRegion) params.set("region", selectedRegion);
+    if (selectedField) params.set("field", selectedField);
+    if (page > 1) params.set("page", String(page));
     const queryString = params.toString();
     return queryString ? `/support?${queryString}` : "/support";
   };
@@ -141,31 +159,38 @@ export default async function SupportPage({
         </div>
 
         {filteredPrograms.length > 0 ? (
-          <div className="support-list">
-            {filteredPrograms.map((program) => (
+          <>
+          <div className="support-card-grid">
+            {pagePrograms.map((program) => (
               <Link
                 href={`/support/${program.slug}`}
-                className="support-row"
+                className="support-card"
                 key={program.slug}
               >
-                <div className="support-dday">
+                <div className="support-card-top">
+                  <span>{program.field ?? "지원사업"}</span>
                   <strong>D-{dday(program.closeAt)}</strong>
-                  <span>{program.status}</span>
                 </div>
-                <div className="support-main">
-                  <h3>{program.name}</h3>
-                  <p>
-                    {program.agency} · {program.region} · {program.target}
-                  </p>
+                <h3>{program.name}</h3>
+                <p className="support-card-agency">{program.agency || "기업마당"}</p>
+                <p className="support-card-benefits">{program.benefits}</p>
+                <div className="support-card-bottom">
+                  <span>{program.region} · {program.target}</span>
+                  <span>마감 {program.closeAt.slice(5).replace("-", ".")}</span>
                 </div>
-                <strong className="support-amount">{program.amount}</strong>
-                <Badge tone={program.status === "마감임박" ? "orange" : "default"}>
-                  {program.status}
-                </Badge>
-                <span className="arrow">→</span>
               </Link>
             ))}
           </div>
+          {pageCount > 1 ? (
+            <nav className="support-pagination" aria-label="지원사업 페이지">
+              {currentPage > 1 ? <Link href={pageHref(currentPage - 1)} aria-label="이전 페이지">←</Link> : <span aria-disabled="true">←</span>}
+              {Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => (
+                <Link className={page === currentPage ? "active" : ""} href={pageHref(page)} aria-current={page === currentPage ? "page" : undefined} key={page}>{page}</Link>
+              ))}
+              {currentPage < pageCount ? <Link href={pageHref(currentPage + 1)} aria-label="다음 페이지">→</Link> : <span aria-disabled="true">→</span>}
+            </nav>
+          ) : null}
+          </>
         ) : (
           <div className="support-empty" role="status">
             <strong>조건에 맞는 지원사업이 아직 없어요.</strong>

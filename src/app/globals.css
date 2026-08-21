@@ -176,7 +176,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .avatar img, .brand-logo, .community-logo { width: 100%; height: 100%; object-fit: cover; }
 .brand-grid, .community-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .brand-card, .community-card { min-height: 150px; border: 1px solid var(--border); padding: 26px; display: flex; align-items: center; gap: 18px; position: relative; transition: border-color .2s, transform .2s; }
-.brand-card:hover, .community-card:hover, .job-row:hover, .support-row:hover { border-color: var(--accent); transform: translateY(-2px); }
+.brand-card:hover, .community-card:hover, .job-row:hover, .support-card:hover { border-color: var(--accent); transform: translateY(-3px); }
 .brand-logo, .community-logo { width: 62px; height: 62px; border-radius: 14px; flex: 0 0 auto; }
 .brand-card h3, .community-card h3 { margin: 9px 0 5px; font-size: 18px; letter-spacing: -.06em; }
 .brand-card p, .community-card p { color: var(--muted); font-size: 12px; margin: 0; }
@@ -197,12 +197,23 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .event-card h3 { line-height: 1.35; }
 .event-card p { margin-bottom: 17px; }
 .text-link { font-size: 12px; font-weight: 750; }
-.support-list, .job-list { border-top: 1px solid var(--foreground); }
-.support-row { display: flex; align-items: center; gap: 24px; padding: 20px 10px; border-bottom: 1px solid var(--border); transition: transform .2s, border-color .2s; }
-.support-dday { width: 64px; text-align: center; color: var(--accent); display: grid; gap: 4px; }
-.support-dday strong { font-size: 20px; letter-spacing: -.08em; }
-.support-dday span { font-size: 10px; font-weight: 700; }
-.support-main { flex: 1; }.support-main h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: -.04em; }.support-main p { color: var(--muted); font-size: 12px; margin: 0; }.support-amount { width: 120px; font-size: 13px; text-align: right; }
+.job-list { border-top: 1px solid var(--foreground); }
+.support-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.support-card { min-width: 0; min-height: 260px; padding: 22px; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; background: #fff; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.support-card:hover { box-shadow: 0 14px 34px rgba(23, 23, 23, .07); }
+.support-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.support-card-top span { max-width: 72%; padding: 5px 8px; overflow: hidden; border-radius: 5px; background: var(--accent-soft); color: var(--accent); font-size: 9px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+.support-card-top strong { color: var(--accent); font-size: 13px; letter-spacing: -.03em; }
+.support-card h3 { margin: 20px 0 10px; font-size: 17px; line-height: 1.48; letter-spacing: -.035em; }
+.support-card-agency { margin: 0; color: #666; font-size: 11px; font-weight: 650; }
+.support-card-benefits { margin: 16px 0 22px; overflow: hidden; color: var(--muted); font-size: 11px; line-height: 1.65; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.support-card-bottom { margin-top: auto; padding-top: 15px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border-top: 1px solid #f0f0f0; color: #929292; font-size: 9px; line-height: 1.45; }
+.support-card-bottom span:first-child { max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.support-card-bottom span:last-child { flex: 0 0 auto; color: #666; font-weight: 650; }
+.support-pagination { margin-top: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.support-pagination a, .support-pagination span { min-width: 36px; height: 36px; padding: 0 10px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 8px; color: #777; font-size: 11px; }
+.support-pagination a:hover, .support-pagination a.active { border-color: var(--foreground); background: var(--foreground); color: #fff; }
+.support-pagination span { opacity: .35; }
 .support-filter-toolbar { display: grid; gap: 18px; margin-bottom: 24px; padding: 18px 20px; border: 1px solid var(--border); background: #fafafa; }
 .support-filter-group { display: flex; align-items: center; gap: 18px; }
 .support-filter-label { width: 32px; flex: 0 0 auto; color: var(--foreground); font-size: 12px; font-weight: 750; }
@@ -221,8 +232,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .footer { margin-top: 110px; padding: 60px 0 22px; border-top: 1px solid var(--border); }.footer-top { display: flex; justify-content: space-between; padding-bottom: 50px; }.footer-brand-lockup { display: flex; align-items: center; gap: 12px; }.footer-brand-lockup > span { padding-left: 12px; border-left: 1px solid #d9dcdf; color: #43474b; font-size: 15px; font-weight: 750; letter-spacing: -.03em; }.footer-top p { color: var(--muted); font-size: 13px; margin-top: 14px; }.footer-links { display: flex; gap: 90px; }.footer-links div { display: grid; gap: 10px; min-width: 100px; }.footer-links strong { font-size: 12px; margin-bottom: 4px; }.footer-links a { color: var(--muted); font-size: 12px; }.partner-area { padding: 26px 0 30px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }.partner-area .eyebrow { margin-bottom: 15px; }.partner-marquee { width: 100%; overflow: hidden; }.partner-marquee-track { width: max-content; display: flex; animation: partner-marquee 28s linear infinite; }.partner-marquee:hover .partner-marquee-track { animation-play-state: paused; }.partner-row { flex: 0 0 auto; display: flex; gap: 20px; padding-right: 20px; }.partner-row a { width: 104px; height: 46px; padding: 5px 10px; display: grid; place-items: center; border-radius: 8px; overflow: hidden; filter: grayscale(1); opacity: .75; }.partner-row a:hover { filter: none; opacity: 1; }.partner-row img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }.footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 22px; color: #aaa; font-size: 11px; }.footer-meta { display: flex; gap: 16px; }.footer-legal { display: flex; gap: 16px; }.footer-legal a { color: #aaa; }.footer-legal a:hover { color: var(--muted); }
 @keyframes partner-marquee { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .partner-marquee-track { animation: none; } }
-@media (max-width: 800px) { .shell { width: min(100% - 32px, 620px); }.site-header { height: 64px; }.nav-wrap { gap: 0; }.desktop-nav { display: none; }.nav-actions { gap: 12px; }.login-link { display: none; }.button-small { padding: 9px 11px; font-size: 11px; }.hero { min-height: auto; padding-top: 65px; padding-bottom: 58px; }.hero-copy { width: 100%; }.hero-art { display: none; } h1 { font-size: 48px; }.hero-tags { flex-wrap: wrap; gap: 10px; }.category-scroll { width: calc(100% - 32px); }.section { padding-top: 65px; }.section-header h2 { font-size: 24px; }.feature-hero { height: 380px; }.feature-overlay { left: 22px; bottom: 24px; right: 20px; }.product-grid { grid-template-columns: repeat(2, 1fr); gap: 22px 12px; }.brand-grid, .community-grid, .story-grid { grid-template-columns: 1fr; }.event-grid { grid-template-columns: 1fr; gap: 15px; }.support-row { gap: 12px; padding-left: 0; padding-right: 0; }.support-dday { width: 52px; }.support-amount { display: none; }.job-row > span { display: none; }.job-row .badge { margin-left: auto; }.cta-inner { min-height: 310px; display: block; padding-top: 58px; }.cta-inner .button { margin-top: 25px; }.footer { margin-top: 70px; }.footer-top { display: block; padding-bottom: 35px; }.footer-links { margin-top: 35px; gap: 45px; }.footer-bottom { display: block; line-height: 2; }.footer-meta { display: block; }.footer-legal { margin-top: 4px; } }
-@media (max-width: 430px) { .product-grid { gap: 26px 10px; }.card-body h3 { font-size: 15px; }.card-body > p { font-size: 12px; }.person-line { font-size: 10px; }.feature-overlay h3 { font-size: 27px; }.support-main h3 { font-size: 14px; } }
+@media (max-width: 800px) { .shell { width: min(100% - 32px, 620px); }.site-header { height: 64px; }.nav-wrap { gap: 0; }.desktop-nav { display: none; }.nav-actions { gap: 12px; }.login-link { display: none; }.button-small { padding: 9px 11px; font-size: 11px; }.hero { min-height: auto; padding-top: 65px; padding-bottom: 58px; }.hero-copy { width: 100%; }.hero-art { display: none; } h1 { font-size: 48px; }.hero-tags { flex-wrap: wrap; gap: 10px; }.category-scroll { width: calc(100% - 32px); }.section { padding-top: 65px; }.section-header h2 { font-size: 24px; }.feature-hero { height: 380px; }.feature-overlay { left: 22px; bottom: 24px; right: 20px; }.product-grid { grid-template-columns: repeat(2, 1fr); gap: 22px 12px; }.brand-grid, .community-grid, .story-grid { grid-template-columns: 1fr; }.event-grid { grid-template-columns: 1fr; gap: 15px; }.support-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.job-row > span { display: none; }.job-row .badge { margin-left: auto; }.cta-inner { min-height: 310px; display: block; padding-top: 58px; }.cta-inner .button { margin-top: 25px; }.footer { margin-top: 70px; }.footer-top { display: block; padding-bottom: 35px; }.footer-links { margin-top: 35px; gap: 45px; }.footer-bottom { display: block; line-height: 2; }.footer-meta { display: block; }.footer-legal { margin-top: 4px; } }
+@media (max-width: 430px) { .product-grid { gap: 26px 10px; }.card-body h3 { font-size: 15px; }.card-body > p { font-size: 12px; }.person-line { font-size: 10px; }.feature-overlay h3 { font-size: 27px; }.support-card-grid { grid-template-columns: 1fr; }.support-card { min-height: 238px; padding: 19px; } }
 
 @media (max-width: 800px) {
   .support-filter-toolbar { padding: 15px; }
@@ -2689,3 +2700,14 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .event-attendee-list article time { display: none; }
   .event-registration-controls { grid-column: 2 / -1; }
 }
+
+/* 홈 — 이번 주의 창업가 (인스타형 훅 카드) */
+.founder-hook-card { position: relative; flex: 0 0 calc((100% - 28px) / 3); min-width: 0; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 17px; background: #e9eaec; color: #fff; scroll-snap-align: start; box-shadow: 0 10px 26px -22px #1118; }
+.founder-hook-card > img { object-fit: cover; transition: transform .35s ease; }
+.founder-hook-card:hover > img { transform: scale(1.045); }
+.founder-hook-shade { position: absolute; inset: auto 0 0; height: 58%; background: linear-gradient(180deg, transparent, rgba(10, 10, 12, .6)); pointer-events: none; }
+.founder-hook-copy { position: absolute; left: 8%; right: 6%; bottom: 11%; display: grid; gap: 2px; }
+.founder-hook-copy strong { font-size: clamp(16px, 1.6vw, 20px); font-weight: 900; letter-spacing: -.045em; line-height: 1.3; text-shadow: 0 1px 10px rgba(0, 0, 0, .45); }
+.founder-hook-copy small { margin-top: 5px; font-size: 11.5px; font-weight: 700; opacity: .95; letter-spacing: -.01em; text-shadow: 0 1px 8px rgba(0, 0, 0, .5); }
+@media (max-width: 1100px) { .founder-hook-card { flex-basis: min(72vw, 300px); } }
+@media (max-width: 560px) { .founder-hook-card { flex-basis: 76vw; } }

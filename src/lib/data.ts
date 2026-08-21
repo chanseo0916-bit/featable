@@ -317,6 +317,7 @@ interface FeatureRow {
   cover_url: string | null;
   kind: Feature["kind"];
   excerpt: string;
+  hook_intro: string | null;
   body: StoryBlock[] | null;
   published_at: string | null;
   view_count: number | null;
@@ -460,11 +461,20 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
 
   try {
     const supabase = createClient(url!, key!);
-    const { data, error } = await supabase
+    const baseColumns = "slug,title,cover_url,kind,excerpt,body,published_at,view_count,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,updated_at,brand:brands(slug),founder:founders(slug)";
+    let { data, error }: { data: unknown; error: { message?: string } | null } = await supabase
       .from("features")
-      .select("slug,title,cover_url,kind,excerpt,body,published_at,view_count,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,updated_at,brand:brands(slug),founder:founders(slug)")
+      .select(`${baseColumns},hook_intro`)
       .eq("status", "published")
       .order("published_at", { ascending: false });
+    if (error && /hook_intro/.test(error.message ?? "")) {
+      // migration-30(hook_intro) 적용 전 DB 호환 폴백
+      ({ data, error } = await supabase
+        .from("features")
+        .select(baseColumns)
+        .eq("status", "published")
+        .order("published_at", { ascending: false }));
+    }
     if (error) {
       reportPublicDataFallback("features", error);
       return mockFeatures;
@@ -476,6 +486,7 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
       coverUrl: feature.cover_url || placeholder(`feature-${feature.slug}`),
       kind: feature.kind,
       excerpt: feature.excerpt,
+      hookIntro: feature.hook_intro ?? undefined,
       body: feature.body ?? [],
       brandSlug: feature.brand?.slug,
       founderSlug: feature.founder?.slug,

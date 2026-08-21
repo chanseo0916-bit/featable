@@ -3,11 +3,13 @@ import { Footer, Header, ImageCard, SectionHeader } from "@/components/site-shel
 import { LiveFeatureRanking, type RankedFeatureItem } from "@/components/live-feature-ranking";
 import { HomeOpportunityBanner, type HomeOpportunitySlide } from "@/components/home-opportunity-banner";
 import { ProductSquareRail, type ProductSquareRailItem } from "@/components/product-square-rail";
+import { FounderInterviewRail, type FounderInterviewRailItem } from "@/components/founder-interview-rail";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
 
 const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
+const isWithinLastWeek = (date?: string) => Boolean(date && new Date(date).getTime() >= Date.now() - 7 * 86_400_000);
 
 export default async function Home() {
   const { brands, products, founders } = await getCatalog();
@@ -28,6 +30,20 @@ export default async function Home() {
     category: product.category,
     brandName: brands.find((brand) => brand.slug === product.brandSlug)?.name ?? "FEATABLE",
   }));
+  const interviewItems: FounderInterviewRailItem[] = features
+    .filter((feature) => feature.kind === "interview")
+    .slice(0, 6)
+    .map((feature) => {
+      const founder = founders.find((item) => item.slug === feature.founderSlug);
+      const brand = brands.find((item) => item.slug === feature.brandSlug);
+      return {
+        slug: feature.slug,
+        hookIntro: feature.hookIntro,
+        title: feature.title,
+        label: [brand?.name, founder?.name].filter(Boolean).join(" ") || "Featable",
+        coverUrl: feature.coverUrl,
+      };
+    });
   const opportunitySlides: HomeOpportunitySlide[] = [
     ...[...supportPrograms]
       .sort((a, b) => a.closeAt.localeCompare(b.closeAt))
@@ -62,6 +78,38 @@ export default async function Home() {
     const brand = brands.find((item) => item.slug === feature.brandSlug);
     return { slug: feature.slug, title: feature.title, coverUrl: feature.coverUrl, brandName: brand?.name ?? "FEATABLE", founderName: founder?.name ?? "Founder", category: featureKindLabel[feature.kind] ?? feature.kind, viewCount: feature.viewCount ?? 0 };
   });
+  const weeklyBuilders = founders
+    .map((founder) => {
+      const founderBrands = brands.filter((brand) => brand.founderSlug === founder.slug);
+      const founderProducts = products.filter((product) => product.founderSlug === founder.slug);
+      const founderFeatures = features.filter((feature) => feature.founderSlug === founder.slug);
+      const recentBrands = founderBrands.filter((brand) => isWithinLastWeek(brand.publishedAt));
+      const recentProducts = founderProducts.filter((product) => isWithinLastWeek(product.publishedAt));
+      const recentFeatures = founderFeatures.filter((feature) => isWithinLastWeek(feature.publishedAt));
+      const recentActivityCount = recentBrands.length + recentProducts.length + recentFeatures.length;
+      const totalViews = [...founderProducts, ...founderFeatures].reduce((sum, item) => sum + (item.viewCount ?? 0), 0);
+      const activityLabel = recentProducts[0]
+        ? `새 프로덕트 ‘${recentProducts[0].name}’ 공개`
+        : recentFeatures[0]
+          ? `새 Feature ‘${recentFeatures[0].title}’ 공개`
+          : recentBrands[0]
+            ? `새 브랜드 ‘${recentBrands[0].name}’ 공개`
+            : founderProducts[0]
+              ? `‘${founderProducts[0].name}’을 만들고 있어요`
+              : "Founder 프로필을 공개했어요";
+
+      return {
+        founder,
+        brandCount: founderBrands.length,
+        productCount: founderProducts.length,
+        viewCount: totalViews,
+        recentActivityCount,
+        activityLabel,
+        score: recentActivityCount * 1_000_000 + totalViews * 10 + founderProducts.length * 100 + founderBrands.length,
+      };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
 
   return (
     <>
@@ -71,7 +119,9 @@ export default async function Home() {
 
         <section className="shell live-stage">
           <div className="live-main">
-            <ProductSquareRail items={productRailItems} />
+            {interviewItems.length > 0
+              ? <FounderInterviewRail items={interviewItems} />
+              : <ProductSquareRail items={productRailItems} />}
           </div>
 
           <LiveFeatureRanking productItems={productRankingItems} featureItems={featureRankingItems} />
@@ -88,18 +138,23 @@ export default async function Home() {
           </div>
         </section>}
 
-        <section className="shell section">
-          <SectionHeader eyebrow="MEET THE FOUNDERS" title="브랜드를 만드는 사람들" href="/brands" />
+        <section className="shell section weekly-builders-section">
+          <div className="weekly-builders-heading">
+            <div><p className="eyebrow">BUILDERS OF THE WEEK</p><h2>이번 주 주목할 빌더</h2></div>
+            <p>새로운 것을 공개하고 사람들의 관심을 받은 Founder를 소개합니다.</p>
+          </div>
           <div className="founder-spotlight-grid">
-            {founders.slice(0, 4).map((f) => {
-              const fProducts = products.filter((p) => p.founderSlug === f.slug);
+            {weeklyBuilders.map((builder, index) => {
               return (
                 <FounderCard
-                  key={f.slug}
-                  founder={f}
-                  brandCount={f.brandSlugs.length}
-                  productCount={fProducts.length}
-                  viewCount={fProducts.reduce((sum, p) => sum + (p.viewCount ?? 0), 0)}
+                  key={builder.founder.slug}
+                  founder={builder.founder}
+                  brandCount={builder.brandCount}
+                  productCount={builder.productCount}
+                  viewCount={builder.viewCount}
+                  weeklyRank={index + 1}
+                  activityLabel={builder.activityLabel}
+                  activeThisWeek={builder.recentActivityCount > 0}
                 />
               );
             })}
