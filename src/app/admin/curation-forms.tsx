@@ -8,6 +8,7 @@ import {
   createPartner,
   createSupportProgram,
   deleteCuration,
+  syncBizinfoSupportPrograms,
   type EventInput,
   type PartnerInput,
   type SupportInput,
@@ -18,6 +19,24 @@ const inputCls =
 const labelCls = "mb-1 mt-3 block text-xs font-semibold text-muted";
 
 const EVENT_CATEGORIES = ["데모데이", "밋업", "컨퍼런스", "네트워킹", "해커톤", "세미나", "교육", "IR", "기타"];
+
+export function BizinfoSyncButton() {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [notice, setNotice] = useState<string | null>(null);
+  return <div className="mb-4 rounded-xl border border-border bg-white p-4">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div><strong className="text-sm">기업마당 자동 수집</strong><p className="mt-1 text-xs text-muted">창업 분야의 접수 중 공고를 가져오며, 같은 공고는 자동으로 갱신됩니다.</p></div>
+      <button type="button" disabled={pending} className="rounded-lg border border-accent px-4 py-2 text-xs font-bold text-accent disabled:opacity-50" onClick={() => startTransition(async () => {
+        setNotice(null);
+        const result = await syncBizinfoSupportPrograms();
+        setNotice(result.error ?? result.message ?? "동기화를 완료했습니다.");
+        if (!result.error) router.refresh();
+      })}>{pending ? "수집 중…" : "지금 동기화"}</button>
+    </div>
+    {notice && <p className="mt-3 rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">{notice}</p>}
+  </div>;
+}
 
 export function EventForm() {
   const router = useRouter();

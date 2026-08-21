@@ -8,6 +8,7 @@ const backupEnv = resolve(root, ".env.local.deploy-backup");
 const npx = process.platform === "win32" ? "npx.cmd" : "npx";
 const serverSecretNames = [
   "ANTHROPIC_API_KEY",
+  "BIZINFO_API_KEY",
   "RESEND_API_KEY",
   "RESEND_FROM",
   "RESEND_REPLY_TO",
@@ -17,6 +18,7 @@ const serverSecretNames = [
   "SLACK_WEBHOOK_URL",
   "SUPABASE_SECRET_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
+  "SYNC_CRON_SECRET",
 ];
 
 if (existsSync(backupEnv) && !existsSync(localEnv)) renameSync(backupEnv, localEnv);

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
 import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
+import { syncBizinfoSupportPrograms as runBizinfoSync } from "@/lib/bizinfo-sync";
 
 function revalidateCuration() {
   revalidatePath("/");
@@ -32,6 +33,21 @@ async function requireAdmin() {
     .maybeSingle();
 
   return profile?.role === "admin" ? supabase : null;
+}
+
+export async function syncBizinfoSupportPrograms(): Promise<{ error?: string; message?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  try {
+    const result = await runBizinfoSync();
+    revalidatePath("/");
+    revalidatePath("/support");
+    revalidatePath("/admin/support");
+    return { message: `기업마당 ${result.fetched}건 확인 · 신규 ${result.inserted}건 · 갱신 ${result.updated}건 · 제외 ${result.skipped}건` };
+  } catch (error) {
+    console.error("[bizinfo] Admin synchronization failed.", error);
+    return { error: error instanceof Error ? error.message : "기업마당 동기화에 실패했습니다." };
+  }
 }
 
 export type AdminTable = "brands" | "products" | "events" | "support_programs" | "partners" | "features";
