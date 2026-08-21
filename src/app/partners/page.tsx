@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Badge, Footer, Header } from "@/components/site-shell";
+import { Footer, Header } from "@/components/site-shell";
+import { PartnerDirectoryCardVisual } from "@/components/publishing-preview-cards";
 import { getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
 
@@ -29,26 +30,7 @@ export default async function PartnersPage() {
           const basicPartners = partners.filter((partner) => !partner.featured);
           const renderCard = (partner: (typeof partners)[number]) => {
             const external = !partner.href.startsWith("/");
-            const card = (
-              <>
-                {partner.featured && <span className="partner-featured-badge">★ FEATURED PARTNER</span>}
-                <div className="partner-org-logo">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={partner.logoUrl} alt={partner.name} />
-                </div>
-                <div className="partner-org-body">
-                  <div className="partner-org-title">
-                    <h3>{partner.name}</h3>
-                    {partner.field && <Badge>{partner.field}</Badge>}
-                  </div>
-                  {partner.intro && <p>{partner.intro}</p>}
-                  {partner.description && <small>{partner.description}</small>}
-                  <span className="text-link">
-                    {external ? "웹사이트 방문 →" : "자세히 보기 →"}
-                  </span>
-                </div>
-              </>
-            );
+            const card = <PartnerDirectoryCardVisual name={partner.name} logoUrl={partner.logoUrl} field={partner.field} intro={partner.intro} description={partner.description} featured={partner.featured} external={external} />;
             const className = partner.featured ? "partner-org-card is-featured" : "partner-org-card";
             return external ? (
               <a className={className} href={partner.href} target="_blank" rel="noopener noreferrer" key={partner.name}>{card}</a>

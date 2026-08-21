@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { CommunityPublishingPreview, PartnerPublishingPreview } from "@/components/publishing-preview-cards";
+import { CommunityPublishingPreview, PartnerPublishingPreview, PublishingDetailPreview } from "@/components/publishing-preview-cards";
 import { publishApprovedProfile, savePublishingProfile, type PublishingProfileInput } from "./actions";
 
 export function PublishingEditor({ token, type, initial }: { token: string; type: "partner" | "community"; initial: PublishingProfileInput }) {
@@ -12,6 +12,7 @@ export function PublishingEditor({ token, type, initial }: { token: string; type
   const [message, setMessage] = useState("");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [uploading, setUploading] = useState(false);
+  const [previewMode, setPreviewMode] = useState<"card" | "detail">("card");
   const [publishing, startPublishing] = useTransition();
   const mounted = useRef(false);
   const set = (patch: Partial<PublishingProfileInput>) => setForm((current) => ({ ...current, ...patch }));
@@ -49,6 +50,12 @@ export function PublishingEditor({ token, type, initial }: { token: string; type
     finally { setUploading(false); }
   }
 
+  function dropLogo(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file) void uploadLogo(file);
+  }
+
   function publish() {
     setMessage("");
     startPublishing(async () => {
@@ -61,9 +68,9 @@ export function PublishingEditor({ token, type, initial }: { token: string; type
 
   return <div className="approved-publishing-layout">
     <section className="approved-publishing-form">
-      <header><span>{type === "partner" ? "APPROVED PARTNER" : "APPROVED COMMUNITY"}</span><h1>{type === "partner" ? "파트너 프로필 완성하기" : "커뮤니티 페이지 완성하기"}</h1><p>승인된 등록입니다. 입력한 내용은 오른쪽 공개 카드에 실시간으로 반영돼요.</p></header>
+      <header><div className="approved-status-bar"><i>✓</i><div><span>REGISTRATION APPROVED</span><strong>{type === "partner" ? "파트너 등록 권한이 열렸어요" : "커뮤니티 등록 권한이 열렸어요"}</strong></div><small>승인 완료</small></div><h1>{type === "partner" ? "파트너 프로필 완성하기" : "커뮤니티 페이지 완성하기"}</h1><p>필수 정보만 채우면 바로 공개할 수 있어요.</p></header>
       <div className="approved-form-fields">
-        <label className="approved-logo-field"><span>로고 *</span><div>{form.logoUrl ? <img src={form.logoUrl} alt="로고 미리보기" /> : <b>{form.name.slice(0, 1) || "+"}</b>}<input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && uploadLogo(event.target.files[0])} /><small>{uploading ? "업로드 중…" : "이미지 변경"}</small></div></label>
+        <label className="approved-logo-field" onDragOver={(event) => event.preventDefault()} onDrop={dropLogo}><span>로고 *</span><div>{form.logoUrl ? <img src={form.logoUrl} alt="로고 미리보기" /> : <b>{form.name.slice(0, 1) || "+"}</b>}<input type="file" accept="image/*" onChange={(event) => event.target.files?.[0] && uploadLogo(event.target.files[0])} /><div><strong>{uploading ? "업로드 중…" : form.logoUrl ? "다른 이미지로 변경" : "로고 이미지 올리기"}</strong><small>클릭하거나 파일을 끌어놓으세요 · 최대 5MB</small></div></div></label>
         <label><span>{type === "partner" ? "파트너명" : "커뮤니티명"} *</span><input value={form.name} onChange={(event) => set({ name: event.target.value })} /></label>
         <label><span>분야 *</span><input value={form.field} onChange={(event) => set({ field: event.target.value })} placeholder="예: 스타트업, 마케팅, SaaS" /></label>
         <label className="wide"><span>한 줄 소개 *</span><input value={form.intro} maxLength={180} onChange={(event) => set({ intro: event.target.value })} placeholder="누구를 위해 무엇을 하는지 한 문장으로" /></label>
@@ -72,8 +79,8 @@ export function PublishingEditor({ token, type, initial }: { token: string; type
         {type === "community" && <label><span>인스타그램</span><input value={form.instagram} onChange={(event) => set({ instagram: event.target.value })} placeholder="@account" /></label>}
       </div>
       {message && <p className="approved-publishing-message">{message}</p>}
-      <footer><span><i data-state={saveState} />{saveState === "saving" ? "저장 중" : saveState === "saved" ? "자동 저장됨" : "변경사항 확인 중"}</span><button type="button" className="secondary" onClick={() => void save(true)} disabled={saveState === "saving"}>임시저장</button><button type="button" onClick={publish} disabled={publishing || uploading}>{publishing ? "공개 중…" : "공개하기 →"}</button></footer>
+      <footer><span><i data-state={saveState} />{saveState === "saving" ? "저장 중" : saveState === "saved" ? "자동 저장됨" : "변경사항 확인 중"}<small>공개 후에도 수정할 수 있어요.</small></span><button type="button" className="secondary" onClick={() => void save(true)} disabled={saveState === "saving"}>임시저장</button><button type="button" onClick={publish} disabled={publishing || uploading}>{publishing ? "공개 중…" : "공개하기 →"}</button></footer>
     </section>
-    <aside className="approved-publishing-preview"><header><span>LIVE PREVIEW</span><strong>실제 공개 카드</strong><p>공개 목록에서 보이는 모습을 그대로 확인하세요.</p></header>{type === "partner" ? <PartnerPublishingPreview value={form} /> : <CommunityPublishingPreview value={form} />}</aside>
+    <aside className="approved-publishing-preview"><header><div><span>LIVE PREVIEW</span><strong>{previewMode === "card" ? "실제 공개 카드" : "상세 화면"}</strong></div><div className="publishing-preview-tabs"><button className={previewMode === "card" ? "active" : ""} type="button" onClick={() => setPreviewMode("card")}>목록 카드</button><button className={previewMode === "detail" ? "active" : ""} type="button" onClick={() => setPreviewMode("detail")}>상세 화면</button></div></header>{previewMode === "card" ? type === "partner" ? <PartnerPublishingPreview value={form} /> : <CommunityPublishingPreview value={form} /> : <PublishingDetailPreview value={form} type={type} />}</aside>
   </div>;
 }

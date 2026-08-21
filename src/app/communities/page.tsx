@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Footer, Header } from "@/components/site-shell";
 import { getCommunities, getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
+import { CommunityDirectoryCardVisual } from "@/components/publishing-preview-cards";
 
 export const metadata = createPageMetadata({
   title: "창업 커뮤니티 찾기",
@@ -78,20 +79,7 @@ export default async function CommunitiesPage({ searchParams }: { searchParams: 
             <div className="community-directory-list">
             {filtered.map(({ community }) => (
               <Link className="community-directory-card" href={`/communities/${community.slug}`} key={community.slug}>
-                <div className="community-card-head">
-                  <img src={community.logoUrl} alt={`${community.name} 로고`} />
-                  <span><i /> 활동 중</span>
-                </div>
-                <div className="community-directory-copy">
-                  <div><h2>{community.name}</h2><span>{community.field}</span></div>
-                  <p>{community.intro}</p>
-                </div>
-                <div className="community-card-stats">
-                  <span><b>{community.founderSlugs?.length ?? 0}</b> Founder</span>
-                  <span><b>{community.brandSlugs?.length ?? 0}</b> Brand</span>
-                  <span><b>{community.eventSlugs?.length ?? 0}</b> Event</span>
-                  <strong>커뮤니티 보기 <span aria-hidden="true">→</span></strong>
-                </div>
+                <CommunityDirectoryCardVisual name={community.name} logoUrl={community.logoUrl} field={community.field} intro={community.intro} founderCount={community.founderSlugs?.length ?? 0} brandCount={community.brandSlugs?.length ?? 0} eventCount={community.eventSlugs?.length ?? 0} />
               </Link>
             ))}
             {filtered.length === 0 && <p className="community-empty">조건에 맞는 커뮤니티가 없습니다.</p>}

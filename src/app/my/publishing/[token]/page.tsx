@@ -38,5 +38,5 @@ export default async function ApprovedPublishingPage({ params }: { params: Promi
     website: saved.website ?? inquiry?.website ?? "",
     instagram: saved.instagram ?? "",
   };
-  return <><StudioNav /><main className="approved-publishing-page"><div className="shell"><div className="approved-publishing-heading"><span>REGISTRATION APPROVED</span><h2>승인됐어요.<br />이제 직접 완성해주세요.</h2><p>정보는 언제든 임시저장할 수 있고, 공개하기 전까지 외부에 노출되지 않습니다.</p></div><PublishingEditor token={token} type={data.registration_type as "partner" | "community"} initial={initial} /></div></main></>;
+  return <><StudioNav /><main className="approved-publishing-page"><div className="shell"><div className="approved-publishing-heading"><div><span>SELF-SERVE PUBLISHING</span><h2>{data.registration_type === "partner" ? "파트너 등록" : "커뮤니티 등록"}</h2></div><p>공개 전까지 외부에는 보이지 않아요.</p></div><PublishingEditor token={token} type={data.registration_type as "partner" | "community"} initial={initial} /></div></main></>;
 }
