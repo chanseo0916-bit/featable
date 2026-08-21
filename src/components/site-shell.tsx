@@ -21,8 +21,8 @@ export function Footer({ partners }: { partners: Partner[] }) {
   return <footer className="footer"><div className="shell"><div className="footer-top"><div><div className="footer-brand-lockup"><Link className="logo footer-logo" href="/"><FeatableLogo /></Link><span>피터블</span></div><p>창업가가 세상에 발견되기 시작하는 곳.</p></div><div className="footer-links"><div><strong>둘러보기</strong><Link href="/products">프로덕트</Link><Link href="/stories">스토리</Link><Link href="/events">행사</Link></div><div><strong>함께하기</strong><Link href="/submit">프로필 만들기</Link><Link href="/communities">커뮤니티</Link><Link href="/jobs">채용</Link><Link href="/partners">파트너</Link></div></div></div><div className="partner-area"><p className="eyebrow">함께하는 커뮤니티 / 파트너사</p><div className="partner-marquee"><div className="partner-marquee-track">{partnerLinks()}{partnerLinks(true)}</div></div></div><div className="footer-bottom"><div className="footer-meta"><span>© 2026 Featable 피터블</span><span>창업가와 다음 발견을 연결합니다.</span></div><nav className="footer-legal"><Link href="/terms">이용약관</Link><Link href="/privacy">개인정보처리방침</Link></nav></div></div></footer>;
 }
 
-export function SectionHeader({ eyebrow, title, href = "#" }: { eyebrow?: string; title: string; href?: string }) {
-  return <div className="section-header"> <div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2></div><Link href={href}>전체보기 <span>→</span></Link></div>;
+export function SectionHeader({ eyebrow, title, href = "#" }: { eyebrow?: string; title: string; href?: string | null }) {
+  return <div className="section-header"> <div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2></div>{href != null && <Link href={href}>전체보기 <span>→</span></Link>}</div>;
 }
 
 export function Badge({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "orange" | "dark" }) { return <span className={`badge badge-${tone}`}>{children}</span>; }

@@ -105,26 +105,28 @@ export default async function Home() {
       <main>
         <HomeOpportunityBanner slides={opportunitySlides} />
 
-        {freshProducts.length > 0 && <section className="shell section fresh-products">
-          <SectionHeader eyebrow="JUST IN" title="새로 등록된 프로덕트" href="/products" />
-          <div className="product-grid">
-            {freshProducts.map((product, index) => {
-              const brand = brands.find((item) => item.slug === product.brandSlug);
-              const founder = founders.find((item) => item.slug === product.founderSlug);
-              return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card commerce-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="product-chip">{product.category}</span>{index < 2 && <span className="drop-label">NEW</span>}</div><div className="card-body"><div className="product-brand-line"><img src={brand?.logoUrl} alt="" /><span>{brand?.name}</span><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="product-meta-row"><span className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span>{founder?.name}</span>{product.price ? <strong>{product.price}</strong> : <strong className="meta-cta">피쳐 보기 →</strong>}</div></div></Link>;
-            })}
-          </div>
-        </section>}
-
         <section className="shell live-stage">
           <div className="live-main">
-            {interviewItems.length > 0
+            {freshProducts.length > 0 ? <div className="fresh-products-panel">
+              <SectionHeader eyebrow="JUST IN" title="새로 등록된 프로덕트" href={null} />
+              <div className="product-grid fresh-products-side">
+                {freshProducts.slice(0, 6).map((product, index) => {
+                  const brand = brands.find((item) => item.slug === product.brandSlug);
+                  const founder = founders.find((item) => item.slug === product.founderSlug);
+                  return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card commerce-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="product-chip">{product.category}</span>{index < 2 && <span className="drop-label">NEW</span>}</div><div className="card-body"><div className="product-brand-line"><img src={brand?.logoUrl} alt="" /><span>{brand?.name}</span><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="product-meta-row"><span className="person-line"><span className="avatar tiny"><img src={founder?.avatarUrl} alt="" /></span>{founder?.name}</span>{product.price ? <strong>{product.price}</strong> : <strong className="meta-cta">피쳐 보기 →</strong>}</div></div></Link>;
+                })}
+              </div>
+            </div> : interviewItems.length > 0
               ? <FounderInterviewRail items={interviewItems} />
               : <ProductSquareRail items={productRailItems} />}
           </div>
 
           <LiveFeatureRanking productItems={productRankingItems} featureItems={featureRankingItems} />
         </section>
+
+        {freshProducts.length > 0 && interviewItems.length > 0 && <section className="shell section home-interview-section">
+          <FounderInterviewRail items={interviewItems} />
+        </section>}
 
         <section className="shell section weekly-builders-section">
           <div className="weekly-builders-heading">
