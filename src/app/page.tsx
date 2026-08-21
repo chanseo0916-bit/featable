@@ -19,8 +19,10 @@ export default async function Home() {
     ? featuredProducts.slice(0, 6)
     : [...products].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)).slice(0, 3);
   const editorPickSlugs = new Set(editorPickProducts.map((product) => product.slug));
+  // 인터뷰 레일이 상단을 차지하면 프로덕트 픽 레일이 없으므로 전체 프로덕트를 최신순으로 노출
+  const hasInterviews = features.some((feature) => feature.kind === "interview");
   const freshProducts = products
-    .filter((product) => !editorPickSlugs.has(product.slug))
+    .filter((product) => hasInterviews || !editorPickSlugs.has(product.slug))
     .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
   const productRailItems: ProductSquareRailItem[] = editorPickProducts.map((product) => ({
     slug: product.slug,
@@ -103,16 +105,6 @@ export default async function Home() {
       <main>
         <HomeOpportunityBanner slides={opportunitySlides} />
 
-        <section className="shell live-stage">
-          <div className="live-main">
-            {interviewItems.length > 0
-              ? <FounderInterviewRail items={interviewItems} />
-              : <ProductSquareRail items={productRailItems} />}
-          </div>
-
-          <LiveFeatureRanking productItems={productRankingItems} featureItems={featureRankingItems} />
-        </section>
-
         {freshProducts.length > 0 && <section className="shell section fresh-products">
           <SectionHeader eyebrow="JUST IN" title="새로 등록된 프로덕트" href="/products" />
           <div className="product-grid">
@@ -123,6 +115,16 @@ export default async function Home() {
             })}
           </div>
         </section>}
+
+        <section className="shell live-stage">
+          <div className="live-main">
+            {interviewItems.length > 0
+              ? <FounderInterviewRail items={interviewItems} />
+              : <ProductSquareRail items={productRailItems} />}
+          </div>
+
+          <LiveFeatureRanking productItems={productRankingItems} featureItems={featureRankingItems} />
+        </section>
 
         <section className="shell section weekly-builders-section">
           <div className="weekly-builders-heading">
