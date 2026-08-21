@@ -2399,6 +2399,21 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (max-width: 800px) { .founder-spotlight-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .founder-spot-body h3 { font-size: 17px; } }
 .founder-spot-placeholder { width: 100%; height: 100%; display: grid; place-items: center; font-size: 72px; font-weight: 900; color: color-mix(in srgb, var(--accent) 70%, white); background: radial-gradient(120% 100% at 50% 0%, #2a2a31 0%, #17171b 70%); letter-spacing: -.05em; }
 
+.weekly-builders-section { padding-top: 82px; }
+.weekly-builders-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 24px; }
+.weekly-builders-heading h2 { margin: 6px 0 0; font-size: clamp(28px, 3vw, 42px); line-height: 1.05; letter-spacing: -.055em; }
+.weekly-builders-heading > p { max-width: 430px; margin: 0 0 3px; color: #777; font-size: 14px; line-height: 1.6; text-align: right; }
+.weekly-builder-rank { position: absolute; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(15,15,17,.72); color: rgba(255,255,255,.72); font-size: 8px; font-weight: 800; letter-spacing: .12em; backdrop-filter: blur(10px); }
+.weekly-builder-rank b { color: white; font-size: 11px; letter-spacing: 0; }
+.weekly-builder-activity { display: flex; align-items: center; gap: 7px; min-width: 0; margin: -3px 0 15px; padding: 9px 10px; border-radius: 9px; background: #222228; color: #aaaab2; font-size: 10px; font-weight: 700; }
+.weekly-builder-activity i { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: #777; }
+.weekly-builder-activity span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-builder-activity.is-active { background: color-mix(in srgb, var(--accent) 14%, #222228); color: #ffd2c9; }
+.weekly-builder-activity.is-active i { background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+.weekly-builders-section .founder-spot-foot { gap: 9px; }
+.weekly-builders-section .founder-spot-foot > span { white-space: nowrap; }
+@media (max-width: 800px) { .weekly-builders-section { padding-top: 58px; } .weekly-builders-heading { display: block; margin-bottom: 18px; } .weekly-builders-heading > p { margin-top: 10px; text-align: left; } .weekly-builders-section .founder-spot-foot > span:nth-child(2) { display: none; } }
+
 /* 공개 프로필 히어로 — 스포트라이트 카드 확장 */
 .founder-hero-card { width: min(380px, 100%); }
 .founder-hero-card .founder-spot-photo { aspect-ratio: 1 / 1; }
