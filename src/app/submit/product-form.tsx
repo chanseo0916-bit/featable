@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { StoryBlock } from "@/lib/types";
 import { ProductStoryRenderer } from "@/components/product-story-renderer";
-import { ImagePromptHelper } from "@/components/image-prompt-helper";
 import { createStandaloneProduct, deleteProductDraft, saveProductDraft, updateStandaloneProduct, type ProductRegistrationInput } from "./actions";
 import { SeoPublishFields } from "@/components/seo-publish-fields";
 import { cleanSeoSlug, storyText } from "@/lib/content-seo";
@@ -161,7 +160,6 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
       <SeoPublishFields values={form} fallbackTitle={form.name || "프로덕트명"} fallbackDescription={`${form.tagline} ${form.solution || form.problem}`} fallbackImage={form.heroUrl} content={`${form.problem} ${form.solution} ${form.features} ${storyText(form.story)}`} path="products" lockSlug={Boolean(editProductId)} onChange={set} />
     </> : <>
       <div className="simple-registration-heading"><span>프로덕트 상세페이지</span><h1>이미지와 설명을 순서대로 쌓으세요.</h1><p>추가한 블록이 그대로 긴 프로덕트 상세페이지가 됩니다.</p></div>
-      <ImagePromptHelper name={form.name} category={form.category} tagline={form.tagline} problem={form.problem} solution={form.solution} features={form.features} />
       <div className="product-detail-workspace">
         <div className="product-story-builder">
           {form.story.length === 0 && <div className="product-story-empty"><strong>상세페이지가 비어 있어요.</strong><span>이미지나 텍스트 블록을 추가해 시작하세요.</span></div>}
