@@ -354,8 +354,8 @@ create table events (
 create table event_registrations (
   id uuid primary key default uuid_generate_v4(),
   event_id uuid not null references events(id) on delete cascade,
-  user_id uuid not null references profiles(id) on delete cascade,
-  status text not null check (status in ('pending', 'confirmed', 'waitlisted', 'rejected', 'cancelled')),
+  user_id uuid references profiles(id) on delete cascade,
+  status text not null check (status in ('verification_pending', 'pending', 'confirmed', 'waitlisted', 'rejected', 'cancelled')),
   applicant_name text not null check (char_length(applicant_name) between 2 and 60),
   applicant_email text not null check (char_length(applicant_email) between 3 and 254),
   note text check (note is null or char_length(note) <= 500),
@@ -365,6 +365,12 @@ create table event_registrations (
   reviewed_at timestamptz,
   reviewed_by uuid references profiles(id) on delete set null,
   cancelled_at timestamptz,
+  guest_token_hash text,
+  guest_token_expires_at timestamptz,
+  email_verified_at timestamptz,
+  verification_requested_at timestamptz,
+  consent_version text not null default '2026-08-21',
+  check ((user_id is not null and guest_token_hash is null) or (user_id is null and guest_token_hash is not null)),
   unique (event_id, user_id)
 );
 
@@ -521,6 +527,8 @@ create index publishing_invitations_email_status_idx on publishing_invitations(l
 create index partners_owner_idx on partners(owner_user_id, created_at desc);
 create index event_registrations_event_status_idx on event_registrations(event_id, status, applied_at);
 create index event_registrations_user_idx on event_registrations(user_id, applied_at desc);
+create unique index event_registrations_guest_email_unique on event_registrations(event_id, lower(applicant_email)) where user_id is null;
+create unique index event_registrations_guest_token_unique on event_registrations(guest_token_hash) where guest_token_hash is not null;
 create index idx_founder_supports_founder on founder_supports(founder_id);
 create index brand_members_user_idx on brand_members(user_id);
 create index brand_invitations_brand_idx on brand_invitations(brand_id, created_at desc);

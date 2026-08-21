@@ -22,7 +22,7 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
   if (!user) redirect(`/login?next=${encodeURIComponent(`/my/events/${slug}`)}`);
   const { data: event } = await supabase.from("events").select("id,slug,name,starts_at,capacity,approval_mode,submitted_by").eq("slug", slug).maybeSingle();
   if (!event || event.submitted_by !== user.id) notFound();
-  const { data } = await supabase.from("event_registrations").select("id,status,applicant_name,applicant_email,note,applied_at").eq("event_id", event.id).order("applied_at", { ascending: true });
+  const { data } = await supabase.from("event_registrations").select("id,status,applicant_name,applicant_email,note,applied_at").eq("event_id", event.id).neq("status", "verification_pending").order("applied_at", { ascending: true });
   const registrations = (data ?? []) as RegistrationRow[];
   const activeCount = registrations.filter((item) => item.status === "confirmed").length;
 

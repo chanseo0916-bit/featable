@@ -2624,6 +2624,17 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .event-registration-panel.status form { display: inline; margin-left: 18px; }
 .event-cancel-button { border: 0; background: transparent; color: #8a9196; font-size: 12px; text-decoration: underline; cursor: pointer; }
 .event-registration-error { margin: 0; color: #c63c2d; font-size: 12px; font-weight: 700; }
+.event-registration-login { color: #858c92; font-size: 11px; line-height: 1.6; }
+.event-registration-login a { color: #50565b; text-decoration: underline; }
+.event-verification-page { min-height: 62vh; padding: 80px 20px; display: grid; place-items: center; background: #f5f6f7; }
+.event-verification-card { width: min(100%, 620px); padding: 42px; border: 1px solid #dfe2e5; border-radius: 20px; background: #fff; box-shadow: 0 24px 70px rgb(22 25 28 / 7%); }
+.event-verification-card > span { color: var(--accent); font-size: 10px; font-weight: 850; letter-spacing: .12em; }
+.event-verification-card h1 { margin: 12px 0 10px; font-size: 34px; letter-spacing: -.05em; }
+.event-verification-card > p { color: #70777d; font-size: 14px; line-height: 1.7; }
+.event-verification-card > div { margin-top: 26px; display: flex; align-items: center; gap: 20px; }
+.event-verification-card form { margin-top: 26px; }
+.event-verification-card > div form { margin: 0; }
+.event-verification-card.status h1 { color: var(--accent); }
 .event-registration-method > span { display: block; margin-bottom: 8px; font-size: 10px; font-weight: 800; }
 .event-registration-method > div { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .event-registration-method button { padding: 16px; display: grid; gap: 6px; border: 1px solid #dfe2e5; border-radius: 10px; background: #fff; text-align: left; cursor: pointer; }
