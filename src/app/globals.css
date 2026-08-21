@@ -2186,3 +2186,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .admin-edit-grid { grid-template-columns: 1fr; padding: 20px; }
   .admin-edit-grid label.wide { grid-column: auto; }
 }
+
+/* 파트너 등급 — Featured Partner (VIP) */
+.partner-tier-heading { display: flex; align-items: baseline; gap: 10px; margin: 34px 0 14px; }
+.partner-tier-heading strong { font-size: 17px; letter-spacing: -.03em; }
+.partner-tier-heading span { color: var(--muted); font-size: 12px; }
+.partner-org-card { position: relative; }
+.partner-org-card.is-featured { border: 1.5px solid color-mix(in srgb, var(--accent) 55%, var(--border)); background: linear-gradient(180deg, var(--accent-soft) 0%, #fff 55%); box-shadow: 0 14px 34px -20px color-mix(in srgb, var(--accent) 45%, transparent); }
+.partner-featured-badge { position: absolute; top: 12px; right: 12px; padding: 5px 9px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 850; letter-spacing: .06em; }

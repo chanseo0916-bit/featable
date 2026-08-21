@@ -251,6 +251,8 @@ export interface PartnerInput {
   intro: string;
   field?: string;
   description?: string;
+  /** Featured Partner = VIP 노출, false = Basic */
+  isFeatured?: boolean;
 }
 
 export async function createPartner(input: PartnerInput): Promise<{ error?: string }> {
@@ -267,9 +269,10 @@ export async function createPartner(input: PartnerInput): Promise<{ error?: stri
     intro: input.intro.trim(),
     field: input.field?.trim() || null,
     description: input.description?.trim() || null,
+    is_featured: Boolean(input.isFeatured),
     status: "published",
   });
-  if (error) return { error: "파트너 등록에 실패했습니다." };
+  if (error) return { error: `파트너 등록에 실패했습니다: ${error.message}` };
 
   revalidateCuration();
   return {};
