@@ -559,6 +559,7 @@ interface PartnerRow {
   intro: string | null;
   description: string | null;
   field: string | null;
+  is_featured: boolean | null;
 }
 
 /** 공개된 파트너 — 실데이터 우선 + 목데이터 병합 (파트너는 slug가 없어 이름 기준) */
@@ -571,8 +572,9 @@ export const getPartners = cache(async (): Promise<Partner[]> => {
     const supabase = createClient(url!, key!);
     const { data, error } = await supabase
       .from("partners")
-      .select("name,logo_url,href,intro,description,field")
+      .select("name,logo_url,href,intro,description,field,is_featured")
       .eq("status", "published")
+      .order("is_featured", { ascending: false })
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });
     if (error) {
@@ -587,6 +589,7 @@ export const getPartners = cache(async (): Promise<Partner[]> => {
       intro: p.intro || undefined,
       description: p.description ?? undefined,
       field: p.field ?? undefined,
+      featured: p.is_featured ?? false,
     }));
     return live; // 실데이터만 노출 (데모 파트너 제거)
   } catch (error) {

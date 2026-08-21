@@ -204,4 +204,6 @@ export interface Partner {
   intro?: string;
   description?: string;
   field?: string;
+  /** Featured Partner = VIP 노출 (상단 + 뱃지), Basic = 일반 등록 */
+  featured?: boolean;
 }

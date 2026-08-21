@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Footer, Header, SectionHeader } from "@/components/site-shell";
 import { FounderSupportButton } from "@/components/founder-support-button";
+import { InteractiveProfileCard } from "@/components/interactive-profile-card";
 import { getCatalog, getFeatures, getFounder, getPartners } from "@/lib/data";
 import { getFounderSupportState } from "@/app/founders/actions";
 import {
@@ -88,7 +89,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
       <Header />
       <main className="founder-page">
         <section className="shell founder-id-section">
-          <div className="founder-spot-card founder-hero-card">
+          <InteractiveProfileCard className="founder-spot-card founder-hero-card">
             <div className="founder-spot-photo">
               {founder.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -109,7 +110,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
                 <span className="founder-hero-status"><i /> NOW BUILDING</span>
               </div>
             </div>
-          </div>
+          </InteractiveProfileCard>
 
           <div className="founder-id-copy">
             <p className="founder-profile-label">MEET THE FOUNDER</p>

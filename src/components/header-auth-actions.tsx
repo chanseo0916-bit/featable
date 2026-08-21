@@ -14,15 +14,38 @@ import { LogoutButton } from "@/components/logout-button";
  */
 export function HeaderAuthActions() {
   const [authed, setAuthed] = useState(false);
+  const [profileHref, setProfileHref] = useState("/my/profile");
   const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
+    let active = true;
+
     try {
       const supabase = createClient();
-      supabase.auth.getUser().then(({ data }) => setAuthed(Boolean(data.user)));
+      supabase.auth.getUser().then(async ({ data }) => {
+        if (!active) return;
+
+        const user = data.user;
+        setAuthed(Boolean(user));
+        if (!user) return;
+
+        const { data: founder } = await supabase
+          .from("founders")
+          .select("slug")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (active && founder?.slug) {
+          setProfileHref(`/founders/${founder.slug}`);
+        }
+      });
     } catch {
       // Supabase 미설정 환경(UI 개발용)에서는 비로그인 상태 유지
     }
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (authed) {
@@ -30,6 +53,19 @@ export function HeaderAuthActions() {
       <>
         <NotificationCenter />
         <LogoutButton />
+        <Link
+          className="header-profile-card-link"
+          href={profileHref}
+          aria-label="내 프로필 카드 보기"
+          title="내 프로필 카드 보기"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <circle cx="9" cy="11" r="2" />
+            <path d="M6 16c.7-1.5 1.7-2.2 3-2.2s2.3.7 3 2.2M14 10h4M14 14h4" />
+          </svg>
+          <span>내 프로필 카드</span>
+        </Link>
         <div className="nav-submit-wrap">
           <Link className="button button-small nav-submit" href="/my">
             파운더 센터 <span>↗</span>
