@@ -26,6 +26,7 @@ export function EventRegistrationCard({
   closed,
   user,
   registration,
+  formOnly = false,
 }: {
   eventId?: string;
   slug: string;
@@ -37,6 +38,7 @@ export function EventRegistrationCard({
   closed: boolean;
   user?: { name: string; email: string };
   registration?: { status: RegistrationStatus };
+  formOnly?: boolean;
 }) {
   const boundAction = eventId ? registerForEvent.bind(null, eventId, slug) : registerForEvent.bind(null, "", slug);
   const [state, action, pending] = useActionState(boundAction, {});
@@ -58,6 +60,8 @@ export function EventRegistrationCard({
     const copy = STATUS_COPY[currentStatus];
     return <aside className="event-registration-panel status" data-status={currentStatus}><span>MY REGISTRATION</span><h2>{copy.label}</h2><p>{copy.description}</p><Link className="text-link" href="/my/events">내 신청 내역 보기 →</Link><form action={cancelEventRegistration.bind(null, eventId ?? "", slug)}><button className="event-cancel-button" type="submit">신청 취소</button></form></aside>;
   }
+
+  if (!formOnly) return <aside className="event-registration-panel event-registration-cta"><span>FEATABLE REGISTRATION</span><h2>이 행사에 참여해보세요.</h2><p>{capacity ? `정원 ${capacity.toLocaleString("ko-KR")}명 · ` : ""}{approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</p><Link className="button" href={`/events/${slug}/apply`}>신청서 작성하기 →</Link></aside>;
 
   return <aside className="event-registration-panel"><span>FEATABLE REGISTRATION</span><h2>{currentStatus ? "다시 신청할까요?" : "이 행사에 참여할까요?"}</h2><p>{capacity ? `정원 ${capacity.toLocaleString("ko-KR")}명 · ` : ""}{approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</p><form action={action}>
     <label><span>이름</span><input name="name" defaultValue={user?.name ?? ""} minLength={2} maxLength={60} required /></label>

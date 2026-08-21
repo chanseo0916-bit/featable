@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { deletePartnerSubmission, savePartnerSubmission, type PartnerSubmissionPayload, type PartnerSubmissionType } from "./actions";
 
 export interface PartnerSubmissionRow {
@@ -21,7 +22,7 @@ const TYPES: { value: PartnerSubmissionType; label: string; description: string 
 ];
 
 const EMPTY: Record<PartnerSubmissionType, PartnerSubmissionPayload> = {
-  event: { name: "", host: "", startsAt: "", endsAt: "", deadline: "", location: "", isOnline: false, fee: "", category: "네트워킹", audience: "", applyUrl: "", coverUrl: "", publishMode: "standard", registrationMode: "external", approvalMode: "instant", capacity: "", waitlistEnabled: true },
+  event: { name: "", host: "", startsAt: "", endsAt: "", deadline: "", location: "", isOnline: false, fee: "", category: "네트워킹", audience: "", description: "", program: "", galleryUrls: [], applyUrl: "", coverUrl: "", publishMode: "standard", registrationMode: "internal", approvalMode: "instant", capacity: "", waitlistEnabled: true },
   support: { name: "", agency: "", target: "", benefits: "", amount: "", openAt: "", closeAt: "", region: "전국", field: "", applyUrl: "" },
   community: { name: "", intro: "", field: "", website: "", logoUrl: "", instagram: "" },
 };
@@ -44,6 +45,7 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
   const [id, setId] = useState<string | undefined>(selected?.id);
   const [payload, setPayload] = useState<PartnerSubmissionPayload>(selected?.payload ?? { ...EMPTY[type] });
   const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState<"cover" | "gallery" | null>(null);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const editable = !selected || selected.status === "draft" || selected.status === "rejected";
@@ -55,9 +57,42 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
     setMessage("");
   }
 
-  function set(key: string, value: string | boolean) {
+  function set(key: string, value: string | boolean | string[]) {
     setPayload((current) => ({ ...current, [key]: value }));
   }
+
+  async function uploadImages(event: ChangeEvent<HTMLInputElement>, kind: "cover" | "gallery") {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    if (!files.length) return;
+    if (files.some((file) => !file.type.startsWith("image/") || file.size > 8 * 1024 * 1024)) {
+      setMessage("이미지는 파일당 8MB 이하로 올려주세요.");
+      return;
+    }
+    setUploading(kind);
+    setMessage("");
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("로그인이 필요합니다.");
+      const urls: string[] = [];
+      for (const file of files.slice(0, kind === "cover" ? 1 : 8)) {
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${user.id}/${crypto.randomUUID()}-event-${kind}.${ext}`;
+        const { error } = await supabase.storage.from("images").upload(path, file, { contentType: file.type });
+        if (error) throw error;
+        urls.push(supabase.storage.from("images").getPublicUrl(path).data.publicUrl);
+      }
+      if (kind === "cover") set("coverUrl", urls[0]);
+      else set("galleryUrls", [...galleryUrls, ...urls].slice(0, 8));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "이미지를 올리지 못했습니다.");
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  const galleryUrls = Array.isArray(payload.galleryUrls) ? payload.galleryUrls : [];
 
   function save(submit: boolean) {
     setMessage("");
@@ -99,6 +134,7 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
       </nav>
     </aside>
 
+    <div className="partner-register-workspace">
     <section className="partner-register-form-shell">
       <header><div><span>PARTNER PUBLISHING</span><h1>{id ? "등록 정보 수정" : "새 기회 등록"}</h1><p>필요한 정보만 입력하면 Featable 운영진이 검수 후 공개합니다.</p></div>{selected && <em data-status={selected.status}>{STATUS_LABEL[selected.status]}</em>}</header>
 
@@ -129,6 +165,8 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
             <Field label="장소"><input value={String(payload.location ?? "")} onChange={(e) => set("location", e.target.value)} placeholder="서울 성수동 또는 온라인" /></Field>
             <Field label="참가비"><input value={String(payload.fee ?? "")} onChange={(e) => set("fee", e.target.value)} placeholder="무료 / 10,000원" /></Field>
             <Field label="참가 대상" wide><input value={String(payload.audience ?? "")} onChange={(e) => set("audience", e.target.value)} placeholder="예비 창업가, 초기 스타트업 팀" /></Field>
+            <Field label="행사 소개" wide><textarea value={String(payload.description ?? "")} onChange={(e) => set("description", e.target.value)} placeholder="누구를 위한 행사인지, 무엇을 얻어갈 수 있는지 자세히 소개해주세요." /></Field>
+            <Field label="프로그램" wide><textarea value={String(payload.program ?? "")} onChange={(e) => set("program", e.target.value)} placeholder={"14:00 | 참가자 입장 | 운영팀\n14:20 | 세션 1 · 제품 이야기 | 홍길동\n15:30 | 네트워킹"} /><small className="field-help">한 줄에 하나씩 `시간 | 프로그램 | 진행자` 순서로 입력하세요.</small></Field>
             <div className="event-registration-method wide">
               <span>신청 받는 방법</span>
               <div>
@@ -141,7 +179,10 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
               <Field label="정원"><input type="number" min="1" max="100000" value={String(payload.capacity ?? "")} onChange={(e) => set("capacity", e.target.value)} placeholder="비워두면 제한 없음" /></Field>
               <label className="partner-register-check wide"><input type="checkbox" checked={payload.waitlistEnabled !== false} onChange={(e) => set("waitlistEnabled", e.target.checked)} /><span>정원이 차면 대기 신청을 받습니다.</span></label>
             </> : <Field label="신청 링크" required wide><input type="url" value={String(payload.applyUrl ?? "")} onChange={(e) => set("applyUrl", e.target.value)} placeholder="https://" /></Field>}
-            <Field label="대표 이미지 URL" wide><input type="url" value={String(payload.coverUrl ?? "")} onChange={(e) => set("coverUrl", e.target.value)} placeholder="https://" /></Field>
+            <div className="event-image-fields wide">
+              <div><span>대표 포스터</span><label className="event-image-upload">{payload.coverUrl ? <img src={String(payload.coverUrl)} alt="대표 포스터 미리보기" /> : <b>포스터 이미지 선택</b>}<small>{uploading === "cover" ? "업로드 중…" : "JPG, PNG, WEBP · 최대 8MB"}</small><input type="file" accept="image/*" disabled={Boolean(uploading)} onChange={(event) => uploadImages(event, "cover")} /></label></div>
+              <div><span>상세 이미지 <small>최대 8장</small></span><div className="event-gallery-editor">{galleryUrls.map((url, index) => <figure key={url}><img src={url} alt={`상세 이미지 ${index + 1}`} /><button type="button" onClick={() => set("galleryUrls", galleryUrls.filter((item) => item !== url))}>삭제</button></figure>)}{galleryUrls.length < 8 && <label className="event-gallery-add">{uploading === "gallery" ? "업로드 중…" : "+ 이미지 추가"}<input type="file" accept="image/*" multiple disabled={Boolean(uploading)} onChange={(event) => uploadImages(event, "gallery")} /></label>}</div></div>
+            </div>
             <label className="partner-register-check wide"><input type="checkbox" checked={Boolean(payload.isOnline)} onChange={(e) => set("isOnline", e.target.checked)} /><span>온라인 행사입니다.</span></label>
           </>}
 
@@ -172,5 +213,24 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
         <footer><div>{id && <button className="danger" type="button" disabled={pending} onClick={remove}>초안 삭제</button>}</div><button className="secondary" type="button" disabled={pending} onClick={() => save(false)}>임시저장</button><button className="primary" type="button" disabled={pending} onClick={() => save(true)}>{pending ? "처리 중…" : type === "event" && payload.publishMode !== "featured" ? "행사 바로 공개하기" : "Featured 검토 요청하기"}</button></footer>
       </>}
     </section>
+    {type === "event" && <EventLivePreview payload={payload} />}
+    </div>
   </div>;
+}
+
+function EventLivePreview({ payload }: { payload: PartnerSubmissionPayload }) {
+  const gallery = Array.isArray(payload.galleryUrls) ? payload.galleryUrls : [];
+  const date = String(payload.startsAt || "");
+  return <aside className="event-live-preview">
+    <header><span>LIVE PREVIEW</span><strong>참가자에게 보이는 화면</strong></header>
+    <div className="event-live-preview-screen">
+      <div className="event-live-preview-poster">{payload.coverUrl ? <img src={String(payload.coverUrl)} alt="" /> : <span>포스터를 추가해주세요</span>}</div>
+      <div className="event-live-preview-copy"><small>{String(payload.category || "EVENT")}</small><h2>{String(payload.name || "행사명을 입력해주세요")}</h2><p>{String(payload.description || "행사를 소개하면 이곳에서 참가자가 내용을 미리 확인할 수 있어요.")}</p>
+        <dl><div><dt>일시</dt><dd>{date ? new Date(date).toLocaleString("ko-KR") : "일시 미정"}</dd></div><div><dt>장소</dt><dd>{String(payload.location || (payload.isOnline ? "온라인" : "장소 미정"))}</dd></div><div><dt>주최</dt><dd>{String(payload.host || "주최 기관")}</dd></div></dl>
+        <button type="button">신청하기 →</button>
+      </div>
+      {gallery.length > 0 && <div className="event-live-preview-gallery">{gallery.slice(0, 3).map((url) => <img src={url} alt="" key={url} />)}</div>}
+    </div>
+    <p>입력과 동시에 갱신됩니다. 실제 공개 페이지는 데스크톱·모바일에 맞춰 자동 조정돼요.</p>
+  </aside>;
 }

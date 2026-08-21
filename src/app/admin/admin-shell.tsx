@@ -4,10 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type IconName = "home" | "brand" | "product" | "story" | "calendar" | "support" | "partner" | "inbox" | "external";
+type IconName = "home" | "brand" | "product" | "story" | "calendar" | "support" | "partner" | "inbox" | "user" | "external";
 
 const NAV_GROUPS: { label: string; items: { href: string; label: string; icon: IconName; exact?: boolean }[] }[] = [
-  { label: "개요", items: [{ href: "/admin", label: "대시보드", icon: "home", exact: true }] },
+  { label: "개요", items: [
+    { href: "/admin", label: "대시보드", icon: "home", exact: true },
+    { href: "/admin/users", label: "유저", icon: "user" },
+  ] },
   { label: "콘텐츠", items: [
     { href: "/admin/brands", label: "브랜드", icon: "brand" },
     { href: "/admin/products", label: "프로덕트", icon: "product" },
@@ -32,6 +35,7 @@ function AdminIcon({ name }: { name: IconName }) {
   if (name === "support") return <svg {...common}><path d="M12 22a9 9 0 1 0-9-9c0 2.2.8 4.2 2 5.8L4 22l3.3-1.1A9 9 0 0 0 12 22Z" /><path d="M9.4 10a2.7 2.7 0 1 1 4.1 2.3c-.9.5-1.5 1-1.5 2M12 18h.01" /></svg>;
   if (name === "partner") return <svg {...common}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
   if (name === "inbox") return <svg {...common}><path d="M4 4h16v16H4z" /><path d="M4 14h4l2 3h4l2-3h4" /></svg>;
+  if (name === "user") return <svg {...common}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
   return <svg {...common}><path d="M14 3h7v7M10 14 21 3M21 14v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6" /></svg>;
 }
 

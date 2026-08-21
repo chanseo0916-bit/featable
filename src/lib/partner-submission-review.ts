@@ -1,8 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { randomSuffix, slugify } from "@/lib/slug";
 
-type SubmissionPayload = Record<string, string | boolean>;
+type SubmissionPayload = Record<string, string | boolean | string[]>;
 const clean = (value: unknown) => typeof value === "string" ? value.trim() : "";
+const parseProgram = (value: string) => value.split("\n").map((line) => { const [time, title, speaker] = line.split("|").map((part) => part.trim()); return { time, title: title || time, speaker }; }).filter((item) => item.title).slice(0, 30);
 
 export async function reviewPartnerSubmissionWithClient(
   supabase: SupabaseClient,
@@ -31,7 +32,7 @@ export async function reviewPartnerSubmissionWithClient(
 
   if (row.submission_type === "event") {
     path = `/events/${slug}`;
-    ({ error: publishError } = await supabase.from("events").insert({ slug, name, host: clean(payload.host), starts_at: new Date(clean(payload.startsAt)).toISOString(), ends_at: clean(payload.endsAt) ? new Date(clean(payload.endsAt)).toISOString() : null, deadline: clean(payload.deadline) ? new Date(clean(payload.deadline)).toISOString() : null, location: clean(payload.location) || (Boolean(payload.isOnline) ? "온라인" : ""), is_online: Boolean(payload.isOnline), fee: clean(payload.fee) || null, category: clean(payload.category) || "기타", audience: clean(payload.audience) || null, apply_url: payload.registrationMode === "internal" ? null : clean(payload.applyUrl), registration_mode: payload.registrationMode === "internal" ? "internal" : "external", approval_mode: payload.approvalMode === "manual" ? "manual" : "instant", capacity: clean(payload.capacity) ? Number(clean(payload.capacity)) : null, waitlist_enabled: payload.waitlistEnabled !== false, cover_url: clean(payload.coverUrl) || null, submitted_by: row.user_id, is_featured: true, status: "published" }));
+    ({ error: publishError } = await supabase.from("events").insert({ slug, name, host: clean(payload.host), starts_at: new Date(clean(payload.startsAt)).toISOString(), ends_at: clean(payload.endsAt) ? new Date(clean(payload.endsAt)).toISOString() : null, deadline: clean(payload.deadline) ? new Date(clean(payload.deadline)).toISOString() : null, location: clean(payload.location) || (Boolean(payload.isOnline) ? "온라인" : ""), is_online: Boolean(payload.isOnline), fee: clean(payload.fee) || null, category: clean(payload.category) || "기타", audience: clean(payload.audience) || null, description: clean(payload.description), gallery_urls: Array.isArray(payload.galleryUrls) ? payload.galleryUrls.slice(0, 8) : [], program: parseProgram(clean(payload.program)), apply_url: payload.registrationMode === "internal" ? null : clean(payload.applyUrl), registration_mode: payload.registrationMode === "internal" ? "internal" : "external", approval_mode: payload.approvalMode === "manual" ? "manual" : "instant", capacity: clean(payload.capacity) ? Number(clean(payload.capacity)) : null, waitlist_enabled: payload.waitlistEnabled !== false, cover_url: clean(payload.coverUrl) || null, submitted_by: row.user_id, is_featured: true, status: "published" }));
   } else if (row.submission_type === "support") {
     path = `/support/${slug}`;
     ({ error: publishError } = await supabase.from("support_programs").insert({ slug, name, agency: clean(payload.agency), target: clean(payload.target), benefits: clean(payload.benefits), amount: clean(payload.amount) || null, open_at: clean(payload.openAt) || null, close_at: clean(payload.closeAt), region: clean(payload.region) || "전국", field: clean(payload.field) || null, apply_url: clean(payload.applyUrl), status: "published" }));

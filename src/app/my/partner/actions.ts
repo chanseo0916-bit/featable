@@ -7,7 +7,7 @@ import { notifySlackPartnerSubmission } from "@/lib/slack";
 import { randomSuffix, slugify } from "@/lib/slug";
 
 export type PartnerSubmissionType = "event" | "support" | "community";
-export type PartnerSubmissionPayload = Record<string, string | boolean>;
+export type PartnerSubmissionPayload = Record<string, string | boolean | string[]>;
 
 export type PartnerSubmissionResult =
   | { ok: true; id: string; status: "draft" | "submitted" | "approved" }
@@ -34,10 +34,20 @@ function eventValues(payload: PartnerSubmissionPayload, slug: string, featured: 
     capacity: clean(payload.capacity) ? Number(clean(payload.capacity)) : null,
     waitlist_enabled: payload.waitlistEnabled !== false,
     cover_url: clean(payload.coverUrl) || null,
+    description: clean(payload.description),
+    gallery_urls: Array.isArray(payload.galleryUrls) ? payload.galleryUrls.filter(isWebUrl).slice(0, 8) : [],
+    program: parseProgram(clean(payload.program)),
     status: "published" as const,
     is_featured: featured,
     submitted_by: submittedBy ?? null,
   };
+}
+
+function parseProgram(value: string) {
+  return value.split("\n").map((line) => {
+    const [time, title, speaker] = line.split("|").map((part) => part.trim());
+    return { time, title: title || time, speaker };
+  }).filter((item) => item.title).slice(0, 30);
 }
 
 function isWebUrl(value: string) {

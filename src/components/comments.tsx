@@ -202,7 +202,7 @@ export function Comments({
                     </button>
                   )}
                 </p>
-                <p className="mt-1 whitespace-pre-line text-sm leading-relaxed">{row.body}</p>
+                <p className="mt-1 whitespace-pre-line break-words [overflow-wrap:anywhere] text-sm leading-relaxed">{row.body}</p>
               </div>
             </li>
           ))}

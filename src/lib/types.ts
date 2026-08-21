@@ -141,6 +141,10 @@ export interface EventItem {
   slug: string;
   name: string;
   coverUrl: string;
+  /** 행사 상세 소개 (선택) */
+  description?: string;
+  galleryUrls?: string[];
+  program?: { time?: string; title: string; speaker?: string }[];
   host: string;
   startsAt: string;
   endsAt?: string;

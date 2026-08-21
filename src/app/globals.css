@@ -2671,6 +2671,122 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .event-registration-error { margin: 0; color: #c63c2d; font-size: 12px; font-weight: 700; }
 .event-registration-login { color: #858c92; font-size: 11px; line-height: 1.6; }
 .event-registration-login a { color: #50565b; text-decoration: underline; }
+
+/* Event publishing studio and attendee experience */
+.partner-register-workspace { min-width: 0; display: grid; grid-template-columns: minmax(520px, 1fr) minmax(300px, 390px); gap: 16px; align-items: start; }
+.partner-register-workspace .partner-register-form-shell { min-width: 0; }
+.field-help { margin-top: 7px; display: block; color: #8b9298; font-size: 9px; font-weight: 500; }
+.event-image-fields { display: grid; gap: 18px; }
+.event-image-fields > div > span { margin-bottom: 8px; display: block; color: #555d63; font-size: 9px; font-weight: 750; }
+.event-image-upload { min-height: 210px; padding: 12px; display: grid; place-items: center; overflow: hidden; border: 1px dashed #cbd0d4; border-radius: 12px; background: #f7f8f8; cursor: pointer; }
+.event-image-upload img { width: 100%; height: 240px; object-fit: contain; border-radius: 8px; background: #eceeef; }
+.event-image-upload b { font-size: 12px; }
+.event-image-upload small { color: #8a9197; font-size: 9px; }
+.event-image-upload input, .event-gallery-add input { display: none; }
+.event-gallery-editor { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.event-gallery-editor figure { position: relative; min-width: 0; margin: 0; aspect-ratio: 1; overflow: hidden; border-radius: 8px; background: #eef0f1; }
+.event-gallery-editor figure img { width: 100%; height: 100%; object-fit: cover; }
+.event-gallery-editor figure button { position: absolute; right: 5px; bottom: 5px; padding: 4px 6px; border: 0; border-radius: 5px; background: rgb(17 17 17 / 78%); color: #fff; font-size: 8px; cursor: pointer; }
+.event-gallery-add { min-height: 82px; display: grid; place-items: center; border: 1px dashed #cbd0d4; border-radius: 8px; color: #666e74; font-size: 9px; cursor: pointer; }
+.event-live-preview { position: sticky; top: 88px; overflow: hidden; border: 1px solid #dfe2e5; border-radius: 15px; background: #fff; box-shadow: 0 18px 50px rgb(17 17 17 / 6%); }
+.event-live-preview > header { padding: 18px 20px; display: grid; gap: 5px; border-bottom: 1px solid #eceeef; }
+.event-live-preview > header span { color: var(--accent); font-size: 8px; font-weight: 900; letter-spacing: .13em; }
+.event-live-preview > header strong { font-size: 13px; }
+.event-live-preview-screen { padding: 14px; }
+.event-live-preview-poster { aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; border-radius: 10px; background: linear-gradient(145deg, #eee, #f8f8f8); color: #9aa0a5; font-size: 10px; }
+.event-live-preview-poster img { width: 100%; height: 100%; object-fit: cover; }
+.event-live-preview-copy { padding: 18px 5px 8px; }
+.event-live-preview-copy > small { color: var(--accent); font-size: 8px; font-weight: 850; }
+.event-live-preview-copy h2 { margin: 8px 0; font-size: 23px; line-height: 1.12; letter-spacing: -.055em; }
+.event-live-preview-copy > p { min-height: 36px; margin: 0 0 16px; color: #737a80; font-size: 9px; line-height: 1.55; }
+.event-live-preview-copy dl { margin: 0; display: grid; }
+.event-live-preview-copy dl div { padding: 9px 0; display: grid; grid-template-columns: 42px 1fr; border-top: 1px solid #eceeef; }
+.event-live-preview-copy dt { color: #989ea3; font-size: 8px; }
+.event-live-preview-copy dd { margin: 0; font-size: 9px; font-weight: 700; }
+.event-live-preview-copy button { width: 100%; height: 43px; margin-top: 12px; border: 0; border-radius: 8px; background: #111; color: #fff; font-size: 10px; font-weight: 850; }
+.event-live-preview-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.event-live-preview-gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; }
+.event-live-preview > p { margin: 0; padding: 13px 19px 17px; color: #969ca1; font-size: 8px; line-height: 1.5; }
+
+.event-experience { padding-top: 52px; padding-bottom: 100px; display: grid; grid-template-columns: 315px minmax(0, 1fr); gap: 72px; align-items: start; }
+.event-experience-sidebar { position: sticky; top: 28px; }
+.event-experience-sidebar > img { width: 100%; aspect-ratio: 1 / 1.18; object-fit: cover; border-radius: 18px; background: #eee; }
+.event-experience-sidebar .event-registration-panel { margin: 16px 0; padding: 20px; border-radius: 14px; }
+.event-experience-sidebar .event-registration-panel > span { font-size: 8px; }
+.event-experience-sidebar .event-registration-panel h2 { margin-top: 7px; font-size: 18px; }
+.event-experience-sidebar .event-registration-panel > p { margin-bottom: 14px; font-size: 11px; }
+.event-experience-sidebar .event-registration-panel .button { width: 100%; min-width: 0; }
+.event-host-card { padding: 22px; display: grid; gap: 7px; border: 1px solid #e1e4e6; border-radius: 14px; }
+.event-host-card span { color: #92989d; font-size: 9px; }
+.event-host-card strong { font-size: 15px; }
+.event-host-card p { margin: 0; color: #777e84; font-size: 10px; line-height: 1.6; }
+.event-experience-main { min-width: 0; }
+.event-experience-badges { display: flex; align-items: center; gap: 8px; }
+.event-experience-badges > span { padding: 6px 9px; border: 1px solid #e0e3e5; border-radius: 99px; color: #6d7479; font-size: 10px; }
+.event-experience-main > h1 { max-width: 850px; margin: 25px 0 14px; font-size: clamp(42px, 5.2vw, 76px); line-height: .98; letter-spacing: -.07em; }
+.event-experience-lede { max-width: 720px; margin: 0; color: #6f767c; font-size: 19px; line-height: 1.55; }
+.event-fact-grid { margin-top: 42px; display: grid; grid-template-columns: 1.25fr 1fr 1fr auto; border: 1px solid #e0e3e5; border-radius: 15px; overflow: hidden; }
+.event-fact-grid > div { min-height: 115px; padding: 21px; display: flex; flex-direction: column; gap: 8px; border-right: 1px solid #e8eaec; }
+.event-fact-grid span { color: var(--accent); font-size: 9px; font-weight: 850; }
+.event-fact-grid strong { font-size: 13px; line-height: 1.5; }
+.event-fact-grid small { color: #8b9297; font-size: 9px; }
+.event-fact-grid .save-button { margin: 21px; align-self: center; }
+.event-content-section { margin-top: 70px; padding-top: 34px; border-top: 1px solid #dedfe1; }
+.event-content-section > span, .event-bottom-cta > span { color: var(--accent); font-size: 9px; font-weight: 900; letter-spacing: .14em; }
+.event-content-section h2, .event-bottom-cta h2 { margin: 12px 0 22px; font-size: 30px; letter-spacing: -.05em; }
+.event-content-section > p { max-width: 780px; margin: 0; color: #444b50; font-size: 16px; line-height: 2; white-space: pre-line; }
+.event-program-list { border: 1px solid #e0e3e5; border-radius: 14px; overflow: hidden; }
+.event-program-list > div { min-height: 62px; padding: 15px 18px; display: grid; grid-template-columns: 130px 1fr 140px; align-items: center; gap: 18px; border-bottom: 1px solid #e8eaec; }
+.event-program-list > div:last-child { border: 0; }
+.event-program-list time { font-weight: 750; }
+.event-program-list strong { font-size: 14px; }
+.event-program-list span { color: #858c91; font-size: 11px; text-align: right; }
+.event-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.event-gallery-grid img { width: 100%; border-radius: 14px; object-fit: cover; }
+.event-bottom-cta { margin-top: 80px; padding: 42px; border-radius: 18px; background: #f3f4f5; }
+.event-bottom-cta p { color: #6f767c; font-size: 13px; }
+.event-bottom-cta .button { margin-top: 12px; }
+
+.event-apply-page { min-height: 100vh; background: #f6f6f5; }
+.event-apply-page > header { height: 92px; padding: 0 max(24px, calc((100vw - 1080px) / 2)); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid #e0e2e3; background: #fff; }
+.event-apply-page > header > div { display: grid; gap: 5px; }
+.event-apply-page > header span { color: var(--accent); font-size: 9px; font-weight: 850; }
+.event-apply-page > header strong { font-size: 15px; }
+.event-apply-page > header > a { font-size: 11px; font-weight: 750; }
+.event-apply-page > header > a:last-child { justify-self: end; font-size: 18px; }
+.event-apply-layout { width: min(100% - 40px, 1080px); margin: 50px auto 90px; display: grid; grid-template-columns: 330px minmax(0, 620px); justify-content: center; gap: 28px; align-items: start; }
+.event-apply-layout > aside { position: sticky; top: 24px; padding: 20px; border: 1px solid #e0e2e3; border-radius: 18px; background: #fff; }
+.event-apply-layout > aside img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; }
+.event-apply-layout > aside > span { margin-top: 18px; display: block; color: var(--accent); font-size: 9px; font-weight: 850; }
+.event-apply-layout > aside h1 { margin: 8px 0 18px; font-size: 24px; line-height: 1.2; letter-spacing: -.05em; }
+.event-apply-layout > aside dl div { padding: 11px 0; display: grid; grid-template-columns: 48px 1fr; border-top: 1px solid #eceeef; }
+.event-apply-layout > aside dt { color: #92989d; font-size: 10px; }
+.event-apply-layout > aside dd { margin: 0; font-size: 11px; font-weight: 700; }
+.event-apply-layout > .event-registration-panel { margin: 0; padding: 40px; }
+.event-apply-layout > .event-registration-panel h2 { font-size: 30px; }
+.event-apply-layout > .event-registration-panel .button { width: 100%; }
+
+@media (max-width: 1280px) {
+  .partner-register-workspace { grid-template-columns: 1fr; }
+  .event-live-preview { position: static; }
+}
+@media (max-width: 780px) {
+  .event-experience { padding-top: 24px; grid-template-columns: 1fr; gap: 36px; }
+  .event-experience-sidebar { position: static; }
+  .event-experience-main > h1 { font-size: 42px; }
+  .event-fact-grid { grid-template-columns: 1fr; }
+  .event-fact-grid > div { min-height: 0; border-right: 0; border-bottom: 1px solid #e8eaec; }
+  .event-program-list > div { grid-template-columns: 85px 1fr; }
+  .event-program-list span { grid-column: 2; text-align: left; }
+  .event-gallery-grid { grid-template-columns: 1fr; }
+  .event-apply-page > header { padding: 0 16px; grid-template-columns: auto 1fr; gap: 18px; }
+  .event-apply-page > header > div { justify-self: end; text-align: right; }
+  .event-apply-page > header > a:last-child { display: none; }
+  .event-apply-layout { margin-top: 24px; grid-template-columns: 1fr; }
+  .event-apply-layout > aside { position: static; }
+  .event-apply-layout > .event-registration-panel { padding: 25px 20px; }
+  .event-gallery-editor { grid-template-columns: repeat(3, 1fr); }
+}
 .event-verification-page { min-height: 62vh; padding: 80px 20px; display: grid; place-items: center; background: #f5f6f7; }
 .event-verification-card { width: min(100%, 620px); padding: 42px; border: 1px solid #dfe2e5; border-radius: 20px; background: #fff; box-shadow: 0 24px 70px rgb(22 25 28 / 7%); }
 .event-verification-card > span { color: var(--accent); font-size: 10px; font-weight: 850; letter-spacing: .12em; }
@@ -2832,3 +2948,64 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .home-interview-section { padding-top: 96px; }
 @media (max-width: 800px) { .fresh-rail-track > * { flex-basis: 76vw; } }
 @media (max-width: 800px) { .home-interview-section { padding-top: 65px; } }
+
+/* ===== 모바일 대응 일괄 보강 (2026-08) ===== */
+
+/* /submit 역할 게이트 — 700px 미디어쿼리 안에 갇혀 있던 규칙을 전 폭으로 복원 */
+.role-gate-page { display: grid; place-items: center; }
+.role-gate-card { max-width: 560px; padding: 44px 40px; border: 1px solid #dfe2e5; border-radius: 16px; background: #fff; text-align: center; }
+.role-gate-card > span { color: var(--accent); font-size: 9px; font-weight: 850; letter-spacing: .14em; }
+.role-gate-card h1 { margin: 14px 0 0; font-size: clamp(24px, 3.4vw, 32px); line-height: 1.25; letter-spacing: -.05em; }
+.role-gate-card > p { margin: 16px 0 0; color: #5f666d; font-size: 13px; line-height: 1.85; word-break: keep-all; }
+.role-gate-card > p b { color: var(--foreground); font-weight: 750; }
+.role-gate-actions { margin-top: 28px; display: grid; gap: 12px; justify-items: center; }
+.role-gate-actions button { height: 48px; padding: 0 26px; display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 9px; background: var(--accent); color: #fff; cursor: pointer; font-size: 13px; font-weight: 750; }
+.role-gate-actions button:hover { background: var(--accent-hover); }
+.role-gate-actions button b { font-weight: 500; }
+.role-gate-actions > a { color: var(--muted); font-size: 12px; font-weight: 650; }
+.role-gate-actions > a:hover { color: var(--accent); }
+@media (max-width: 640px) { .role-gate-card { padding: 32px 22px; } }
+
+/* 스튜디오 상단 내비 — 모바일에서 숨기지 않고 가로 스크롤 줄로 */
+@media (max-width: 760px) {
+  .publish-console-nav { height: auto; }
+  .publish-console-nav .shell { height: auto; flex-wrap: wrap; gap: 12px 18px; padding-top: 13px; }
+  .publish-console-nav nav { display: flex; order: 10; width: 100%; height: auto; gap: 22px; overflow-x: auto; scrollbar-width: none; }
+  .publish-console-nav nav::-webkit-scrollbar { display: none; }
+  .publish-console-nav nav a { padding: 2px 0 10px; white-space: nowrap; }
+}
+
+/* 공개 페이지 좁은 화면 보강 */
+@media (max-width: 700px) {
+  .community-identity { flex-wrap: wrap; gap: 16px; padding-bottom: 34px; }
+  .community-logo.large { width: 72px; height: 72px; border-radius: 16px; }
+  .community-identity h1 { font-size: clamp(28px, 8.5vw, 40px); }
+  .support-detail-grid { grid-template-columns: 1fr; gap: 24px; margin-top: 38px; }
+  .people-list { grid-template-columns: 1fr; }
+  .founder-profile-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .event-registration-panel.status form { display: block; margin: 12px 0 0; }
+  .event-verification-card { padding: 30px 20px; }
+  .event-verification-card h1 { font-size: 26px; }
+  .event-verification-card > div { flex-wrap: wrap; gap: 12px; }
+  .product-public-detail { padding-bottom: 96px; }
+  .partner-register-types { grid-template-columns: 1fr; }
+  .partner-register-types button { min-height: 52px; }
+}
+@media (max-width: 720px) {
+  .feature-brief-metrics { flex-wrap: wrap; gap: 14px 20px; }
+}
+@media (max-width: 640px) {
+  .partnership-success { min-height: 340px; padding: 34px 22px; }
+  .partnership-success h1 { font-size: 27px; }
+  .admin-access-denied { padding: 30px 20px; }
+  .admin-signup-chart { gap: 4px; }
+  .admin-signup-chart b, .admin-signup-chart small { font-size: 8px; }
+}
+
+/* submit 위저드 — 긴 URL/슬러그가 좁은 화면에서 밀어내지 않게 */
+.submit-channel-head > div { min-width: 0; }
+.submit-channel-head span { overflow-wrap: anywhere; }
+.submit-public-url code { overflow-wrap: anywhere; }
+@media (max-width: 430px) {
+  .product-preview-device { width: 246px; height: 500px; }
+}

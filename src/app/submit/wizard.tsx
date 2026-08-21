@@ -320,7 +320,7 @@ export function SubmitWizard({
         <div className="mb-8 rounded-xl border border-border p-4 text-sm">
           <code className="text-accent">featable.kr{brandUrl}</code>
         </div>
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           <Link href={brandUrl} className="rounded-lg bg-accent px-6 py-3 text-sm font-bold text-white hover:bg-accent-hover">
             내 브랜드 페이지 보기
           </Link>
@@ -401,8 +401,8 @@ export function SubmitWizard({
             onChange={(e) => set({ tagline: e.target.value })} />
           <label className={label}>브랜드 소개 *</label>
           <textarea className={`${input} min-h-28`} value={draft.description} placeholder="우리 브랜드는 어떤 문제를 어떻게 풀고 있나요?" onChange={(e) => set({ description: e.target.value })} />
-          <div className="grid grid-cols-2 gap-3"><div><label className={label}>해결하는 문제</label><input className={input} value={draft.problem} onChange={(e) => set({ problem: e.target.value })} /></div><div><label className={label}>대상 고객</label><input className={input} value={draft.audience} onChange={(e) => set({ audience: e.target.value })} /></div></div>
-          <div className="grid grid-cols-2 gap-3"><div><label className={label}>홈페이지</label><input className={input} value={draft.website} placeholder="https://" onChange={(e) => set({ website: e.target.value })} /></div><div><label className={label}>인스타그램</label><input className={input} value={draft.instagram} placeholder="@handle" onChange={(e) => set({ instagram: e.target.value })} /></div></div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><div><label className={label}>해결하는 문제</label><input className={input} value={draft.problem} onChange={(e) => set({ problem: e.target.value })} /></div><div><label className={label}>대상 고객</label><input className={input} value={draft.audience} onChange={(e) => set({ audience: e.target.value })} /></div></div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><div><label className={label}>홈페이지</label><input className={input} value={draft.website} placeholder="https://" onChange={(e) => set({ website: e.target.value })} /></div><div><label className={label}>인스타그램</label><input className={input} value={draft.instagram} placeholder="@handle" onChange={(e) => set({ instagram: e.target.value })} /></div></div>
           </div>
         </div>
       )}
@@ -443,7 +443,7 @@ export function SubmitWizard({
           <textarea className={`${input} min-h-24`} value={draft.productFeatures}
             placeholder={"원터치 요약\n실시간 동기화"}
             onChange={(e) => set({ productFeatures: e.target.value })} />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className={label}>가격 (선택)</label>
               <input className={input} value={draft.price} placeholder="월 9,900원"

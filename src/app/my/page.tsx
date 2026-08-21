@@ -436,7 +436,7 @@ export default async function MyPage() {
             {draftProducts.map((product) => {
               const brand = brands.find((item) => item.id === product.brand_id);
               return (
-                <div key={product.id} className="flex items-center gap-4 rounded-xl border border-border bg-white p-4">
+                <div key={product.id} className="flex flex-wrap items-center gap-4 rounded-xl border border-border bg-white p-4">
                   {product.hero_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={product.hero_url} alt="" className="h-12 w-12 flex-none rounded-lg border border-border object-cover" />
@@ -458,7 +458,7 @@ export default async function MyPage() {
               const brand = brands.find((item) => item.id === draft.payload.brandId);
               const resumeHref = brand ? `/submit/product?brand=${brand.id}` : "/submit/product";
               return (
-                <div key={draft.draft_key} className="flex items-center gap-4 rounded-xl border border-dashed border-border bg-white p-4">
+                <div key={draft.draft_key} className="flex flex-wrap items-center gap-4 rounded-xl border border-dashed border-border bg-white p-4">
                   <div className="grid h-12 w-12 flex-none place-items-center rounded-lg bg-gray-100 text-sm font-black text-muted">✎</div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold">{draft.payload.name?.trim() || "제목 없는 프로덕트"}

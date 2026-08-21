@@ -143,7 +143,7 @@ export function MentorNotes({ productSlug }: { productSlug: string }) {
 
       {mode === "mentor" && (
         <div className="mb-8 rounded-2xl border border-border p-5">
-          <div className="mb-3 grid grid-cols-2 gap-3">
+          <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input className={input} value={mentorName} placeholder="이름"
               onChange={(e) => setMentorName(e.target.value)} />
             <input className={input} value={field} placeholder="분야 (예: Marketing)"
