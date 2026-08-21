@@ -652,13 +652,15 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .feature-brief-kicker { margin: 55px 0 14px; color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
 .feature-brief-copy h1 { max-width: 510px; margin: 0; font-size: clamp(35px, 3.7vw, 52px); line-height: 1.2; letter-spacing: -.07em; }
 .feature-brief-excerpt { max-width: 490px; margin: 19px 0 0; color: #aaa; font-size: 13px; line-height: 1.7; }
-.feature-brief-metrics { margin-top: auto; padding: 28px 0 23px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; border-top: 1px solid #333; }
+.feature-brief-metrics { margin-top: auto; padding: 28px 0 23px; display: flex; align-items: center; gap: 20px; border-top: 1px solid #333; }
 .feature-brief-metrics > div { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-.feature-brief-metrics strong { color: #fff; font-size: 18px; line-height: 1; letter-spacing: -.03em; }
-.feature-brief-metrics span { color: #777; font-size: 8px; }
+/* strong/span은 통계 블록(div)에만 적용한다 — SaveButton도 strong/span을 쓰기 때문에
+   범위를 좁히지 않으면 버튼 라벨이 흰 배경 위 흰 글자가 되어 사라진다. */
+.feature-brief-metrics > div strong { color: #fff; font-size: 18px; line-height: 1; letter-spacing: -.03em; }
+.feature-brief-metrics > div span { color: #8b8b8b; font-size: 10px; }
 .feature-brief-metrics .feature-discovery-metric { margin: 0; color: inherit; }
 .feature-brief-metrics .feature-discovery-metric strong { font-size: 18px; }
-.feature-brief-metrics .feature-discovery-metric span { font-size: 8px; font-weight: 400; }
+.feature-brief-metrics .feature-discovery-metric span { font-size: 10px; font-weight: 400; }
 .feature-brief-metrics .feature-discovery-metric i { display: none; }
 .feature-brief-copy .feature-action-area { grid-template-columns: 90px 1fr; gap: 8px; margin-top: 0; }
 .feature-brief-copy .feature-small-actions button { border-color: #444; background: #242424; color: #ccc; }
@@ -1878,7 +1880,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .save-item-button strong { font-size: 10px; }
 .save-item-button.saved { border-color: #ffb3a6; background: #fff3f0; color: var(--accent); }
 .save-item-button:disabled { cursor: wait; opacity: .55; }
-.feature-brief-metrics .save-item-button { width: 100%; min-height: 44px; align-self: start; border-color: #fff; background: #fff; color: #111; font-weight: 750; box-shadow: 0 8px 24px #0005; transition: transform .18s ease, background .18s ease, border-color .18s ease, color .18s ease; }
+.feature-brief-metrics .save-item-button { width: auto; min-width: 132px; min-height: 44px; margin: 0; padding: 0 20px; border-color: #fff; background: #fff; color: #111; font-weight: 750; box-shadow: 0 8px 24px #0005; transition: transform .18s ease, background .18s ease, border-color .18s ease, color .18s ease; }
+.feature-brief-metrics .save-item-button span { font-size: 14px; }
+.feature-brief-metrics .save-item-button strong { font-size: 12px; }
 .feature-brief-metrics .save-item-button:hover { border-color: var(--accent); background: var(--accent); color: #fff; transform: translateY(-1px); }
 .feature-brief-metrics .save-item-button.saved { border-color: #ff8c78; background: #fff0ed; color: var(--accent); }
 .feature-brief-metrics .save-item-button.saved:hover { background: #ffe1da; color: #d9361f; }
