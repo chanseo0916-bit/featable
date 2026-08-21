@@ -4,6 +4,7 @@ import { Badge, Footer, Header } from "@/components/site-shell";
 import { Comments } from "@/components/comments";
 import { FeatureViewMetric } from "@/components/view-tracker";
 import { SaveButton } from "@/components/save-button";
+import { ShareButton } from "@/components/share-button";
 import { getCatalog, getFeature, getPartners } from "@/lib/data";
 import type { Metadata } from "next";
 import {
@@ -175,6 +176,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
               <div id="likes" className="feature-brief-metrics">
                 <FeatureViewMetric slug={feature.slug} initialCount={discoveryCount} />
                 <SaveButton itemType="feature" slug={feature.slug} labelMode="like" />
+                <ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} />
               </div>
             </div>
 

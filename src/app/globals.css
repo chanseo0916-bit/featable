@@ -658,9 +658,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
    범위를 좁히지 않으면 버튼 라벨이 흰 배경 위 흰 글자가 되어 사라진다. */
 .feature-brief-metrics > div strong { color: #fff; font-size: 18px; line-height: 1; letter-spacing: -.03em; }
 .feature-brief-metrics > div span { color: #8b8b8b; font-size: 10px; }
-.feature-brief-metrics .feature-discovery-metric { margin: 0; color: inherit; }
-.feature-brief-metrics .feature-discovery-metric strong { font-size: 18px; }
-.feature-brief-metrics .feature-discovery-metric span { font-size: 10px; font-weight: 400; }
+/* 조회수는 "1회 조회" 한 줄로 읽히도록 가로 baseline 정렬 — 세로로 쪼개지면
+   옆 버튼과 정렬이 어긋나 보인다(스트립의 flex-direction: column을 되돌림). */
+.feature-brief-metrics .feature-discovery-metric { margin: 0; flex-direction: row; align-items: baseline; gap: 4px; color: inherit; }
+.feature-brief-metrics .feature-discovery-metric strong { font-size: 19px; }
+.feature-brief-metrics .feature-discovery-metric span { color: #8b8b8b; font-size: 11px; font-weight: 400; }
 .feature-brief-metrics .feature-discovery-metric i { display: none; }
 .feature-brief-copy .feature-action-area { grid-template-columns: 90px 1fr; gap: 8px; margin-top: 0; }
 .feature-brief-copy .feature-small-actions button { border-color: #444; background: #242424; color: #ccc; }
