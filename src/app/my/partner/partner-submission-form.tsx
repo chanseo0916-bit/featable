@@ -21,7 +21,7 @@ const TYPES: { value: PartnerSubmissionType; label: string; description: string 
 ];
 
 const EMPTY: Record<PartnerSubmissionType, PartnerSubmissionPayload> = {
-  event: { name: "", host: "", startsAt: "", endsAt: "", location: "", isOnline: false, fee: "", category: "네트워킹", audience: "", applyUrl: "", coverUrl: "", publishMode: "standard" },
+  event: { name: "", host: "", startsAt: "", endsAt: "", deadline: "", location: "", isOnline: false, fee: "", category: "네트워킹", audience: "", applyUrl: "", coverUrl: "", publishMode: "standard", registrationMode: "external", approvalMode: "instant", capacity: "", waitlistEnabled: true },
   support: { name: "", agency: "", target: "", benefits: "", amount: "", openAt: "", closeAt: "", region: "전국", field: "", applyUrl: "" },
   community: { name: "", intro: "", field: "", website: "", logoUrl: "", instagram: "" },
 };
@@ -125,10 +125,22 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
             <Field label="카테고리"><input value={String(payload.category ?? "")} onChange={(e) => set("category", e.target.value)} placeholder="네트워킹" /></Field>
             <Field label="시작 일시" required><input type="datetime-local" value={String(payload.startsAt ?? "")} onChange={(e) => set("startsAt", e.target.value)} /></Field>
             <Field label="종료 일시"><input type="datetime-local" value={String(payload.endsAt ?? "")} onChange={(e) => set("endsAt", e.target.value)} /></Field>
+            <Field label="신청 마감"><input type="datetime-local" value={String(payload.deadline ?? "")} onChange={(e) => set("deadline", e.target.value)} /></Field>
             <Field label="장소"><input value={String(payload.location ?? "")} onChange={(e) => set("location", e.target.value)} placeholder="서울 성수동 또는 온라인" /></Field>
             <Field label="참가비"><input value={String(payload.fee ?? "")} onChange={(e) => set("fee", e.target.value)} placeholder="무료 / 10,000원" /></Field>
             <Field label="참가 대상" wide><input value={String(payload.audience ?? "")} onChange={(e) => set("audience", e.target.value)} placeholder="예비 창업가, 초기 스타트업 팀" /></Field>
-            <Field label="신청 링크" required wide><input type="url" value={String(payload.applyUrl ?? "")} onChange={(e) => set("applyUrl", e.target.value)} placeholder="https://" /></Field>
+            <div className="event-registration-method wide">
+              <span>신청 받는 방법</span>
+              <div>
+                <button className={payload.registrationMode === "internal" ? "active" : ""} type="button" onClick={() => set("registrationMode", "internal")}><strong>Featable에서 신청</strong><small>회원이 사이트 안에서 신청하고 내가 참가자를 관리해요.</small></button>
+                <button className={payload.registrationMode !== "internal" ? "active" : ""} type="button" onClick={() => set("registrationMode", "external")}><strong>외부 링크로 신청</strong><small>이벤터스·Luma·Google Form 등으로 연결해요.</small></button>
+              </div>
+            </div>
+            {payload.registrationMode === "internal" ? <>
+              <Field label="승인 방식"><select value={String(payload.approvalMode ?? "instant")} onChange={(e) => set("approvalMode", e.target.value)}><option value="instant">신청 즉시 확정</option><option value="manual">주최자 승인 후 확정</option></select></Field>
+              <Field label="정원"><input type="number" min="1" max="100000" value={String(payload.capacity ?? "")} onChange={(e) => set("capacity", e.target.value)} placeholder="비워두면 제한 없음" /></Field>
+              <label className="partner-register-check wide"><input type="checkbox" checked={payload.waitlistEnabled !== false} onChange={(e) => set("waitlistEnabled", e.target.checked)} /><span>정원이 차면 대기 신청을 받습니다.</span></label>
+            </> : <Field label="신청 링크" required wide><input type="url" value={String(payload.applyUrl ?? "")} onChange={(e) => set("applyUrl", e.target.value)} placeholder="https://" /></Field>}
             <Field label="대표 이미지 URL" wide><input type="url" value={String(payload.coverUrl ?? "")} onChange={(e) => set("coverUrl", e.target.value)} placeholder="https://" /></Field>
             <label className="partner-register-check wide"><input type="checkbox" checked={Boolean(payload.isOnline)} onChange={(e) => set("isOnline", e.target.checked)} /><span>온라인 행사입니다.</span></label>
           </>}

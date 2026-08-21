@@ -22,12 +22,17 @@ function eventValues(payload: PartnerSubmissionPayload, slug: string, featured: 
     host: clean(payload.host),
     starts_at: new Date(clean(payload.startsAt)).toISOString(),
     ends_at: clean(payload.endsAt) ? new Date(clean(payload.endsAt)).toISOString() : null,
+    deadline: clean(payload.deadline) ? new Date(clean(payload.deadline)).toISOString() : null,
     location: clean(payload.location) || (Boolean(payload.isOnline) ? "온라인" : ""),
     is_online: Boolean(payload.isOnline),
     fee: clean(payload.fee) || null,
     category: clean(payload.category) || "기타",
     audience: clean(payload.audience) || null,
-    apply_url: clean(payload.applyUrl),
+    apply_url: payload.registrationMode === "internal" ? null : clean(payload.applyUrl),
+    registration_mode: payload.registrationMode === "internal" ? "internal" : "external",
+    approval_mode: payload.approvalMode === "manual" ? "manual" : "instant",
+    capacity: clean(payload.capacity) ? Number(clean(payload.capacity)) : null,
+    waitlist_enabled: payload.waitlistEnabled !== false,
     cover_url: clean(payload.coverUrl) || null,
     status: "published" as const,
     is_featured: featured,
@@ -52,7 +57,13 @@ function validate(type: PartnerSubmissionType, payload: PartnerSubmissionPayload
   if (type === "event") {
     if (!clean(payload.host)) return "주최 기관을 입력해주세요.";
     if (!clean(payload.startsAt) || Number.isNaN(Date.parse(clean(payload.startsAt)))) return "행사 일시를 확인해주세요.";
-    if (!isWebUrl(clean(payload.applyUrl))) return "신청 링크를 http:// 또는 https://로 입력해주세요.";
+    if (clean(payload.deadline) && Number.isNaN(Date.parse(clean(payload.deadline)))) return "신청 마감 일시를 확인해주세요.";
+    if (clean(payload.deadline) && new Date(clean(payload.deadline)).getTime() > new Date(clean(payload.startsAt)).getTime()) return "신청 마감은 행사 시작 전으로 설정해주세요.";
+    if (payload.registrationMode !== "internal" && !isWebUrl(clean(payload.applyUrl))) return "신청 링크를 http:// 또는 https://로 입력해주세요.";
+    if (payload.registrationMode === "internal" && clean(payload.capacity)) {
+      const capacity = Number(clean(payload.capacity));
+      if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100000) return "정원은 1명 이상으로 입력해주세요.";
+    }
   }
 
   if (type === "support") {

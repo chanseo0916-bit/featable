@@ -337,13 +337,35 @@ create table events (
   deadline timestamptz,
   category text not null default '기타',
   audience text,
-  apply_url text not null,
+  apply_url text,
   community_id uuid,
   brand_id uuid references brands(id) on delete set null,
   submitted_by uuid references profiles(id) on delete set null,
+  registration_mode text not null default 'external' check (registration_mode in ('external', 'internal', 'closed')),
+  approval_mode text not null default 'instant' check (approval_mode in ('instant', 'manual')),
+  capacity integer check (capacity is null or capacity > 0),
+  waitlist_enabled boolean not null default true,
   status content_status not null default 'published',
   is_featured boolean not null default false,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  check (registration_mode <> 'external' or nullif(trim(apply_url), '') is not null)
+);
+
+create table event_registrations (
+  id uuid primary key default uuid_generate_v4(),
+  event_id uuid not null references events(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  status text not null check (status in ('pending', 'confirmed', 'waitlisted', 'rejected', 'cancelled')),
+  applicant_name text not null check (char_length(applicant_name) between 2 and 60),
+  applicant_email text not null check (char_length(applicant_email) between 3 and 254),
+  note text check (note is null or char_length(note) <= 500),
+  consented_at timestamptz not null,
+  applied_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  reviewed_at timestamptz,
+  reviewed_by uuid references profiles(id) on delete set null,
+  cancelled_at timestamptz,
+  unique (event_id, user_id)
 );
 
 -- ---------- Support Program (관리자 큐레이션) ----------
@@ -497,6 +519,8 @@ create index partnership_inquiries_email_created_idx on partnership_inquiries(lo
 create index publishing_invitations_user_status_idx on publishing_invitations(user_id, status, created_at desc);
 create index publishing_invitations_email_status_idx on publishing_invitations(lower(invitee_email), status, created_at desc);
 create index partners_owner_idx on partners(owner_user_id, created_at desc);
+create index event_registrations_event_status_idx on event_registrations(event_id, status, applied_at);
+create index event_registrations_user_idx on event_registrations(user_id, applied_at desc);
 create index idx_founder_supports_founder on founder_supports(founder_id);
 create index brand_members_user_idx on brand_members(user_id);
 create index brand_invitations_brand_idx on brand_invitations(brand_id, created_at desc);
@@ -535,6 +559,14 @@ returns boolean language sql security definer set search_path = public stable as
   select is_brand_owner(b_id) or exists (
     select 1 from brand_members
     where brand_id = b_id and user_id = auth.uid() and member_role = 'editor'
+  );
+$$;
+
+create or replace function can_manage_event(target_event_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from events e
+    where e.id = target_event_id and (e.submitted_by = auth.uid() or is_admin())
   );
 $$;
 
@@ -748,6 +780,7 @@ alter table products enable row level security;
 alter table features enable row level security;
 alter table mentor_notes enable row level security;
 alter table events enable row level security;
+alter table event_registrations enable row level security;
 alter table support_programs enable row level security;
 alter table communities enable row level security;
 alter table partner_submissions enable row level security;
@@ -761,6 +794,8 @@ alter table community_brands enable row level security;
 -- profiles: 본인만 조회/수정, admin 전체
 create policy "profiles_select_own" on profiles for select using (id = auth.uid() or is_admin());
 create policy "profiles_update_own" on profiles for update using (id = auth.uid());
+revoke update on table profiles from authenticated;
+grant update (full_name, member_type, terms_agreed_at, privacy_agreed_at, marketing_agreed_at, onboarding_completed_at) on table profiles to authenticated;
 
 -- founders: 공개 읽기, 본인 쓰기
 create policy "founders_select_all" on founders for select using (true);
@@ -832,6 +867,8 @@ create policy "mentor_notes_delete_own" on mentor_notes for delete using (mentor
 -- 큐레이션 테이블: 공개 읽기, admin만 쓰기
 create policy "events_select" on events for select using (status = 'published' or is_admin());
 create policy "events_write" on events for all using (is_admin()) with check (is_admin());
+create policy "event_registrations_select_related" on event_registrations for select
+  using (user_id = auth.uid() or can_manage_event(event_id));
 
 create policy "support_select" on support_programs for select using (status = 'published' or is_admin());
 create policy "support_write" on support_programs for all using (is_admin()) with check (is_admin());
@@ -853,7 +890,7 @@ create policy "partner_submissions_insert" on partner_submissions for insert
   );
 create policy "partner_submissions_update" on partner_submissions for update
   using ((user_id = auth.uid() and status in ('draft', 'rejected')) or is_admin())
-  with check (user_id = auth.uid() or is_admin());
+  with check ((user_id = auth.uid() and status in ('draft', 'submitted')) or is_admin());
 create policy "partner_submissions_delete" on partner_submissions for delete
   using ((user_id = auth.uid() and status in ('draft', 'rejected')) or is_admin());
 

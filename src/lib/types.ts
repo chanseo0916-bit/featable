@@ -133,6 +133,7 @@ export interface Feature {
 }
 
 export interface EventItem {
+  id?: string;
   slug: string;
   name: string;
   coverUrl: string;
@@ -154,7 +155,13 @@ export interface EventItem {
     | "IR"
     | "기타";
   audience?: string;
-  applyUrl: string;
+  applyUrl?: string;
+  registrationMode?: "external" | "internal" | "closed";
+  approvalMode?: "instant" | "manual";
+  capacity?: number;
+  waitlistEnabled?: boolean;
+  registrationClosed?: boolean;
+  submittedBy?: string;
   isFeatured?: boolean;
   communitySlug?: string;
   brandSlug?: string;

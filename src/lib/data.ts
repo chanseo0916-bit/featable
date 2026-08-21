@@ -270,6 +270,7 @@ async function fetchLive(): Promise<Catalog | null> {
 }
 
 interface EventRow {
+  id: string;
   slug: string;
   name: string;
   cover_url: string | null;
@@ -282,8 +283,13 @@ interface EventRow {
   deadline: string | null;
   category: string;
   audience: string | null;
-  apply_url: string;
+  apply_url: string | null;
   is_featured: boolean;
+  registration_mode: "external" | "internal" | "closed";
+  approval_mode: "instant" | "manual";
+  capacity: number | null;
+  waitlist_enabled: boolean;
+  submitted_by: string | null;
 }
 
 interface SupportRow {
@@ -362,7 +368,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
     const { data, error } = await supabase
       .from("events")
       .select(
-        "slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,deadline,category,audience,apply_url,is_featured",
+        "id,slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,deadline,category,audience,apply_url,is_featured,registration_mode,approval_mode,capacity,waitlist_enabled,submitted_by",
       )
       .eq("status", "published")
       .order("is_featured", { ascending: false })
@@ -373,6 +379,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
     }
 
     const live: EventItem[] = ((data ?? []) as unknown as EventRow[]).map((e) => ({
+      id: e.id,
       slug: e.slug,
       name: e.name,
       coverUrl: e.cover_url || placeholder(`event-${e.slug}`),
@@ -385,8 +392,14 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       deadline: e.deadline ?? undefined,
       category: e.category as EventItem["category"],
       audience: e.audience ?? undefined,
-      applyUrl: e.apply_url,
+      applyUrl: e.apply_url ?? undefined,
       isFeatured: e.is_featured,
+      registrationMode: e.registration_mode,
+      approvalMode: e.approval_mode,
+      capacity: e.capacity ?? undefined,
+      waitlistEnabled: e.waitlist_enabled,
+      registrationClosed: (e.deadline ? new Date(e.deadline).getTime() < Date.now() : false) || new Date(e.starts_at).getTime() <= Date.now(),
+      submittedBy: e.submitted_by ?? undefined,
     }));
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
