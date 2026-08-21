@@ -1,11 +1,15 @@
 import "server-only";
 import { SITE_URL } from "@/lib/site";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type SlackBlock = Record<string, unknown>;
 
 async function postSlack(webhookUrl: string | undefined, text: string, blocks: SlackBlock[]) {
   webhookUrl = webhookUrl?.trim();
-  if (!webhookUrl) return { ok: false, skipped: true };
+  if (!webhookUrl) {
+    console.error("[slack] Webhook URL is not configured.");
+    return { ok: false, skipped: true };
+  }
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
@@ -13,18 +17,43 @@ async function postSlack(webhookUrl: string | undefined, text: string, blocks: S
       body: JSON.stringify({ text, blocks }),
       cache: "no-store",
     });
+    if (!response.ok) {
+      console.error(`[slack] Webhook request failed with status ${response.status}.`);
+    }
     return { ok: response.ok, skipped: false };
-  } catch {
+  } catch (error) {
+    console.error("[slack] Webhook request failed.", error);
     return { ok: false, skipped: false };
   }
 }
 
 const roleLabel = (type: string) => ({ founder: "창업가·대표", team: "팀 멤버", explorer: "예비 창업가", partner: "파트너" })[type] ?? type;
 
-export async function notifySlackNewSignup(input: { name: string; email: string; memberType: string; marketingAccepted: boolean }) {
-  const text = `새 가입자: ${input.name} (${input.email})`;
+export async function notifySlackNewSignup(input: { userId: string; name: string; email: string; memberType: string; marketingAccepted: boolean }) {
+  const admin = createAdminClient();
+  if (!admin) {
+    console.error("[slack] Cannot verify the new signup because the Supabase admin client is unavailable.");
+    return { ok: false, skipped: true };
+  }
+
+  const [{ data: profile, error: profileError }, { count, error: countError }] = await Promise.all([
+    admin.from("profiles").select("id").eq("id", input.userId).maybeSingle(),
+    admin.from("profiles").select("id", { count: "exact", head: true }),
+  ]);
+
+  if (profileError || !profile) {
+    console.error("[slack] Skipped signup notification because the profile was not found.", profileError);
+    return { ok: false, skipped: true };
+  }
+  if (countError) {
+    console.error("[slack] Failed to calculate the signup number.", countError);
+  }
+
+  const signupNumber = count ?? null;
+  const signupLabel = signupNumber ? `${signupNumber}번째 가입자` : "새 가입자";
+  const text = `${signupLabel}: ${input.name} (${input.email})`;
   return postSlack(process.env.SLACK_SIGNUP_WEBHOOK_URL ?? process.env.SLACK_WEBHOOK_URL, text, [
-    { type: "header", text: { type: "plain_text", text: "👋 Featable 새 가입자", emoji: true } },
+    { type: "header", text: { type: "plain_text", text: `👋 Featable ${signupLabel}`, emoji: true } },
     { type: "section", fields: [
       { type: "mrkdwn", text: `*이름*\n${input.name}` },
       { type: "mrkdwn", text: `*역할*\n${roleLabel(input.memberType)}` },

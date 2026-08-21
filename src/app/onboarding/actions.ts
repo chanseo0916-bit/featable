@@ -48,7 +48,13 @@ export async function completeOnboarding(
 
   if (error) return { error: "프로필 저장에 실패했습니다. 잠시 후 다시 시도해주세요." };
 
-  await notifySlackNewSignup({ name: fullName, email: user.email ?? "이메일 없음", memberType, marketingAccepted });
+  await notifySlackNewSignup({
+    userId: user.id,
+    name: fullName,
+    email: user.email ?? "이메일 없음",
+    memberType,
+    marketingAccepted,
+  });
 
   revalidatePath("/", "layout");
   redirect(next === "/" ? "/my" : next);

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_URL } from "@/lib/site";
 import { isMemberType, safeNextPath } from "@/lib/auth";
+import { notifySlackNewSignup } from "@/lib/slack";
 
 export type AuthState = { error?: string; message?: string };
 
@@ -95,6 +96,16 @@ export async function signup(
       return { error: "이미 가입된 이메일입니다. 로그인해주세요." };
     }
     return { error: "가입에 실패했습니다. 잠시 후 다시 시도해주세요." };
+  }
+
+  if (data.user) {
+    await notifySlackNewSignup({
+      userId: data.user.id,
+      name: fullName,
+      email,
+      memberType,
+      marketingAccepted,
+    });
   }
 
   if (data.session) {
