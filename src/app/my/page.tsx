@@ -64,6 +64,7 @@ function buildAnalyticsSeries(
 interface SavedCollectionItem { type: string; slug: string; title: string; meta: string; href: string; }
 interface TeamBrand { id: string; slug: string; name: string; tagline: string; logoUrl: string | null; role: string; }
 interface OwnedTeamMember { brand_id: string; user_id: string; display_name: string | null; title: string; bio: string | null; avatar_url: string | null; is_public: boolean; member_role: BrandMemberRole; sort_order: number; }
+interface TeamHubBrand { brand: TeamBrand; owner: { slug: string; name: string; headline: string; bio: string | null; avatar_url: string | null } | null; members: OwnedTeamMember[]; }
 interface PendingTeamInvite { id: string; brand_id: string; email: string; member_role: BrandMemberRole; expires_at: string; }
 
 const roleDashboard = {
@@ -120,7 +121,7 @@ const roleDashboard = {
   cards: { href: string; kicker: string; title: string; copy: string }[];
 }>;
 
-function MemberDashboard({ memberType, name, email, savedItems, teamBrands }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[]; teamBrands: TeamBrand[] }) {
+function MemberDashboard({ memberType, name, email, savedItems, teamBrands, teamHub = [], myUserId }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[]; teamBrands: TeamBrand[]; teamHub?: TeamHubBrand[]; myUserId?: string }) {
   const role = roleDashboard[memberType];
   const stateTitle = teamBrands.length
     ? `${teamBrands.length}개 브랜드의 팀으로 참여 중이에요.`
@@ -146,9 +147,28 @@ function MemberDashboard({ memberType, name, email, savedItems, teamBrands }: { 
           <div><span>MY ROLE · {role.label}</span><strong>{stateTitle}</strong><p>{stateCopy}</p></div>
           <small>{email}</small>
         </section>
-        {teamBrands.length > 0 && <section className="role-team-brands">
-          <div className="studio-panel-heading"><strong>참여 중인 브랜드</strong><span>편집 권한이 연결된 워크스페이스입니다.</span></div>
-          <div>{teamBrands.map((brand) => <article key={brand.id}>{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <i>{brand.name.slice(0, 1)}</i>}<div><span>{brand.role === "editor" ? "EDITOR" : "VIEWER"}</span><strong>{brand.name}</strong><small>{brand.tagline}</small></div><Link href={`/my/team/${brand.id}`}>내 팀 프로필 →</Link></article>)}</div>
+        {teamHub.length > 0 && <section className="ig-founder-preview team-profile-hub">
+          <div className="studio-panel-heading">
+            <strong>TEAM PROFILE</strong>
+            <span>참여 중인 브랜드의 팀과 공개 프로필입니다.</span>
+          </div>
+          <div className="team-profile-brand-list">{teamHub.map(({ brand, owner, members }) => <article className="team-profile-brand" key={brand.id}>
+            <header>
+              <div className="team-profile-brand-logo">{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
+              <div><small>BRAND TEAM</small><h3>{brand.name}</h3><p>대표 포함 {members.length + (owner ? 1 : 0)}명 · 내 역할 {brand.role === "editor" ? "EDITOR" : "VIEWER"}</p></div>
+              <Link className="team-hub-edit-link" href={`/my/team/${brand.id}`}>내 팀 카드 편집 →</Link>
+            </header>
+            <div className="team-profile-member-list team-profile-card-grid">
+              {owner && <div className="team-profile-admin-card owner">
+                <TeamProfileCard name={owner.name} title={owner.headline || "Founder"} avatarUrl={owner.avatar_url} bio={owner.bio} label="OWNER" meta={brand.name} href={`/founders/${owner.slug}`} actionLabel="프로필" />
+              </div>}
+              {members.map((member) => <div className="team-profile-admin-card" key={member.user_id}>
+                <TeamProfileCard name={member.display_name || "팀 멤버"} title={member.title || "팀 멤버"} avatarUrl={member.avatar_url} bio={member.bio} label={member.member_role === "editor" ? "EDITOR" : "VIEWER"} meta={brand.name} muted={!member.is_public} />
+                {member.user_id === myUserId && <div className="team-owner-card-action"><span>내 카드</span><Link href={`/my/team/${brand.id}`}>내 카드 편집 →</Link></div>}
+              </div>)}
+            </div>
+            <footer><Link href={`/brands/${brand.slug}`} target="_blank">공개 팀 페이지 보기 →</Link></footer>
+          </article>)}</div>
         </section>}
         <section className="role-dashboard-links">
           <div className="studio-panel-heading"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
@@ -215,7 +235,25 @@ export default async function MyPage() {
         .order("updated_at", { ascending: false });
       return <PartnerDashboard name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} events={events} supportPrograms={supportPrograms} communities={communities} submissions={submissionRows ?? []} />;
     }
-    return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} />;
+    // 팀원도 소속 브랜드의 팀 프로필 허브를 같은 구조로 본다
+    let teamHub: TeamHubBrand[] = [];
+    if (teamBrands.length) {
+      const brandIds = teamBrands.map((brand) => brand.id);
+      const [{ data: hubMemberRows }, { data: hubOwnerRows }] = await Promise.all([
+        supabase.from("brand_members").select("brand_id,user_id,display_name,title,bio,avatar_url,is_public,member_role,sort_order").in("brand_id", brandIds).order("sort_order", { ascending: true }),
+        supabase.from("brands").select("id,founder:founders(slug,name,headline,bio,avatar_url)").in("id", brandIds),
+      ]);
+      const ownerByBrand = new Map(
+        ((hubOwnerRows ?? []) as unknown as { id: string; founder: { slug: string; name: string; headline: string; bio: string | null; avatar_url: string | null } | null }[])
+          .map((row) => [row.id, row.founder]),
+      );
+      teamHub = teamBrands.map((brand) => ({
+        brand,
+        owner: ownerByBrand.get(brand.id) ?? null,
+        members: ((hubMemberRows ?? []) as OwnedTeamMember[]).filter((member) => member.brand_id === brand.id),
+      }));
+    }
+    return <MemberDashboard memberType={memberType} name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} teamHub={teamHub} myUserId={user.id} />;
   }
 
   const { data: founder } = await supabase.from("founders").select("id,founder_number,slug,name,role_title,headline,bio,avatar_url,sns").eq("user_id", user.id).maybeSingle();
