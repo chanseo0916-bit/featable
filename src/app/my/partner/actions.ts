@@ -2,16 +2,38 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { notifySlackPartnerSubmission } from "@/lib/slack";
+import { randomSuffix, slugify } from "@/lib/slug";
 
 export type PartnerSubmissionType = "event" | "support" | "community";
 export type PartnerSubmissionPayload = Record<string, string | boolean>;
 
 export type PartnerSubmissionResult =
-  | { ok: true; id: string; status: "draft" | "submitted" }
+  | { ok: true; id: string; status: "draft" | "submitted" | "approved" }
   | { ok: false; error: string };
 
 const clean = (value: unknown) => typeof value === "string" ? value.trim() : "";
+
+function eventValues(payload: PartnerSubmissionPayload, slug: string, featured: boolean, submittedBy?: string) {
+  return {
+    slug,
+    name: clean(payload.name),
+    host: clean(payload.host),
+    starts_at: new Date(clean(payload.startsAt)).toISOString(),
+    ends_at: clean(payload.endsAt) ? new Date(clean(payload.endsAt)).toISOString() : null,
+    location: clean(payload.location) || (Boolean(payload.isOnline) ? "온라인" : ""),
+    is_online: Boolean(payload.isOnline),
+    fee: clean(payload.fee) || null,
+    category: clean(payload.category) || "기타",
+    audience: clean(payload.audience) || null,
+    apply_url: clean(payload.applyUrl),
+    cover_url: clean(payload.coverUrl) || null,
+    status: "published" as const,
+    is_featured: featured,
+    submitted_by: submittedBy ?? null,
+  };
+}
 
 function isWebUrl(value: string) {
   if (!value) return false;
@@ -59,15 +81,18 @@ export async function savePartnerSubmission(input: {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  const userId = user.id;
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("member_type,full_name,email")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
-  if (profile?.member_type !== "partner") return { ok: false, error: "파트너 계정에서만 등록할 수 있습니다." };
-  const partnerName = profile.full_name?.trim() || "Featable 파트너";
-  const partnerEmail = profile.email || user.email || "이메일 없음";
+  if (profile?.member_type !== "partner" && input.type !== "event") {
+    return { ok: false, error: "지원사업과 커뮤니티는 파트너 계정에서 등록할 수 있습니다." };
+  }
+  const partnerName = profile?.full_name?.trim() || "Featable 파트너";
+  const partnerEmail = profile?.email || user.email || "이메일 없음";
 
   if (!(["event", "support", "community"] as string[]).includes(input.type)) {
     return { ok: false, error: "등록 유형을 확인해주세요." };
@@ -80,8 +105,11 @@ export async function savePartnerSubmission(input: {
   }
 
   const nextStatus = input.submit ? "submitted" : "draft";
+  const isStandardEvent = input.type === "event"
+    && input.submit
+    && input.payload.publishMode !== "featured";
   const values = {
-    user_id: user.id,
+    user_id: userId,
     submission_type: input.type,
     status: nextStatus,
     title,
@@ -91,7 +119,7 @@ export async function savePartnerSubmission(input: {
   };
 
   async function notifySubmitted(id: string) {
-    if (!input.submit) return;
+    if (!input.submit || isStandardEvent) return;
     await notifySlackPartnerSubmission({
       id,
       title,
@@ -99,6 +127,35 @@ export async function savePartnerSubmission(input: {
       partnerName,
       partnerEmail,
     });
+  }
+
+  async function publishStandardEvent(submissionId: string) {
+    const admin = createAdminClient();
+    if (!admin) return { ok: false as const, error: "행사 공개 설정을 확인할 수 없습니다. 잠시 후 다시 시도해주세요." };
+
+    const slug = `${slugify(title) || "event"}-${randomSuffix()}`;
+    const path = `/events/${slug}`;
+    const { error: eventError } = await admin.from("events").insert(eventValues(input.payload, slug, false, userId));
+    if (eventError) return { ok: false as const, error: `행사를 공개하지 못했습니다: ${eventError.message}` };
+
+    const { error: submissionError } = await admin
+      .from("partner_submissions")
+      .update({
+        status: "approved",
+        review_note: "일반 행사로 즉시 공개됨",
+        reviewed_at: new Date().toISOString(),
+        published_path: path,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", submissionId)
+      .eq("user_id", userId);
+    if (submissionError) return { ok: false as const, error: "행사는 공개됐지만 등록 내역 연결에 실패했습니다." };
+
+    revalidatePath("/");
+    revalidatePath("/events");
+    revalidatePath(path);
+    revalidatePath("/sitemap.xml");
+    return { ok: true as const, path };
   }
 
   if (input.id) {
@@ -111,6 +168,13 @@ export async function savePartnerSubmission(input: {
       .select("id")
       .maybeSingle();
     if (error || !data) return { ok: false, error: "저장하지 못했습니다. 이미 검수 중인 제안인지 확인해주세요." };
+    if (isStandardEvent) {
+      const published = await publishStandardEvent(data.id);
+      if (!published.ok) return published;
+      revalidatePath("/my");
+      revalidatePath("/my/partner/register");
+      return { ok: true, id: data.id, status: "approved" };
+    }
     await notifySubmitted(data.id);
     revalidatePath("/my");
     revalidatePath("/my/partner/register");
@@ -125,6 +189,13 @@ export async function savePartnerSubmission(input: {
     .single();
   if (error || !data) return { ok: false, error: "등록 도구를 사용할 수 없습니다. 최신 SQL 적용 여부를 확인해주세요." };
 
+  if (isStandardEvent) {
+    const published = await publishStandardEvent(data.id);
+    if (!published.ok) return published;
+    revalidatePath("/my");
+    revalidatePath("/my/partner/register");
+    return { ok: true, id: data.id, status: "approved" };
+  }
   await notifySubmitted(data.id);
 
   revalidatePath("/my");

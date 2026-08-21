@@ -283,6 +283,7 @@ interface EventRow {
   category: string;
   audience: string | null;
   apply_url: string;
+  is_featured: boolean;
 }
 
 interface SupportRow {
@@ -361,9 +362,10 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
     const { data, error } = await supabase
       .from("events")
       .select(
-        "slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,deadline,category,audience,apply_url",
+        "slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,deadline,category,audience,apply_url,is_featured",
       )
       .eq("status", "published")
+      .order("is_featured", { ascending: false })
       .order("starts_at", { ascending: true });
     if (error) {
       reportPublicDataFallback("events", error);
@@ -384,6 +386,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       category: e.category as EventItem["category"],
       audience: e.audience ?? undefined,
       applyUrl: e.apply_url,
+      isFeatured: e.is_featured,
     }));
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {

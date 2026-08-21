@@ -21,7 +21,7 @@ const TYPES: { value: PartnerSubmissionType; label: string; description: string 
 ];
 
 const EMPTY: Record<PartnerSubmissionType, PartnerSubmissionPayload> = {
-  event: { name: "", host: "", startsAt: "", endsAt: "", location: "", isOnline: false, fee: "", category: "네트워킹", audience: "", applyUrl: "", coverUrl: "" },
+  event: { name: "", host: "", startsAt: "", endsAt: "", location: "", isOnline: false, fee: "", category: "네트워킹", audience: "", applyUrl: "", coverUrl: "", publishMode: "standard" },
   support: { name: "", agency: "", target: "", benefits: "", amount: "", openAt: "", closeAt: "", region: "전국", field: "", applyUrl: "" },
   community: { name: "", intro: "", field: "", website: "", logoUrl: "", instagram: "" },
 };
@@ -38,7 +38,7 @@ function Field({ label, required, children, wide = false }: { label: string; req
   return <label className={wide ? "wide" : undefined}><span>{label}{required && <b> *</b>}</span>{children}</label>;
 }
 
-export function PartnerSubmissionForm({ submissions, initialId, initialType = "event" }: { submissions: PartnerSubmissionRow[]; initialId?: string; initialType?: PartnerSubmissionType }) {
+export function PartnerSubmissionForm({ submissions, initialId, initialType = "event", eventOnly = false }: { submissions: PartnerSubmissionRow[]; initialId?: string; initialType?: PartnerSubmissionType; eventOnly?: boolean }) {
   const selected = submissions.find((item) => item.id === initialId);
   const [type, setType] = useState<PartnerSubmissionType>(selected?.submission_type ?? initialType);
   const [id, setId] = useState<string | undefined>(selected?.id);
@@ -65,7 +65,11 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
       const result = await savePartnerSubmission({ id, type, payload, submit });
       if (!result.ok) return setMessage(result.error);
       setId(result.id);
-      setMessage(submit ? "검수 요청을 보냈습니다." : "초안을 저장했습니다.");
+      setMessage(submit
+        ? result.status === "approved"
+          ? "행사가 바로 공개됐습니다."
+          : "Featured 검토 요청을 보냈습니다."
+        : "초안을 저장했습니다.");
       router.replace(`/my/partner/register?edit=${result.id}`);
       router.refresh();
     });
@@ -98,10 +102,22 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
     <section className="partner-register-form-shell">
       <header><div><span>PARTNER PUBLISHING</span><h1>{id ? "등록 정보 수정" : "새 기회 등록"}</h1><p>필요한 정보만 입력하면 Featable 운영진이 검수 후 공개합니다.</p></div>{selected && <em data-status={selected.status}>{STATUS_LABEL[selected.status]}</em>}</header>
 
-      {!id && <div className="partner-register-types">{TYPES.map((entry) => <button className={type === entry.value ? "active" : ""} type="button" onClick={() => chooseType(entry.value)} key={entry.value}><strong>{entry.label}</strong><span>{entry.description}</span></button>)}</div>}
+      {!id && !eventOnly && <div className="partner-register-types">{TYPES.map((entry) => <button className={type === entry.value ? "active" : ""} type="button" onClick={() => chooseType(entry.value)} key={entry.value}><strong>{entry.label}</strong><span>{entry.description}</span></button>)}</div>}
 
       {selected?.review_note && <div className="partner-review-note"><strong>운영진 검토 메모</strong><p>{selected.review_note}</p></div>}
       {!editable ? <div className="partner-register-locked"><strong>{STATUS_LABEL[selected!.status]} 상태입니다.</strong><p>검수가 진행 중인 제안은 수정할 수 없습니다. 결과가 업데이트되면 이곳에서 확인할 수 있어요.</p></div> : <>
+        {type === "event" && <div className="event-publish-mode">
+          <button className={payload.publishMode !== "featured" ? "active" : ""} type="button" onClick={() => set("publishMode", "standard")}>
+            <span>바로 공개</span>
+            <strong>일반 행사 등록</strong>
+            <p>검수 없이 등록 즉시 행사 목록과 검색에 공개됩니다.</p>
+          </button>
+          <button className={payload.publishMode === "featured" ? "active featured" : ""} type="button" onClick={() => set("publishMode", "featured")}>
+            <span>WITH FEATABLE</span>
+            <strong>Featured 행사 제안</strong>
+            <p>Featable과 함께 홍보·기획할 행사를 제안하고 Featured 노출을 신청합니다.</p>
+          </button>
+        </div>}
         <div className="partner-register-grid">
           {type === "event" && <>
             <Field label="행사명" required wide><input value={String(payload.name ?? "")} onChange={(e) => set("name", e.target.value)} placeholder="예: 2026 초기 창업가 밋업" /></Field>
@@ -141,7 +157,7 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
         </div>
 
         {message && <p className="partner-register-message">{message}</p>}
-        <footer><div>{id && <button className="danger" type="button" disabled={pending} onClick={remove}>초안 삭제</button>}</div><button className="secondary" type="button" disabled={pending} onClick={() => save(false)}>임시저장</button><button className="primary" type="button" disabled={pending} onClick={() => save(true)}>{pending ? "처리 중…" : "검수 요청하기"}</button></footer>
+        <footer><div>{id && <button className="danger" type="button" disabled={pending} onClick={remove}>초안 삭제</button>}</div><button className="secondary" type="button" disabled={pending} onClick={() => save(false)}>임시저장</button><button className="primary" type="button" disabled={pending} onClick={() => save(true)}>{pending ? "처리 중…" : type === "event" && payload.publishMode !== "featured" ? "행사 바로 공개하기" : "Featured 검토 요청하기"}</button></footer>
       </>}
     </section>
   </div>;

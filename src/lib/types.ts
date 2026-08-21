@@ -155,6 +155,7 @@ export interface EventItem {
     | "기타";
   audience?: string;
   applyUrl: string;
+  isFeatured?: boolean;
   communitySlug?: string;
   brandSlug?: string;
 }

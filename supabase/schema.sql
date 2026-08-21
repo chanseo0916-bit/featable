@@ -340,7 +340,9 @@ create table events (
   apply_url text not null,
   community_id uuid,
   brand_id uuid references brands(id) on delete set null,
+  submitted_by uuid references profiles(id) on delete set null,
   status content_status not null default 'published',
+  is_featured boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -820,7 +822,10 @@ create policy "partner_submissions_select" on partner_submissions for select
 create policy "partner_submissions_insert" on partner_submissions for insert
   with check (
     user_id = auth.uid()
-    and exists (select 1 from profiles where id = auth.uid() and member_type = 'partner')
+    and (
+      submission_type = 'event'
+      or exists (select 1 from profiles where id = auth.uid() and member_type = 'partner')
+    )
   );
 create policy "partner_submissions_update" on partner_submissions for update
   using ((user_id = auth.uid() and status in ('draft', 'rejected')) or is_admin())

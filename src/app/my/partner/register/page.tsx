@@ -12,7 +12,6 @@ export default async function PartnerRegisterPage({ searchParams }: { searchPara
   if (!user) redirect("/login?next=/my/partner/register");
 
   const { data: profile } = await supabase.from("profiles").select("member_type").eq("id", user.id).maybeSingle();
-  if (profile?.member_type !== "partner") redirect("/my");
 
   const { data } = await supabase
     .from("partner_submissions")
@@ -20,14 +19,14 @@ export default async function PartnerRegisterPage({ searchParams }: { searchPara
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
   const { edit, type } = await searchParams;
-  const initialType = type === "support" || type === "community" ? type : "event";
+  const initialType = profile?.member_type === "partner" && (type === "support" || type === "community") ? type : "event";
 
   return <>
     <StudioNav />
     <main className="studio-dashboard partner-register-page">
       <div className="shell studio-dashboard-inner">
         <div className="partner-register-heading"><p>SELF-SERVE REGISTRATION</p><h1>기회를 등록하고<br />Founder와 연결하세요.</h1><span>작성 중에는 언제든 저장할 수 있고, 승인된 정보만 Featable에 공개됩니다.</span></div>
-        <PartnerSubmissionForm submissions={(data ?? []) as PartnerSubmissionRow[]} initialId={edit} initialType={initialType} />
+        <PartnerSubmissionForm submissions={(data ?? []) as PartnerSubmissionRow[]} initialId={edit} initialType={initialType} eventOnly={profile?.member_type !== "partner"} />
       </div>
     </main>
   </>;
