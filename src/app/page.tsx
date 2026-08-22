@@ -45,6 +45,8 @@ export default async function Home() {
         title: feature.title,
         label: feature.hookLabel || [brand?.name, founder?.name].filter(Boolean).join(" ") || "Featable",
         coverUrl: feature.coverUrl,
+        // 훅 문구를 비워두면 표지 이미지에 이미 글자가 있다는 뜻으로 보고 겹쳐 쓰지 않는다
+        showOverlay: Boolean(feature.hookIntro || feature.hookLabel),
       };
     });
   const opportunitySlides: HomeOpportunitySlide[] = [

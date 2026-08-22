@@ -14,6 +14,8 @@ export type FounderInterviewRailItem = {
   /** 훅 3줄: 꺾쇠 안에 들어갈 "브랜드명 이름" */
   label: string;
   coverUrl: string;
+  /** 표지 이미지에 이미 글자가 박혀 있으면 false — 텍스트를 겹쳐 쓰지 않는다 */
+  showOverlay?: boolean;
 };
 
 /**
@@ -43,24 +45,29 @@ export function FounderInterviewRail({ items }: { items: FounderInterviewRailIte
       </header>
 
       <div className="product-square-track" ref={railRef}>
-        {items.map((item, index) => (
-          <Link className="founder-hook-card" href={`/stories/${item.slug}`} key={item.slug}>
-            <Image
-              src={item.coverUrl}
-              alt={item.label}
-              fill
-              sizes="(max-width: 560px) 72vw, (max-width: 1100px) 36vw, 260px"
-              preload={index < 2}
-              unoptimized={bypassImageOptimization(item.coverUrl)}
-            />
-            <span className="founder-hook-shade" aria-hidden="true" />
-            <span className="founder-hook-copy">
-              {item.hookIntro && <strong>{item.hookIntro}</strong>}
-              <strong>{item.title}</strong>
-              <small>&lt;{item.label}&gt;</small>
-            </span>
-          </Link>
-        ))}
+        {items.map((item, index) => {
+          const overlay = item.showOverlay !== false;
+          return (
+            <Link className={`founder-hook-card${overlay ? "" : " is-bare"}`} href={`/stories/${item.slug}`} key={item.slug}>
+              <Image
+                src={item.coverUrl}
+                alt={overlay ? item.label : `${item.title} · ${item.label}`}
+                fill
+                sizes="(max-width: 560px) 72vw, (max-width: 1100px) 36vw, 260px"
+                preload={index < 2}
+                unoptimized={bypassImageOptimization(item.coverUrl)}
+              />
+              {overlay && <>
+                <span className="founder-hook-shade" aria-hidden="true" />
+                <span className="founder-hook-copy">
+                  {item.hookIntro && <strong>{item.hookIntro}</strong>}
+                  <strong>{item.title}</strong>
+                  <small>&lt;{item.label}&gt;</small>
+                </span>
+              </>}
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

@@ -3193,3 +3193,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 /* START HERE — 기업 정보는 대안 경로로 낮춘다 */
 .studio-first-copy .studio-first-alt { margin-top: 12px; display: inline-block; padding: 0; border: 0; background: none; color: var(--muted); font-size: 12.5px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .studio-first-copy .studio-first-alt:hover { color: var(--accent); }
+
+/* 완성본 표지를 쓰는 인터뷰 카드 — 이미지만 보여준다 */
+.founder-hook-card.is-bare > img { object-position: center; }
