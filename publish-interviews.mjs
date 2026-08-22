@@ -56,13 +56,10 @@ for (const arg of uploads) {
   console.log("업로드 완료:", slug, "->", post.coverUrl);
 }
 
-const ready = posts.filter((p) => p.coverUrl);
-const skipped = posts.filter((p) => !p.coverUrl);
-if (skipped.length) console.log("커버 사진이 없어 건너뜁니다:", skipped.map((p) => p.hookLabel).join(", "));
-if (!ready.length) {
-  console.log("게시할 항목이 없습니다. coverUrl을 먼저 채워주세요.");
-  process.exit(0);
-}
+// 커버가 없으면 비공개로 올려둔다. 어드민에서 표지를 넣고 공개하면 된다.
+const ready = posts;
+const withoutCover = posts.filter((p) => !p.coverUrl);
+if (withoutCover.length) console.log("표지 없이 비공개로 올립니다 (어드민에서 표지 추가 후 공개):", withoutCover.map((p) => p.hookLabel).join(", "));
 
 const now = new Date();
 for (const [index, post] of ready.entries()) {
@@ -72,10 +69,10 @@ for (const [index, post] of ready.entries()) {
     title: post.title,
     kind: "interview",
     excerpt: post.excerpt,
-    cover_url: post.coverUrl,
+    cover_url: post.coverUrl || null,
     body: post.answers.map((item) => ({ type: "text", heading: item.question, body: item.answer })),
-    status: "published",
-    published_at: publishedAt,
+    status: post.coverUrl ? "published" : "draft",
+    published_at: post.coverUrl ? publishedAt : null,
     hook_intro: post.hookIntro || null,
     hook_label: post.hookLabel || null,
     seo_title: `${post.title} ${post.hookLabel} 인터뷰`.slice(0, 60),
@@ -83,15 +80,15 @@ for (const [index, post] of ready.entries()) {
     primary_keyword: `${post.hookLabel} 인터뷰`,
     secondary_keywords: ["창업가 인터뷰", post.title],
     og_image_url: post.coverUrl,
-    is_indexable: true,
+    is_indexable: Boolean(post.coverUrl),
     updated_at: new Date().toISOString(),
   };
   const { error } = await supabase.from("features").upsert(row, { onConflict: "slug" });
   if (error) {
-    console.error("게시 실패:", post.hookLabel, error.message);
+    console.error("실패:", post.hookLabel, error.message);
     process.exit(1);
   }
-  console.log("게시 완료:", post.hookLabel, "-> /stories/" + post.slug);
+  console.log(post.coverUrl ? "게시 완료:" : "비공개 저장:", post.hookLabel, "->", post.slug);
 }
 
 const { count } = await supabase
