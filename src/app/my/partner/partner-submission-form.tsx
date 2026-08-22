@@ -164,6 +164,11 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
             <Field label="신청 마감"><input type="datetime-local" value={String(payload.deadline ?? "")} onChange={(e) => set("deadline", e.target.value)} /></Field>
             <Field label="장소"><input value={String(payload.location ?? "")} onChange={(e) => set("location", e.target.value)} placeholder="서울 성수동 또는 온라인" /></Field>
             <Field label="참가비"><input value={String(payload.fee ?? "")} onChange={(e) => set("fee", e.target.value)} placeholder="무료 / 10,000원" /></Field>
+            <label className="partner-register-check wide"><input type="checkbox" checked={Boolean(payload.isPaid)} onChange={(e) => { set("isPaid", e.target.checked); if (e.target.checked) set("approvalMode", "manual"); }} /><span>유료 행사입니다. 입금 확인 후 주최자가 승인합니다.</span></label>
+            {Boolean(payload.isPaid) && <>
+              <Field label="입금 계좌번호" required wide><input value={String(payload.paymentAccount ?? "")} onChange={(e) => set("paymentAccount", e.target.value)} placeholder="은행명 000-0000-0000 (예금주: Featable)" /></Field>
+              <Field label="입금 안내" wide><textarea value={String(payload.paymentNotice ?? "입금 확인 후 주최자가 신청을 승인합니다.")} onChange={(e) => set("paymentNotice", e.target.value)} placeholder="입금자명과 입금 기한을 안내해주세요." /></Field>
+            </>}
             <Field label="참가 대상" wide><input value={String(payload.audience ?? "")} onChange={(e) => set("audience", e.target.value)} placeholder="예비 창업가, 초기 스타트업 팀" /></Field>
             <Field label="행사 소개" wide><textarea value={String(payload.description ?? "")} onChange={(e) => set("description", e.target.value)} placeholder="누구를 위한 행사인지, 무엇을 얻어갈 수 있는지 자세히 소개해주세요." /></Field>
             <Field label="프로그램" wide><textarea value={String(payload.program ?? "")} onChange={(e) => set("program", e.target.value)} placeholder={"14:00 | 참가자 입장 | 운영팀\n14:20 | 세션 1 · 제품 이야기 | 홍길동\n15:30 | 네트워킹"} /><small className="field-help">한 줄에 하나씩 `시간 | 프로그램 | 진행자` 순서로 입력하세요.</small></Field>

@@ -26,11 +26,14 @@ function eventValues(payload: PartnerSubmissionPayload, slug: string, featured: 
     location: clean(payload.location) || (Boolean(payload.isOnline) ? "온라인" : ""),
     is_online: Boolean(payload.isOnline),
     fee: clean(payload.fee) || null,
+    is_paid: Boolean(payload.isPaid),
+    payment_account: Boolean(payload.isPaid) ? clean(payload.paymentAccount) || null : null,
+    payment_notice: Boolean(payload.isPaid) ? clean(payload.paymentNotice) || "입금 확인 후 주최자가 신청을 승인합니다." : null,
     category: clean(payload.category) || "기타",
     audience: clean(payload.audience) || null,
     apply_url: payload.registrationMode === "internal" ? null : clean(payload.applyUrl),
     registration_mode: payload.registrationMode === "internal" ? "internal" : "external",
-    approval_mode: payload.approvalMode === "manual" ? "manual" : "instant",
+    approval_mode: payload.isPaid ? "manual" : payload.approvalMode === "manual" ? "manual" : "instant",
     capacity: clean(payload.capacity) ? Number(clean(payload.capacity)) : null,
     waitlist_enabled: payload.waitlistEnabled !== false,
     cover_url: clean(payload.coverUrl) || null,
@@ -74,6 +77,7 @@ function validate(type: PartnerSubmissionType, payload: PartnerSubmissionPayload
       const capacity = Number(clean(payload.capacity));
       if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100000) return "정원은 1명 이상으로 입력해주세요.";
     }
+    if (payload.isPaid && !clean(payload.paymentAccount)) return "유료 행사의 입금 계좌번호를 입력해주세요.";
   }
 
   if (type === "support") {

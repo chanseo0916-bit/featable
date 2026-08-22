@@ -151,7 +151,10 @@ export interface EventItem {
   endsAt?: string;
   location: string;
   isOnline: boolean;
-  fee?: string;
+    fee?: string;
+    isPaid?: boolean;
+    paymentAccount?: string;
+    paymentNotice?: string;
   deadline?: string;
   category:
     | "데모데이"
