@@ -2481,6 +2481,16 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .profile-card-glare, .profile-card-holo { display: none; }
 }
 
+/* 홈 다가오는 행사 — 포스터를 앞세운 카드 */
+.home-event-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+/* .opportunity-card > div 의 flex 규칙을 받지 않도록 블록으로 되돌린다 */
+.home-event-card > .home-event-poster { display: block; position: relative; }
+.home-event-poster .image-card, .home-event-poster .image-card img { aspect-ratio: 4 / 3; }
+.home-event-date { position: absolute; top: 10px; left: 10px; padding: 6px 10px; border-radius: 999px; background: rgba(14, 14, 16, .74); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: -.01em; backdrop-filter: blur(6px); }
+.home-event-card h3 { margin: 15px 16px 0; font-size: 15px; line-height: 1.45; letter-spacing: -.035em; }
+.home-event-card > p { margin: 7px 16px 0; color: var(--muted); font-size: 12px; }
+.home-event-card > span { margin: 6px 16px 16px; color: #9a9ca1; font-size: 11px; }
+
 /* 탭해서 열 수 있는 카드 */
 .interactive-profile-card.is-expandable { cursor: pointer; }
 .profile-card-expand-hint { position: absolute; right: 12px; bottom: 12px; z-index: 5; padding: 7px 11px; display: none; border-radius: 999px; background: rgba(12, 12, 14, .62); color: rgba(255, 255, 255, .82); font-size: 10px; font-weight: 700; letter-spacing: -.01em; backdrop-filter: blur(8px); pointer-events: none; }

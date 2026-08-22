@@ -153,7 +153,7 @@ export default async function Home() {
         <section className="shell section opportunity-section">
           <SectionHeader title="다가오는 행사" href="/events" />
           <div className="opportunity-card-grid">
-            {[...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt)).slice(0, 4).map((event) => <Link className="opportunity-card" href={`/events/${event.slug}`} key={event.slug}><div><span className="opportunity-type">행사</span><strong>{dateLabel(event.startsAt)}</strong></div><h3>{event.name}</h3><p>{event.host}</p><span>{event.location} · {event.fee}</span></Link>)}
+            {[...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt)).slice(0, 4).map((event) => <Link className="opportunity-card home-event-card" href={`/events/${event.slug}`} key={event.slug}><div className="home-event-poster"><ImageCard src={event.coverUrl} alt={event.name} /><span className="home-event-date">{dateLabel(event.startsAt)}</span></div><h3>{event.name}</h3><p>{event.host}</p><span>{event.location}{event.fee ? ` · ${event.fee}` : ""}</span></Link>)}
           </div>
         </section>
 
