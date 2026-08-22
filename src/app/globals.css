@@ -2469,17 +2469,24 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .interactive-profile-card .founder-spot-body { z-index: 2; transform: translateZ(28px); }
 .profile-card-glare { position: absolute; z-index: 4; inset: -1px; border-radius: inherit; background: radial-gradient(circle at var(--card-glare-x) var(--card-glare-y), rgba(255, 255, 255, .32), rgba(255, 255, 255, .08) 20%, transparent 46%); mix-blend-mode: screen; opacity: 0; pointer-events: none; transition: opacity .22s ease; }
 .interactive-profile-card:hover .profile-card-glare, .interactive-profile-card.is-grabbing .profile-card-glare { opacity: 1; }
+/* 기울일 때 표면을 훑고 지나가는 홀로그램 결 */
+.profile-card-holo { position: absolute; z-index: 3; inset: -1px; border-radius: inherit; background: linear-gradient(115deg, transparent 34%, color-mix(in srgb, var(--accent) 34%, transparent) 45%, rgba(255, 255, 255, .3) 51%, rgba(150, 205, 255, .22) 58%, transparent 68%); background-size: 260% 260%; background-position: var(--card-glare-x) var(--card-glare-y); mix-blend-mode: soft-light; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+.interactive-profile-card:hover .profile-card-holo { opacity: .55; }
+.interactive-profile-card.is-grabbing .profile-card-holo { opacity: .85; }
 
+/* 터치 기기 — 손가락으로 잡고 기울인다. 세로 스크롤은 브라우저에 그대로 넘긴다. */
 @media (hover: none), (pointer: coarse) {
-  .interactive-profile-card, .interactive-profile-card:hover { transform: none; cursor: default; }
-  .interactive-profile-card .founder-spot-photo, .interactive-profile-card .founder-spot-body { transform: none; }
-  .profile-card-glare { display: none; }
+  .interactive-profile-card { touch-action: pan-y; cursor: default; transform: perspective(760px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)); transition: transform .38s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease; }
+  .interactive-profile-card.is-grabbing { transform: perspective(760px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale3d(1.03, 1.03, 1.03); box-shadow: 0 30px 55px -24px color-mix(in srgb, var(--accent) 50%, #1119); transition: transform .05s linear, box-shadow .2s ease; }
+  .interactive-profile-card .founder-spot-photo { transform: translateZ(20px) scale(1.02); }
+  .interactive-profile-card .founder-spot-body { transform: translateZ(32px); }
+  .profile-card-glare, .profile-card-holo { display: block; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .interactive-profile-card, .interactive-profile-card:hover { transform: none; transition: none; }
+  .interactive-profile-card, .interactive-profile-card:hover, .interactive-profile-card.is-grabbing { transform: none; transition: none; }
   .interactive-profile-card .founder-spot-photo, .interactive-profile-card .founder-spot-body { transform: none; }
-  .profile-card-glare { display: none; }
+  .profile-card-glare, .profile-card-holo { display: none; }
 }
 
 /* 브랜드 TEAM PROFILE — 공개 페이지와 스튜디오가 같은 카드 언어를 사용 */
