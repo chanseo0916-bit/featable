@@ -874,8 +874,8 @@ create policy "products_delete_own" on products for delete using (owns_brand(bra
 -- features
 create policy "features_select_published" on features for select
   using (status = 'published' or (brand_id is not null and owns_brand(brand_id)) or is_admin());
-create policy "features_insert_own" on features for insert
-  with check ((brand_id is not null and owns_brand(brand_id)) or is_admin());
+create policy "features_insert_authenticated" on features for insert
+  with check (auth.uid() is not null and (brand_id is null or owns_brand(brand_id) or is_admin()));
 create policy "features_update_own" on features for update
   using ((brand_id is not null and owns_brand(brand_id)) or is_admin());
 create policy "features_delete_own" on features for delete
