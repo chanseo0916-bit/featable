@@ -3150,3 +3150,31 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .event-verify-account-cta strong { font-size: 14px; letter-spacing: -.03em; }
 .event-verify-account-cta span { color: #5f666d; font-size: 12px; line-height: 1.65; word-break: keep-all; }
 .event-verify-account-cta a { margin-top: 4px; color: var(--accent); font-size: 12px; font-weight: 750; }
+
+/* 비공개 항목 알림 — 공개하지 않으면 아무에게도 보이지 않는다는 걸 알려준다 */
+.studio-unpublished-alert { margin: 20px 0 4px; padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border)); border-radius: 14px; background: var(--accent-soft); }
+.studio-unpublished-alert strong { display: block; font-size: 15px; letter-spacing: -.035em; }
+.studio-unpublished-alert p { margin: 6px 0 0; color: #5f666d; font-size: 12.5px; line-height: 1.6; word-break: keep-all; }
+.studio-unpublished-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.studio-unpublished-item { display: inline-flex; align-items: center; gap: 10px; padding: 9px 13px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font-size: 12px; }
+.studio-unpublished-item b { font-weight: 750; letter-spacing: -.02em; }
+.studio-unpublished-item em { color: var(--accent); font-style: normal; font-weight: 700; }
+
+/* 둘러보기 대시보드의 만들기 입구 — 역할을 바꾸지 않아도 올릴 수 있다 */
+.member-make-cta { margin-top: 26px; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 22px; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 16px; background: #fff; }
+.member-make-cta strong { display: block; font-size: 17px; letter-spacing: -.04em; }
+.member-make-cta p { margin: 8px 0 0; max-width: 460px; color: var(--muted); font-size: 13px; line-height: 1.65; word-break: keep-all; }
+.member-make-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.member-make-actions > a:last-child { color: var(--muted); font-size: 12.5px; font-weight: 700; }
+.member-make-actions > a:last-child:hover { color: var(--accent); }
+@media (max-width: 700px) {
+  .studio-unpublished-alert, .member-make-cta { padding: 18px; }
+  .member-make-actions { width: 100%; }
+  .member-make-actions .button { flex: 1; text-align: center; }
+}
+
+/* 저장 버튼 위계 — 공개가 기본, 비공개 저장은 눈에 덜 띄게 */
+.simple-registration-card > footer button.ghost { min-width: 100px; border: 0; background: transparent; color: #8b9198; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.simple-registration-card > footer button.ghost:hover { color: #555d65; }
+.product-publish-hint { margin: 12px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.6; text-align: right; }
+@media (max-width: 700px) { .product-publish-hint { text-align: left; } }

@@ -170,6 +170,16 @@ function MemberDashboard({ memberType, name, email, savedItems, teamBrands, team
             <footer><Link href={`/brands/${brand.slug}`} target="_blank">공개 팀 페이지 보기 →</Link></footer>
           </article>)}</div>
         </section>}
+        <section className="member-make-cta">
+          <div>
+            <strong>만드는 사람이기도 한가요?</strong>
+            <p>역할을 바꾸지 않아도 바로 올릴 수 있어요. 인터뷰는 사진 한 장과 질문 답변이면 충분합니다.</p>
+          </div>
+          <div className="member-make-actions">
+            <Link className="button" href="/submit/interview">내 인터뷰 쓰기 →</Link>
+            <Link href="/my/brand/new">브랜드 등록하기</Link>
+          </div>
+        </section>
         <section className="role-dashboard-links">
           <div className="studio-panel-heading"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
           <div>{role.cards.map((card, index) => <Link href={card.href} key={card.href}><i>0{index + 1}</i><span>{card.kicker}</span><strong>{card.title}</strong><p>{card.copy}</p><b>바로가기 →</b></Link>)}</div>
@@ -194,7 +204,10 @@ export default async function MyPage() {
   const { data: membershipRows } = await supabase.from("brand_members").select("member_role,brand:brands(id,slug,name,tagline,logo_url)").eq("user_id", user.id);
   const teamBrands = ((membershipRows ?? []) as unknown as { member_role: string; brand: { id: string; slug: string; name: string; tagline: string; logo_url: string | null } | null }[]).flatMap((row): TeamBrand[] => row.brand ? [{ id: row.brand.id, slug: row.brand.slug, name: row.brand.name, tagline: row.brand.tagline, logoUrl: row.brand.logo_url, role: row.member_role }] : []);
 
-  if (memberType !== "founder") {
+  // 가입할 때 고른 역할이 아니라 실제로 가진 것으로 판단한다.
+  // 역할을 잘못 고른 사람이 이미 만든 프로필·브랜드를 못 보는 일이 없어야 한다.
+  const { data: ownFounder } = await supabase.from("founders").select("id").eq("user_id", user.id).maybeSingle();
+  if (memberType !== "founder" && !ownFounder) {
     const [{ data: savedRows }, { data: followedRows }, { data: supportedRows }, catalog, features, events, supportPrograms, communities] = await Promise.all([
       supabase.from("saved_items").select("item_type,item_slug,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(12),
       supabase.from("brand_follows").select("brand:brands(slug,name,tagline)").eq("user_id", user.id).limit(12),
@@ -283,6 +296,8 @@ export default async function MyPage() {
   // 임시저장: ① 비공개(draft) 상태로 저장된 프로덕트 ② 아직 등록 전인 작성 중 서버 초안
   const publishedProducts = products.filter((product) => product.status === "published");
   const draftProducts = products.filter((product) => product.status !== "published");
+  // 공개하지 않으면 아무에게도 보이지 않으므로 대시보드 맨 위에서 알린다
+  const draftBrands = brands.filter((brand) => brand.status !== "published");
   const { data: draftRows } = await supabase
     .from("submission_drafts")
     .select("draft_key,payload,updated_at")
@@ -347,6 +362,17 @@ export default async function MyPage() {
             <p className="ig-profile-bio">{founder?.headline || "브랜드와 프로덕트를 한 곳에서 관리하세요."}</p>
           </div>
         </header>
+
+        {(draftBrands.length > 0 || draftProducts.length > 0) && <section className="studio-unpublished-alert">
+          <div>
+            <strong>아직 공개되지 않은 항목이 {draftBrands.length + draftProducts.length}개 있어요.</strong>
+            <p>비공개 상태에서는 다른 사람에게 보이지 않습니다. 공개해야 발견될 수 있어요.</p>
+          </div>
+          <div className="studio-unpublished-links">
+            {draftBrands.map((brand) => <span className="studio-unpublished-item" key={brand.id}><b>{brand.name}</b><BrandStatusButton brandId={brand.id} published={false} /></span>)}
+            {draftProducts.map((product) => <Link className="studio-unpublished-item" href={`/my/product/${product.slug}`} key={product.id}><b>{product.name}</b><em>공개하러 가기 →</em></Link>)}
+          </div>
+        </section>}
 
         <section className="ig-founder-preview team-profile-hub">
           <div className="studio-panel-heading">
