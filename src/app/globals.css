@@ -3246,3 +3246,20 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-product-meta em { color: #a8acb1; font-size: 10px; font-style: normal; font-weight: 650; }
 .product-aside-stats { margin: 14px 0 0; display: flex; gap: 14px; color: #9a9ca1; font-size: 11px; font-weight: 650; }
 .product-aside-stats strong { color: #55595e; font-weight: 750; }
+
+/* 행사 상세 지표 */
+.event-stat-row { margin: 14px 0 0; display: flex; gap: 14px; color: #9a9ca1; font-size: 11.5px; font-weight: 650; }
+.event-stat-row strong { color: #55595e; font-weight: 750; }
+
+/* 좁은 화면에서 버튼 라벨이 단어 중간에 끊기지 않게 */
+.studio-row-actions { flex-wrap: wrap; }
+.studio-row-actions a, .studio-row-actions button,
+.ig-btn, .studio-status-toggle, .team-hub-edit-link,
+.ig-post-tile-status, .studio-exit-link, .text-link { white-space: nowrap; }
+/* 한글 문장은 단어 단위로 끊는다 */
+.card-body h3, .card-body > p, .studio-panel-heading span,
+.my-event-empty span, .ig-founder-preview-empty p,
+.role-dashboard-links p, .member-make-cta p { word-break: keep-all; }
+/* 역할·직함 줄은 임의 길이의 한글/영문이 들어오므로 단어 단위로 끊는다 */
+.team-card-body > strong, .founder-card-role, .founder-hero-role,
+.opportunity-card h3, .community-card h3, .brand-card h3 { word-break: keep-all; }

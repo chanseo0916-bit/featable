@@ -128,16 +128,16 @@ export function ProfileEditor({
                 <p className="text-xs text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {slug && (
-                <Link href={`/founders/${slug}`} className="text-xs font-semibold text-accent hover:underline">
+                <Link href={`/founders/${slug}`} className="whitespace-nowrap text-xs font-semibold text-accent hover:underline">
                   공개 프로필 보기 →
                 </Link>
               )}
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="rounded-lg border border-border px-4 py-2 text-xs font-bold transition-colors hover:border-accent hover:text-accent"
+                className="whitespace-nowrap rounded-lg border border-border px-4 py-2 text-xs font-bold transition-colors hover:border-accent hover:text-accent"
               >
                 {open ? "접기" : "프로필 편집"}
               </button>

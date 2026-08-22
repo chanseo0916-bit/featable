@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Footer, Header, Badge } from "@/components/site-shell";
-import { getEvents, getPartners } from "@/lib/data";
+import { getEvents, getLikeCount, getPartners } from "@/lib/data";
 import {
   absoluteUrl,
   breadcrumbJsonLd,
@@ -11,6 +11,8 @@ import {
   type SeoSchema,
 } from "@/components/seo-json-ld";
 import { SaveButton } from "@/components/save-button";
+import { LikeCount } from "@/components/like-count";
+import { ViewTracker } from "@/components/view-tracker";
 import { createClient } from "@/lib/supabase/server";
 import { EventRegistrationCard } from "./registration-card";
 
@@ -44,6 +46,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
     ])
     : [{ data: null }, { data: null }];
 
+  const eventSaveCount = await getLikeCount("event", event.slug);
   const eventPath = `/events/${event.slug}`;
   const eventJsonLd: SeoSchema = {
     "@type": "Event",
@@ -77,6 +80,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   return (
     <>
       <JsonLd data={jsonLd} />
+      <ViewTracker slug={event.slug} type="event" />
       <Header />
       <main className="event-experience shell">
         <aside className="event-experience-sidebar">
@@ -89,6 +93,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
           <h1>{event.name}</h1>
           <p className="event-experience-lede">{event.audience || `${event.host}가 만드는 창업가를 위한 만남입니다.`}</p>
           <div className="event-fact-grid"><div><span>일시</span><strong>{formatEventDate(event.startsAt)}</strong>{event.endsAt && <small>~ {formatEventDate(event.endsAt)}</small>}</div><div><span>장소</span><strong>{event.isOnline ? "온라인" : event.location}</strong></div><div><span>신청 마감</span><strong>{event.deadline ? formatEventDate(event.deadline) : "행사 시작 전까지"}</strong></div><SaveButton itemType="event" slug={event.slug} /></div>
+          <p className="event-stat-row"><span>조회 {(event.viewCount ?? 0).toLocaleString("ko-KR")}</span><span>저장 <LikeCount itemType="event" slug={event.slug} initialCount={eventSaveCount} /></span></p>
           <section className="event-content-section"><span>ABOUT</span><h2>이런 자리예요</h2><p>{event.description || `${event.host}가 ${event.audience || "새로운 연결을 원하는 분들"}을 위해 준비한 행사입니다. 자세한 내용은 주최자 안내를 확인해주세요.`}</p></section>
           {!!event.program?.length && <section className="event-content-section"><span>PROGRAM</span><h2>프로그램</h2><div className="event-program-list">{event.program.map((item, index) => <div key={`${item.time}-${index}`}><time>{item.time || "순서"}</time><strong>{item.title}</strong><span>{item.speaker}</span></div>)}</div></section>}
           {!!event.galleryUrls?.length && <section className="event-content-section"><span>GALLERY</span><h2>행사 미리보기</h2><div className="event-gallery-grid">{event.galleryUrls.map((url, index) => <img src={url} alt={`${event.name} 상세 이미지 ${index + 1}`} key={url} />)}</div></section>}

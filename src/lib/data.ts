@@ -296,6 +296,7 @@ interface EventRow {
   category: string;
   audience: string | null;
   apply_url: string | null;
+  view_count: number | null;
   is_featured: boolean;
   registration_mode: "external" | "internal" | "closed";
   approval_mode: "instant" | "manual";
@@ -379,18 +380,18 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
 
   try {
     const supabase = createClient(url!, key!);
-    const baseEventColumns = "id,slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,is_paid,payment_account,payment_notice,deadline,category,audience,apply_url,is_featured,registration_mode,approval_mode,capacity,waitlist_enabled,submitted_by";
+    const baseEventColumns = "id,slug,name,cover_url,view_count,host,starts_at,ends_at,location,is_online,fee,is_paid,payment_account,payment_notice,deadline,category,audience,apply_url,is_featured,registration_mode,approval_mode,capacity,waitlist_enabled,submitted_by";
     let { data, error }: { data: unknown; error: { message?: string } | null } = await supabase
       .from("events")
       .select(`id,slug,name,cover_url,description,gallery_urls,program,registration_fields,${baseEventColumns.replace("id,slug,name,cover_url,", "")}`)
       .eq("status", "published")
       .order("is_featured", { ascending: false })
       .order("starts_at", { ascending: true });
-    if (error && /description|gallery_urls|program|registration_fields|is_paid|payment_account|payment_notice/.test(error.message ?? "")) {
+    if (error && /description|gallery_urls|program|registration_fields|is_paid|payment_account|payment_notice|view_count/.test(error.message ?? "")) {
       // migration-31(행사 상세 컬럼) 적용 전 DB 호환 폴백
       ({ data, error } = await supabase
         .from("events")
-        .select(baseEventColumns)
+        .select(baseEventColumns.replace("view_count,", ""))
         .eq("status", "published")
         .order("is_featured", { ascending: false })
         .order("starts_at", { ascending: true }));
@@ -429,6 +430,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       waitlistEnabled: e.waitlist_enabled,
       registrationClosed: (e.deadline ? new Date(e.deadline).getTime() < Date.now() : false) || new Date(e.starts_at).getTime() <= Date.now(),
       submittedBy: e.submitted_by ?? undefined,
+      viewCount: e.view_count ?? 0,
     }));
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
