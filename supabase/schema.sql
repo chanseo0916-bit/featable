@@ -332,12 +332,16 @@ create table events (
   description text not null default '',
   gallery_urls text[] not null default '{}',
   program jsonb not null default '[]'::jsonb check (jsonb_typeof(program) = 'array'),
+  registration_fields jsonb not null default '[]'::jsonb check (jsonb_typeof(registration_fields) = 'array'),
   host text not null default '',
   starts_at timestamptz not null,
   ends_at timestamptz,
   location text not null default '',
   is_online boolean not null default false,
   fee text,
+  is_paid boolean not null default false,
+  payment_account text,
+  payment_notice text,
   deadline timestamptz,
   category text not null default '기타',
   audience text,
@@ -375,6 +379,17 @@ create table event_registrations (
   verification_requested_at timestamptz,
   consent_version text not null default '2026-08-21',
   check ((user_id is not null and guest_token_hash is null) or (user_id is null and guest_token_hash is not null)),
+  unique (event_id, user_id)
+);
+
+create table event_cohosts (
+  id uuid primary key default uuid_generate_v4(),
+  event_id uuid not null references events(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  email text not null,
+  role text not null default 'cohost' check (role in ('cohost', 'editor')),
+  created_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
   unique (event_id, user_id)
 );
 
@@ -859,8 +874,8 @@ create policy "products_delete_own" on products for delete using (owns_brand(bra
 -- features
 create policy "features_select_published" on features for select
   using (status = 'published' or (brand_id is not null and owns_brand(brand_id)) or is_admin());
-create policy "features_insert_own" on features for insert
-  with check ((brand_id is not null and owns_brand(brand_id)) or is_admin());
+create policy "features_insert_authenticated" on features for insert
+  with check (auth.uid() is not null and (brand_id is null or owns_brand(brand_id) or is_admin()));
 create policy "features_update_own" on features for update
   using ((brand_id is not null and owns_brand(brand_id)) or is_admin());
 create policy "features_delete_own" on features for delete

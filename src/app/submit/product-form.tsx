@@ -199,6 +199,7 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
       </div>
     </>}
     {error && <p className="simple-form-error">{error}</p>}
-    <footer>{step === 1 && <button className="secondary" onClick={() => setStep(0)}>이전</button>}{step === 0 ? <button onClick={() => form.name.trim() && form.tagline.trim() ? setStep(1) : setError("프로덕트명과 한 줄 소개를 입력해주세요.")}>상세페이지 {editProductId ? "수정" : "만들기"} →</button> : <><button className="secondary" onClick={() => submit(false)} disabled={saving}>{editProductId ? "비공개로 저장" : "임시저장"}</button><button onClick={() => submit(true)} disabled={saving || uploading}>{saving ? "저장 중…" : editProductId ? "수정사항 저장 →" : "프로덕트 공개하기 →"}</button></>}</footer>
+    <footer>{step === 1 && <button className="secondary" onClick={() => setStep(0)}>이전</button>}{step === 0 ? <button onClick={() => form.name.trim() && form.tagline.trim() ? setStep(1) : setError("프로덕트명과 한 줄 소개를 입력해주세요.")}>상세페이지 {editProductId ? "수정" : "만들기"} →</button> : <><button className="ghost" onClick={() => submit(false)} disabled={saving} title="저장만 하고 공개하지 않습니다. 다른 사람에게는 보이지 않아요.">{editProductId ? "비공개로 저장" : "비공개로 저장"}</button><button onClick={() => submit(true)} disabled={saving || uploading}>{saving ? "저장 중…" : editProductId ? "수정사항 저장 →" : "프로덕트 공개하기 →"}</button></>}</footer>
+    {step === 1 && !editProductId && <p className="product-publish-hint">공개해야 홈과 검색에 노출됩니다. 비공개로 저장하면 나만 볼 수 있어요.</p>}
   </section>;
 }

@@ -282,12 +282,16 @@ interface EventRow {
   description: string | null;
   gallery_urls: string[] | null;
   program: { time?: string; title: string; speaker?: string }[] | null;
+  registration_fields: EventItem["registrationFields"] | null;
   host: string;
   starts_at: string;
   ends_at: string | null;
   location: string;
   is_online: boolean;
   fee: string | null;
+  is_paid: boolean;
+  payment_account: string | null;
+  payment_notice: string | null;
   deadline: string | null;
   category: string;
   audience: string | null;
@@ -375,14 +379,14 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
 
   try {
     const supabase = createClient(url!, key!);
-    const baseEventColumns = "id,slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,deadline,category,audience,apply_url,is_featured,registration_mode,approval_mode,capacity,waitlist_enabled,submitted_by";
+    const baseEventColumns = "id,slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,is_paid,payment_account,payment_notice,deadline,category,audience,apply_url,is_featured,registration_mode,approval_mode,capacity,waitlist_enabled,submitted_by";
     let { data, error }: { data: unknown; error: { message?: string } | null } = await supabase
       .from("events")
-      .select(`id,slug,name,cover_url,description,gallery_urls,program,${baseEventColumns.replace("id,slug,name,cover_url,", "")}`)
+      .select(`id,slug,name,cover_url,description,gallery_urls,program,registration_fields,${baseEventColumns.replace("id,slug,name,cover_url,", "")}`)
       .eq("status", "published")
       .order("is_featured", { ascending: false })
       .order("starts_at", { ascending: true });
-    if (error && /description|gallery_urls|program/.test(error.message ?? "")) {
+    if (error && /description|gallery_urls|program|registration_fields|is_paid|payment_account|payment_notice/.test(error.message ?? "")) {
       // migration-31(행사 상세 컬럼) 적용 전 DB 호환 폴백
       ({ data, error } = await supabase
         .from("events")
@@ -404,12 +408,16 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       description: e.description || undefined,
       galleryUrls: e.gallery_urls ?? [],
       program: e.program ?? [],
+      registrationFields: e.registration_fields ?? [],
       host: e.host,
       startsAt: e.starts_at,
       endsAt: e.ends_at ?? undefined,
       location: e.location,
       isOnline: e.is_online,
       fee: e.fee ?? undefined,
+      isPaid: e.is_paid,
+      paymentAccount: e.payment_account ?? undefined,
+      paymentNotice: e.payment_notice ?? undefined,
       deadline: e.deadline ?? undefined,
       category: e.category as EventItem["category"],
       audience: e.audience ?? undefined,

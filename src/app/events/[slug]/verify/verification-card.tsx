@@ -22,6 +22,11 @@ export function GuestVerificationCard({ slug, token }: { slug: string; token: st
     <span>REGISTRATION COMPLETE</span><h1>{copy[0]}</h1><p><strong>{result.eventName}</strong><br />{copy[1]}</p>
     <div><Link className="button" href={`/events/${slug}`}>행사 상세 보기</Link>{result.status !== "cancelled" && <form action={cancelAction}><button className="event-cancel-button" type="submit" disabled={cancelling}>{cancelling ? "취소 중…" : "신청 취소"}</button></form>}</div>
     {cancelState.error && <p className="event-registration-error" role="alert">{cancelState.error}</p>}
+    {result.status !== "cancelled" && <aside className="event-verify-account-cta">
+      <strong>신청한 행사, 계정에서 관리하세요.</strong>
+      <span>같은 이메일로 로그인하면 이 신청이 자동으로 연결돼요. 다음부터는 메일을 찾지 않아도 됩니다.</span>
+      <Link href="/login?next=/my/events">로그인하고 신청 내역 보기 →</Link>
+    </aside>}
   </section>;
 
   return <section className="event-verification-card">

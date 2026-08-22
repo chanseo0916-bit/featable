@@ -18,7 +18,7 @@ export function StudioNav({
           <Link className={active === "home" ? "active" : ""} href="/my">홈</Link>
           <Link className={active === "events" ? "active" : ""} href="/my/events">내 행사</Link>
           {founder && <Link href="/my#brands">내 브랜드</Link>}
-          {founder && <Link className={active === "profile" ? "active" : ""} href="/my/profile">내 팀 프로필</Link>}
+          <Link className={active === "profile" ? "active" : ""} href="/my/profile">내 프로필 카드</Link>
           <Link className={active === "settings" ? "active" : ""} href="/my/settings">계정 설정</Link>
         </nav>
         <div className="studio-nav-actions">

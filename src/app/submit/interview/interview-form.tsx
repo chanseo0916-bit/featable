@@ -29,7 +29,7 @@ export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; 
   const [error, setError] = useState("");
 
   const brandName = brands.find((brand) => brand.id === brandId)?.name ?? "";
-  const previewLabel = hookLabel.trim() || [brandName, founderName].filter(Boolean).join(" ");
+  const previewLabel = hookLabel.trim() || [brandName, founderName].filter(Boolean).join(" ") || "Featable 멤버";
 
   async function uploadCover(file: File) {
     setUploading(true); setError("");
@@ -65,7 +65,7 @@ export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; 
     <div className="interview-form-layout">
       <div className="interview-form-main">
         <div className="product-basic-grid">
-          <label><span>브랜드 *</span><select value={brandId} onChange={(event) => setBrandId(event.target.value)}>{brands.map((brand) => <option value={brand.id} key={brand.id}>{brand.name}</option>)}</select></label>
+          <label><span>연결할 브랜드 <small>선택</small></span><select value={brandId} onChange={(event) => setBrandId(event.target.value)}><option value="">브랜드 없이 게시</option>{brands.map((brand) => <option value={brand.id} key={brand.id}>{brand.name}</option>)}</select></label>
           <label><span>첫 줄 훅</span><input value={hookIntro} onChange={(event) => setHookIntro(event.target.value)} placeholder="예: 03년생, 24살" maxLength={30} /></label>
           <label className="full"><span>나를 소개하는 한 줄 *</span><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="예: 연구용 AI 스타트업 대표 · 1년만에 4개 지점" maxLength={40} /></label>
           <label className="full"><span>꺾쇠 라벨 <small>비우면 &lt;{previewLabel || "브랜드 이름"}&gt; 자동</small></span><input value={hookLabel} onChange={(event) => setHookLabel(event.target.value)} placeholder={previewLabel} maxLength={40} /></label>

@@ -27,6 +27,9 @@ export interface StoryFormInitial {
   excerpt: string;
   coverUrl: string;
   brandId: string;
+  founderId?: string;
+  hookIntro?: string;
+  hookLabel?: string;
   body: StoryBlock[];
   published: boolean;
 }
@@ -37,18 +40,25 @@ const labelCls = "mb-1 mt-3 block text-xs font-semibold text-muted";
 
 export function StoryForm({
   brands,
+  founders,
   initial,
+  defaultKind = "brand-story",
 }: {
   brands: { id: string; name: string }[];
+  founders: { id: string; name: string; role_title: string | null }[];
   initial?: StoryFormInitial;
+  defaultKind?: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(Boolean(initial));
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [kind, setKind] = useState(initial?.kind ?? "brand-story");
+  const [kind, setKind] = useState(initial?.kind ?? defaultKind);
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
   const [coverUrl, setCoverUrl] = useState(initial?.coverUrl ?? "");
   const [brandId, setBrandId] = useState(initial?.brandId ?? "");
+  const [founderId, setFounderId] = useState(initial?.founderId ?? "");
+  const [hookIntro, setHookIntro] = useState(initial?.hookIntro ?? "");
+  const [hookLabel, setHookLabel] = useState(initial?.hookLabel ?? "");
   const [body, setBody] = useState<EditableBlock[]>(
     (initial?.body ?? []).filter(
       (block): block is EditableBlock => block.type === "text" || block.type === "image",
@@ -104,7 +114,8 @@ export function StoryForm({
     startTransition(async () => {
       setNotice(null);
       const payload: StoryInput = {
-        title, kind, excerpt, coverUrl, brandId: brandId || undefined,
+        title, kind, excerpt, coverUrl, brandId: brandId || undefined, founderId: founderId || undefined,
+        hookIntro: kind === "interview" ? hookIntro : undefined, hookLabel: kind === "interview" ? hookLabel : undefined,
         body: body.filter((block) => block.type === "text" ? block.body.trim() : block.src),
         publish,
       };
@@ -143,6 +154,11 @@ export function StoryForm({
                 {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
+            {kind === "interview" && <>
+              <div><label className={labelCls}>인터뷰이 프로필 (선택)</label><select className={inputCls} value={founderId} onChange={(e) => setFounderId(e.target.value)}><option value="">프로필 연결 안 함</option>{founders.map((founder) => <option value={founder.id} key={founder.id}>{founder.name}{founder.role_title ? ` · ${founder.role_title}` : ""}</option>)}</select></div>
+              <div><label className={labelCls}>카드 첫 줄 훅</label><input className={inputCls} value={hookIntro} onChange={(e) => setHookIntro(e.target.value)} placeholder="예: 01년생, 26살" maxLength={30} /></div>
+              <div className="sm:col-span-2"><label className={labelCls}>카드 라벨</label><input className={inputCls} value={hookLabel} onChange={(e) => setHookLabel(e.target.value)} placeholder="예: FREQZ NOW 대표" maxLength={40} /></div>
+            </>}
             <div className="sm:col-span-2"><label className={labelCls}>요약 (목록·검색·SEO에 노출) *</label><textarea className={`${inputCls} min-h-16`} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} /></div>
             <div className="sm:col-span-2">
               <label className={labelCls}>커버 이미지</label>

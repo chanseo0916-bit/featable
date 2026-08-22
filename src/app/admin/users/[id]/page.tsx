@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminPageHeader, formatAdminDate, StatusBadge } from "../../admin-ui";
 import { memberLabels } from "../member-labels";
+import { FounderNumberEditor } from "../founder-number-editor";
 
 export const metadata: Metadata = { title: "사용자 상세" };
 
@@ -130,7 +131,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
     <section className="admin-list-panel">
       <div className="admin-list-head"><h2>Founder 프로필</h2></div>
       {founder ? <dl className="admin-detail-grid">
-        <div><dt>Founder 번호</dt><dd>{founder.founder_number ?? "-"}</dd></div>
+        <div><dt>Founder 번호</dt><dd>{founder.founder_number ?? "-"}<FounderNumberEditor userId={id} initialValue={founder.founder_number} /></dd></div>
         <div><dt>공개 이름</dt><dd>{founder.name}</dd></div>
         <div><dt>역할</dt><dd>{founder.role_title || "-"}</dd></div>
         <div><dt>한 줄 소개</dt><dd>{founder.headline || "-"}</dd></div>

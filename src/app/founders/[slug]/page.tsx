@@ -90,7 +90,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
       <main className="founder-page">
         <section className="shell founder-id-section">
           <div className="founder-card-column">
-            <InteractiveProfileCard className="founder-spot-card founder-hero-card">
+            <InteractiveProfileCard className="founder-spot-card founder-hero-card" expandable>
               <div className="founder-spot-photo">
                 {founder.avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element

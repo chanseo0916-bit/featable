@@ -12,7 +12,8 @@ export interface InterviewAnswer {
 }
 
 export interface InterviewInput {
-  brandId: string;
+  /** 브랜드 연결은 선택 사항입니다. 로그인 사용자라면 개인 인터뷰를 게시할 수 있습니다. */
+  brandId?: string;
   /** 훅 1줄: "03년생, 24살" */
   hookIntro: string;
   /** 훅 2줄 = 인터뷰 제목: "연구용 AI 스타트업 대표" */
@@ -34,7 +35,6 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "로그인이 필요합니다." };
-  if (!input.brandId) return { ok: false, error: "인터뷰를 연결할 브랜드를 선택해주세요." };
   if (!input.title.trim()) return { ok: false, error: "나를 소개하는 한 줄을 입력해주세요." };
   if (!input.coverUrl) return { ok: false, error: "커버 사진을 올려주세요." };
 
@@ -43,10 +43,16 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     .filter((item) => item.question && item.answer);
   if (answered.length < 2) return { ok: false, error: "질문에 최소 2개 이상 답해주세요." };
 
-  const { data: founder } = await supabase.from("founders").select("id,name").eq("user_id", user.id).maybeSingle();
-  if (!founder) return { ok: false, error: "먼저 파운더 정보를 등록해주세요." };
-  const { data: brand } = await supabase.from("brands").select("id,slug,name").eq("id", input.brandId).maybeSingle();
-  if (!brand) return { ok: false, error: "브랜드를 찾을 수 없습니다." };
+  const [{ data: founder }, { data: profile }] = await Promise.all([
+    supabase.from("founders").select("id,name").eq("user_id", user.id).maybeSingle(),
+    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+  ]);
+  const { data: brand } = input.brandId
+    ? await supabase.from("brands").select("id,slug,name").eq("id", input.brandId).maybeSingle()
+    : { data: null };
+  if (input.brandId && !brand) return { ok: false, error: "브랜드를 찾을 수 없습니다." };
+  const displayName = founder?.name || profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || "Featable 멤버";
+  const brandName = brand?.name || "Featable";
 
   const body: StoryBlock[] = answered.map((item) => ({ type: "text", heading: item.question, body: item.answer }));
   const excerptSource = answered[0]?.answer ?? "";
@@ -59,12 +65,12 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     body,
     status: "published",
     published_at: now,
-    brand_id: brand.id,
-    founder_id: founder.id,
-    seo_title: `${input.title.trim()} ${founder.name} 인터뷰`.slice(0, 60),
-    seo_description: conciseSeoDescription(`${brand.name} ${founder.name} 인터뷰. ${excerptSource}`),
-    primary_keyword: `${founder.name} 인터뷰`,
-    secondary_keywords: [brand.name, "창업가 인터뷰"],
+    brand_id: brand?.id ?? null,
+    founder_id: founder?.id ?? null,
+    seo_title: `${input.title.trim()} ${displayName} 인터뷰`.slice(0, 60),
+    seo_description: conciseSeoDescription(`${brandName} ${displayName} 인터뷰. ${excerptSource}`),
+    primary_keyword: `${displayName} 인터뷰`,
+    secondary_keywords: [brandName, "창업가 인터뷰"],
     og_image_url: input.coverUrl,
     is_indexable: true,
     updated_at: now,
@@ -74,7 +80,7 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     hook_label: input.hookLabel.trim() || null,
   };
 
-  let slug = `${brand.slug}-interview`;
+  let slug = brand?.slug ? `${brand.slug}-interview` : `${displayName.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "") || "member"}-interview`;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     let { error } = await supabase.from("features").insert({ ...baseRow, ...hookColumns, slug } as never);
     if (error && /hook_intro|hook_label/.test(error.message ?? "")) {
@@ -88,7 +94,7 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
       return { ok: true, slug };
     }
     if (error.message?.includes("duplicate") || error.message?.includes("unique")) {
-      slug = `${brand.slug}-interview-${randomSuffix()}`;
+      slug = `${brand?.slug ?? "member"}-interview-${randomSuffix()}`;
       continue;
     }
     return { ok: false, error: "인터뷰 저장에 실패했습니다. 잠시 후 다시 시도해주세요." };

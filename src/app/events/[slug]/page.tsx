@@ -81,7 +81,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
       <main className="event-experience shell">
         <aside className="event-experience-sidebar">
           <img src={event.coverUrl} alt={`${event.name} 포스터`} />
-          <EventRegistrationCard eventId={event.id} slug={event.slug} host={event.host} mode={event.registrationMode ?? "external"} applyUrl={event.applyUrl} capacity={event.capacity} approvalMode={event.approvalMode ?? "instant"} closed={event.registrationClosed ?? false} user={user ? { name: profile?.full_name?.trim() || user.user_metadata?.full_name || "Featable 멤버", email: user.email ?? "" } : undefined} registration={registration ? { status: registration.status as "verification_pending" | "pending" | "confirmed" | "waitlisted" | "rejected" | "cancelled" } : undefined} />
+          <EventRegistrationCard eventId={event.id} slug={event.slug} host={event.host} mode={event.registrationMode ?? "external"} applyUrl={event.applyUrl} capacity={event.capacity} approvalMode={event.approvalMode ?? "instant"} closed={event.registrationClosed ?? false} isPaid={event.isPaid} paymentAccount={event.paymentAccount} paymentNotice={event.paymentNotice} user={user ? { name: profile?.full_name?.trim() || user.user_metadata?.full_name || "Featable 멤버", email: user.email ?? "" } : undefined} registration={registration ? { status: registration.status as "verification_pending" | "pending" | "confirmed" | "waitlisted" | "rejected" | "cancelled" } : undefined} />
           <section className="event-host-card"><span>주최</span><strong>{event.host}</strong><p>{event.audience ? `${event.audience}를 위한 행사를 만들고 있습니다.` : "참가자에게 좋은 만남을 만드는 주최자입니다."}</p></section>
         </aside>
         <article className="event-experience-main">

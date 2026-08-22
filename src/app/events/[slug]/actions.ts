@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { sendGuestVerificationEmail, sendRegistrationStatusEmail, type RegistrationEmailStatus } from "@/lib/email/event-registration";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sendEventOrganizerApplicationEmail } from "@/lib/email/event-organizer";
 
 export type EventRegistrationState = {
   ok?: boolean;
@@ -35,11 +36,17 @@ export async function registerForEvent(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
+  const { data: eventConfig } = await supabase.from("events").select("registration_fields").eq("id", eventId).maybeSingle();
+  const configuredFields = Array.isArray(eventConfig?.registration_fields) ? eventConfig.registration_fields as { id: string; label: string; required?: boolean }[] : [];
+  const answers = configuredFields.map((field) => ({ label: field.label, value: String(formData.get(`custom_${field.id}`) ?? "").trim() })).filter((answer) => answer.value);
+  if (configuredFields.some((field) => field.required && !String(formData.get(`custom_${field.id}`) ?? "").trim())) return { error: "필수 질문에 답변해주세요." };
+  const answerText = answers.length ? `추가 질문\n${answers.map((answer) => `${answer.label}: ${answer.value}`).join("\n")}` : "";
+  const combinedNote = [note, answerText].filter(Boolean).join("\n\n");
   const consented = formData.get("consented") === "on";
   if (!consented) return { error: "신청 정보 제공에 동의해주세요." };
   if (name.length < 2 || name.length > 60) return { error: "이름은 2자 이상 60자 이하로 입력해주세요." };
   if (!email || email.length > 254 || !email.includes("@")) return { error: "이메일을 확인해주세요." };
-  if (note.length > 500) return { error: "메모는 500자 이하로 입력해주세요." };
+  if (combinedNote.length > 500) return { error: "신청 답변과 메모를 합쳐 500자 이하로 입력해주세요." };
 
   if (!user) {
     const admin = createAdminClient();
@@ -50,7 +57,7 @@ export async function registerForEvent(
       target_event_id: eventId,
       input_name: name,
       input_email: email,
-      input_note: note || null,
+      input_note: combinedNote || null,
       input_token_hash: tokenHash,
     });
     if (error) return { error: registrationError(error.message) };
@@ -78,7 +85,7 @@ export async function registerForEvent(
     target_event_id: eventId,
     input_name: name,
     input_email: email,
-    input_note: note || null,
+    input_note: combinedNote || null,
   });
   if (error) return { error: registrationError(error.message) };
 
@@ -95,6 +102,7 @@ export async function registerForEvent(
       slug: event.slug,
       status: status as RegistrationEmailStatus,
     });
+    await sendEventOrganizerApplicationEmail({ eventId, registrationId: result.registration_id, applicantName: name, applicantEmail: email, status, isPaid: Boolean((await supabase.from("events").select("is_paid").eq("id", eventId).maybeSingle()).data?.is_paid) });
   }
   revalidatePath(`/events/${slug}`);
   revalidatePath("/my/events");

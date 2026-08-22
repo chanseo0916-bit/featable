@@ -32,12 +32,29 @@ export function sendGuestVerificationEmail(input: { registrationId: string; emai
 export function sendRegistrationStatusEmail(input: { registrationId: string; email: string; name: string; eventName: string; slug: string; status: RegistrationEmailStatus; version?: string }) {
   const copy = STATUS_COPY[input.status];
   const eventUrl = `${SITE_URL}/events/${encodeURIComponent(input.slug)}`;
-  const body = `<p style="margin:18px 0 0;color:#626970;line-height:1.7"><strong>${escapeHtml(input.name)}</strong>님이 신청한 <strong>${escapeHtml(input.eventName)}</strong>의 상태를 알려드려요.<br>${escapeHtml(copy.description)}</p>`;
+  const manageUrl = `${SITE_URL}/my/events`;
+  // 취소 안내에까지 계정 연결을 권하면 어색하므로 진행 중인 신청에만 붙인다
+  const accountNudge = input.status === "cancelled" || input.status === "rejected"
+    ? ""
+    : `<p style="margin:20px 0 0;padding:14px 16px;border-radius:10px;background:#f7f7f8;color:#626970;font-size:13px;line-height:1.65">이 이메일로 <a href="${escapeHtml(manageUrl)}" style="color:#df4e36;font-weight:700;text-decoration:none">Featable에 로그인</a>하면 신청한 행사를 한곳에서 관리할 수 있어요.</p>`;
+  const body = `<p style="margin:18px 0 0;color:#626970;line-height:1.7"><strong>${escapeHtml(input.name)}</strong>님이 신청한 <strong>${escapeHtml(input.eventName)}</strong>의 상태를 알려드려요.<br>${escapeHtml(copy.description)}</p>${accountNudge}`;
   return sendTransactionalEmail({
     to: input.email,
     subject: `[Featable] ${input.eventName} · ${copy.subject}`,
     html: emailFrame("EVENT REGISTRATION", copy.heading, body, { href: eventUrl, label: "행사 상세 보기" }),
-    text: `${input.name}님, ${input.eventName}: ${copy.heading} ${copy.description}\n${eventUrl}`,
+    text: `${input.name}님, ${input.eventName}: ${copy.heading} ${copy.description}\n${eventUrl}${accountNudge ? `\n\n신청 내역 관리: ${manageUrl}` : ""}`,
     idempotencyKey: `event-status/${input.registrationId}/${input.status}/${input.version ?? "1"}`,
+  });
+}
+
+export function sendEventCohostInviteEmail(input: { email: string; name: string; eventName: string; slug: string }) {
+  const href = `${SITE_URL}/my/events/${encodeURIComponent(input.slug)}`;
+  const body = `<p style="margin:18px 0 0;color:#626970;line-height:1.7"><strong>${escapeHtml(input.name)}</strong>님, <strong>${escapeHtml(input.eventName)}</strong>의 공동 주최자로 추가됐어요.<br>신청자 관리와 행사 설정을 함께 확인할 수 있습니다.</p>`;
+  return sendTransactionalEmail({
+    to: input.email,
+    subject: `[Featable] ${input.eventName} 공동 주최자로 초대됐어요`,
+    html: emailFrame("EVENT CO-HOST", "행사를 함께 만들어보세요.", body, { href, label: "행사 관리 열기" }),
+    text: `${input.name}님, ${input.eventName}의 공동 주최자로 추가됐어요. 행사 관리: ${href}`,
+    idempotencyKey: `event-cohost/${input.slug}/${input.email.toLowerCase()}`,
   });
 }
