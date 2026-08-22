@@ -2414,18 +2414,20 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .commerce-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 16px 34px -18px rgba(17, 17, 17, .22); }
 .commerce-card .image-card img { aspect-ratio: 1.35; }
 .commerce-card .product-image-wrap { position: relative; }
-.commerce-card .product-chip { position: absolute; left: 10px; bottom: 10px; padding: 5px 9px; border-radius: 6px; background: rgba(255, 255, 255, .92); color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .02em; backdrop-filter: blur(3px); }
-.commerce-card .drop-label { position: absolute; top: 10px; left: 10px; padding: 5px 8px; border-radius: 6px; background: var(--accent); color: white; font-size: 9px; font-weight: 850; letter-spacing: .08em; }
+.commerce-card .product-chip { position: absolute; left: 10px; bottom: 10px; padding: 5px 9px; border-radius: 6px; background: rgba(255, 255, 255, .95); color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0; backdrop-filter: blur(3px); }
+.commerce-card .drop-label { position: absolute; top: 10px; left: 10px; padding: 5px 10px; border-radius: 6px; background: var(--accent); color: white; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
 .commerce-card .card-body { padding: 13px 15px 15px; }
-.commerce-card .product-brand-line { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 11px; color: #777; font-weight: 650; }
-.commerce-card .product-brand-line img { width: 16px; height: 16px; border-radius: 4px; object-fit: cover; }
-.commerce-card .product-brand-line em { margin-left: auto; font-style: normal; font-weight: 500; color: #aaa; font-size: 10px; }
-.commerce-card .card-body h3 { margin: 0 0 5px; font-size: 16px; letter-spacing: -.045em; }
-.commerce-card .card-body > p { margin: 0 0 12px; color: var(--muted); font-size: 12.5px; line-height: 1.5; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.commerce-card .product-brand-line { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 13px; color: #555; font-weight: 650; }
+.commerce-card .product-brand-line img { width: 18px; height: 18px; border-radius: 4px; object-fit: cover; }
+.commerce-card .product-brand-line em { margin-left: auto; font-style: normal; font-weight: 500; color: #9ca3af; font-size: 12px; }
+.commerce-card .card-body h3 { margin: 0 0 5px; font-size: 17px; letter-spacing: -.02em; }
+.commerce-card .card-body > p { margin: 0 0 12px; color: var(--muted); font-size: 14px; line-height: 1.45; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
 .commerce-card .product-meta-row { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 11px; }
-.commerce-card .product-meta-row .person-line { gap: 6px; font-size: 11px; color: #666; }
-.commerce-card .product-meta-row > strong { font-size: 13px; letter-spacing: -.02em; color: var(--foreground); }
-.commerce-card .product-meta-row > strong.meta-cta { color: var(--accent); font-size: 11px; }
+.commerce-card .product-meta-row .person-line { gap: 6px; font-size: 13px; color: #444; }
+.commerce-card .product-meta-row .avatar.tiny { width: 20px; height: 20px; }
+.commerce-card .product-meta-row > strong { font-size: 14px; letter-spacing: -.01em; color: var(--foreground); }
+.commerce-card .product-meta-row > strong.meta-cta { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 7px 14px; border-radius: 8px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; letter-spacing: 0; transition: background .2s ease; }
+.commerce-card:hover .product-meta-row > strong.meta-cta { background: var(--accent-hover); }
 
 /* 파운더 스포트라이트 카드 — 인물 사진이 배경으로 녹아드는 다크 카드 */
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
@@ -2437,10 +2439,10 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-spot-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 .founder-spot-fade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 42%, rgba(23, 23, 27, .55) 76%, #17171b 100%); }
 .founder-spot-body { position: relative; margin-top: -36px; padding: 0 20px 18px; }
-.founder-spot-body h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 7px; font-size: 20px; letter-spacing: -.045em; color: white; }
-.founder-card-role, .founder-hero-role { display: block; margin: -1px 0 7px; color: #ff8a73; font-size: 10px; font-weight: 800; letter-spacing: .02em; }
+.founder-spot-body h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 7px; font-size: 20px; letter-spacing: -.02em; color: white; }
+.founder-card-role, .founder-hero-role { display: block; margin: 2px 0 8px; color: #ff9d88; font-size: 13px; font-weight: 650; letter-spacing: 0; }
 .founder-spot-verified { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: white; color: #111; font-size: 10px; font-weight: 900; flex: 0 0 auto; }
-.founder-spot-body > p { margin: 0 0 16px; color: #b9b9c0; font-size: 12.5px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 39px; }
+.founder-spot-body > p { margin: 0 0 18px; color: #c4c4cc; font-size: 14px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 42px; }
 .founder-spot-foot { display: flex; align-items: center; gap: 12px; font-size: 11px; color: #8e8e96; font-weight: 600; }
 .founder-spot-cta { margin-left: auto; flex: 0 0 auto; white-space: nowrap; font-style: normal; padding: 8px 14px; border-radius: 999px; background: white; color: #111; font-size: 12px; font-weight: 800; transition: background .2s ease, color .2s ease; }
 .founder-spot-card:hover .founder-spot-cta { background: var(--accent); color: white; }
@@ -2457,8 +2459,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-hero-card { width: min(380px, 100%); }
 .founder-hero-card .founder-spot-photo { aspect-ratio: 1 / 1; }
 .founder-hero-card .founder-spot-body h3 { font-size: 26px; }
-.founder-hero-id { position: absolute; top: 14px; right: 16px; font-size: 9px; font-weight: 800; letter-spacing: .14em; color: rgba(255, 255, 255, .92); text-shadow: 0 1px 6px rgba(0, 0, 0, .45); }
-.founder-hero-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #cfcfd6; font-size: 9.5px; font-weight: 800; letter-spacing: .08em; }
+.founder-hero-id { position: absolute; top: 14px; right: 16px; font-size: 11px; font-weight: 600; letter-spacing: .06em; color: rgba(255, 255, 255, .75); text-shadow: 0 1px 6px rgba(0, 0, 0, .45); }
+.founder-hero-status { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #cfcfd6; font-size: 12px; font-weight: 650; letter-spacing: .02em; }
 .founder-hero-status i { width: 6px; height: 6px; border-radius: 50%; background: #3ddc84; }
 .interactive-profile-card { transform: perspective(900px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale3d(1.015, 1.015, 1.015); transform-style: preserve-3d; cursor: grab; will-change: transform; transition: transform .16s ease-out, box-shadow .3s ease, border-color .25s ease; }
 .interactive-profile-card:hover { transform: perspective(900px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale3d(1.015, 1.015, 1.015); box-shadow: 0 34px 60px -22px color-mix(in srgb, var(--accent) 42%, #1118); }
