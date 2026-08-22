@@ -735,3 +735,26 @@ export const getCatalog = cache(async (): Promise<Catalog> => {
   // 실데이터만 노출 — 데모 브랜드·프로덕트·파운더는 공개 사이트에서 제거 (스토리는 getFeatures에서 SEO용으로 유지)
   return live;
 });
+
+/**
+ * 항목별 좋아요 수. saved_items 는 본인 행만 읽히므로 집계 뷰(migration-36)를 쓴다.
+ * 뷰가 아직 없으면 0으로 떨어져 화면은 그대로 동작한다.
+ */
+export const getLikeCount = cache(async (itemType: string, itemSlug: string): Promise<number> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return 0;
+  try {
+    const supabase = createClient(url, key);
+    const { data, error } = await supabase
+      .from("item_like_counts")
+      .select("like_count")
+      .eq("item_type", itemType)
+      .eq("item_slug", itemSlug)
+      .maybeSingle();
+    if (error) return 0;
+    return (data as { like_count: number } | null)?.like_count ?? 0;
+  } catch {
+    return 0;
+  }
+});

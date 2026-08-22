@@ -3201,3 +3201,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .feature-aside-actions { padding-top: 17px; display: grid; gap: 8px; border-bottom: 0 !important; }
 .feature-aside-actions .save-item-button, .feature-aside-actions .share-item-button { width: 100%; min-height: 42px; justify-content: center; }
 .feature-aside-actions .save-item-button.saved { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+/* 스토리 카드 조회수 */
+.story-card .eyebrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.story-card-views { color: #b0b4b8; font-size: 10px; font-style: normal; font-weight: 650; letter-spacing: 0; }

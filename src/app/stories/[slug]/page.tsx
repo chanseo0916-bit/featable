@@ -5,7 +5,8 @@ import { Comments } from "@/components/comments";
 import { FeatureViewMetric } from "@/components/view-tracker";
 import { SaveButton } from "@/components/save-button";
 import { ShareButton } from "@/components/share-button";
-import { getCatalog, getFeature, getPartners } from "@/lib/data";
+import { LikeCount } from "@/components/like-count";
+import { getCatalog, getFeature, getLikeCount, getPartners } from "@/lib/data";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -52,6 +53,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const brand = catalog.brands.find((item) => item.slug === feature.brandSlug);
   const product = catalog.products.find((item) => item.brandSlug === feature.brandSlug);
   const discoveryCount = feature.viewCount ?? 0;
+  const likeCount = await getLikeCount("feature", feature.slug);
   const storyPath = `/stories/${feature.slug}`;
   const articleBody = feature.body.length > 0
     ? feature.body
@@ -216,7 +218,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             {product && <section id="product" className="feature-related-product"><p>RELATED PRODUCT</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
           </article>
 
-          <aside className="feature-article-aside"><div><p>FEATURED</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>{founder?.name} Founder</span></div><div><p>DISCOVERED</p><strong>{discoveryCount.toLocaleString()}</strong><span>people</span></div><div className="feature-aside-actions"><SaveButton itemType="feature" slug={feature.slug} labelMode="like" /><ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} /></div></aside>
+          <aside className="feature-article-aside"><div><p>FEATURED</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>{founder?.name} Founder</span></div><div><p>DISCOVERED</p><strong>{discoveryCount.toLocaleString()}</strong><span>people</span></div><div><p>LIKES</p><LikeCount itemType="feature" slug={feature.slug} initialCount={likeCount} /><span>좋아요</span></div><div className="feature-aside-actions"><SaveButton itemType="feature" slug={feature.slug} labelMode="like" /><ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} /></div></aside>
         </section>
 
         <Comments type="feature" slug={feature.slug} />
