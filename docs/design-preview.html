@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Featable preview v2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--bg:#fff;--fg:#111114;--muted:#6b7280;--muted-2:#9ca3af;--border:#e5e7eb;--accent:#ef4125;--accent-hover:#d63a20;--dark:#17171b;--dark-border:#26262c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:"Pretendard Variable",Pretendard,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;line-height:1.5;padding:56px 28px 96px;max-width:1120px;margin:0 auto}
+h1{font-size:26px;font-weight:800}
+.sub{margin-top:6px;color:var(--muted);font-size:15px}
+.legend{display:flex;gap:18px;margin-top:14px}
+.legend span{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot.live{background:#111114}.dot.new{background:var(--accent)}
+.section{margin-top:64px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:8px}
+.sec-head h2{font-size:19px;font-weight:750}
+.sec-note{font-size:13px;color:var(--muted-2);text-align:right}
+.pair-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:24px}
+
+.pcard{display:block;text-decoration:none;color:inherit;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:#fff;transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease}
+.pcard:hover{transform:translateY(-3px);border-color:#f5a08f;box-shadow:0 16px 34px -18px rgba(17,17,17,.22)}
+.piw{position:relative}
+.hero{display:block;width:100%;aspect-ratio:1.35;object-fit:cover;background:#f2f2f2}
+.chip{position:absolute;left:10px;bottom:10px;padding:5px 9px;border-radius:6px;background:rgba(255,255,255,.95);color:var(--accent)}
+.drop{position:absolute;top:10px;left:10px;padding:5px 10px;border-radius:6px;background:var(--accent);color:#fff}
+.cb{padding:13px 15px 15px}
+.bl{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.bl img{width:16px;height:16px;border-radius:4px;object-fit:cover;background:#eee;flex:0 0 auto}
+.bl em{margin-left:auto;font-style:normal}
+.pcard h3{margin:0 0 5px;font-weight:700}
+.tg{margin:0 0 12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mr{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:11px}
+.pl{display:inline-flex;align-items:center;gap:6px;min-width:0}
+.av{width:20px;height:20px;border-radius:50%;overflow:hidden;background:#eee;display:inline-block;flex:0 0 auto}
+.av img{width:100%;height:100%;object-fit:cover}
+.mr strong{letter-spacing:-.01em}
+.meta-cta{color:var(--accent)}
+
+.pcard.live .chip{font-size:10px;font-weight:800;background:rgba(255,255,255,.92)}
+.pcard.live .drop{font-size:9px;font-weight:850;letter-spacing:.08em;padding:5px 8px}
+.pcard.live .bl{font-size:11px;color:#777;font-weight:650}
+.pcard.live .bl em{color:#aaa;font-size:10px}
+.pcard.live h3{font-size:16px}
+.pcard.live .tg{font-size:12.5px;line-height:1.5}
+.pcard.live .pl{font-size:11px;color:#666}
+.pcard.live .av{width:18px;height:18px}
+.pcard.live .mr strong{font-size:13px}
+.pcard.live .meta-cta{font-size:11px}
+
+.pcard.new .chip{font-size:12px;font-weight:700}
+.pcard.new .drop{font-size:12px;font-weight:700;letter-spacing:.02em}
+.pcard.new .bl{font-size:13px;color:#555}
+.pcard.new .bl img{width:18px;height:18px}
+.pcard.new .bl em{color:var(--muted-2);font-size:12px}
+.pcard.new h3{font-size:17px}
+.pcard.new .tg{font-size:14px;line-height:1.45}
+.pcard.new .pl{font-size:13px;color:#444}
+.pcard.new .mr strong{font-size:14px}
+.pcard.new .meta-cta{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;letter-spacing:0}
+.pcard.new:hover .meta-cta{background:var(--accent-hover)}
+
+/* founder spotlight card */
+.fwrap{display:block;text-decoration:none;color:inherit}
+.fcard{position:relative;display:block;border-radius:20px;background:var(--dark);color:#fff;overflow:hidden;border:1px solid var(--dark-border);transition:transform .25s ease,box-shadow .3s ease,border-color .25s ease}
+.fwrap:hover .fcard{transform:translateY(-4px);border-color:#8a4a3e;box-shadow:0 24px 48px -20px rgba(239,65,37,.45)}
+.photo{position:relative;aspect-ratio:1/1}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;background:#222228}
+.fade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 42%,rgba(23,23,27,.55) 76%,#17171b 100%)}
+.fid{position:absolute;top:14px;right:16px;color:rgba(255,255,255,.92);text-shadow:0 1px 6px rgba(0,0,0,.45)}
+.fbody{position:relative;margin-top:-36px;padding:0 20px 18px}
+.fcard h3{display:flex;align-items:center;gap:7px;margin:0 0 7px;color:#fff;font-weight:750}
+.vf{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:#fff;color:#111;font-weight:900;font-size:10px;flex:0 0 auto}
+.role{display:block;font-weight:800;color:#ff8a73}
+.hl{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;color:#b9b9c0;line-height:1.55;min-height:39px}
+.foot{display:flex;align-items:center;font-size:11px;color:#8e8e96;font-weight:600}
+.status{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);color:#cfcfd6}
+.status i{width:6px;height:6px;border-radius:50%;background:#3ddc84}
+
+.fcard.live h3{font-size:20px;letter-spacing:-.045em}
+.fcard.live .fid{font-size:9px;font-weight:800;letter-spacing:.14em}
+.fcard.live .role{font-size:10px;margin:-1px 0 7px;letter-spacing:.02em}
+.fcard.live .hl{font-size:12.5px;margin:0 0 16px}
+.fcard.live .status{font-size:9.5px;letter-spacing:.08em;font-weight:800}
+
+.fcard.new h3{font-size:20px;letter-spacing:-.02em}
+.fcard.new .fid{font-size:11px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.75)}
+.fcard.new .role{font-size:13px;font-weight:650;letter-spacing:0;color:#ff9d88;margin:2px 0 8px}
+.fcard.new .hl{font-size:14px;line-height:1.5;margin:0 0 18px;color:#c4c4cc;min-height:42px}
+.fcard.new .status{font-size:12px;letter-spacing:.02em;font-weight:650;padding:7px 12px}
+
+/* buttons */
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.button{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer;border:0}
+.bp{background:var(--accent);color:#fff}
+.bp:hover{background:var(--accent-hover)}
+.bs{background:#fff;color:var(--fg);border:1px solid var(--border)}
+.bs:hover{border-color:#d1d5db}
+</style>
+</head>
+<body>
+<h1>Featable 디자인 프리뷰 v2</h1>
+<p class="sub">featable.kr 실제 발행 카드(fresh-product-card commerce-card / founder-spot-card) 기준 비교</p>
+<div class="legend"><span><i class="dot live"></i>지금 발행된 상태</span><span><i class="dot new"></i>개선안</span></div>
+
+<section class="section">
+  <div class="sec-head"><h2>PRODUCT CARD</h2><p class="sec-note">배지·메타 텍스트 최소 12px, 태그라인 14px. 구조는 그대로.</p></div>
+  <div class="pair-grid">
+
+    <a href="#" class="pcard live">
+      <div class="piw"><img class="hero" src="https://picsum.photos/seed/caramel/640/480" alt=""><span class="drop">NEW</span><span class="chip">AI</span></div>
+      <div class="cb">
+        <div class="bl"><img src="https://picsum.photos/seed/logocaramel/48/48" alt=""><span>카라멜랩</span><em>조회 1,280</em></div>
+        <h3>카라멜 노트</h3>
+        <p class="tg">연구자를 위한 AI 노트 앱</p>
+        <div class="mr"><span class="pl"><span class="av"><img src="https://picsum.photos/seed/minseo/80/80" alt=""></span>김민서</span><strong>₩12,000</strong></div>
+      </div>
+    </a>
+
+    <a href="#" class="pcard new">
+      <div class="piw"><img class="hero" src="https://picsum.photos/seed/caramel/640/480" alt=""><span class="drop">NEW</span><span class="chip">AI</span></div>
+      <div class="cb">
+        <div class="bl"><img src="https://picsum.photos/seed/logocaramel/48/48" alt=""><span>카라멜랩</span><em>조회 1,280</em></div>
+        <h3>카라멜 노트</h3>
+        <p class="tg">연구자를 위한 AI 노트 앱</p>
+        <div class="mr"><span class="pl"><span class="av"><img src="https://picsum.photos/seed/minseo/80/80" alt=""></span>김민서</span><strong>₩12,000</strong></div>
+      </div>
+    </a>
+
+    <a href="#" class="pcard live">
+      <div class="piw"><img class="hero" src="https://picsum.photos/seed/grainbox/640/480" alt=""><span class="chip">F&amp;B</span></div>
+      <div class="cb">
+        <div class="bl"><img src="https://picsum.photos/seed/logograin/48/48" alt=""><span>그레인테이블</span><em>조회 842</em></div>
+        <h3>아침 곡물박스</h3>
+        <p class="tg">바쁜 아침을 위한 정기구독</p>
+        <div class="mr"><span class="pl"><span class="av"><img src="https://picsum.photos/seed/jiyun/80/80" alt=""></span>이지윤</span><strong class="meta-cta">피쳐 보기 →</strong></div>
+      </div>
+    </a>
+
+    <a href="#" class="pcard new">
+      <div class="piw"><img class="hero" src="https://picsum.photos/seed/grainbox/640/480" alt=""><span class="chip">F&amp;B</span></div>
+      <div class="cb">
+        <div class="bl"><img src="https://picsum.photos/seed/logograin/48/48" alt=""><span>그레인테이블</span><em>조회 842</em></div>
+        <h3>아침 곡물박스</h3>
+        <p class="tg">바쁜 아침을 위한 정기구독</p>
+        <div class="mr"><span class="pl"><span class="av"><img src="https://picsum.photos/seed/jiyun/80/80" alt=""></span>이지윤</span><strong class="meta-cta">피쳐 보기 →</strong></div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-head"><h2>FOUNDER CARD</h2><p class="sec-note">역할·소개·상태 텍스트 크기↑, FOUNDER ID 톤 다운. 다크 분위기 유지.</p></div>
+  <div class="pair-grid">
+
+    <a href="#" class="fwrap">
+      <div class="fcard live">
+        <div class="photo"><img src="https://picsum.photos/seed/chanseo/600/600" alt=""><div class="fade"></div><span class="fid">FOUNDER ID · 0001</span></div>
+        <div class="fbody">
+          <h3>이찬서 <span class="vf">&#10003;</span></h3>
+          <strong class="role">대표 / CEO</strong>
+          <p class="hl">Caramel Boy / YFC Co-Founder</p>
+          <div class="foot"><span class="status"><i></i>NOW BUILDING</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="#" class="fwrap">
+      <div class="fcard new">
+        <div class="photo"><img src="https://picsum.photos/seed/yunseo/600/600" alt=""><div class="fade"></div><span class="fid">FOUNDER ID · 0002</span></div>
+        <div class="fbody">
+          <h3>이윤서 <span class="vf">&#10003;</span></h3>
+          <strong class="role">창업가</strong>
+          <p class="hl">Youth Founder Club 운영진, 청년 창업 생태계</p>
+          <div class="foot"><span class="status"><i></i>NOW BUILDING</span></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-head"><h2>BUTTONS</h2><p class="sec-note">기존 승인안 유지.</p></div>
+  <div class="btn-row">
+    <a href="#" class="button bp">프로필 만들기 &rarr;</a>
+    <a href="#" class="button bs">공식 사이트</a>
+    <button type="button" class="button bs">공유</button>
+  </div>
+</section>
+
+</body>
+</html>
