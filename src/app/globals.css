@@ -3197,6 +3197,41 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 /* 완성본 표지를 쓰는 인터뷰 카드 — 이미지만 보여준다 */
 .founder-hook-card.is-bare > img { object-position: center; }
 
+.feature-hero:hover img,
+.product-card:hover img,
+.event-card:hover img,
+.story-card:hover img,
+.curation-bubble:hover .curation-image,
+.spotlight-card:hover .image-card img,
+.editorial-card:hover img,
+.home-top-banner:hover > img,
+.discovery-feature-card:hover img,
+.company-product-grid > a:hover img,
+.product-square-card:hover > img,
+.partner-org-card:hover .partner-org-logo img,
+.founder-hook-card:hover > img {
+  transform: none;
+}
+
+.brand-card:hover,
+.community-card:hover,
+.job-row:hover,
+.support-card:hover,
+.opportunity-card:hover,
+.community-directory-card:hover,
+.founder-avatar-picker button:hover,
+.admin-metric-card:hover,
+.studio-overview-grid > a:hover,
+.ig-post-tile:hover,
+.company-product-grid > a:hover,
+.role-dashboard-links > div:last-child > a:hover,
+.partner-org-card:hover,
+.commerce-card:hover,
+.founder-spot-card:not(.interactive-profile-card):hover,
+.team-profile-admin-card:hover {
+  transform: none;
+}
+
 /* 스토리 상세 사이드바 — 좋아요·공유를 실제 버튼으로 */
 .feature-aside-actions { padding-top: 17px; display: grid; gap: 8px; border-bottom: 0 !important; }
 .feature-aside-actions .save-item-button, .feature-aside-actions .share-item-button { width: 100%; min-height: 42px; justify-content: center; }
