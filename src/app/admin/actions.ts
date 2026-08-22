@@ -35,6 +35,30 @@ async function requireAdmin() {
   return profile?.role === "admin" ? supabase : null;
 }
 
+/** 관리자만 공개 Founder 번호를 조정할 수 있습니다. 번호는 비워서 해제할 수도 있습니다. */
+export async function updateFounderNumber(userId: string, rawValue: string): Promise<{ error?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  const value = rawValue.trim() === "" ? null : Number(rawValue.trim());
+  if (value !== null && (!Number.isInteger(value) || value < 1 || value > 999999)) {
+    return { error: "고유 번호는 1~999999 사이의 정수로 입력해주세요." };
+  }
+
+  const { data: founder } = await supabase.from("founders").select("id").eq("user_id", userId).maybeSingle();
+  if (!founder) return { error: "아직 프로필 카드를 만들지 않은 사용자입니다." };
+  if (value !== null) {
+    const { data: duplicate } = await supabase.from("founders").select("id").eq("founder_number", value).neq("id", founder.id).maybeSingle();
+    if (duplicate) return { error: "이미 다른 사용자가 사용 중인 번호입니다." };
+  }
+
+  const { error } = await supabase.from("founders").update({ founder_number: value }).eq("id", founder.id);
+  if (error) return { error: `고유 번호 저장에 실패했습니다: ${error.message}` };
+  revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/founders");
+  return {};
+}
+
 export async function syncBizinfoSupportPrograms(): Promise<{ error?: string; message?: string }> {
   const supabase = await requireAdmin();
   if (!supabase) return { error: "관리자 권한이 없습니다." };

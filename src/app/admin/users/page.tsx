@@ -16,6 +16,7 @@ interface UserRow {
   onboarding_completed_at: string | null;
   marketing_agreed_at: string | null;
   created_at: string;
+  founder_number?: number | null;
 }
 
 interface UsersQuery {
@@ -67,6 +68,10 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
     .range(from, from + ADMIN_PAGE_SIZE - 1);
 
   const rows = (data ?? []) as UserRow[];
+  const { data: founderRows } = rows.length
+    ? await supabase.from("founders").select("user_id,founder_number").in("user_id", rows.map((row) => row.id))
+    : { data: [] };
+  const founderNumbers = new Map((founderRows ?? []).map((row) => [row.user_id as string, row.founder_number as number | null]));
   const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
 
@@ -89,13 +94,14 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
       <div className="admin-list-head"><h2>전체 사용자 <span>{total}</span></h2></div>
 
       <div className="admin-table-wrap"><table className="admin-table"><thead><tr>
-        <th>사용자</th><th>역할</th><th>온보딩</th><th>가입일</th><th>관리</th>
+        <th>사용자</th><th>고유번호</th><th>역할</th><th>온보딩</th><th>가입일</th><th>관리</th>
       </tr></thead><tbody>
         {rows.map((row) => <tr key={row.id}>
           <td>
             <Link href={`/admin/users/${row.id}`}>{row.full_name?.trim() || "이름 미설정"}</Link>
             <p>{row.email || "이메일 없음"}</p>
           </td>
+          <td>{founderNumbers.get(row.id) ?? "-"}</td>
           <td>
             {memberLabels[row.member_type || "unknown"]}
             {row.role === "admin" && <span className="admin-status admin-status-published" style={{ marginLeft: 6 }}>관리자</span>}
@@ -106,7 +112,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
           <td>{formatAdminDate(row.created_at)}</td>
           <td><div className="admin-row-actions"><Link className="admin-row-link" href={`/admin/users/${row.id}`}>상세보기</Link></div></td>
         </tr>)}
-        {!rows.length && <tr><td colSpan={5} className="admin-empty">조건에 맞는 사용자가 없습니다.</td></tr>}
+        {!rows.length && <tr><td colSpan={6} className="admin-empty">조건에 맞는 사용자가 없습니다.</td></tr>}
       </tbody></table></div>
 
       {totalPages > 1 && <nav className="admin-pagination" aria-label="페이지 이동">
