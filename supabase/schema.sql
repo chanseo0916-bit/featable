@@ -382,6 +382,17 @@ create table event_registrations (
   unique (event_id, user_id)
 );
 
+create table event_cohosts (
+  id uuid primary key default uuid_generate_v4(),
+  event_id uuid not null references events(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  email text not null,
+  role text not null default 'cohost' check (role in ('cohost', 'editor')),
+  created_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  unique (event_id, user_id)
+);
+
 -- ---------- Support Program (관리자 큐레이션) ----------
 create table support_programs (
   id uuid primary key default uuid_generate_v4(),

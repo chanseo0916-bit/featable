@@ -42,7 +42,8 @@ export async function updateEventPresentation(input: {
   const admin = createAdminClient();
   if (!admin) return { ok: false, error: "관리 도구를 준비하지 못했습니다." };
   const { data: event } = await admin.from("events").select("id,submitted_by").eq("id", input.eventId).maybeSingle();
-  if (!event || event.submitted_by !== user.id) return { ok: false, error: "이 행사를 관리할 권한이 없습니다." };
+  const { data: cohost } = await admin.from("event_cohosts").select("id").eq("event_id", input.eventId).eq("user_id", user.id).maybeSingle();
+  if (!event || (event.submitted_by !== user.id && !cohost)) return { ok: false, error: "이 행사를 관리할 권한이 없습니다." };
   const { error } = await admin.from("events").update({ gallery_urls: galleryUrls, registration_fields: registrationFields, is_paid: input.isPaid, payment_account: input.isPaid ? input.paymentAccount.trim().slice(0, 200) : null, payment_notice: input.isPaid ? input.paymentNotice.trim().slice(0, 500) || "입금 확인 후 주최자가 신청을 승인합니다." : null, approval_mode: input.isPaid ? "manual" : undefined }).eq("id", input.eventId);
   if (error) return { ok: false, error: "행사 설정을 저장하지 못했습니다. SQL 적용 여부를 확인해주세요." };
   revalidatePath(`/events/${input.slug}`);
