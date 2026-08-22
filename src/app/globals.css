@@ -3144,3 +3144,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (max-width: 760px) {
   .simple-register-nav .shell > a::after { content: none; }
 }
+
+/* 게스트 신청 완료 후 계정 연결 유도 */
+.event-verify-account-cta { margin-top: 26px; padding: 18px 20px; display: grid; gap: 6px; justify-items: start; border: 1px solid var(--border); border-radius: 12px; background: var(--accent-soft); text-align: left; }
+.event-verify-account-cta strong { font-size: 14px; letter-spacing: -.03em; }
+.event-verify-account-cta span { color: #5f666d; font-size: 12px; line-height: 1.65; word-break: keep-all; }
+.event-verify-account-cta a { margin-top: 4px; color: var(--accent); font-size: 12px; font-weight: 750; }
