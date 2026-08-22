@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "스토리 관리" };
 
 interface StoryRow {
   id: string; slug: string; title: string; kind: string; excerpt: string;
-  cover_url: string | null; body: StoryBlock[] | null; brand_id: string | null;
+  cover_url: string | null; body: StoryBlock[] | null; brand_id: string | null; founder_id: string | null;
   status: PublishStatus; is_featured: boolean; published_at: string | null; view_count: number;
 }
 
@@ -28,18 +28,22 @@ export default async function AdminStoriesPage({ searchParams }: { searchParams:
 
   const { data: brandRows } = await supabase.from("brands").select("id,name").order("name");
   const brands = (brandRows ?? []) as { id: string; name: string }[];
+  const { data: founderRows } = await supabase.from("founders").select("id,name,role_title").order("name");
+  const founders = (founderRows ?? []) as { id: string; name: string; role_title: string | null }[];
+  const newKind = params.new === "interview" ? "interview" : undefined;
 
   let editing: StoryFormInitial | undefined;
   if (editId) {
     const { data } = await supabase
       .from("features")
-      .select("id,title,kind,excerpt,cover_url,body,brand_id,status")
+      .select("id,title,kind,excerpt,cover_url,body,brand_id,founder_id,status,hook_intro,hook_label")
       .eq("id", editId)
       .maybeSingle();
     if (data) {
       editing = {
         id: data.id, title: data.title, kind: data.kind, excerpt: data.excerpt,
-        coverUrl: data.cover_url ?? "", brandId: data.brand_id ?? "",
+        coverUrl: data.cover_url ?? "", brandId: data.brand_id ?? "", founderId: data.founder_id ?? "",
+        hookIntro: data.hook_intro ?? "", hookLabel: data.hook_label ?? "",
         body: (data.body ?? []) as StoryBlock[], published: data.status === "published",
       };
     }
@@ -47,7 +51,7 @@ export default async function AdminStoriesPage({ searchParams }: { searchParams:
 
   let request = supabase
     .from("features")
-    .select("id,slug,title,kind,excerpt,cover_url,body,brand_id,status,is_featured,published_at,view_count", { count: "exact" });
+    .select("id,slug,title,kind,excerpt,cover_url,body,brand_id,founder_id,status,is_featured,published_at,view_count", { count: "exact" });
   if (query.q) request = request.ilike("title", `%${query.q.replace(/[%_]/g, "")}%`);
   if (query.status !== "all") request = request.eq("status", query.status);
   const from = (query.page - 1) * ADMIN_PAGE_SIZE;
@@ -60,11 +64,12 @@ export default async function AdminStoriesPage({ searchParams }: { searchParams:
   return (
     <main className="admin-main shell">
       <AdminPageHeader eyebrow="EDITORIAL" title="스토리 관리" description="언론 기사처럼 발행되는 인터뷰·브랜드 스토리를 작성하고 관리합니다. ★ Featured로 지정하면 홈 상단에 노출됩니다." publicHref="/stories" />
-      <section className="admin-list-panel">
+      <div className="admin-story-quick-actions"><Link href="/admin/stories?new=interview#new-story">+ 인터뷰 등록</Link><Link href="/admin/stories#new-story">+ 새 스토리</Link></div>
+      <section id="new-story" className="admin-list-panel">
         {editing ? (
-          <StoryForm key={editing.id} brands={brands} initial={editing} />
+          <StoryForm key={editing.id} brands={brands} founders={founders} initial={editing} />
         ) : (
-          <StoryForm brands={brands} />
+          <StoryForm brands={brands} founders={founders} defaultKind={newKind} />
         )}
         <AdminListTools query={query} placeholder="스토리 제목 검색" />
         <div className="admin-list-head"><h2>전체 스토리 <span>{count ?? 0}</span></h2></div>

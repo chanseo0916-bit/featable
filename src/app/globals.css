@@ -932,6 +932,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .admin-page-head div > span { color: #767d85; font-size: 13px; }
 .admin-page-head > a { margin-top: 8px; padding: 12px 15px; border: 1px solid #d9dde1; border-radius: 9px; background: #fff; color: #333; font-size: 11px; font-weight: 750; }
 .admin-page-head > a:hover { border-color: var(--accent); color: var(--accent); }
+.admin-story-quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: -14px 0 18px; }
+.admin-story-quick-actions a { padding: 10px 13px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; color: #555d65; font-size: 11px; font-weight: 750; }
+.admin-story-quick-actions a:first-child { border-color: var(--accent); background: var(--accent); color: #fff; }
 .admin-metric-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .admin-metric-card { position: relative; min-height: 185px; padding: 24px; overflow: hidden; border: 1px solid #dfe2e5; border-radius: 14px; background: #fff; transition: transform .2s, border-color .2s, box-shadow .2s; }
 .admin-metric-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 14px 35px rgba(30, 30, 30, .07); }

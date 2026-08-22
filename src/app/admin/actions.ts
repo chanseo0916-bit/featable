@@ -370,6 +370,9 @@ export interface StoryInput {
   excerpt: string;
   coverUrl?: string;
   brandId?: string;
+  founderId?: string;
+  hookIntro?: string;
+  hookLabel?: string;
   body: import("@/lib/types").StoryBlock[];
   publish: boolean;
 }
@@ -406,7 +409,9 @@ export async function createStory(input: StoryInput): Promise<{ error?: string; 
     cover_url: input.coverUrl?.trim() || null,
     body: input.body,
     brand_id: input.brandId || null,
-    founder_id: await founderIdForBrand(supabase, input.brandId),
+    founder_id: input.founderId || await founderIdForBrand(supabase, input.brandId),
+    hook_intro: input.hookIntro?.trim() || null,
+    hook_label: input.hookLabel?.trim() || null,
     status: input.publish ? "published" : "draft",
     published_at: input.publish ? new Date().toISOString() : null,
     seo_title: seoTitle(undefined, input.title.trim()),
@@ -438,7 +443,9 @@ export async function updateStory(id: string, input: StoryInput): Promise<{ erro
     cover_url: input.coverUrl?.trim() || null,
     body: input.body,
     brand_id: input.brandId || null,
-    founder_id: await founderIdForBrand(supabase, input.brandId),
+    founder_id: input.founderId || await founderIdForBrand(supabase, input.brandId),
+    hook_intro: input.hookIntro?.trim() || null,
+    hook_label: input.hookLabel?.trim() || null,
     status: input.publish ? "published" : "draft",
     published_at: input.publish ? (current.published_at ?? new Date().toISOString()) : current.published_at,
     seo_title: seoTitle(undefined, input.title.trim()),
