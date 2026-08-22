@@ -2971,6 +2971,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .home-interview-section { padding-top: 96px; }
 @media (max-width: 800px) { .fresh-rail-track > * { flex-basis: 76vw; } }
 @media (max-width: 800px) { .home-interview-section { padding-top: 65px; } }
+@media (max-width: 800px) { .live-main + .live-ranking { margin-top: 72px; } }
 
 /* ===== 모바일 대응 일괄 보강 (2026-08) ===== */
 
