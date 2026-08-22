@@ -3225,3 +3225,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .card-body h3, .card-body > p, .studio-panel-heading span,
 .my-event-empty span, .ig-founder-preview-empty p,
 .role-dashboard-links p, .member-make-cta p { word-break: keep-all; }
+/* 역할·직함 줄은 임의 길이의 한글/영문이 들어오므로 단어 단위로 끊는다 */
+.team-card-body > strong, .founder-card-role, .founder-hero-role,
+.opportunity-card h3, .community-card h3, .brand-card h3 { word-break: keep-all; }
