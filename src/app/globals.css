@@ -3178,3 +3178,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .simple-registration-card > footer button.ghost:hover { color: #555d65; }
 .product-publish-hint { margin: 12px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.6; text-align: right; }
 @media (max-width: 700px) { .product-publish-hint { text-align: left; } }
+
+/* START HERE — 기업 정보는 대안 경로로 낮춘다 */
+.studio-first-copy .studio-first-alt { margin-top: 12px; display: inline-block; padding: 0; border: 0; background: none; color: var(--muted); font-size: 12.5px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.studio-first-copy .studio-first-alt:hover { color: var(--accent); }

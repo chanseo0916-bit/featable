@@ -351,7 +351,7 @@ export default async function MyPage() {
               <h1>{founder?.name ?? "Founder"}</h1>
               <Link className="ig-btn" href="/my/profile">프로필 편집</Link>
               <Link className="ig-btn primary" href={brands.length ? "/submit/product" : "/my/brand/new"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
-              {brands.length > 0 && <Link className="ig-btn" href="/submit/interview">인터뷰 등록</Link>}
+              <Link className="ig-btn" href="/submit/interview">인터뷰 등록</Link>
             </div>
             <div className="ig-profile-stats">
               <div><strong>{brands.length}</strong><span>브랜드</span></div>
@@ -421,14 +421,15 @@ export default async function MyPage() {
         {brands.length === 0 && <section id="brands" className="studio-first-start">
           <div className="studio-first-copy">
             <span>START HERE</span>
-            <h2>내 기업 정보를 먼저 등록해주세요.</h2>
-            <p>기업 정보는 한 번만 만들고, 프로덕트와 상세페이지는 이후 자유롭게 추가할 수 있어요.</p>
-            <Link href="/my/brand/new">기업 정보 등록<b>→</b></Link>
+            <h2>가장 쉬운 시작은 내 이야기예요.</h2>
+            <p>인터뷰는 기업 정보 없이도 올릴 수 있어요. 사진 한 장과 질문 답변이면 홈과 검색에 바로 노출됩니다. 기업 정보는 나중에 등록해도 됩니다.</p>
+            <Link href="/submit/interview">내 인터뷰 쓰기<b>→</b></Link>
+            <Link className="studio-first-alt" href="/my/brand/new">기업 정보부터 등록하기</Link>
           </div>
           <ol>
-            <li><i>1</i><div><strong>기업 정보 등록</strong><span>회사명, 로고, 한 줄 소개만 입력해요.</span></div></li>
-            <li><i>2</i><div><strong>프로덕트 추가</strong><span>내 기업 아래 제품과 서비스를 등록해요.</span></div></li>
-            <li><i>3</i><div><strong>상세페이지 제작</strong><span>각 프로덕트 안에서 이미지와 설명을 쌓아요.</span></div></li>
+            <li><i>1</i><div><strong>인터뷰로 먼저 발견되기</strong><span>기업 정보 없이, 사진 한 장과 답변이면 끝나요.</span></div></li>
+            <li><i>2</i><div><strong>기업 정보 등록</strong><span>회사명, 로고, 한 줄 소개만 입력해요.</span></div></li>
+            <li><i>3</i><div><strong>프로덕트와 상세페이지</strong><span>내 기업 아래 제품을 쌓아 올려요.</span></div></li>
           </ol>
         </section>}
 
