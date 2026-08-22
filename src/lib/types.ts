@@ -144,7 +144,8 @@ export interface EventItem {
   /** 행사 상세 소개 (선택) */
   description?: string;
   galleryUrls?: string[];
-  program?: { time?: string; title: string; speaker?: string }[];
+    program?: { time?: string; title: string; speaker?: string }[];
+    registrationFields?: { id: string; label: string; type: "text" | "select" | "textarea"; required?: boolean; placeholder?: string; options?: string[] }[];
   host: string;
   startsAt: string;
   endsAt?: string;

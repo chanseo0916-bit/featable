@@ -282,6 +282,7 @@ interface EventRow {
   description: string | null;
   gallery_urls: string[] | null;
   program: { time?: string; title: string; speaker?: string }[] | null;
+  registration_fields: EventItem["registrationFields"] | null;
   host: string;
   starts_at: string;
   ends_at: string | null;
@@ -378,11 +379,11 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
     const baseEventColumns = "id,slug,name,cover_url,host,starts_at,ends_at,location,is_online,fee,deadline,category,audience,apply_url,is_featured,registration_mode,approval_mode,capacity,waitlist_enabled,submitted_by";
     let { data, error }: { data: unknown; error: { message?: string } | null } = await supabase
       .from("events")
-      .select(`id,slug,name,cover_url,description,gallery_urls,program,${baseEventColumns.replace("id,slug,name,cover_url,", "")}`)
+      .select(`id,slug,name,cover_url,description,gallery_urls,program,registration_fields,${baseEventColumns.replace("id,slug,name,cover_url,", "")}`)
       .eq("status", "published")
       .order("is_featured", { ascending: false })
       .order("starts_at", { ascending: true });
-    if (error && /description|gallery_urls|program/.test(error.message ?? "")) {
+    if (error && /description|gallery_urls|program|registration_fields/.test(error.message ?? "")) {
       // migration-31(행사 상세 컬럼) 적용 전 DB 호환 폴백
       ({ data, error } = await supabase
         .from("events")
@@ -404,6 +405,7 @@ export const getEvents = cache(async (): Promise<EventItem[]> => {
       description: e.description || undefined,
       galleryUrls: e.gallery_urls ?? [],
       program: e.program ?? [],
+      registrationFields: e.registration_fields ?? [],
       host: e.host,
       startsAt: e.starts_at,
       endsAt: e.ends_at ?? undefined,

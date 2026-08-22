@@ -332,6 +332,7 @@ create table events (
   description text not null default '',
   gallery_urls text[] not null default '{}',
   program jsonb not null default '[]'::jsonb check (jsonb_typeof(program) = 'array'),
+  registration_fields jsonb not null default '[]'::jsonb check (jsonb_typeof(registration_fields) = 'array'),
   host text not null default '',
   starts_at timestamptz not null,
   ends_at timestamptz,
