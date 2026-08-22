@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { sendRegistrationStatusEmail, type RegistrationEmailStatus } from "@/lib/email/event-registration";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEventOrganizerApplicationEmail } from "@/lib/email/event-organizer";
 
 export type GuestVerificationState = {
   ok?: boolean;
@@ -43,6 +44,8 @@ export async function verifyGuestRegistration(slug: string, token: string, _prev
     slug: result.event_slug,
     status,
   });
+  const { data: verifiedEvent } = await admin.from("events").select("id,is_paid").eq("slug", result.event_slug).maybeSingle();
+  if (verifiedEvent) await sendEventOrganizerApplicationEmail({ eventId: verifiedEvent.id, registrationId: result.registration_id, applicantName: result.applicant_name, applicantEmail: result.applicant_email, status, isPaid: Boolean(verifiedEvent.is_paid) });
   revalidatePath(`/events/${slug}`);
   revalidatePath(`/my/events/${slug}`);
   return { ok: true, status, eventName: result.event_name };

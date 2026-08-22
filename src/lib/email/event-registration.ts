@@ -41,3 +41,15 @@ export function sendRegistrationStatusEmail(input: { registrationId: string; ema
     idempotencyKey: `event-status/${input.registrationId}/${input.status}/${input.version ?? "1"}`,
   });
 }
+
+export function sendEventCohostInviteEmail(input: { email: string; name: string; eventName: string; slug: string }) {
+  const href = `${SITE_URL}/my/events/${encodeURIComponent(input.slug)}`;
+  const body = `<p style="margin:18px 0 0;color:#626970;line-height:1.7"><strong>${escapeHtml(input.name)}</strong>님, <strong>${escapeHtml(input.eventName)}</strong>의 공동 주최자로 추가됐어요.<br>신청자 관리와 행사 설정을 함께 확인할 수 있습니다.</p>`;
+  return sendTransactionalEmail({
+    to: input.email,
+    subject: `[Featable] ${input.eventName} 공동 주최자로 초대됐어요`,
+    html: emailFrame("EVENT CO-HOST", "행사를 함께 만들어보세요.", body, { href, label: "행사 관리 열기" }),
+    text: `${input.name}님, ${input.eventName}의 공동 주최자로 추가됐어요. 행사 관리: ${href}`,
+    idempotencyKey: `event-cohost/${input.slug}/${input.email.toLowerCase()}`,
+  });
+}

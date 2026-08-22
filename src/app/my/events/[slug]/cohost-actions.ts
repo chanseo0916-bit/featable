@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sendEventCohostInviteEmail } from "@/lib/email/event-registration";
 
 async function assertOwner(eventId: string) {
   const supabase = await createClient();
@@ -26,6 +27,7 @@ export async function inviteEventCohost(eventId: string, slug: string, emailInpu
   const { error } = await checked.admin.from("event_cohosts").upsert({ event_id: eventId, user_id: invitee.id, email: invitee.email ?? email, role: "cohost", created_by: checked.user.id }, { onConflict: "event_id,user_id" });
   if (error) return { ok: false, error: "공동 주최자를 추가하지 못했습니다. migration-34 적용 여부를 확인해주세요." };
   await checked.admin.from("notifications").insert({ user_id: invitee.id, actor_id: checked.user.id, type: "system", title: "행사 공동 주최자로 추가됐어요", message: `${invitee.full_name || email}님이 행사 관리에 참여할 수 있습니다.`, href: `/my/events/${slug}`, data: { kind: "event_cohost_invite", event_id: eventId, event_slug: slug } });
+  await sendEventCohostInviteEmail({ email: invitee.email ?? email, name: invitee.full_name || "Featable 멤버", eventName: (await checked.admin.from("events").select("name").eq("id", eventId).maybeSingle()).data?.name ?? "행사", slug });
   revalidatePath(`/my/events/${slug}`);
   return { ok: true };
 }

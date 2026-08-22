@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { sendGuestVerificationEmail, sendRegistrationStatusEmail, type RegistrationEmailStatus } from "@/lib/email/event-registration";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sendEventOrganizerApplicationEmail } from "@/lib/email/event-organizer";
 
 export type EventRegistrationState = {
   ok?: boolean;
@@ -101,6 +102,7 @@ export async function registerForEvent(
       slug: event.slug,
       status: status as RegistrationEmailStatus,
     });
+    await sendEventOrganizerApplicationEmail({ eventId, registrationId: result.registration_id, applicantName: name, applicantEmail: email, status, isPaid: Boolean((await supabase.from("events").select("is_paid").eq("id", eventId).maybeSingle()).data?.is_paid) });
   }
   revalidatePath(`/events/${slug}`);
   revalidatePath("/my/events");
