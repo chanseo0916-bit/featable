@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-type ViewType = "product" | "feature";
+type ViewType = "product" | "feature" | "event";
 type EventKind = "view" | "click";
 
 type ViewRequestBody = {
@@ -31,8 +31,16 @@ export async function POST(request: Request) {
   const type: ViewType = body.type === undefined ? "product" : (body.type as ViewType);
   const event: EventKind = body.event === "click" ? "click" : "view";
 
-  if (!slug || slug.length > 200 || (type !== "product" && type !== "feature")) {
+  if (!slug || slug.length > 200 || (type !== "product" && type !== "feature" && type !== "event")) {
     return NextResponse.json({ error: "invalid slug" }, { status: 400 });
+  }
+
+  if (type === "event") {
+    const { error } = await admin.rpc("increment_event_view_count", { p_slug: slug });
+    if (error) {
+      return NextResponse.json({ error: "event views not ready" }, { status: 503 });
+    }
+    return noContent();
   }
 
   if (type === "feature") {
@@ -58,12 +66,12 @@ export async function GET(request: Request) {
   if (!admin) return NextResponse.json({ counts: {} });
 
   const type = new URL(request.url).searchParams.get("type");
-  if (type !== "feature" && type !== "product") {
+  if (type !== "feature" && type !== "product" && type !== "event") {
     return NextResponse.json({ counts: {} });
   }
 
   const { data: rows } = await admin
-    .from(type === "feature" ? "features" : "products")
+    .from(type === "feature" ? "features" : type === "event" ? "events" : "products")
     .select("slug, view_count")
     .eq("status", "published");
 

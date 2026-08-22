@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** 상세 조회수 적재: 브라우저 세션당 콘텐츠별 한 번 */
-export function ViewTracker({ slug, type = "product" }: { slug: string; type?: "product" | "feature" }) {
+export function ViewTracker({ slug, type = "product" }: { slug: string; type?: "product" | "feature" | "event" }) {
   useEffect(() => {
     const key = `featable:viewed:${type}:${slug}`;
     try {

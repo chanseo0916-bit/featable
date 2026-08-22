@@ -174,6 +174,8 @@ export interface EventItem {
   waitlistEnabled?: boolean;
   registrationClosed?: boolean;
   submittedBy?: string;
+  /** 행사 상세 조회수 */
+  viewCount?: number;
   isFeatured?: boolean;
   communitySlug?: string;
   brandSlug?: string;
