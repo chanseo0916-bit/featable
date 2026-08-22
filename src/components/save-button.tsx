@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LoginModal } from "@/components/login-modal";
 
+/** 한 페이지에 같은 항목의 버튼이 여러 개 있을 때 서로 상태를 맞추기 위한 이벤트 */
+const SAVE_CHANGED = "featable:save-changed";
+
 export type SaveItemType = "product" | "feature" | "event" | "support";
 
 export function SaveButton({
@@ -48,6 +51,20 @@ export function SaveButton({
     return () => { cancelled = true; };
   }, [itemType, slug]);
 
+  // 같은 항목의 버튼이 여러 곳에 있을 수 있어 서로 상태를 맞춘다
+  useEffect(() => {
+    const sync = (event: Event) => {
+      const detail = (event as CustomEvent<{ itemType: string; slug: string; saved: boolean }>).detail;
+      if (detail.itemType === itemType && detail.slug === slug) setSaved(detail.saved);
+    };
+    window.addEventListener(SAVE_CHANGED, sync);
+    return () => window.removeEventListener(SAVE_CHANGED, sync);
+  }, [itemType, slug]);
+
+  function broadcast(next: boolean) {
+    window.dispatchEvent(new CustomEvent(SAVE_CHANGED, { detail: { itemType, slug, saved: next } }));
+  }
+
   async function toggle() {
     if (busy) return;
     const supabase = createClient();
@@ -65,12 +82,12 @@ export function SaveButton({
         .eq("user_id", user.id)
         .eq("item_type", itemType)
         .eq("item_slug", slug);
-      if (!error) setSaved(false);
+      if (!error) { setSaved(false); broadcast(false); }
     } else {
       const { error } = await supabase
         .from("saved_items")
         .insert({ user_id: user.id, item_type: itemType, item_slug: slug });
-      if (!error || error.code === "23505") setSaved(true);
+      if (!error || error.code === "23505") { setSaved(true); broadcast(true); }
     }
     setBusy(false);
   }
