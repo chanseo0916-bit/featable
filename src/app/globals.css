@@ -3205,3 +3205,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 /* 스토리 카드 조회수 */
 .story-card .eyebrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .story-card-views { color: #b0b4b8; font-size: 10px; font-style: normal; font-weight: 650; letter-spacing: 0; }
+
+/* 파운더 페이지 프로덕트 카드 · 프로덕트 상세 지표 */
+.founder-product-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.founder-product-meta em { color: #a8acb1; font-size: 10px; font-style: normal; font-weight: 650; }
+.product-aside-stats { margin: 14px 0 0; display: flex; gap: 14px; color: #9a9ca1; font-size: 11px; font-weight: 650; }
+.product-aside-stats strong { color: #55595e; font-weight: 750; }

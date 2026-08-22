@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer, Header } from "@/components/site-shell";
-import { getCatalog, getPartners } from "@/lib/data";
+import { getCatalog, getLikeCount, getPartners } from "@/lib/data";
 import { ShareButton } from "@/components/share-button";
 import { ProductViewMetric } from "@/components/product-view-metric";
 import { TrackedLink } from "@/components/tracked-link";
 import { Comments } from "@/components/comments";
 import { SaveButton } from "@/components/save-button";
+import { LikeCount } from "@/components/like-count";
 import { ProductStoryRenderer } from "@/components/product-story-renderer";
 import { ProductGallery } from "./product-interactions";
 import { absoluteUrl, breadcrumbJsonLd, createDetailMetadata, entityId, JsonLd, type SeoSchema } from "@/components/seo-json-ld";
@@ -35,6 +36,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   if (!product) notFound();
   const brand = brands.find((item) => item.slug === product.brandSlug);
   const founder = founders.find((item) => item.slug === product.founderSlug);
+  const productLikeCount = await getLikeCount("product", product.slug);
   const productPath = `/products/${product.slug}`;
   const numericPrice = product.price?.replace(/[^0-9]/g, "");
 
@@ -97,6 +99,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           {product.price && <b>{product.price}</b>}
           {officialCta}
           <SaveButton itemType="product" slug={product.slug} />
+          <p className="product-aside-stats"><span>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</span><span>저장 <LikeCount itemType="product" slug={product.slug} initialCount={productLikeCount} /></span></p>
         </aside>
       </section>
 
