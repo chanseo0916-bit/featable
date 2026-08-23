@@ -6,7 +6,7 @@ import { FeatureViewMetric } from "@/components/view-tracker";
 import { SaveButton } from "@/components/save-button";
 import { ShareButton } from "@/components/share-button";
 import { LikeCount } from "@/components/like-count";
-import { getCatalog, getFeature, getLikeCount, getPartners } from "@/lib/data";
+import { getCatalog, getFeature, getFeatures, getLikeCount, getPartners } from "@/lib/data";
 import type { Metadata } from "next";
 import {
   absoluteUrl,
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function StoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [feature, catalog, partners] = await Promise.all([getFeature(slug), getCatalog(), getPartners()]);
+  const [feature, catalog, partners, allFeatures] = await Promise.all([getFeature(slug), getCatalog(), getPartners(), getFeatures()]);
   if (!feature) notFound();
 
   const founder = catalog.founders.find((item) => item.slug === feature.founderSlug);
@@ -54,6 +54,28 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const product = catalog.products.find((item) => item.brandSlug === feature.brandSlug);
   const discoveryCount = feature.viewCount ?? 0;
   const likeCount = await getLikeCount("feature", feature.slug);
+  // 같은 주제를 다룬 창업가 인터뷰를 이어 붙인다. 검색으로 들어온 글에서 사람으로 넘어갈 길을 만든다.
+  const relatedInterview = feature.kind === "interview"
+    ? null
+    : (() => {
+        const keywords = new Set(
+          [feature.primaryKeyword, ...(feature.secondaryKeywords ?? [])]
+            .filter(Boolean)
+            .map((word) => String(word).replace(/s+/g, "")),
+        );
+        if (keywords.size === 0) return null;
+        return allFeatures
+          .filter((item) => item.kind === "interview" && item.slug !== feature.slug)
+          .map((item) => {
+            const theirs = [item.primaryKeyword, ...(item.secondaryKeywords ?? [])]
+              .filter(Boolean)
+              .map((word) => String(word).replace(/s+/g, ""));
+            const hits = theirs.filter((word) => keywords.has(word)).length;
+            return { item, hits };
+          })
+          .filter((entry) => entry.hits > 0)
+          .sort((a, b) => b.hits - a.hits)[0]?.item ?? null;
+      })();
   const storyPath = `/stories/${feature.slug}`;
   const articleBody = feature.body.length > 0
     ? feature.body
@@ -216,6 +238,18 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             {brand && <section className="feature-editorial-section"><span>시작한 이유</span><h3>어떤 문제에서<br />이 브랜드가 시작됐을까?</h3><p>{brand.problem ?? brand.description}</p><blockquote>“{brand.tagline}”</blockquote></section>}
             {founder && <section id="founder" className="feature-founder-quote"><img src={founder.avatarUrl} alt={founder.name} /><div><span>창업가</span><h3>{founder.name}</h3><blockquote>“{founder.headline}”</blockquote><p>{founder.bio}</p></div></section>}
             {product && <section id="product" className="feature-related-product"><p>함께 볼 프로덕트</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
+            {relatedInterview && <section className="feature-related-interview">
+              <p>이 주제를 실제로 해낸 창업가</p>
+              <Link href={`/stories/${relatedInterview.slug}`}>
+                <img src={relatedInterview.coverUrl} alt="" />
+                <div>
+                  <span>창업가 인터뷰</span>
+                  <h3>{relatedInterview.hookLabel ?? relatedInterview.title}</h3>
+                  <small>{relatedInterview.title}</small>
+                  <strong>인터뷰 읽어보기 →</strong>
+                </div>
+              </Link>
+            </section>}
           </article>
 
           <aside className="feature-article-aside"><div><p>발행</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>창업가 {founder?.name ?? ""}</span></div><div><p>조회수</p><strong>{discoveryCount.toLocaleString()}</strong><span>회</span></div><div><p>하트</p><LikeCount itemType="feature" slug={feature.slug} initialCount={likeCount} /><span>좋아요</span></div><div className="feature-aside-actions"><SaveButton itemType="feature" slug={feature.slug} labelMode="like" /><ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} /></div></aside>
