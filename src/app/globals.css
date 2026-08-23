@@ -192,7 +192,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .story-card-copy h3 { margin: 0; font-size: 18px; letter-spacing: -.03em; line-height: 1.35; }
 .event-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .event-card { position: relative; padding-bottom: 18px; }
-.event-card.is-featured { box-shadow: 0 6px 24px rgb(239 65 37 / 10%); }
+.event-card.is-featured { box-shadow: none; }
 .event-featured-label { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 6px 10px; border-radius: 999px; background: #111111cc; color: #fff; font-size: 12px; font-weight: 650; letter-spacing: -.02em; backdrop-filter: blur(4px); }
 .event-card .image-card img { aspect-ratio: 1.45; }
 .event-card .card-body { padding-left: 18px; padding-right: 18px; }
@@ -2270,9 +2270,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 
 /* 파트너 페이지 */
 .partner-org-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
-.partner-org-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-radius: 16px; background: #fff; transition: transform .2s ease, border-color .2s ease, box-shadow .25s ease; }
-.partner-org-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 16px 34px -18px rgba(17, 17, 17, .14); }
-.partner-org-logo { aspect-ratio: 21 / 9; overflow: hidden; border-bottom: 1px solid var(--border); background: #f7f8f8; }
+.partner-org-card { display: flex; flex-direction: column; overflow: hidden; border: 0; border-radius: 14px; background: #fff; transition: box-shadow .2s ease; }
+.partner-org-card:hover { box-shadow: 0 6px 20px rgba(17, 17, 17, .07); }
+.partner-org-logo { aspect-ratio: 21 / 9; overflow: hidden; background: #f7f8f8; }
 .partner-org-logo img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
 
 .partner-org-body { flex: 1; display: flex; flex-direction: column; gap: 11px; padding: 22px 24px 24px; }
@@ -2723,13 +2723,13 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .partner-tier-heading strong { font-size: 17px; letter-spacing: -.03em; }
 .partner-tier-heading span { color: var(--muted); font-size: 12px; }
 .partner-org-card { position: relative; }
-.partner-org-card.is-featured { border: 1.5px solid color-mix(in srgb, var(--accent) 55%, var(--border)); background: linear-gradient(180deg, var(--accent-soft) 0%, #fff 55%); box-shadow: 0 14px 34px -20px color-mix(in srgb, var(--accent) 45%, transparent); }
+.partner-org-card.is-featured { background: #fff; box-shadow: none; }
 .partner-featured-badge { position: absolute; top: 12px; right: 12px; padding: 6px 10px; border-radius: 999px; background: #111111cc; color: #fff; font-size: 12px; font-weight: 650; letter-spacing: -.02em; backdrop-filter: blur(4px); }
 
 /* 팀원 대시보드의 팀 카드 편집 링크 (초대 버튼 자리) */
 .team-profile-brand header .team-hub-edit-link { margin-left: auto; align-self: center; padding: 10px 16px; border-radius: 9px; border: 1px solid var(--border); font-size: 12px; font-weight: 750; transition: border-color .2s, color .2s; }
 .team-profile-brand header .team-hub-edit-link:hover { border-color: var(--accent); color: var(--accent); }
-.event-registration-badge { width: fit-content; margin: 12px 0 6px; padding: 5px 8px; border-radius: 99px; background: #f1f2f3; color: #6e7479; font-size: 12px; font-weight: 800; }
+.event-registration-badge { display: none; }
 .event-registration-badge[data-mode="internal"] { background: var(--accent-soft); color: var(--accent); }
 .event-registration-panel { margin: 32px 0 72px; padding: 30px; border: 1px solid #dfe2e5; border-radius: 18px; background: #fff; box-shadow: 0 18px 50px rgb(22 25 28 / 5%); }
 .event-registration-panel > span { color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: -.01em; }
