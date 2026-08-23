@@ -20,7 +20,7 @@ export default async function PartnersPage() {
       <main className="shell listing-page">
         <div className="listing-heading">
           <div>
-            <p className="eyebrow">PARTNERS</p>
+            
             <h1>파트너</h1>
             <p>Founder에게 닿고 싶은 광고주와 새로운 연결을 만드는 공식 커뮤니티 파트너입니다.</p>
           </div>
@@ -42,13 +42,13 @@ export default async function PartnersPage() {
             <>
               {featuredPartners.length > 0 && (
                 <>
-                  <div className="partner-tier-heading"><strong>Featured Partners</strong><span>피터블과 긴밀하게 함께하는 파트너</span></div>
+                  <div className="partner-tier-heading"><strong>주요 파트너</strong><span>피터블과 긴밀하게 함께하는 파트너</span></div>
                   <div className="partner-org-grid partner-featured-grid">{featuredPartners.map(renderCard)}</div>
                 </>
               )}
               {basicPartners.length > 0 && (
                 <>
-                  {featuredPartners.length > 0 && <div className="partner-tier-heading"><strong>Partners</strong><span>함께하는 생태계 파트너</span></div>}
+                  {featuredPartners.length > 0 && <div className="partner-tier-heading"><strong>모든 파트너</strong><span>함께하는 생태계 파트너</span></div>}
                   <div className="partner-org-grid">{basicPartners.map(renderCard)}</div>
                 </>
               )}

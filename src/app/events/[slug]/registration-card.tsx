@@ -52,26 +52,26 @@ export function EventRegistrationCard({
   const [state, action, pending] = useActionState(boundAction, {});
   const currentStatus = state.status ?? registration?.status;
 
-  if (mode === "closed" || closed || (mode === "internal" && !eventId)) return <aside className="event-registration-panel closed"><span>REGISTRATION CLOSED</span><h2>신청이 마감됐어요.</h2><p>다른 행사를 둘러보고 새로운 만남을 찾아보세요.</p><Link className="button secondary" href="/events">다른 행사 보기</Link></aside>;
+  if (mode === "closed" || closed || (mode === "internal" && !eventId)) return <aside className="event-registration-panel closed"><span>신청 마감</span><h2>신청이 마감됐어요.</h2><p>다른 행사를 둘러보고 새로운 만남을 찾아보세요.</p><Link className="button secondary" href="/events">다른 행사 보기</Link></aside>;
 
   if (mode === "external") return <aside className="event-registration-panel external">
-    <span>EXTERNAL REGISTRATION</span><h2>외부 사이트에서 신청해요.</h2><p>신청 내역과 변경 사항은 연결되는 행사 사이트에서 관리됩니다.</p>
+    <span>외부 신청</span><h2>외부 사이트에서 신청해요.</h2><p>신청 내역과 변경 사항은 연결되는 행사 사이트에서 관리됩니다.</p>
     {applyUrl ? <a className="button" href={applyUrl} target="_blank" rel="noopener noreferrer">외부 사이트에서 신청 <span aria-hidden="true">↗</span><span className="sr-only">새 창 열림</span></a> : <button className="button" disabled>신청 링크 준비 중</button>}
   </aside>;
 
   if (currentStatus === "verification_pending") {
     const copy = STATUS_COPY.verification_pending;
-    return <aside className="event-registration-panel status" data-status="verification_pending"><span>CHECK YOUR EMAIL</span><h2>{copy.label}</h2><p>{copy.description}<br />메일이 보이지 않으면 스팸함도 확인해주세요.</p></aside>;
+    return <aside className="event-registration-panel status" data-status="verification_pending"><span>메일 확인</span><h2>{copy.label}</h2><p>{copy.description}<br />메일이 보이지 않으면 스팸함도 확인해주세요.</p></aside>;
   }
 
   if (currentStatus && currentStatus !== "cancelled" && currentStatus !== "rejected") {
     const copy = STATUS_COPY[currentStatus];
-    return <aside className="event-registration-panel status" data-status={currentStatus}><span>MY REGISTRATION</span><h2>{copy.label}</h2><p>{copy.description}</p><Link className="text-link" href="/my/events">내 신청 내역 보기 →</Link><form action={cancelEventRegistration.bind(null, eventId ?? "", slug)}><button className="event-cancel-button" type="submit">신청 취소</button></form></aside>;
+    return <aside className="event-registration-panel status" data-status={currentStatus}><span>내 신청</span><h2>{copy.label}</h2><p>{copy.description}</p><Link className="text-link" href="/my/events">내 신청 내역 보기 →</Link><form action={cancelEventRegistration.bind(null, eventId ?? "", slug)}><button className="event-cancel-button" type="submit">신청 취소</button></form></aside>;
   }
 
-  if (!formOnly) return <aside className="event-registration-panel event-registration-cta"><span>FEATABLE REGISTRATION</span><h2>이 행사에 참여해보세요.</h2><p>{capacity ? `정원 ${capacity.toLocaleString("ko-KR")}명 · ` : ""}{isPaid ? "입금 확인 후 주최자 승인" : approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</p><Link className="button" href={`/events/${slug}/apply`}>신청서 작성하기 →</Link></aside>;
+  if (!formOnly) return <aside className="event-registration-panel event-registration-cta"><span>Featable 신청</span><h2>이 행사에 참여해보세요.</h2><p>{capacity ? `정원 ${capacity.toLocaleString("ko-KR")}명 · ` : ""}{isPaid ? "입금 확인 후 주최자 승인" : approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</p><Link className="button" href={`/events/${slug}/apply`}>신청서 작성하기 →</Link></aside>;
 
-  return <aside className="event-registration-panel"><span>FEATABLE REGISTRATION</span><h2>{currentStatus ? "다시 신청할까요?" : "이 행사에 참여할까요?"}</h2><p>{capacity ? `정원 ${capacity.toLocaleString("ko-KR")}명 · ` : ""}{isPaid ? "입금 확인 후 주최자 승인" : approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</p>{isPaid && <div className="event-payment-notice"><strong>입금 안내</strong><b>{paymentAccount || "주최자에게 계좌번호를 확인해주세요."}</b><span>{paymentNotice || "입금 확인 후 주최자가 신청을 승인합니다."}</span></div>}<form action={action}>
+  return <aside className="event-registration-panel"><span>Featable 신청</span><h2>{currentStatus ? "다시 신청할까요?" : "이 행사에 참여할까요?"}</h2><p>{capacity ? `정원 ${capacity.toLocaleString("ko-KR")}명 · ` : ""}{isPaid ? "입금 확인 후 주최자 승인" : approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</p>{isPaid && <div className="event-payment-notice"><strong>입금 안내</strong><b>{paymentAccount || "주최자에게 계좌번호를 확인해주세요."}</b><span>{paymentNotice || "입금 확인 후 주최자가 신청을 승인합니다."}</span></div>}<form action={action}>
     <label><span>이름</span><input name="name" defaultValue={user?.name ?? ""} minLength={2} maxLength={60} required /></label>
     <label><span>이메일</span><input name="email" type="email" defaultValue={user?.email ?? ""} maxLength={254} required /></label>
     {registrationFields.map((field) => <label key={field.id}><span>{field.label} {field.required && <b>*</b>}</span>{field.type === "textarea" ? <textarea name={`custom_${field.id}`} placeholder={field.placeholder} maxLength={180} required={field.required} /> : field.type === "select" ? <select name={`custom_${field.id}`} defaultValue="" required={field.required}><option value="">선택해주세요</option>{(field.options ?? []).map((option) => <option value={option} key={option}>{option}</option>)}</select> : <input name={`custom_${field.id}`} placeholder={field.placeholder} maxLength={120} required={field.required} />}</label>)}

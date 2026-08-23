@@ -107,7 +107,7 @@ export function MentorNotes({ productSlug }: { productSlug: string }) {
           mentor_user_id: user.id,
           product_id: productId,
           mentor_name: mentorName.trim() || "멘토",
-          mentor_field: field.trim() || "Mentor",
+          mentor_field: field.trim() || "멘토",
           comment: comment.trim(),
         })
         .select("id, mentor_name, mentor_field, comment, created_at")
@@ -132,7 +132,7 @@ export function MentorNotes({ productSlug }: { productSlug: string }) {
   return (
     <section id="mentor" className="mx-auto max-w-2xl px-6 py-14">
       <p className="mb-1 text-[11px] font-extrabold tracking-[0.13em] text-accent">
-        MENTOR&apos;S NOTE
+        멘토 노트
       </p>
       <h2 className="mb-1 text-xl font-bold tracking-tight">
         {mode === "mentor" ? "이 파운더에게 노트 남기기" : "받은 멘토 노트"}
@@ -172,7 +172,7 @@ export function MentorNotes({ productSlug }: { productSlug: string }) {
               <p className="text-xs font-bold">
                 {note.mentor_name}
                 <span className="ml-2 font-medium text-muted">
-                  {note.mentor_field} · FEATABLE MENTOR ·{" "}
+                  {note.mentor_field} · Featable 멘토 ·{" "}
                   {new Date(note.created_at).toLocaleDateString("ko-KR")}
                 </span>
               </p>

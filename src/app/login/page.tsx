@@ -25,14 +25,14 @@ export default function LoginPage() {
           <div className="absolute -bottom-32 -left-20 size-80 rounded-full border-[70px] border-white/[0.04]" />
           <Link href="/" className="relative z-10 w-fit" aria-label="Featable 홈"><Image src="/featable-logo.png" alt="FEATABLE" width={150} height={30} priority className="h-auto w-[150px] brightness-0 invert" /></Link>
           <div className="relative z-10 my-16">
-            <p className="mb-4 text-xs font-extrabold tracking-[0.2em] text-[#ff765f]">BUILD · SHARE · GET DISCOVERED</p>
+            <p className="mb-4 text-xs font-extrabold tracking-[0.2em] text-[#ff765f]">지금 만드는 것을 알려주세요</p>
             <h2 className="max-w-md text-[46px] font-black leading-[1.08] tracking-[-0.06em]">만들고 있는 것을<br />세상에 보여주세요.</h2>
             <p className="mt-5 max-w-sm text-sm leading-6 text-white/55">계정 하나로 Founder 프로필부터 브랜드, 제품, 스토리까지 직접 관리할 수 있습니다.</p>
             <div className="mt-10 space-y-1">
               {benefits.map(([number, title, copy]) => <div key={number} className="grid grid-cols-[34px_1fr] gap-3 border-t border-white/10 py-4"><span className="text-xs font-black text-[#ff765f]">{number}</span><div><strong className="text-sm">{title}</strong><p className="mt-1 text-xs leading-5 text-white/45">{copy}</p></div></div>)}
             </div>
           </div>
-          <p className="relative z-10 text-xs text-white/30">FEATABLE · FOUNDERS FIRST</p>
+          <p className="relative z-10 text-xs text-white/30">FEATABLE</p>
         </aside>
 
         <section className="flex items-center justify-center px-5 py-10 sm:px-10 lg:px-14">

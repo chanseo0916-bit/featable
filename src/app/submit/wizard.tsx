@@ -307,7 +307,7 @@ export function SubmitWizard({
     return (
       <div className="mx-auto max-w-lg py-20 text-center">
         <p className="mb-3 text-[11px] font-extrabold tracking-[0.13em] text-accent">
-          {edit ? "UPDATED" : "PUBLISHED"}
+          {edit ? "수정 완료" : "발행 완료"}
         </p>
         <h1 className="mb-4 text-3xl font-bold tracking-tight">
           {edit
@@ -376,7 +376,7 @@ export function SubmitWizard({
         ))}
       </div>
 
-      <div className="submit-form-title"><span>STEP {String(step + 1).padStart(2, "0")}</span><h1>{STEPS[step]}</h1></div>
+      <div className="submit-form-title"><span>단계 {String(step + 1).padStart(2, "0")}</span><h1>{STEPS[step]}</h1></div>
 
       {/* STEP 1 기본정보 */}
       {step === 0 && (
@@ -513,7 +513,7 @@ export function SubmitWizard({
                     <label>큰 제목<input className={input} value={block.heading ?? ""} placeholder="예: 좋은 아이디어는 왜 사라질까요?" onChange={(event) => updateStory(index, { ...block, heading: event.target.value })} /></label>
                     <label>본문<textarea className={`${input} min-h-32`} value={block.body} placeholder="이 장면에서 전달할 이야기를 입력하세요." onChange={(event) => updateStory(index, { ...block, body: event.target.value })} /></label>
                   </div> : block.type === "image" ? <div className="story-image-fields">
-                    <div className="story-image-preview">{block.src ? <img src={block.src} alt="상세 이미지 미리보기" /> : <div><span>IMAGE</span><p>세로 이미지 권장<br />4:5 또는 3:4</p></div>}</div>
+                    <div className="story-image-preview">{block.src ? <img src={block.src} alt="상세 이미지 미리보기" /> : <div><span>이미지</span><p>세로 이미지 권장<br />4:5 또는 3:4</p></div>}</div>
                     <div>
                       <div className="story-tone-toggle"><button type="button" className={block.frame !== "phone" ? "active" : ""} onClick={() => updateStory(index, { ...block, frame: "none" })}>일반 이미지</button><button type="button" className={block.frame === "phone" ? "active" : ""} onClick={() => updateStory(index, { ...block, frame: "phone" })}>폰 프레임</button></div>
                       <label className="story-upload-button">{storyUploading === index ? "업로드 중…" : block.src ? "이미지 교체" : "이미지 업로드"}<input type="file" accept="image/*" disabled={storyUploading !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) uploadStoryImage(index, file); }} /></label>
@@ -633,12 +633,12 @@ export function SubmitWizard({
       </section>
 
       <aside className="submit-help-aside">
-        <div className="submit-live-preview-head"><span>LIVE PREVIEW</span><strong>브랜드 카드</strong><p>입력 내용이 공개 화면에 어떻게 보이는지 확인하세요.</p></div>
+        <div className="submit-live-preview-head"><span>미리보기</span><strong>브랜드 카드</strong><p>입력 내용이 공개 화면에 어떻게 보이는지 확인하세요.</p></div>
         <div className="submit-live-preview">
           <div className="submit-preview-cover">{draft.coverUrl || draft.heroUrl ? <img src={draft.coverUrl || draft.heroUrl} alt="" /> : <span>커버 이미지</span>}<i>{draft.category}</i></div>
-          <div className="submit-preview-body"><div>{draft.logoUrl ? <img src={draft.logoUrl} alt="" /> : <span>{draft.brandName.slice(0, 1) || "F"}</span>}<small>BRAND</small></div><h3>{draft.brandName || "브랜드 이름"}</h3><p>{draft.tagline || "한 줄 소개가 여기에 표시됩니다."}</p><footer><span>{draft.founderName || "Founder"}</span><b>프로필 보기 →</b></footer></div>
+          <div className="submit-preview-body"><div>{draft.logoUrl ? <img src={draft.logoUrl} alt="" /> : <span>{draft.brandName.slice(0, 1) || "F"}</span>}<small>브랜드</small></div><h3>{draft.brandName || "브랜드 이름"}</h3><p>{draft.tagline || "한 줄 소개가 여기에 표시됩니다."}</p><footer><span>{draft.founderName || "창업가"}</span><b>프로필 보기 →</b></footer></div>
         </div>
-        <div className="submit-preview-product"><span>PRODUCT</span><strong>{draft.productName || "프로덕트 이름"}</strong><p>{draft.productTagline || "제품 소개를 입력해주세요."}</p></div>
+        <div className="submit-preview-product"><span>프로덕트</span><strong>{draft.productName || "프로덕트 이름"}</strong><p>{draft.productTagline || "제품 소개를 입력해주세요."}</p></div>
       </aside>
       </div>
     </div>

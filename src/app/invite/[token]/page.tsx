@@ -32,7 +32,7 @@ export default async function InvitePage({ params, searchParams }: { params: Pro
   return <main className="invite-page">
     <section>
       <StudioBrand />
-      <p>TEAM INVITATION</p>
+      <p>팀 초대</p>
       <h1><strong>{brand.name}</strong> 팀에서<br />함께하길 기다리고 있어요.</h1>
       <span>{invitation.email} 계정으로 초대되었습니다.</span>
       {queryError && <div className="invite-error">초대를 수락하지 못했어요. 초대 이메일과 로그인 계정이 같은지 확인해주세요.</div>}

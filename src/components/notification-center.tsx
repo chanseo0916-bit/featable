@@ -63,7 +63,7 @@ export function NotificationCenter() {
       <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg>{unread > 0 && <b>{unread > 9 ? "9+" : unread}</b>}
     </button>
     {open && <><button type="button" className="notification-backdrop" aria-label="알림 닫기" onClick={() => setOpen(false)} /><section className="notification-panel">
-      <header><div><span>NOTIFICATIONS</span><strong>알림</strong></div><button type="button" onClick={() => setOpen(false)}>닫기</button></header>
+      <header><div><strong>알림</strong></div><button type="button" onClick={() => setOpen(false)}>닫기</button></header>
       {error && <p className="notification-error">{error}</p>}
       {items.length ? <div className="notification-list">{items.map((item) => <article key={item.id} className={!item.readAt ? "unread" : ""}>
         <i>{item.type === "team_invite" ? "T" : "F"}</i>

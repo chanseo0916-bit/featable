@@ -17,7 +17,6 @@ export default async function TermsPage() {
       <main className="shell legal-page">
         <div className="listing-heading">
           <div>
-            <p className="eyebrow">TERMS OF SERVICE</p>
             <h1>이용약관</h1>
             <p>시행일: 2026년 8월 20일</p>
           </div>

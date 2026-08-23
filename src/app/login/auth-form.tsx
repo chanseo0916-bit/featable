@@ -56,7 +56,7 @@ export function AuthForm() {
       </div>
 
       <div className="mb-6">
-        <p className="text-xs font-extrabold tracking-[0.14em] text-accent">{mode === "login" ? "WELCOME BACK" : "JOIN FEATABLE"}</p>
+        <p className="text-xs font-extrabold tracking-[0.14em] text-accent">{mode === "login" ? "로그인" : "회원가입"}</p>
         <h1 className="mt-2 text-[28px] font-black tracking-[-0.045em]">{mode === "login" ? "다시 만나서 반가워요" : "어떤 사람인지 알려주세요"}</h1>
         <p className="mt-2 text-sm leading-6 text-muted">{mode === "login" ? "계속해서 새로운 제품과 Founder를 만나보세요." : "가입에 필요한 최소 정보만 받아요. 브랜드 정보는 나중에 등록할 수 있습니다."}</p>
       </div>

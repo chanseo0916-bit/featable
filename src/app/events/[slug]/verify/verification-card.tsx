@@ -19,7 +19,7 @@ export function GuestVerificationCard({ slug, token }: { slug: string; token: st
   const copy = result.status ? STATUS_COPY[result.status] : null;
 
   if (result.ok && copy) return <section className="event-verification-card status" data-status={result.status}>
-    <span>REGISTRATION COMPLETE</span><h1>{copy[0]}</h1><p><strong>{result.eventName}</strong><br />{copy[1]}</p>
+    <span>신청 완료</span><h1>{copy[0]}</h1><p><strong>{result.eventName}</strong><br />{copy[1]}</p>
     <div><Link className="button" href={`/events/${slug}`}>행사 상세 보기</Link>{result.status !== "cancelled" && <form action={cancelAction}><button className="event-cancel-button" type="submit" disabled={cancelling}>{cancelling ? "취소 중…" : "신청 취소"}</button></form>}</div>
     {cancelState.error && <p className="event-registration-error" role="alert">{cancelState.error}</p>}
     {result.status !== "cancelled" && <aside className="event-verify-account-cta">
@@ -30,7 +30,7 @@ export function GuestVerificationCard({ slug, token }: { slug: string; token: st
   </section>;
 
   return <section className="event-verification-card">
-    <span>EMAIL VERIFICATION</span><h1>행사 신청을 완료할까요?</h1><p>아래 버튼을 누르는 시점에 정원과 신청 상태가 확정됩니다.</p>
+    <span>이메일 확인</span><h1>행사 신청을 완료할까요?</h1><p>아래 버튼을 누르는 시점에 정원과 신청 상태가 확정됩니다.</p>
     <form action={verifyAction}><button className="button" type="submit" disabled={verifying}>{verifying ? "확인 중…" : "이메일 확인하고 신청 완료"}</button></form>
     {state.error && <p className="event-registration-error" role="alert">{state.error}</p>}
   </section>;

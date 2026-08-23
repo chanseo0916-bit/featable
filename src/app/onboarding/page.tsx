@@ -37,14 +37,14 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         <aside className="flex flex-col justify-between bg-[#111] p-8 text-white sm:p-11">
           <Image src="/featable-logo.png" alt="FEATABLE" width={142} height={28} className="h-auto w-36 brightness-0 invert" priority />
           <div className="my-16">
-            <p className="mb-4 text-xs font-extrabold tracking-[0.18em] text-[#ff765f]">ONE LAST STEP</p>
+            <p className="mb-4 text-xs font-extrabold tracking-[0.18em] text-[#ff765f]">마지막 단계</p>
             <h1 className="text-4xl font-black leading-[1.15] tracking-[-0.055em]">발견될 준비를<br />마쳐볼까요?</h1>
             <p className="mt-5 max-w-xs text-sm leading-6 text-white/60">딱 필요한 정보만 알려주세요. 브랜드와 Founder 프로필은 나중에 천천히 완성할 수 있어요.</p>
           </div>
-          <span className="text-xs text-white/35">FEATABLE · FOUNDERS FIRST</span>
+          <span className="text-xs text-white/35">FEATABLE</span>
         </aside>
         <section className="p-7 sm:p-11 lg:p-14">
-          <p className="text-xs font-extrabold tracking-[0.16em] text-accent">WELCOME</p>
+          <p className="text-xs font-extrabold tracking-[0.16em] text-accent">환영합니다</p>
           <h2 className="mt-3 text-3xl font-black tracking-[-0.045em]">가입 정보를 확인해주세요</h2>
           <p className="mb-8 mt-3 text-sm text-muted">이 설정은 맞춤 콘텐츠와 워크스페이스 구성에 사용됩니다.</p>
           <OnboardingForm defaultName={profile?.full_name ?? metadataName} next={next} />

@@ -20,14 +20,14 @@ const fallbackSlides: HomeOpportunitySlide[] = [
     type: "지원사업",
     title: "창업에 필요한 다음 기회를 찾아보세요",
     detail: "정부지원사업과 성장 기회를 한곳에서 확인하세요.",
-    badge: "OPEN",
+    badge: "모집 중",
   },
   {
     href: "/events",
     type: "행사",
     title: "만드는 사람들의 다음 만남",
     detail: "창업가와 빌더를 위한 행사 소식을 준비하고 있어요.",
-    badge: "COMING SOON",
+    badge: "준비 중",
   },
 ];
 

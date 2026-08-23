@@ -47,7 +47,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
         <div className="detail-kicker"><Badge tone="orange">{job.type}</Badge><span>{job.location}</span></div>
         <h1>{job.title}</h1>
         <p className="detail-lede">{brand?.name}에서 {job.role}로 합류할 동료를 찾고 있습니다.</p>
-        <div className="job-detail-card"><p className="eyebrow">ROLE</p><h2>{job.role}</h2><p className="eyebrow">LOCATION</p><h2>{job.location}</h2></div>
+        <div className="job-detail-card"><p className="eyebrow">역할</p><h2>{job.role}</h2><p className="eyebrow">근무지</p><h2>{job.location}</h2></div>
         {job.applyUrl && <a className="button" href={job.applyUrl}>지원하기 ↗</a>}
       </main>
       <Footer partners={partners} />

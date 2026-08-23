@@ -86,7 +86,6 @@ export default async function SupportPage({
       <main className="shell listing-page">
         <div className="listing-heading">
           <div>
-            <p className="eyebrow">STARTUP SUPPORT</p>
             <h1>지원사업</h1>
             <p>내 브랜드에 맞는 창업 지원 정보를 찾아보세요.</p>
           </div>

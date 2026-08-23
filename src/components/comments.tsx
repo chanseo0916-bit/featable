@@ -142,7 +142,7 @@ export function Comments({
 
   return (
     <section className="mx-auto max-w-2xl px-6 py-14" id="comments">
-      <p className="mb-1 text-[11px] font-extrabold tracking-[0.13em] text-accent">COMMENTS</p>
+      <p className="mb-1 text-[12px] font-semibold tracking-tight text-accent">댓글</p>
       <h2 className="mb-6 text-xl font-bold tracking-tight">
         댓글 <span className="text-sm font-normal text-muted">{rows.length}</span>
       </h2>

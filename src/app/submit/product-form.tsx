@@ -191,7 +191,7 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
           <div className="product-add-blocks"><button onClick={() => addBlock("image")}>＋ 이미지</button><button onClick={() => addBlock("text")}>＋ 텍스트</button><button onClick={() => addBlock("features")}>＋ 기능 목록</button></div>
         </div>
         <aside className="product-live-preview">
-          <header><span>LIVE PREVIEW</span><small>모바일 상세페이지</small></header>
+          <header><span>미리보기</span><small>모바일 상세페이지</small></header>
           <div className="product-preview-device">
             <ProductStoryRenderer compact brandName={brands.find((brand) => brand.id === form.brandId)?.name} name={form.name} tagline={form.tagline} heroUrl={form.heroUrl} story={form.story} />
           </div>

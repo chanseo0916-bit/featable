@@ -67,7 +67,7 @@ export default async function CommunityDetailPage({ params }: { params: Promise<
       <Header />
       <main className="shell detail-page community-detail">
         <div className="community-identity"><img className="community-logo large" src={community.logoUrl} alt="" /><div><Badge tone="orange">{community.field}</Badge><h1>{community.name}</h1><p>{community.intro}</p>{community.website && <a className="community-join-link" href={community.website} target="_blank" rel="noreferrer">커뮤니티 참여하기 ↗</a>}</div></div>
-        <div className="community-about"><p className="eyebrow">ABOUT COMMUNITY</p><p>{community.intro}. 함께하는 창업가와 브랜드의 이야기를 Featable에서 만나보세요.</p></div>
+        <div className="community-about"><p>{community.intro}. 함께하는 창업가와 브랜드의 이야기를 Featable에서 만나보세요.</p></div>
         <section><h2>함께하는 창업가</h2><div className="people-list">{people.map((founder) => founder && <div className="founder-callout" key={founder.slug}><span className="avatar"><img src={founder.avatarUrl} alt="" /></span><div><h3>{founder.name}</h3><p>{founder.headline}</p></div></div>)}</div></section>
       </main>
       <Footer partners={partners} />

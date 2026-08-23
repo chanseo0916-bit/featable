@@ -115,7 +115,7 @@ export default async function Home() {
         <section className="shell live-stage">
           <div className="live-main">
             {freshProducts.length > 0 ? <div className="fresh-products-panel">
-              <FreshProductRail header={<SectionHeader eyebrow="JUST IN" title="새로 등록된 프로덕트" href={null} />} showControls={freshProducts.length > 2}>
+              <FreshProductRail header={<SectionHeader title="새로 등록된 프로덕트" href={null} />} showControls={freshProducts.length > 2}>
                 {freshProducts.slice(0, 10).map((product, index) => {
                   const brand = brands.find((item) => item.slug === product.brandSlug);
                   const founder = founders.find((item) => item.slug === product.founderSlug);
@@ -130,7 +130,7 @@ export default async function Home() {
 
         <section className="shell section weekly-builders-section">
           <div className="weekly-builders-heading">
-            <div><p className="eyebrow">BUILDERS OF THE WEEK</p><h2>이번 주 주목할 빌더</h2></div>
+            <div><h2>이번 주 주목할 빌더</h2></div>
             <p>새로운 것을 공개하고 사람들의 관심을 받은 Founder를 소개합니다.</p>
           </div>
           <div className="founder-spotlight-grid">

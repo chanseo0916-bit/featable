@@ -83,7 +83,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
       <div className="shell company-layout">
         <div className="company-main">
           <section id="products" className="company-products">
-            <header><div><span>PRODUCTS</span><h2>{brand.name}의 프로덕트</h2></div><small>{brandProducts.length}개</small></header>
+            <header><div><span>프로덕트</span><h2>{brand.name}의 프로덕트</h2></div><small>{brandProducts.length}개</small></header>
             {brandProducts.length > 0 ? <div className="company-product-grid">{brandProducts.map((product) => <Link href={`/products/${product.slug}`} key={product.slug}>
               <div className="company-product-image">{product.heroUrl ? <img src={product.heroUrl} alt={product.name} /> : <span>이미지 준비 중</span>}<i>{product.category}</i></div>
               <div className="company-product-copy"><span>{brand.name}</span><h3>{product.name}</h3><p>{product.tagline}</p><footer>{product.price ? <strong>{product.price}</strong> : <strong>자세히 보기</strong>}<b>→</b></footer></div>
@@ -91,23 +91,23 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ sl
           </section>
 
           <section id="about" className="company-about-v2">
-            <header><span>ABOUT</span><h2>{brand.name} 기업 소개</h2></header>
+            <header><span>소개</span><h2>{brand.name} 기업 소개</h2></header>
             <SemanticDescription text={brand.description || brand.tagline} />
             {(brand.problem || brand.audience) && <dl>{brand.problem && <div><dt>해결하는 문제</dt><dd>{brand.problem}</dd></div>}{brand.audience && <div><dt>주요 고객</dt><dd>{brand.audience}</dd></div>}</dl>}
           </section>
 
           {(founder || publicTeam.length > 0) && <section id="team" className="company-team-section">
-            <header><span>TEAM</span><h2>{brand.name}을 만드는 사람들</h2><p>아이디어를 실제 프로덕트로 함께 만들어가는 팀입니다.</p></header>
+            <header><span>팀</span><h2>{brand.name}을 만드는 사람들</h2><p>아이디어를 실제 프로덕트로 함께 만들어가는 팀입니다.</p></header>
             <div className="company-team-grid">
-              {founder && <TeamProfileCard name={founder.name} title={founder.role || "Founder"} headline={founder.headline} avatarUrl={founder.avatarUrl} bio={founder.bio} label="FOUNDER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founderNumber} />}
-              {publicTeam.map((member) => <TeamProfileCard key={member.member_key} name={member.display_name} title={member.title} avatarUrl={member.avatar_url} bio={member.bio} label="TEAM" meta={brand.name} />)}
+              {founder && <TeamProfileCard name={founder.name} title={founder.role || "창업가"} headline={founder.headline} avatarUrl={founder.avatarUrl} bio={founder.bio} label="파운더" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founderNumber} />}
+              {publicTeam.map((member) => <TeamProfileCard key={member.member_key} name={member.display_name} title={member.title} avatarUrl={member.avatar_url} bio={member.bio} label="팀" meta={brand.name} />)}
             </div>
           </section>}
         </div>
 
         <aside className="company-sidebar">
-          <section><span>COMPANY INFO</span><dl><div><dt>기업명</dt><dd>{brand.name}</dd></div><div><dt>분야</dt><dd>{brand.category}</dd></div>{brand.foundedAt && <div><dt>설립</dt><dd>{brand.foundedAt}</dd></div>}<div><dt>프로덕트</dt><dd>{brandProducts.length}개</dd></div></dl>{brand.website && <a href={brand.website} target="_blank" rel="noreferrer">공식 웹사이트 ↗</a>}</section>
-          {(founder || publicTeam.length > 0) && <a className="company-team-summary" href="#team"><span>OUR TEAM</span><strong>{publicTeam.length + (founder ? 1 : 0)}명이 함께 만들고 있어요</strong><p>브랜드 뒤에 있는 사람들을 만나보세요.</p><b>팀 프로필 보기 ↓</b></a>}
+          <section><span>기업 정보</span><dl><div><dt>기업명</dt><dd>{brand.name}</dd></div><div><dt>분야</dt><dd>{brand.category}</dd></div>{brand.foundedAt && <div><dt>설립</dt><dd>{brand.foundedAt}</dd></div>}<div><dt>프로덕트</dt><dd>{brandProducts.length}개</dd></div></dl>{brand.website && <a href={brand.website} target="_blank" rel="noreferrer">공식 웹사이트 ↗</a>}</section>
+          {(founder || publicTeam.length > 0) && <a className="company-team-summary" href="#team"><span>우리 팀</span><strong>{publicTeam.length + (founder ? 1 : 0)}명이 함께 만들고 있어요</strong><p>브랜드 뒤에 있는 사람들을 만나보세요.</p><b>팀 프로필 보기 ↓</b></a>}
         </aside>
       </div>
     </main>

@@ -19,12 +19,12 @@ import {
 import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
 
 const kindLabel = {
-  interview: "FOUNDER INTERVIEW",
-  "brand-story": "BRAND STORY",
-  "product-feature": "PRODUCT FEATURE",
-  launch: "LAUNCH STORY",
-  update: "UPDATE",
-  "case-study": "CASE STUDY",
+  interview: "인터뷰",
+  "brand-story": "브랜드 스토리",
+  "product-feature": "제품 이야기",
+  launch: "런치 스토리",
+  update: "업데이트",
+  "case-study": "팀 이야기",
   qna: "Q&A",
 } as const;
 
@@ -165,7 +165,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <div className="feature-brief-copy">
               <div className="feature-brief-brand">
                 {(brand?.logoUrl || founder?.avatarUrl) && <img src={brand?.logoUrl ?? founder?.avatarUrl} alt="" />}
-                <div><span>FEATURED BY</span>{brand
+                <div><span>Featable에서</span>{brand
                   ? <Link href={`/brands/${brand.slug}`}>{brand.name}</Link>
                   : founder
                     ? <Link href={`/founders/${founder.slug}`}>{founder.name}</Link>
@@ -184,7 +184,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
 
             <div className="feature-brief-media">
               <img src={feature.coverUrl} alt={feature.title} />
-              <span>FEATABLE PICK · {new Date(feature.publishedAt).toLocaleDateString("ko-KR")}</span>
+              <span>Featable 선정 · {new Date(feature.publishedAt).toLocaleDateString("ko-KR")}</span>
             </div>
           </div>
 
@@ -213,12 +213,12 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
               return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<ol className="feature-article-features">{block.items.map((item, itemIndex) => <li key={itemIndex}><strong>{item.title}</strong><p>{item.body}</p></li>)}</ol></section>;
             })}
 
-            {brand && <section className="feature-editorial-section"><span>THE QUESTION</span><h3>어떤 문제에서<br />이 브랜드가 시작됐을까?</h3><p>{brand.problem ?? brand.description}</p><blockquote>“{brand.tagline}”</blockquote></section>}
-            {founder && <section id="founder" className="feature-founder-quote"><img src={founder.avatarUrl} alt={founder.name} /><div><span>FOUNDER</span><h3>{founder.name}</h3><blockquote>“{founder.headline}”</blockquote><p>{founder.bio}</p></div></section>}
-            {product && <section id="product" className="feature-related-product"><p>RELATED PRODUCT</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
+            {brand && <section className="feature-editorial-section"><span>시작한 이유</span><h3>어떤 문제에서<br />이 브랜드가 시작됐을까?</h3><p>{brand.problem ?? brand.description}</p><blockquote>“{brand.tagline}”</blockquote></section>}
+            {founder && <section id="founder" className="feature-founder-quote"><img src={founder.avatarUrl} alt={founder.name} /><div><span>창업가</span><h3>{founder.name}</h3><blockquote>“{founder.headline}”</blockquote><p>{founder.bio}</p></div></section>}
+            {product && <section id="product" className="feature-related-product"><p>함께 볼 프로덕트</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
           </article>
 
-          <aside className="feature-article-aside"><div><p>FEATURED</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>{founder?.name} Founder</span></div><div><p>DISCOVERED</p><strong>{discoveryCount.toLocaleString()}</strong><span>people</span></div><div><p>LIKES</p><LikeCount itemType="feature" slug={feature.slug} initialCount={likeCount} /><span>좋아요</span></div><div className="feature-aside-actions"><SaveButton itemType="feature" slug={feature.slug} labelMode="like" /><ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} /></div></aside>
+          <aside className="feature-article-aside"><div><p>발행</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>창업가 {founder?.name ?? ""}</span></div><div><p>조회수</p><strong>{discoveryCount.toLocaleString()}</strong><span>회</span></div><div><p>하트</p><LikeCount itemType="feature" slug={feature.slug} initialCount={likeCount} /><span>좋아요</span></div><div className="feature-aside-actions"><SaveButton itemType="feature" slug={feature.slug} labelMode="like" /><ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} /></div></aside>
         </section>
 
         <Comments type="feature" slug={feature.slug} />

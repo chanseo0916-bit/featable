@@ -104,7 +104,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       </section>
 
       <section id="info" className="shell product-facts">
-        <header><span>PRODUCT INFO</span><h2>제품 정보</h2></header>
+        <header><span>제품 정보</span><h2>상세 정보</h2></header>
         <dl>
           <div><dt>브랜드</dt><dd>{brand?.name || "-"}</dd></div>
           <div><dt>카테고리</dt><dd>{product.category}</dd></div>

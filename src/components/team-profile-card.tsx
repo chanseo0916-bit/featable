@@ -14,7 +14,7 @@ export interface TeamProfileCardProps {
   founderNumber?: number;
 }
 
-function CardContent({ name, title, headline, avatarUrl, bio, label = "TEAM", meta, href, actionLabel, muted, founderNumber }: TeamProfileCardProps) {
+function CardContent({ name, title, headline, avatarUrl, bio, label = "팀", meta, href, actionLabel, muted, founderNumber }: TeamProfileCardProps) {
   const summary = headline || bio;
   return <>
     <div className="founder-spot-photo team-card-photo">
@@ -24,7 +24,7 @@ function CardContent({ name, title, headline, avatarUrl, bio, label = "TEAM", me
       <div className="founder-spot-fade" aria-hidden />
       <span className="team-card-label">{label}</span>
       {founderNumber != null ? (
-        <span className="team-card-founder-id">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
+        <span className="team-card-founder-id">No.{String(founderNumber).padStart(4, "0")}</span>
       ) : href && <span className="team-card-corner-action" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg>
       </span>}

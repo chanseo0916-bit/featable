@@ -146,7 +146,7 @@ export function LiveFeatureRanking({ productItems, featureItems }: LiveFeatureRa
       <div className={styles.header}>
         <h2 id={titleId}>실시간 베스트</h2>
         <span className={styles.liveIndicator} aria-hidden="true">
-          <span className={styles.liveDot} /> LIVE
+          <span className={styles.liveDot} /> 실시간
         </span>
       </div>
 

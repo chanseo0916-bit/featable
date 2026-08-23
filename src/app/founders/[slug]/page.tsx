@@ -99,17 +99,17 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
                   <div className="founder-spot-placeholder" aria-hidden>{founder.name.slice(0, 1)}</div>
                 )}
                 <div className="founder-spot-fade" aria-hidden />
-                <span className="founder-hero-id">FOUNDER ID · {String(founderNumber).padStart(4, "0")}</span>
+                <span className="founder-hero-id">No.{String(founderNumber).padStart(4, "0")}</span>
               </div>
               <div className="founder-spot-body">
                 <h3>
                   {founder.name}
                   <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
                 </h3>
-                <strong className="founder-hero-role">{founder.role || "Founder"}</strong>
+                <strong className="founder-hero-role">{founder.role || "창업가"}</strong>
                 <p>{founder.headline}</p>
                 <div className="founder-spot-foot">
-                  <span className="founder-hero-status"><i /> NOW BUILDING</span>
+                  <span className="founder-hero-status"><i /> 만드는 중</span>
                 </div>
               </div>
             </InteractiveProfileCard>
@@ -125,7 +125,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
           </div>
 
           <div className="founder-id-copy">
-            <p className="founder-profile-label">MEET THE FOUNDER</p>
+            <p className="founder-profile-label">파운더 소개</p>
             <h1>{founder.name}</h1>
             <p className="founder-profile-headline">{founder.headline}</p>
             {categories.length > 0 && <div className="founder-profile-tags">{categories.map((category) => <span key={category}>#{category}</span>)}<span>#Founder</span></div>}
@@ -152,11 +152,11 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
             {founderFeatures.length > 0 ? <a href="#stories"><i>04</i><span>Feature</span><strong>{founderFeatures.length}개의 이야기</strong></a> : <span aria-disabled="true"><i>04</i><span>Feature</span><strong>준비 중</strong></span>}
           </div>
 
-          {founderBrands.length > 0 && <section id="brands" className="shell section founder-work-section"><SectionHeader eyebrow="BUILDING" title={`${founder.name}의 브랜드`} href="/brands" /><div className="brand-grid">{founderBrands.map((brand) => <Link href={`/brands/${brand.slug}`} className="brand-card" key={brand.slug}><img className="brand-logo" src={brand.logoUrl} alt="" /><div><Badge>{brand.category}</Badge><h3>{brand.name}</h3><p>{brand.tagline}</p></div></Link>)}</div></section>}
+          {founderBrands.length > 0 && <section id="brands" className="shell section founder-work-section"><SectionHeader title={`${founder.name}의 브랜드`} href="/brands" /><div className="brand-grid">{founderBrands.map((brand) => <Link href={`/brands/${brand.slug}`} className="brand-card" key={brand.slug}><img className="brand-logo" src={brand.logoUrl} alt="" /><div><Badge>{brand.category}</Badge><h3>{brand.name}</h3><p>{brand.tagline}</p></div></Link>)}</div></section>}
 
-          {founderProducts.length > 0 && <section id="products" className="shell section founder-work-section"><SectionHeader eyebrow="PRODUCTS" title="만든 프로덕트" href="/products" /><div className="product-grid">{founderProducts.map((product) => <Link href={`/products/${product.slug}`} className="product-card" key={product.slug}><div className="image-card"><img src={product.heroUrl} alt={product.name} /></div><div className="card-body"><div className="founder-product-meta"><Badge>{product.category}</Badge><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p></div></Link>)}</div></section>}
+          {founderProducts.length > 0 && <section id="products" className="shell section founder-work-section"><SectionHeader title="만든 프로덕트" href="/products" /><div className="product-grid">{founderProducts.map((product) => <Link href={`/products/${product.slug}`} className="product-card" key={product.slug}><div className="image-card"><img src={product.heroUrl} alt={product.name} /></div><div className="card-body"><div className="founder-product-meta"><Badge>{product.category}</Badge><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p></div></Link>)}</div></section>}
 
-          {founderFeatures.length > 0 && <section id="stories" className="shell section founder-work-section founder-stories"><SectionHeader eyebrow="FEATURES" title={`${founder.name}의 이야기`} href="/stories" />{founderFeatures.map((feature) => <Link href={`/stories/${feature.slug}`} className="inline-feature" key={feature.slug}><img src={feature.coverUrl} alt="" /><div><Badge>{feature.kind}</Badge><h3>{feature.title}</h3><p>{feature.excerpt}</p></div><span className="arrow">→</span></Link>)}</section>}
+          {founderFeatures.length > 0 && <section id="stories" className="shell section founder-work-section founder-stories"><SectionHeader title={`${founder.name}의 이야기`} href="/stories" />{founderFeatures.map((feature) => <Link href={`/stories/${feature.slug}`} className="inline-feature" key={feature.slug}><img src={feature.coverUrl} alt="" /><div><Badge>{feature.kind}</Badge><h3>{feature.title}</h3><p>{feature.excerpt}</p></div><span className="arrow">→</span></Link>)}</section>}
 
           {founderBrands.length === 0 && founderProducts.length === 0 && <section className="shell founder-empty-work"><strong>지금 첫 번째 프로젝트를 준비하고 있어요.</strong><span>새로운 소식이 등록되면 이곳에서 가장 먼저 확인할 수 있습니다.</span></section>}
         </div>

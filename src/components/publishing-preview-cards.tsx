@@ -12,7 +12,7 @@ export interface PartnerDirectoryCardVisualProps {
 
 export function PartnerDirectoryCardVisual({ name, logoUrl, field, intro, description, featured = false, external = true }: PartnerDirectoryCardVisualProps) {
   return <>
-    {featured && <span className="partner-featured-badge">★ FEATURED PARTNER</span>}
+    {featured && <span className="partner-featured-badge">Featable 파트너</span>}
     <div className="partner-org-logo">{logoUrl ? <img src={logoUrl} alt={`${name} 로고`} /> : <span>{name.slice(0, 1) || "P"}</span>}</div>
     <div className="partner-org-body"><div className="partner-org-title"><h3>{name || "파트너 이름"}</h3>{field && <span className="badge">{field}</span>}</div>{intro && <p>{intro}</p>}{description && <small>{description}</small>}<span className="text-link">{external ? "웹사이트 방문 →" : "자세히 보기 →"}</span></div>
   </>;

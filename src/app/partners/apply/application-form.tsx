@@ -10,7 +10,7 @@ export function PartnershipApplicationForm() {
   const [type, setType] = useState<"advertiser" | "community_partner">("advertiser");
   const [state, action, pending] = useActionState(submitPartnershipInquiry, initialState);
 
-  if (state.ok) return <section className="partnership-success"><i>✓</i><p>APPLICATION RECEIVED</p><h1>문의가 접수됐어요.</h1><span>담당자가 내용을 확인한 뒤 입력하신 이메일로 연락드릴게요.</span><Link href="/partners">파트너 페이지로 돌아가기 →</Link></section>;
+  if (state.ok) return <section className="partnership-success"><i>✓</i><p>신청 완료</p><h1>문의가 접수됐어요.</h1><span>담당자가 내용을 확인한 뒤 입력하신 이메일로 연락드릴게요.</span><Link href="/partners">파트너 페이지로 돌아가기 →</Link></section>;
 
   return <form action={action} className="partnership-application-form">
     <input type="hidden" name="inquiryType" value={type} />

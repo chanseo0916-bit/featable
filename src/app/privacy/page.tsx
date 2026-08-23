@@ -17,7 +17,6 @@ export default async function PrivacyPage() {
       <main className="shell legal-page">
         <div className="listing-heading">
           <div>
-            <p className="eyebrow">PRIVACY POLICY</p>
             <h1>개인정보처리방침</h1>
             <p>시행일: 2026년 8월 21일</p>
           </div>

@@ -25,7 +25,7 @@ export function FounderCard({
         )}
         <div className="founder-spot-fade" aria-hidden />
         {founder.founderNumber != null && (
-          <span className="founder-hero-id">FOUNDER ID · {String(founder.founderNumber).padStart(4, "0")}</span>
+          <span className="founder-hero-id">No.{String(founder.founderNumber).padStart(4, "0")}</span>
         )}
       </div>
       <div className="founder-spot-body">
@@ -33,10 +33,10 @@ export function FounderCard({
           {founder.name}
           <span className="founder-spot-verified" title="Featable Founder" aria-label="인증된 파운더">✓</span>
         </h3>
-        <strong className="founder-hero-role">{founder.role || "Founder"}</strong>
+        <strong className="founder-hero-role">{founder.role || "창업가"}</strong>
         <p>{founder.headline}</p>
         <div className="founder-spot-foot">
-          <span className="founder-hero-status"><i /> NOW BUILDING</span>
+          <span className="founder-hero-status"><i /> 만드는 중</span>
         </div>
       </div>
       <span className="sr-only">{founder.name} Founder 프로필 보기</span>

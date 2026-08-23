@@ -25,7 +25,7 @@ export default async function InterviewSubmitPage() {
     <div className="publish-console-nav simple-register-nav"><div className="shell"><StudioBrand /><nav><span className="active">인터뷰 등록</span></nav><Link href="/my">나가기</Link></div></div>
     <main className="simple-registration-page interview-registration-page">
       <div className="shell">
-        <div className="simple-registration-heading"><span>FOUNDER INTERVIEW</span><h1>질문에 답하면 인터뷰가 완성됩니다.</h1><p>사진 한 장과 솔직한 답변이면 충분해요. 답한 질문만 인터뷰에 실립니다.</p></div>
+        <div className="simple-registration-heading"><span>파운더 인터뷰</span><h1>질문에 답하면 인터뷰가 완성됩니다.</h1><p>사진 한 장과 솔직한 답변이면 충분해요. 답한 질문만 인터뷰에 실립니다.</p></div>
         <InterviewForm brands={brands} founderName={memberName} />
       </div>
     </main>
