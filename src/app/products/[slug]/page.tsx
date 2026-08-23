@@ -99,7 +99,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           {product.price && <b>{product.price}</b>}
           {officialCta}
           <SaveButton itemType="product" slug={product.slug} />
-          <p className="product-aside-stats"><span>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</span><span>저장 <LikeCount itemType="product" slug={product.slug} initialCount={productLikeCount} /></span></p>
+          <p className="product-aside-stats"><span>저장 <LikeCount itemType="product" slug={product.slug} initialCount={productLikeCount} /></span></p>
         </aside>
       </section>
 

@@ -15,8 +15,13 @@ export function LikeCount({
   initialCount: number;
 }) {
   const [count, setCount] = useState(initialCount);
+  const [seenInitial, setSeenInitial] = useState(initialCount);
 
-  useEffect(() => setCount(initialCount), [initialCount]);
+  // 서버에서 새 값이 내려오면 렌더 중에 맞춘다 (이펙트에서 setState 하지 않기)
+  if (seenInitial !== initialCount) {
+    setSeenInitial(initialCount);
+    setCount(initialCount);
+  }
 
   useEffect(() => {
     const onChange = (event: Event) => {
