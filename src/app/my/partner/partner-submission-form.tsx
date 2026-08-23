@@ -65,10 +65,6 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
     const files = Array.from(event.target.files ?? []);
     event.target.value = "";
     if (!files.length) return;
-    if (files.some((file) => !file.type.startsWith("image/") || file.size > 8 * 1024 * 1024)) {
-      setMessage("이미지는 파일당 8MB 이하로 올려주세요.");
-      return;
-    }
     setUploading(kind);
     setMessage("");
     try {
@@ -76,15 +72,32 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("로그인이 필요합니다.");
       const urls: string[] = [];
+      const failed: string[] = [];
+      // 한 장이 실패해도 나머지는 올린다 (아이폰 사진은 용량이 큰 경우가 많다)
       for (const file of files.slice(0, kind === "cover" ? 1 : 8)) {
-        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        if (file.size > 15 * 1024 * 1024) {
+          failed.push(`${file.name || "사진"} · 15MB 초과`);
+          continue;
+        }
+        const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "";
+        const ext = /^[a-z0-9]{2,5}$/.test(rawExt) ? rawExt : "jpg";
         const path = `${user.id}/${crypto.randomUUID()}-event-${kind}.${ext}`;
-        const { error } = await supabase.storage.from("images").upload(path, file, { contentType: file.type });
-        if (error) throw error;
+        const { error } = await supabase.storage
+          .from("images")
+          .upload(path, file, { contentType: file.type || "image/jpeg" });
+        if (error) {
+          failed.push(`${file.name || "사진"} · ${error.message}`);
+          continue;
+        }
         urls.push(supabase.storage.from("images").getPublicUrl(path).data.publicUrl);
       }
-      if (kind === "cover") set("coverUrl", urls[0]);
-      else set("galleryUrls", [...galleryUrls, ...urls].slice(0, 8));
+      if (urls.length) {
+        if (kind === "cover") set("coverUrl", urls[0]);
+        else set("galleryUrls", [...galleryUrls, ...urls].slice(0, 8));
+      }
+      if (failed.length) {
+        setMessage(`${failed.length}장을 올리지 못했어요. ${failed.join(" / ")}`);
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "이미지를 올리지 못했습니다.");
     } finally {
