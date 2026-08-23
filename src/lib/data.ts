@@ -267,6 +267,26 @@ async function fetchLive(): Promise<Catalog | null> {
       }
     }
 
+    // 브랜드보다 인터뷰를 먼저 올린 파운더도 작성자로 잡혀야 한다.
+    // (브랜드 조인만으로는 브랜드 없는 파운더가 통째로 빠진다)
+    const { data: soloFounderRows } = await supabase
+      .from("founders")
+      .select("founder_number,slug,name,avatar_url,role_title,headline,bio,sns");
+    for (const f of (soloFounderRows ?? []) as unknown as FounderRow[]) {
+      if (founderMap.has(f.slug)) continue;
+      founderMap.set(f.slug, {
+        founderNumber: f.founder_number ?? undefined,
+        slug: f.slug,
+        name: f.name,
+        avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),
+        role: f.role_title || undefined,
+        headline: f.headline,
+        bio: f.bio ?? undefined,
+        sns: f.sns ?? undefined,
+        brandSlugs: [],
+      });
+    }
+
     return { brands, products, founders: [...founderMap.values()] };
   } catch (error) {
     reportPublicDataFallback("catalog", error);
@@ -723,6 +743,52 @@ export const getFounder = cache(async (slug: string): Promise<Founder | null> =>
   }
 
   return process.env.NODE_ENV === "production" ? null : mockFounders.find((f) => f.slug === slug) ?? null;
+});
+
+/** 행사 등록 계정에 연결된 공개 파운더 프로필. 비공개 profiles 정보는 조회하지 않는다. */
+export const getFounderByUserId = cache(async (userId: string): Promise<Founder | null> => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!hasPublicSupabaseConfig(url, key, "event-organizer")) return null;
+
+  try {
+    const supabase = createClient(url!, key!);
+    let founderRes = await supabase
+      .from("founders")
+      .select("founder_number,slug,name,avatar_url,role_title,headline,bio,sns")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (founderRes.error?.code === "42703" && founderRes.error.message.includes("role_title")) {
+      founderRes = await supabase
+        .from("founders")
+        .select("founder_number,slug,name,avatar_url,headline,bio,sns")
+        .eq("user_id", userId)
+        .maybeSingle();
+    }
+
+    const { data, error } = founderRes;
+    if (error) {
+      reportPublicDataFallback("event-organizer", error);
+      return null;
+    }
+    if (!data) return null;
+
+    const f = data as unknown as FounderRow;
+    return {
+      founderNumber: f.founder_number ?? undefined,
+      slug: f.slug,
+      name: f.name,
+      avatarUrl: f.avatar_url || placeholder(`founder-${f.slug}`, 240, 240),
+      role: f.role_title || undefined,
+      headline: f.headline,
+      bio: f.bio ?? undefined,
+      sns: f.sns ?? undefined,
+      brandSlugs: [],
+    };
+  } catch (error) {
+    reportPublicDataFallback("event-organizer", error);
+    return null;
+  }
 });
 
 /** 실데이터 + 목데이터 병합 카탈로그. 렌더 1회당 캐시됨. */
