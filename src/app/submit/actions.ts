@@ -298,8 +298,17 @@ export async function createStandaloneBrand(input: BrandRegistrationInput): Prom
   if ("error" in result) return { ok: false, error: result.error };
   const { data: brand } = await supabase.from("brands").select("id,slug").eq("slug", result.slug).single();
   if (!brand) return { ok: false, error: "기업 저장 확인에 실패했습니다." };
+
+  // 브랜드보다 인터뷰를 먼저 올린 경우가 있다. 아직 브랜드가 없는 본인 글을 여기에 잇는다.
+  await supabase
+    .from("features")
+    .update({ brand_id: brand.id, updated_at: new Date().toISOString() })
+    .eq("founder_id", founder.id)
+    .is("brand_id", null);
+
   revalidatePath("/my");
   revalidatePath("/brands");
+  revalidatePath("/stories");
   return { ok: true, brandId: brand.id, brandSlug: brand.slug };
 }
 
