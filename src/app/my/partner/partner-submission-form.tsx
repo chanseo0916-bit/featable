@@ -2,7 +2,6 @@
 
 import { useState, useTransition, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { deletePartnerSubmission, savePartnerSubmission, type PartnerSubmissionPayload, type PartnerSubmissionType } from "./actions";
 
 export interface PartnerSubmissionRow {
@@ -68,28 +67,20 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
     setUploading(kind);
     setMessage("");
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("로그인이 필요합니다.");
       const urls: string[] = [];
       const failed: string[] = [];
-      // 한 장이 실패해도 나머지는 올린다 (아이폰 사진은 용량이 큰 경우가 많다)
+      // 한 장이 실패해도 나머지는 올린다. 업로드는 인앱 브라우저 대응으로 서버를 거친다.
       for (const file of files.slice(0, kind === "cover" ? 1 : 8)) {
-        if (file.size > 15 * 1024 * 1024) {
-          failed.push(`${file.name || "사진"} · 15MB 초과`);
+        const body = new FormData();
+        body.append("file", file);
+        body.append("kind", `event-${kind}`);
+        const response = await fetch("/api/upload", { method: "POST", body });
+        const payload = await response.json() as { url?: string; error?: string };
+        if (!response.ok || !payload.url) {
+          failed.push(`${file.name || "사진"} · ${payload.error || "업로드 실패"}`);
           continue;
         }
-        const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "";
-        const ext = /^[a-z0-9]{2,5}$/.test(rawExt) ? rawExt : "jpg";
-        const path = `${user.id}/${crypto.randomUUID()}-event-${kind}.${ext}`;
-        const { error } = await supabase.storage
-          .from("images")
-          .upload(path, file, { contentType: file.type || "image/jpeg" });
-        if (error) {
-          failed.push(`${file.name || "사진"} · ${error.message}`);
-          continue;
-        }
-        urls.push(supabase.storage.from("images").getPublicUrl(path).data.publicUrl);
+        urls.push(payload.url);
       }
       if (urls.length) {
         if (kind === "cover") set("coverUrl", urls[0]);

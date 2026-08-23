@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { createFounderInterview } from "./actions";
 
 interface BrandChoice { id: string; name: string; }
@@ -34,19 +33,14 @@ export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; 
   async function uploadCover(file: File) {
     setUploading(true); setError("");
     try {
-      const supabase = createClient();
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error("로그인이 풀렸어요. 새로고침한 뒤 다시 시도해주세요.");
-      if (file.size > 15 * 1024 * 1024) throw new Error("사진 용량이 너무 커요. 15MB 이하로 올려주세요.");
-      // 아이폰 사진은 확장자가 없거나 HEIC 인 경우가 있어 타입을 명시해 올린다
-      const rawExt = (file.name.split(".").pop() || "").toLowerCase();
-      const ext = /^[a-z0-9]{2,5}$/.test(rawExt) ? rawExt : "jpg";
-      const path = `${user.id}/${crypto.randomUUID()}-interview.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("images")
-        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
-      if (uploadError) throw new Error(uploadError.message);
-      setCoverUrl(supabase.storage.from("images").getPublicUrl(path).data.publicUrl);
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const body = new FormData();
+      body.append("file", file);
+      body.append("kind", "interview");
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      setCoverUrl(payload.url);
     } catch (uploadFailure) {
       const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
       setError(`사진 업로드에 실패했습니다. (${reason})`);
