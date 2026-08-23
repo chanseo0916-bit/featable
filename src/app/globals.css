@@ -3269,3 +3269,4 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .kind-label { color: #b0b4b8; font-size: 12px; font-style: normal; font-weight: 550; }
 .story-card .kind-label { margin-right: auto; }
 .partner-heading { margin: 0 0 15px; color: #888; font-size: 13px; font-weight: 650; letter-spacing: -.02em; }
+.founders-list-note { margin-top: 26px; color: var(--muted); font-size: 12px; font-weight: 650; }
