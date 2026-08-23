@@ -35,14 +35,22 @@ export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; 
     setUploading(true); setError("");
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error();
-      const ext = file.name.split(".").pop() || "jpg";
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) throw new Error("로그인이 풀렸어요. 새로고침한 뒤 다시 시도해주세요.");
+      if (file.size > 15 * 1024 * 1024) throw new Error("사진 용량이 너무 커요. 15MB 이하로 올려주세요.");
+      // 아이폰 사진은 확장자가 없거나 HEIC 인 경우가 있어 타입을 명시해 올린다
+      const rawExt = (file.name.split(".").pop() || "").toLowerCase();
+      const ext = /^[a-z0-9]{2,5}$/.test(rawExt) ? rawExt : "jpg";
       const path = `${user.id}/${crypto.randomUUID()}-interview.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("images").upload(path, file);
-      if (uploadError) throw uploadError;
+      const { error: uploadError } = await supabase.storage
+        .from("images")
+        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
+      if (uploadError) throw new Error(uploadError.message);
       setCoverUrl(supabase.storage.from("images").getPublicUrl(path).data.publicUrl);
-    } catch { setError("사진 업로드에 실패했습니다."); }
+    } catch (uploadFailure) {
+      const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
+      setError(`사진 업로드에 실패했습니다. (${reason})`);
+    }
     finally { setUploading(false); }
   }
 
