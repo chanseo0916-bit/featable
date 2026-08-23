@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import {
   createEvent,
   createPartner,
@@ -171,16 +170,17 @@ export function PartnerForm() {
     setLogoUploading(true);
     setNotice(null);
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error();
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${crypto.randomUUID()}-partner-logo.${ext}`;
-      const { error } = await supabase.storage.from("images").upload(path, file);
-      if (error) throw error;
-      set({ logoUrl: supabase.storage.from("images").getPublicUrl(path).data.publicUrl });
-    } catch {
-      setNotice("로고 업로드에 실패했습니다.");
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const body = new FormData();
+      body.append("file", file);
+      body.append("kind", "partner-logo");
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      set({ logoUrl: payload.url });
+    } catch (uploadFailure) {
+      const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
+      setNotice(`로고 업로드에 실패했습니다. (${reason})`);
     } finally {
       setLogoUploading(false);
     }

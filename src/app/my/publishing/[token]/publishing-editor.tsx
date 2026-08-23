@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useTransition, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { CommunityPublishingPreview, PartnerPublishingPreview, PublishingDetailPreview } from "@/components/publishing-preview-cards";
 import { publishApprovedProfile, savePublishingProfile, type PublishingProfileInput } from "./actions";
 
@@ -38,14 +37,14 @@ export function PublishingEditor({ token, type, initial }: { token: string; type
     setUploading(true); setMessage("");
     try {
       if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) throw new Error("5MB 이하 이미지 파일을 선택해주세요.");
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("로그인이 필요합니다.");
-      const extension = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${crypto.randomUUID()}-publishing.${extension}`;
-      const { error } = await supabase.storage.from("images").upload(path, file);
-      if (error) throw error;
-      set({ logoUrl: supabase.storage.from("images").getPublicUrl(path).data.publicUrl });
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const body = new FormData();
+      body.append("file", file);
+      body.append("kind", `${type}-logo`);
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      set({ logoUrl: payload.url });
     } catch (error) { setMessage(error instanceof Error ? error.message : "로고 업로드에 실패했습니다."); }
     finally { setUploading(false); }
   }

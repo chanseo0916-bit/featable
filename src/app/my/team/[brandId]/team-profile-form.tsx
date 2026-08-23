@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { TeamProfileCard } from "@/components/team-profile-card";
 import { updateTeamProfile, type TeamProfileInput } from "../../team-actions";
 
@@ -16,17 +15,17 @@ export function TeamProfileForm({ initial }: { initial: TeamProfileInput }) {
     setUploading(true);
     setNotice(null);
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("로그인이 필요합니다.");
-      const extension = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${crypto.randomUUID()}-team.${extension}`;
-      const { error } = await supabase.storage.from("images").upload(path, file);
-      if (error) throw error;
-      const { data } = supabase.storage.from("images").getPublicUrl(path);
-      set({ avatarUrl: data.publicUrl });
-    } catch {
-      setNotice({ ok: false, text: "이미지를 업로드하지 못했습니다." });
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const body = new FormData();
+      body.append("file", file);
+      body.append("kind", "team");
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      set({ avatarUrl: payload.url });
+    } catch (uploadFailure) {
+      const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
+      setNotice({ ok: false, text: `이미지를 업로드하지 못했습니다. (${reason})` });
     } finally {
       setUploading(false);
     }

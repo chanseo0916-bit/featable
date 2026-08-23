@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { createStandaloneBrand, updateStandaloneBrand, type BrandRegistrationInput } from "./actions";
 import { SeoPublishFields } from "@/components/seo-publish-fields";
 import { cleanSeoSlug } from "@/lib/content-seo";
@@ -20,15 +19,18 @@ export function BrandRegistrationForm({ initial, editBrandId }: { initial?: Bran
   async function uploadLogo(file: File) {
     setUploading(true); setError("");
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error();
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${crypto.randomUUID()}-brand.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("images").upload(path, file);
-      if (uploadError) throw uploadError;
-      set({ logoUrl: supabase.storage.from("images").getPublicUrl(path).data.publicUrl });
-    } catch { setError("로고 업로드에 실패했습니다."); }
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const body = new FormData();
+      body.append("file", file);
+      body.append("kind", "brand-logo");
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      set({ logoUrl: payload.url });
+    } catch (uploadFailure) {
+      const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
+      setError(`로고 업로드에 실패했습니다. (${reason})`);
+    }
     finally { setUploading(false); }
   }
 

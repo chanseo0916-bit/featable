@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { TeamProfileCard } from "@/components/team-profile-card";
 import { updateFounderProfile, type ProfileInput } from "./actions";
 
@@ -75,17 +74,17 @@ export function ProfileEditor({
     setUploading(true);
     setNotice(null);
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("no auth");
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${crypto.randomUUID()}-avatar.${ext}`;
-      const { error } = await supabase.storage.from("images").upload(path, file);
-      if (error) throw error;
-      const { data } = supabase.storage.from("images").getPublicUrl(path);
-      set({ avatarUrl: data.publicUrl });
-    } catch {
-      setNotice({ ok: false, text: "사진 업로드에 실패했습니다. 다시 시도해주세요." });
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const body = new FormData();
+      body.append("file", file);
+      body.append("kind", "profile");
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      set({ avatarUrl: payload.url });
+    } catch (uploadFailure) {
+      const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
+      setNotice({ ok: false, text: `사진 업로드에 실패했습니다. (${reason})` });
     } finally {
       setUploading(false);
     }

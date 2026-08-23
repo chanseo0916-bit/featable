@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import type { StoryBlock } from "@/lib/types";
 import { ProductStoryRenderer } from "@/components/product-story-renderer";
 import { createStandaloneProduct, deleteProductDraft, saveProductDraft, updateStandaloneProduct, type ProductRegistrationInput } from "./actions";
@@ -77,17 +76,20 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
   async function upload(file: File, storyIndex?: number) {
     setUploading(true); setError("");
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error();
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${crypto.randomUUID()}-product.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("images").upload(path, file);
-      if (uploadError) throw uploadError;
-      const url = supabase.storage.from("images").getPublicUrl(path).data.publicUrl;
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const body = new FormData();
+      body.append("file", file);
+      body.append("kind", "product");
+      const response = await fetch("/api/upload", { method: "POST", body });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      const url = payload.url;
       if (storyIndex === undefined) set({ heroUrl: url });
       else set({ story: form.story.map((block, index) => index === storyIndex && block.type === "image" ? { ...block, src: url, alt: form.name } : block) });
-    } catch { setError("이미지 업로드에 실패했습니다."); }
+    } catch (uploadFailure) {
+      const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
+      setError(`이미지 업로드에 실패했습니다. (${reason})`);
+    }
     finally { setUploading(false); }
   }
 

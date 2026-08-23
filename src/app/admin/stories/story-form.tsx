@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import type { StoryBlock } from "@/lib/types";
 import { createStory, updateStory, type StoryInput } from "../actions";
 
@@ -71,18 +70,19 @@ export function StoryForm({
   async function uploadImage(file: File, target: "cover" | number) {
     setUploading(String(target));
     try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error();
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${user.id}/${crypto.randomUUID()}-story.${ext}`;
-      const { error } = await supabase.storage.from("images").upload(path, file);
-      if (error) throw error;
-      const url = supabase.storage.from("images").getPublicUrl(path).data.publicUrl;
+      // 인앱 브라우저에서도 되도록 서버를 통해 올린다
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("kind", target === "cover" ? "story-cover" : "story-body");
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
+      const payload = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !payload.url) throw new Error(payload.error || "업로드에 실패했습니다.");
+      const url = payload.url;
       if (target === "cover") setCoverUrl(url);
       else setBody((blocks) => blocks.map((block, i) => i === target && block.type === "image" ? { ...block, src: url } : block));
-    } catch {
-      setNotice("이미지 업로드에 실패했습니다.");
+    } catch (uploadFailure) {
+      const reason = uploadFailure instanceof Error && uploadFailure.message ? uploadFailure.message : "알 수 없는 오류";
+      setNotice(`이미지 업로드에 실패했습니다. (${reason})`);
     } finally {
       setUploading(null);
     }
