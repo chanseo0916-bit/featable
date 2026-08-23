@@ -301,7 +301,10 @@
 
 .empty {
   margin: 0;
-  padding: 34px 0 18px;
+  min-height: 96px;
+  padding: 34px 16px 18px;
+  display: grid;
+  place-items: center;
   color: #8b9199;
   font-size: 12px;
   text-align: center;
