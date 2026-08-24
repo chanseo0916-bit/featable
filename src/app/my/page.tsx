@@ -8,7 +8,7 @@ import { isMemberType, type MemberType } from "@/lib/auth";
 import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
 import { TeamInviteButton } from "./team-invite-button";
 import { DraftDeleteButton } from "./draft-delete-button";
-import { StudioNav } from "./studio-nav";
+import { DashNav } from "./dash-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
 import { PendingInviteControl, TeamMemberControls } from "./team-management-controls";
@@ -147,34 +147,34 @@ function MemberDashboard({ memberType, name, email, savedItems, teamBrands, team
       : role.emptyCopy;
 
   return <>
-    <StudioNav />
-    <main className="studio-dashboard role-dashboard">
-      <div className="shell studio-dashboard-inner">
-        <header className="role-dashboard-hero">
+    <DashNav />
+    <main className="dash-page dash">
+      <div className="shell dash-shell">
+        <header className="dash-hero">
           <div><p>{role.eyebrow}</p><span>{role.label}</span><h1>{name}님,<br />{role.title}</h1><small>{role.description}</small></div>
           <Link href={role.primary.href}>{role.primary.label}<b>→</b></Link>
         </header>
-        <section className="role-dashboard-state">
-          <div className="role-dashboard-avatar">{name.slice(0, 1) || "F"}</div>
+        <section className="dash-state-row">
+          <div className="dash-avatar">{name.slice(0, 1) || "F"}</div>
           <div><span>MY ROLE · {role.label}</span><strong>{stateTitle}</strong><p>{stateCopy}</p></div>
           <small>{email}</small>
         </section>
-        {teamHub.length > 0 && <section className="ig-founder-preview team-profile-hub">
-          <div className="studio-panel-heading">
+        {teamHub.length > 0 && <section className="ig-founder-preview dash-team-hub">
+          <div className="dash-panel-title">
             <strong>TEAM PROFILE</strong>
             <span>참여 중인 브랜드의 팀과 공개 프로필입니다.</span>
           </div>
-          <div className="team-profile-brand-list">{teamHub.map(({ brand, owner, members }) => <article className="team-profile-brand" key={brand.id}>
+          <div className="dash-team-brand-list">{teamHub.map(({ brand, owner, members }) => <article className="dash-team-brand" key={brand.id}>
             <header>
-              <div className="team-profile-brand-logo">{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
+              <div className="dash-team-brand-logo">{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
               <div><small>BRAND TEAM</small><h3>{brand.name}</h3><p>대표 포함 {members.length + (owner ? 1 : 0)}명 · 내 역할 {brand.role === "editor" ? "EDITOR" : "VIEWER"}</p></div>
-              <Link className="team-hub-edit-link" href={`/my/team/${brand.id}`}>내 팀 카드 편집 →</Link>
+              <Link className="dash-team-hub-edit-link" href={`/my/team/${brand.id}`}>내 팀 카드 편집 →</Link>
             </header>
-            <div className="team-profile-member-list team-profile-card-grid">
-              {owner && <div className="team-profile-admin-card owner">
+            <div className="dash-team-member-list dash-team-card-grid">
+              {owner && <div className="dash-team-admin-card owner">
                 <TeamProfileCard name={owner.name} title={owner.headline || "Founder"} avatarUrl={owner.avatar_url} bio={owner.bio} label="OWNER" meta={brand.name} href={`/founders/${owner.slug}`} actionLabel="프로필" />
               </div>}
-              {members.map((member) => <div className="team-profile-admin-card" key={member.user_id}>
+              {members.map((member) => <div className="dash-team-admin-card" key={member.user_id}>
                 <TeamProfileCard name={member.display_name || "팀 멤버"} title={member.title || "팀 멤버"} avatarUrl={member.avatar_url} bio={member.bio} label={member.member_role === "editor" ? "EDITOR" : "VIEWER"} meta={brand.name} muted={!member.is_public} />
                 {member.user_id === myUserId && <div className="team-owner-card-action"><span>내 카드</span><Link href={`/my/team/${brand.id}`}>내 카드 편집 →</Link></div>}
               </div>)}
@@ -182,22 +182,22 @@ function MemberDashboard({ memberType, name, email, savedItems, teamBrands, team
             <footer><Link href={`/brands/${brand.slug}`} target="_blank">공개 팀 페이지 보기 →</Link></footer>
           </article>)}</div>
         </section>}
-        <section className="member-make-cta">
+        <section className="dash-cta-card">
           <div>
             <strong>만드는 사람이기도 한가요?</strong>
             <p>역할을 바꾸지 않아도 바로 올릴 수 있어요. 인터뷰는 사진 한 장과 질문 답변이면 충분합니다.</p>
           </div>
-          <div className="member-make-actions">
+          <div className="dash-cta-row">
             <Link className="button" href="/submit/interview">내 인터뷰 쓰기 →</Link>
             <Link href="/my/brand/new">브랜드 등록하기</Link>
           </div>
         </section>
-        <section className="role-dashboard-links">
-          <div className="studio-panel-heading"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
+        <section className="dash-links">
+          <div className="dash-panel-title"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
           <div>{role.cards.map((card, index) => <Link href={card.href} key={card.href}><i>0{index + 1}</i><span>{card.kicker}</span><strong>{card.title}</strong><p>{card.copy}</p><b>바로가기 →</b></Link>)}</div>
         </section>
-        <section className="role-dashboard-collection">
-          <div className="studio-panel-heading"><strong>내 저장 목록</strong><span>프로덕트·피처·행사·지원사업을 한곳에 모았어요.</span></div>
+        <section className="dash-collection">
+          <div className="dash-panel-title"><strong>내 저장 목록</strong><span>프로덕트·피처·행사·지원사업을 한곳에 모았어요.</span></div>
           {savedItems.length ? <div>{savedItems.map((item) => <Link href={item.href} key={`${item.type}-${item.slug}`}><span>{item.type}</span><strong>{item.title}</strong><small>{item.meta}</small><b>→</b></Link>)}</div> : <p>상세 페이지의 ♡ 저장 버튼을 누르면 여기에 표시됩니다.</p>}
         </section>
       </div>
@@ -373,46 +373,46 @@ export default async function MyPage() {
   }
 
   return <>
-    <StudioNav founder />
+    <DashNav founder />
 
-    <main className="studio-dashboard">
-      <div className="shell studio-dashboard-inner">
-        <header className="ig-profile-head">
-          <div className="ig-profile-avatar">{founder?.avatar_url ? <img src={founder.avatar_url} alt="" /> : <span>{(founder?.name || "F").slice(0, 1)}</span>}</div>
-          <div className="ig-profile-main">
-            <div className="ig-profile-top">
+    <main className="dash-page">
+      <div className="shell dash-shell">
+        <header className="dash-profile-head">
+          <div className="dash-profile-avatar">{founder?.avatar_url ? <img src={founder.avatar_url} alt="" /> : <span>{(founder?.name || "F").slice(0, 1)}</span>}</div>
+          <div className="dash-profile-main">
+            <div className="dash-profile-top">
               <h1>{founder?.name ?? "Founder"}</h1>
-              <Link className="ig-btn" href="/my/profile">프로필 편집</Link>
-              <Link className="ig-btn primary" href={brands.length ? "/submit/product" : "/my/brand/new"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
-              <Link className="ig-btn" href="/submit/interview">인터뷰 등록</Link>
+              <Link className="dash-action" href="/my/profile">프로필 편집</Link>
+              <Link className="dash-action primary" href={brands.length ? "/submit/product" : "/my/brand/new"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
+              <Link className="dash-action" href="/submit/interview">인터뷰 등록</Link>
             </div>
-            <div className="ig-profile-stats">
+            <div className="dash-profile-stats">
               <div><strong>{brands.length}</strong><span>브랜드</span></div>
               <div><strong>{products.length}</strong><span>프로덕트</span></div>
               <div><strong>{publishedCount}</strong><span>공개 중</span></div>
               <div><strong>{totalViews.toLocaleString("ko-KR")}</strong><span>누적 조회</span></div>
             </div>
-            <p className="ig-profile-bio">{founder?.headline || "브랜드와 프로덕트를 한 곳에서 관리하세요."}</p>
+            <p className="dash-profile-bio">{founder?.headline || "브랜드와 프로덕트를 한 곳에서 관리하세요."}</p>
           </div>
         </header>
 
-        {(draftBrands.length > 0 || draftProducts.length > 0) && <section className="studio-unpublished-alert">
+        {(draftBrands.length > 0 || draftProducts.length > 0) && <section className="dash-unpublished-alert">
           <div>
             <strong>아직 공개되지 않은 항목이 {draftBrands.length + draftProducts.length}개 있어요.</strong>
             <p>비공개 상태에서는 다른 사람에게 보이지 않습니다. 공개해야 발견될 수 있어요.</p>
           </div>
-          <div className="studio-unpublished-links">
-            {draftBrands.map((brand) => <span className="studio-unpublished-item" key={brand.id}><b>{brand.name}</b><BrandStatusButton brandId={brand.id} published={false} /></span>)}
-            {draftProducts.map((product) => <Link className="studio-unpublished-item" href={`/my/product/${product.slug}`} key={product.id}><b>{product.name}</b><em>공개하러 가기 →</em></Link>)}
+          <div className="dash-unpublished-links">
+            {draftBrands.map((brand) => <span className="dash-unpublished-item" key={brand.id}><b>{brand.name}</b><BrandStatusButton brandId={brand.id} published={false} /></span>)}
+            {draftProducts.map((product) => <Link className="dash-unpublished-item" href={`/my/product/${product.slug}`} key={product.id}><b>{product.name}</b><em>공개하러 가기 →</em></Link>)}
           </div>
         </section>}
 
-        {myStories.length > 0 && <section className="studio-story-section">
-          <div className="studio-panel-heading">
+        {myStories.length > 0 && <section className="dash-story-section">
+          <div className="dash-panel-title">
             <strong>내 인터뷰</strong>
             <span>사람들이 읽고 있어요. 링크를 공유하면 더 많이 발견됩니다.</span>
           </div>
-          <div className="studio-story-list">
+          <div className="dash-story-list">
             {myStories.map((story) => (
               <article key={story.id}>
                 {story.cover_url && <img src={story.cover_url} alt="" />}
@@ -421,7 +421,7 @@ export default async function MyPage() {
                   <span>{story.title}</span>
                   <em>{story.status === "published" ? "공개 중" : "비공개"}</em>
                 </div>
-                <div className="studio-story-metrics">
+                <div className="dash-story-metrics">
                   <b>{(story.view_count ?? 0).toLocaleString("ko-KR")}</b><small>조회</small>
                   <b>{(storyLikes[story.slug] ?? 0).toLocaleString("ko-KR")}</b><small>좋아요</small>
                 </div>
@@ -431,30 +431,30 @@ export default async function MyPage() {
           </div>
         </section>}
 
-        <section className="ig-founder-preview team-profile-hub">
-          <div className="studio-panel-heading">
+        <section className="ig-founder-preview dash-team-hub">
+          <div className="dash-panel-title">
             <strong>TEAM PROFILE</strong>
             <span>브랜드에 함께하는 사람과 공개 프로필을 관리하세요.</span>
           </div>
-          {brands.length ? <div className="team-profile-brand-list">{brands.map((brand) => {
+          {brands.length ? <div className="dash-team-brand-list">{brands.map((brand) => {
             const members = ownedTeamMembers.filter((member) => member.brand_id === brand.id);
             const invitations = pendingTeamInvites.filter((invitation) => invitation.brand_id === brand.id);
-            return <article className="team-profile-brand" key={brand.id}>
+            return <article className="dash-team-brand" key={brand.id}>
               <header>
-                <div className="team-profile-brand-logo">{brand.logo_url ? <img src={brand.logo_url} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
+                <div className="dash-team-brand-logo">{brand.logo_url ? <img src={brand.logo_url} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
                 <div><small>BRAND TEAM</small><h3>{brand.name}</h3><p>대표 포함 {members.length + 1}명</p></div>
                 <TeamInviteButton brandId={brand.id} brandName={brand.name} />
               </header>
-              <div className="team-profile-member-list team-profile-card-grid">
-                {founder && <div className="team-profile-admin-card owner">
+              <div className="dash-team-member-list dash-team-card-grid">
+                {founder && <div className="dash-team-admin-card owner">
                   <TeamProfileCard name={founder.name} title={founder.role_title || "Founder"} headline={founder.headline} avatarUrl={founder.avatar_url} bio={founder.bio} label="OWNER" meta={brand.name} href={`/founders/${founder.slug}`} actionLabel="프로필" founderNumber={founder.founder_number} />
                   <div className="team-owner-card-action"><span>브랜드 대표</span><Link href="/my/profile">내 카드 편집 →</Link></div>
                 </div>}
-                {members.map((member, index) => <div className="team-profile-admin-card" key={member.user_id}>
+                {members.map((member, index) => <div className="dash-team-admin-card" key={member.user_id}>
                   <TeamProfileCard name={member.display_name || "팀 멤버"} title={member.title || "팀 멤버"} avatarUrl={member.avatar_url} bio={member.bio} label={member.member_role === "editor" ? "EDITOR" : "VIEWER"} meta={brand.name} muted={!member.is_public} />
                   <TeamMemberControls brandId={brand.id} userId={member.user_id} name={member.display_name || "팀 멤버"} role={member.member_role} first={index === 0} last={index === members.length - 1} />
                 </div>)}
-                {!members.length && <div className="team-profile-add-card"><i>＋</i><strong>첫 팀원을 초대해보세요.</strong><span>위의 팀 초대 버튼으로 링크를 만들 수 있어요.</span></div>}
+                {!members.length && <div className="dash-team-add-card"><i>＋</i><strong>첫 팀원을 초대해보세요.</strong><span>위의 팀 초대 버튼으로 링크를 만들 수 있어요.</span></div>}
               </div>
               {invitations.length > 0 && <div className="team-pending-invites">
                 <strong>초대 대기 {invitations.length}</strong>
@@ -471,17 +471,17 @@ export default async function MyPage() {
         </section>
 
         {teamBrands.length > 0 && <section className="role-team-brands">
-          <div className="studio-panel-heading"><strong>다른 팀에서 참여 중</strong><span>초대받아 공동 편집 중인 브랜드입니다.</span></div>
+          <div className="dash-panel-title"><strong>다른 팀에서 참여 중</strong><span>초대받아 공동 편집 중인 브랜드입니다.</span></div>
           <div>{teamBrands.map((brand) => <article key={brand.id}>{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <i>{brand.name.slice(0, 1)}</i>}<div><span>{brand.role === "editor" ? "EDITOR" : "VIEWER"}</span><strong>{brand.name}</strong><small>{brand.tagline}</small></div><Link href={brand.role === "editor" ? `/my/edit/${brand.slug}` : `/brands/${brand.slug}`}>{brand.role === "editor" ? "워크스페이스 열기" : "브랜드 보기"} →</Link></article>)}</div>
         </section>}
 
-        {brands.length === 0 && <section id="brands" className="studio-first-start">
-          <div className="studio-first-copy">
+        {brands.length === 0 && <section id="brands" className="dash-first-start">
+          <div className="dash-first-copy">
             <span>START HERE</span>
             <h2>가장 쉬운 시작은 내 이야기예요.</h2>
             <p>인터뷰는 기업 정보 없이도 올릴 수 있어요. 사진 한 장과 질문 답변이면 홈과 검색에 바로 노출됩니다. 기업 정보는 나중에 등록해도 됩니다.</p>
             <Link href="/submit/interview">내 인터뷰 쓰기<b>→</b></Link>
-            <Link className="studio-first-alt" href="/my/brand/new">기업 정보부터 등록하기</Link>
+            <Link className="dash-first-alt" href="/my/brand/new">기업 정보부터 등록하기</Link>
           </div>
           <ol>
             <li><i>1</i><div><strong>인터뷰로 먼저 발견되기</strong><span>기업 정보 없이, 사진 한 장과 답변이면 끝나요.</span></div></li>
@@ -492,30 +492,30 @@ export default async function MyPage() {
 
         {brands.length > 0 && <ProductAnalytics series={analyticsSeries} />}
 
-        {publishedProducts.length > 0 && <section id="products" className="ig-post-section studio-product-section">
-          <div className="studio-panel-heading"><strong>내 프로덕트</strong><span>{publishedProducts.length}개 · 현재 공개 중</span></div>
-          <div className="ig-post-grid">
-            <Link href="/submit/product" className="ig-post-tile ig-post-tile-add"><span>＋</span><strong>새 프로덕트 등록</strong></Link>
+        {publishedProducts.length > 0 && <section id="products" className="dash-media-section dash-product-section">
+          <div className="dash-panel-title"><strong>내 프로덕트</strong><span>{publishedProducts.length}개 · 현재 공개 중</span></div>
+          <div className="dash-media-grid">
+            <Link href="/submit/product" className="dash-media-tile dash-media-tile-add"><span>＋</span><strong>새 프로덕트 등록</strong></Link>
             {publishedProducts.map((product) => {
               const brand = brands.find((item) => item.id === product.brand_id);
-              return <article className="ig-post-tile studio-product-tile" key={product.id}>
-                <div className="ig-post-tile-image">
+              return <article className="dash-media-tile dash-product-tile" key={product.id}>
+                <div className="dash-media-tile-image">
                   {product.hero_url ? <img src={product.hero_url} alt={`${product.name} 대표 이미지`} /> : <span>{product.name.slice(0, 1)}</span>}
-                  <div className="studio-product-status">공개 중</div>
-                  <div className="ig-post-tile-views"><span aria-hidden="true">◉</span> {(product.view_count ?? 0).toLocaleString("ko-KR")}</div>
+                  <div className="dash-product-status">공개 중</div>
+                  <div className="dash-media-tile-views"><span aria-hidden="true">◉</span> {(product.view_count ?? 0).toLocaleString("ko-KR")}</div>
                 </div>
-                <div className="ig-post-tile-body">
+                <div className="dash-media-tile-body">
                   <strong>{product.name}</strong>
                   <small>{brand?.name ?? "브랜드"}</small>
                 </div>
-                <div className="studio-row-actions"><Link href={`/my/product/${product.slug}`}>수정</Link><Link href={`/products/${product.slug}`} target="_blank">공개 페이지</Link></div>
+                <div className="dash-row-actions"><Link href={`/my/product/${product.slug}`}>수정</Link><Link href={`/products/${product.slug}`} target="_blank">공개 페이지</Link></div>
               </article>;
             })}
           </div>
         </section>}
 
-        {(draftProducts.length > 0 || writingDrafts.length > 0) && <section className="ig-post-section">
-          <div className="studio-panel-heading"><strong>임시저장한 프로덕트</strong><span>{draftProducts.length + writingDrafts.length}개 · 이어서 완성해보세요</span></div>
+        {(draftProducts.length > 0 || writingDrafts.length > 0) && <section className="dash-media-section">
+          <div className="dash-panel-title"><strong>임시저장한 프로덕트</strong><span>{draftProducts.length + writingDrafts.length}개 · 이어서 완성해보세요</span></div>
           <div className="grid gap-2">
             {draftProducts.map((product) => {
               const brand = brands.find((item) => item.id === product.brand_id);
@@ -558,25 +558,25 @@ export default async function MyPage() {
           </div>
         </section>}
 
-        {brands.length > 0 && <section id="brands" className="ig-post-section">
-          <div className="studio-panel-heading"><strong>내가 올린 브랜드</strong><span>{brands.length}개</span></div>
-          <div className="ig-post-grid">
-            <Link href="/my/brand/new" className="ig-post-tile ig-post-tile-add"><span>＋</span><strong>새 브랜드 등록</strong></Link>
+        {brands.length > 0 && <section id="brands" className="dash-media-section">
+          <div className="dash-panel-title"><strong>내가 올린 브랜드</strong><span>{brands.length}개</span></div>
+          <div className="dash-media-grid">
+            <Link href="/my/brand/new" className="dash-media-tile dash-media-tile-add"><span>＋</span><strong>새 브랜드 등록</strong></Link>
             {brands.map((brand) => {
               const brandProducts = products.filter((product) => product.brand_id === brand.id);
               const brandViews = brandProducts.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
               const tileImage = brandProducts.find((product) => product.hero_url)?.hero_url ?? brand.logo_url;
-              return <article className="ig-post-tile" key={brand.id}>
-                <div className="ig-post-tile-image">
+              return <article className="dash-media-tile" key={brand.id}>
+                <div className="dash-media-tile-image">
                   {tileImage ? <img src={tileImage} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}
-                  <div className="ig-post-tile-status"><BrandStatusButton brandId={brand.id} published={brand.status === "published"} /></div>
-                  <div className="ig-post-tile-views"><span aria-hidden="true">◉</span> {brandViews.toLocaleString("ko-KR")}</div>
+                  <div className="dash-media-tile-status"><BrandStatusButton brandId={brand.id} published={brand.status === "published"} /></div>
+                  <div className="dash-media-tile-views"><span aria-hidden="true">◉</span> {brandViews.toLocaleString("ko-KR")}</div>
                 </div>
-                <div className="ig-post-tile-body">
+                <div className="dash-media-tile-body">
                   <strong>{brand.name}</strong>
                   <small>{brand.category} · {brandProducts.length}개 프로덕트</small>
                 </div>
-                <div className="studio-row-actions"><Link href={`/my/edit/${brand.slug}`}>수정</Link><Link href={`/brands/${brand.slug}`}>미리보기</Link><TeamInviteButton brandId={brand.id} brandName={brand.name} /><DeleteBrandButton brandId={brand.id} brandName={brand.name} /></div>
+                <div className="dash-row-actions"><Link href={`/my/edit/${brand.slug}`}>수정</Link><Link href={`/brands/${brand.slug}`}>미리보기</Link><TeamInviteButton brandId={brand.id} brandName={brand.name} /><DeleteBrandButton brandId={brand.id} brandName={brand.name} /></div>
               </article>;
             })}
           </div>

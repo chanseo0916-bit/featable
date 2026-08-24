@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Community, EventItem, SupportProgram } from "@/lib/types";
-import { StudioNav } from "./studio-nav";
+import { DashNav } from "./dash-nav";
 
 interface PartnerSavedItem {
   type: string;
@@ -60,9 +60,9 @@ export function PartnerDashboard({
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).slice(0, 6);
 
   return <>
-    <StudioNav />
-    <main className="studio-dashboard partner-console">
-      <div className="shell studio-dashboard-inner">
+    <DashNav />
+    <main className="dash-page partner-console">
+      <div className="shell dash-shell">
         <header className="partner-console-hero">
           <div>
             <p>PARTNER OPERATIONS</p>
@@ -115,7 +115,7 @@ export function PartnerDashboard({
         </section>
 
         <section className="partner-identity-panel">
-          <div className="role-dashboard-avatar">{name.slice(0, 1) || "P"}</div>
+          <div className="dash-avatar">{name.slice(0, 1) || "P"}</div>
           <div><span>MY PARTNER PROFILE</span><strong>{name}</strong><p>{email} · 파트너 역할로 활동 중</p></div>
           <div><strong>{teamBrands.length}</strong><span>참여 브랜드</span></div>
           <Link href="/my/profile">내 프로필 카드 만들기/편집 →</Link>

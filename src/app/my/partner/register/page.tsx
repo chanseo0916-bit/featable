@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { StudioNav } from "../../studio-nav";
+import { DashNav } from "../../dash-nav";
 import { PartnerSubmissionForm, type PartnerSubmissionRow } from "../partner-submission-form";
 
 export const metadata: Metadata = { title: "파트너 등록 도구", robots: { index: false, follow: false } };
@@ -22,9 +22,9 @@ export default async function PartnerRegisterPage({ searchParams }: { searchPara
   const initialType = profile?.member_type === "partner" && (type === "support" || type === "community") ? type : "event";
 
   return <>
-    <StudioNav />
-    <main className="studio-dashboard partner-register-page">
-      <div className="shell studio-dashboard-inner">
+    <DashNav />
+    <main className="dash-page partner-register-page">
+      <div className="shell dash-shell">
         <div className="partner-register-heading"><p>SELF-SERVE REGISTRATION</p><h1>기회를 등록하고<br />Founder와 연결하세요.</h1><span>작성 중에는 언제든 저장할 수 있고, 승인된 정보만 Featable에 공개됩니다.</span></div>
         <PartnerSubmissionForm submissions={(data ?? []) as PartnerSubmissionRow[]} initialId={edit} initialType={initialType} eventOnly={profile?.member_type !== "partner"} />
       </div>

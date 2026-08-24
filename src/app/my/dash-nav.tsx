@@ -3,7 +3,7 @@ import { NotificationCenter } from "@/components/notification-center";
 import { LogoutButton } from "@/components/logout-button";
 import { StudioBrand } from "@/components/site-shell";
 
-export function StudioNav({
+export function DashNav({
   active = "home",
   founder = false,
 }: {
@@ -24,9 +24,9 @@ export function StudioNav({
           <Link className={active === "profile" ? "active" : ""} href="/my/profile">내 프로필 카드</Link>
           <Link className={active === "settings" ? "active" : ""} href="/my/settings">계정 설정</Link>
         </nav>
-        <div className="studio-nav-actions">
+        <div className="dash-nav-actions">
           <NotificationCenter />
-          <Link className="studio-exit-link" href="/">Featable 홈 ↗</Link>
+          <Link className="dash-exit-link" href="/">Featable 홈 ↗</Link>
           <LogoutButton variant="studio" />
         </div>
       </div>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { StudioNav } from "../../studio-nav";
+import { DashNav } from "../../dash-nav";
 import { CommunityEditor } from "./community-editor";
 import { CommunityOperations, type CommunityBrandOption, type CommunityEventOption, type CommunityFounderOption, type CommunityManagerOption, type CommunityMembershipOption } from "./community-operations";
 
@@ -92,7 +92,7 @@ export default async function EditCommunityPage({ params }: { params: Promise<{ 
   const sns = community.sns && typeof community.sns === "object" ? community.sns : {};
 
   return <>
-    <StudioNav active="communities" />
+    <DashNav active="communities" />
     <main className="approved-publishing-page"><div className="shell">
       <div className="approved-publishing-heading"><div><span>COMMUNITY CONSOLE</span><h2>{community.name}</h2></div><p>공개 정보와 커뮤니티 연결을 한곳에서 관리합니다.</p></div>
       {accessRole === "editor" ? <section className="community-editor-access-note"><span>EDITOR ACCESS</span><strong>연결 콘텐츠를 관리하는 에디터로 참여 중입니다.</strong><p>커뮤니티 기본 정보는 대표 운영자와 매니저가 수정할 수 있어요.</p></section> : <CommunityEditor slug={community.slug} initial={{ name: community.name, logoUrl: community.logo_url ?? "", field: community.field, intro: community.intro, website: community.website ?? "", instagram: typeof sns.instagram === "string" ? sns.instagram : "" }} />}

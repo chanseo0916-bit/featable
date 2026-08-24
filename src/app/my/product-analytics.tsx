@@ -68,7 +68,7 @@ export function ProductAnalytics({ series }: { series: AnalyticsDay[] }) {
   return (
     <section className="analytics-panel">
       <div className="analytics-head">
-        <div className="studio-panel-heading"><strong>프로덕트 애널리틱스</strong><span>내 프로덕트 전체 기준으로 집계됩니다.</span></div>
+        <div className="dash-panel-title"><strong>프로덕트 애널리틱스</strong><span>내 프로덕트 전체 기준으로 집계됩니다.</span></div>
         <div className="analytics-range-tabs" role="tablist" aria-label="조회 기간">
           {RANGES.map((r) => (
             <button key={r.key} type="button" role="tab" aria-selected={range === r.key} className={range === r.key ? "active" : ""} onClick={() => setRange(r.key)}>

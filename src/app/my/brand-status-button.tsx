@@ -9,7 +9,7 @@ export function BrandStatusButton({ brandId, published }: { brandId: string; pub
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState(false);
 
-  return <button className={`studio-status-toggle ${published ? "on" : ""}`} type="button" disabled={pending} title={error ? "변경에 실패했습니다." : undefined} onClick={() => startTransition(async () => {
+  return <button className={`dash-status-toggle ${published ? "on" : ""}`} type="button" disabled={pending} title={error ? "변경에 실패했습니다." : undefined} onClick={() => startTransition(async () => {
     setError(false);
     const result = await toggleBrandVisibility(brandId, !published);
     if (!result.ok) setError(true);

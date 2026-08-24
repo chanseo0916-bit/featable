@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { StudioNav } from "../../studio-nav";
+import { DashNav } from "../../dash-nav";
 import { TeamProfileForm } from "./team-profile-form";
 
 export const metadata: Metadata = { title: "팀 프로필 · FEATABLE" };
@@ -25,9 +25,9 @@ export default async function TeamProfilePage({ params }: { params: Promise<{ br
   if (!brand) notFound();
 
   return <>
-    <StudioNav />
-    <main className="studio-dashboard team-profile-editor-page">
-      <div className="shell team-profile-editor-shell">
+    <DashNav />
+    <main className="dash-page dash-team-editor-page">
+      <div className="shell dash-team-editor-shell">
         <header>
           <div><span>TEAM PROFILE</span><h1>{brand.name}에서<br />나는 어떤 사람인가요?</h1><p>계정 전체가 아닌, 이 팀에서의 역할과 소개를 설정합니다.</p></div>
           <Link href="/my">워크스페이스로 돌아가기 →</Link>

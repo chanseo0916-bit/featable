@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { StudioNav } from "../../studio-nav";
+import { DashNav } from "../../dash-nav";
 import { PartnerEditor } from "./partner-editor";
 import { PartnerWorkspace } from "./partner-workspace";
 import type { PartnerMemberRole } from "./workspace-actions";
@@ -40,7 +40,7 @@ export default async function EditPartnerPage({ params }: { params: Promise<{ id
   const members = ((membersResult.data ?? []) as unknown as Array<{ user_id: string; member_role: PartnerMemberRole; profile: { full_name: string | null; email: string | null } | null }>).map((item) => ({ userId: item.user_id, name: item.profile?.full_name || item.profile?.email || "Featable 멤버", email: item.profile?.email || "", role: item.member_role }));
   const invitations = (invitationsResult.data ?? []).map((item) => ({ id: item.id, email: item.invitee_email, role: item.member_role as PartnerMemberRole, expiresAt: item.expires_at }));
 
-  return <><StudioNav active="partners" /><main className="approved-publishing-page"><div className="shell">
+  return <><DashNav active="partners" /><main className="approved-publishing-page"><div className="shell">
     <div className="approved-publishing-heading"><div><span>COMPANY WORKSPACE</span><h2>{partner.name}</h2></div><p>회사 프로필, 소속 커뮤니티, 팀원과 채용 공고를 한곳에서 관리합니다.</p></div>
     {(accessRole === "owner" || accessRole === "manager") ? <PartnerEditor id={partner.id} initial={{ name: partner.name, logoUrl: partner.logo_url, field: partner.field ?? "", intro: partner.intro ?? "", description: partner.description ?? "", website: partner.href, status: partner.status === "hidden" ? "hidden" : "published" }} /> : <section className="community-editor-access-note"><span>{accessRole.toUpperCase()} ACCESS</span><strong>{accessRole === "editor" ? "소속 커뮤니티와 채용 공고를 관리할 수 있습니다." : "회사 워크스페이스를 조회할 수 있습니다."}</strong><p>회사 프로필과 팀 구성 변경은 소유자 또는 관리자가 담당합니다.</p></section>}
     <PartnerWorkspace partnerId={partner.id} isOwner={isOwner} canManage={accessRole !== "viewer"} communities={communities} communityCandidates={communityCandidates} members={members} invitations={invitations} />

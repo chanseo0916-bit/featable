@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { StudioNav } from "../../studio-nav";
+import { DashNav } from "../../dash-nav";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensurePublishingInvitationsForUser } from "@/lib/publishing-invitations";
@@ -40,5 +40,5 @@ export default async function ApprovedPublishingPage({ params }: { params: Promi
     website: saved.website ?? inquiry?.website ?? "",
     instagram: saved.instagram ?? "",
   };
-  return <><StudioNav /><main className="approved-publishing-page"><div className="shell"><div className="approved-publishing-heading"><div><span>SELF-SERVE PUBLISHING</span><h2>{data.registration_type === "partner" ? "파트너 등록" : "커뮤니티 등록"}</h2></div><p>공개 전까지 외부에는 보이지 않아요.</p></div><PublishingEditor token={token} type={data.registration_type as "partner" | "community"} initial={initial} /></div></main></>;
+  return <><DashNav /><main className="approved-publishing-page"><div className="shell"><div className="approved-publishing-heading"><div><span>SELF-SERVE PUBLISHING</span><h2>{data.registration_type === "partner" ? "파트너 등록" : "커뮤니티 등록"}</h2></div><p>공개 전까지 외부에는 보이지 않아요.</p></div><PublishingEditor token={token} type={data.registration_type as "partner" | "community"} initial={initial} /></div></main></>;
 }

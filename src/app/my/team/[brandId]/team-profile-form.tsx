@@ -41,12 +41,12 @@ export function TeamProfileForm({ initial }: { initial: TeamProfileInput }) {
     });
   }
 
-  return <div className="team-profile-editor-grid">
-    <section className="team-profile-form-card">
+  return <div className="dash-team-editor-grid">
+    <section className="dash-team-form-card">
       <label>프로필 사진</label>
-      <div className="team-profile-photo-field">
+      <div className="dash-team-photo-field">
         <div>{form.avatarUrl ? <img src={form.avatarUrl} alt="" /> : <span>{form.displayName.slice(0, 1) || "T"}</span>}</div>
-        <label className="team-profile-upload">{uploading ? "업로드 중…" : "사진 선택"}<input type="file" accept="image/*" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(file); }} /></label>
+        <label className="dash-team-upload">{uploading ? "업로드 중…" : "사진 선택"}<input type="file" accept="image/*" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) upload(file); }} /></label>
       </div>
 
       <label htmlFor="team-name">이름 *</label>
@@ -55,7 +55,7 @@ export function TeamProfileForm({ initial }: { initial: TeamProfileInput }) {
       <input id="team-title" value={form.title} placeholder="예: Product Designer" onChange={(event) => set({ title: event.target.value })} />
       <label htmlFor="team-bio">한 줄 소개</label>
       <textarea id="team-bio" value={form.bio} placeholder="팀에서 어떤 일을 맡고 있는지 소개해주세요." onChange={(event) => set({ bio: event.target.value })} />
-      <label className="team-profile-public-toggle">
+      <label className="dash-team-public-toggle">
         <input type="checkbox" checked={form.isPublic} onChange={(event) => set({ isPublic: event.target.checked })} />
         <span><strong>브랜드 페이지에 공개</strong><small>끄면 공동 편집 권한은 유지되고 프로필만 숨겨집니다.</small></span>
       </label>
@@ -63,8 +63,8 @@ export function TeamProfileForm({ initial }: { initial: TeamProfileInput }) {
       <button type="button" disabled={pending || uploading} onClick={save}>{pending ? "저장 중…" : "팀 프로필 저장"}</button>
     </section>
 
-    <aside className="team-profile-live-card team-profile-card-preview">
-      <p className="team-profile-preview-label">PREVIEW</p>
+    <aside className="dash-team-live-card dash-team-card-preview">
+      <p className="dash-team-preview-label">PREVIEW</p>
       <TeamProfileCard
         name={form.displayName || "이름"}
         title={form.title || "팀 내 역할"}

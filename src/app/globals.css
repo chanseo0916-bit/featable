@@ -1443,14 +1443,14 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .team-card-state.muted { border-color: #e0e3e5; background: #f2f3f4; color: var(--fg-muted); }
 .team-card-state.muted::before { background: #9da3a7; }
 .company-team-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 310px)); align-items: start; justify-content: start; gap: 16px; }
-.team-profile-admin-card > .team-member-admin, .team-owner-card-action { min-height: 52px; margin: 0; padding: 10px 13px; border-top: 0; background: #fff; }
+.dash-team-admin-card > .team-member-admin, .team-owner-card-action { min-height: 52px; margin: 0; padding: 10px 13px; border-top: 0; background: #fff; }
 .team-owner-card-action { display: flex; align-items: center; justify-content: space-between; }
 .team-owner-card-action span { color: var(--fg-muted); font-size: 12px; font-weight: 700; }
 .team-owner-card-action a { color: var(--accent); font-size: 12px; font-weight: 700; }
 @media (max-width: 800px) {
-  .team-profile-member-list, .company-team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .team-profile-editor-grid { grid-template-columns: 1fr; }
-  .team-profile-live-card { position: static; }
+  .dash-team-member-list, .company-team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dash-team-editor-grid { grid-template-columns: 1fr; }
+  .dash-team-live-card { position: static; }
 }
 @media (max-width: 560px) {
   .notification-panel { position: fixed; top: 68px; right: 12px; left: 12px; width: auto; }
@@ -1459,12 +1459,12 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .header-logout span { display: none; }
   .header-profile-card-link { width: 36px; padding: 0; justify-content: center; }
   .header-profile-card-link span { display: none; }
-  .team-profile-brand > header { grid-template-columns: 42px 1fr; }
-  .team-profile-brand > header > .team-invite { grid-column: 1 / -1; }
-  .team-profile-member-list, .company-team-grid { grid-template-columns: 1fr; }
-  .team-profile-editor-shell { padding-top: 36px; }
-  .team-profile-editor-shell > header { align-items: flex-start; flex-direction: column; }
-  .team-profile-form-card { padding: 20px; }
+  .dash-team-brand > header { grid-template-columns: 42px 1fr; }
+  .dash-team-brand > header > .team-invite { grid-column: 1 / -1; }
+  .dash-team-member-list, .company-team-grid { grid-template-columns: 1fr; }
+  .dash-team-editor-shell { padding-top: 36px; }
+  .dash-team-editor-shell > header { align-items: flex-start; flex-direction: column; }
+  .dash-team-form-card { padding: 20px; }
   .company-about-v2 > p { max-width: 100%; word-break: normal; overflow-wrap: anywhere; }
   }
 .submission-review-controls { margin-top: 18px; padding-top: 17px; display: grid; gap: 9px; border-top: 1px solid #e8eaec; }
@@ -1756,7 +1756,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-hook-card:hover > img {
   transform: none;
 }
-.team-profile-admin-card:hover {
+.dash-team-admin-card:hover {
   transform: none;
 }
 .feature-aside-actions { padding-top: 17px; display: grid; gap: 8px; border-bottom: 0 !important; }
@@ -1765,7 +1765,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .story-card .eyebrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .product-aside-stats { margin: 14px 0 0; display: flex; gap: 14px; color: var(--fg-muted); font-size: 12px; font-weight: 700; }
 .product-aside-stats strong { color: var(--fg-default); font-weight: 700; }
-.ig-post-tile-status, .studio-exit-link, .text-link { white-space: nowrap; }
+.dash-media-tile-status, .dash-exit-link, .text-link { white-space: nowrap; }
 .opportunity-card h3, .community-card h3, .brand-card h3 { word-break: keep-all; }
 .founders-list-note { margin-top: 26px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .feature-related-interview { margin-top: 48px; padding-top: 30px; border-top: 1px solid var(--border); }

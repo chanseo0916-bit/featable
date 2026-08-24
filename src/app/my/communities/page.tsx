@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { StudioNav } from "../studio-nav";
+import { DashNav } from "../dash-nav";
 
 export const metadata: Metadata = { title: "내 커뮤니티 관리 · FEATABLE" };
 
@@ -45,9 +45,9 @@ export default async function MyCommunitiesPage() {
   const communities = [...communityMap.values()];
 
   return <>
-    <StudioNav active="communities" />
-    <main className="studio-dashboard managed-community-page">
-      <div className="shell studio-dashboard-inner">
+    <DashNav active="communities" />
+    <main className="dash-page managed-community-page">
+      <div className="shell dash-shell">
         <header className="managed-community-heading">
           <div><span>COMMUNITY CONSOLE</span><h1>내 커뮤니티</h1><p>내가 운영하는 커뮤니티의 공개 정보를 직접 관리하세요.</p></div>
           <Link href="/partners/apply">새 커뮤니티 등록 문의 ↗</Link>
