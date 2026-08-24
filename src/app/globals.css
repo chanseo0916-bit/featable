@@ -1,3 +1,16 @@
+@import "tailwindcss";
+@import "../components/cards/entity-card.css";
+@import "../styles/partner.css";
+@import "../styles/admin.css";
+@import "../styles/founder.css";
+@import "../styles/product-detail.css";
+@import "../styles/home.css";
+@import "../styles/submit-forms.css";
+@import "../styles/event.css";
+@import "../styles/support.css";
+@import "../styles/community.css";
+@import "../styles/my.css";
+
 :root {
   --background: #ffffff;
   --surface: var(--gray-100);
