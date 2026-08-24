@@ -310,6 +310,12 @@
   text-align: center;
 }
 
+@media (max-width: 800px) {
+  .widget {
+    margin-top: 88px; /* 새로 등록된 프로덕트와의 간격 */
+  }
+}
+
 @media (max-width: 420px) {
   .widget {
     padding: 20px 16px;

@@ -2109,7 +2109,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .fresh-rail-track > * { flex-basis: 76vw; scroll-snap-align: center; }
 }
 @media (max-width: 800px) { .home-interview-section { padding-top: 65px; } }
-@media (max-width: 800px) { .live-main + .live-ranking { margin-top: 88px; } }
+
 /* ===== 모바일 대응 일괄 보강 (2026-08) ===== */
 /* /submit 역할 게이트 — 700px 미디어쿼리 안에 갇혀 있던 규칙을 전 폭으로 복원 */
 .role-gate-page { display: grid; place-items: center; }
