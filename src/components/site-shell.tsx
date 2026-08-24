@@ -9,7 +9,7 @@ function FeatableLogo({ priority = false }: { priority?: boolean }) {
 }
 
 export function StudioBrand() {
-  return <strong className="studio-brand-lockup"><FeatableLogo /><span>STUDIO</span></strong>;
+  return <strong className="dash-brand-lockup"><FeatableLogo /><span>STUDIO</span></strong>;
 }
 
 export function Header() {
