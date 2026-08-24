@@ -175,7 +175,7 @@ export default async function SupportPage({
                 <p className="support-card-benefits">{program.benefits}</p>
                 <div className="support-card-bottom">
                   <span>{program.region} · {program.target}</span>
-                  <span className="support-card-check">확인하기 <span aria-hidden="true">→</span></span>
+                  <span className="button button-xsmall support-card-check">확인하기 <span aria-hidden="true">→</span></span>
                 </div>
               </Link>
             ))}

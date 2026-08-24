@@ -2450,21 +2450,7 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
   line-height: 1.45;
 }
 .support-card-bottom span:first-child { max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* 우리 버튼(.button) 스타일 재사용 — solid accent + 흰 텍스트 */
-.support-card-check {
-  margin-left: auto;
-  padding: 8px 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: var(--accent);
-  color: #fff;
-  font-size: var(--fs-t2);
-  font-weight: 700;
-  white-space: nowrap;
-}
+.support-card-check { margin-left: auto; }
 
 
 
