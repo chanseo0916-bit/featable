@@ -7,7 +7,14 @@ type WorkerContext = { waitUntil(promise: Promise<unknown>): void };
 type ScheduledEvent = { cron: string };
 
 const worker = {
-  fetch: handler.fetch,
+  async fetch(request: Request, env: FeatableWorkerEnv, ctx: WorkerContext) {
+    const url = new URL(request.url);
+    if (url.protocol === "http:" || request.headers.get("x-forwarded-proto") === "http") {
+      url.protocol = "https:";
+      return Response.redirect(url, 308);
+    }
+    return handler.fetch(request, env, ctx);
+  },
   async scheduled(event: ScheduledEvent, env: FeatableWorkerEnv, ctx: WorkerContext) {
     if (!env.SYNC_CRON_SECRET) throw new Error("SYNC_CRON_SECRET is missing.");
     const paths = event.cron === "0 */6 * * *"
