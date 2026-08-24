@@ -1,16 +1,3 @@
-@import "tailwindcss";
-@import "../components/cards/entity-card.css";
-@import "../styles/partner.css";
-@import "../styles/admin.css";
-@import "../styles/founder.css";
-@import "../styles/product-detail.css";
-@import "../styles/home.css";
-@import "../styles/submit-forms.css";
-@import "../styles/event.css";
-@import "../styles/support.css";
-@import "../styles/community.css";
-
-/* Featable 디자인 토큰 — 순백 배경 + 오렌지 강조 (다크모드 없음, 브랜드 아이덴티티) */
 :root {
   --background: #ffffff;
   --surface: var(--gray-100);
@@ -154,9 +141,6 @@ summary::-webkit-details-marker { display: none; }
 .header-profile-card-link:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 32%, white); outline-offset: 2px; }
 .header-profile-card-link svg { width: 17px; height: 17px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .search-link { font-size: 28px; line-height: 1; transform: rotate(-20deg); display: inline-block; }
-/* Primary CTA — SEED(당근) Box Button 스타일: solid 배경 + bold 라벨,
-   hover는 커서 변경만 (시각 변형 없음), weight는 700 고정.
-   SEED large(xlarge급)를 웹 기본으로 사용 */
 .button {
   position: relative;
   display: inline-flex; justify-content: center; align-items: center; gap: 6px;
@@ -180,10 +164,6 @@ summary::-webkit-details-marker { display: none; }
 }
 .button-small { padding: 0 16px; height: 44px; font-size: 14px; }
 .button-xsmall { padding: 0 12px; height: 36px; font-size: 13px; }
-/* SEED Box Button variant 체계
-   - primary(.button): 주요 액션 — 한 화면 1~2개로 제한
-   - secondary(.button-secondary): 서브 액션 — 테두리형, 같은 크기 체계
-   - danger(.button-danger): 파괴적 액션(취소·탈퇴 등) */
 .button-secondary {
   border: 1px solid #dfe2e5;
   background: #fff;
@@ -262,7 +242,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .footer-legal a { color: var(--fg-subtle); }
 .footer-legal a:hover { color: var(--muted); }
 @keyframes partner-marquee { to { transform: translateX(-50%); } }
-/* Keep differently proportioned partner marks fully visible in the footer rail. */
 .partner-board { width: 100%; }
 .partner-board .partner-row { display: flex; flex-wrap: wrap; gap: 12px; padding: 0; }
 .partner-row a {
@@ -354,7 +333,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .job-detail-card .eyebrow { margin: 16px 0 8px; }
 .job-detail-card h2 { margin: 0 0 20px; }
 @media (max-width: 800px) { .listing-page { padding-top: 55px; }.listing-heading { display: block; margin-bottom: 35px; }.listing-heading .filter-chips { margin-top: 25px; }.event-submit-link { display: inline-block; margin-top: 22px; }.listing-grid { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }.story-list-grid { grid-template-columns: 1fr; }.brand-tabs .shell { gap: 24px; white-space: nowrap; }.inline-feature img { width: 110px; height: 75px; } }
-/* Home discovery v2 — editorial curation + live ranking */
 .site-header { height: 72px; }
 .logo { width: 145px; }
 .nav-submit { border-radius: 8px; padding-inline: 18px; }
@@ -383,7 +361,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 }
 @media (max-width: 430px) {.fresh-product-card .card-body h3 { font-size: 16px; }.fresh-product-card .card-meta span { font-size: 12px; }.opportunity-copy h2 { font-size: 32px; }
 }
-/* Product detail — long commerce storytelling canvas */
 .product-breadcrumb { height: 54px; display: flex; align-items: center; gap: 9px; color: var(--fg-muted); font-size: 12px; }
 .product-breadcrumb strong { color: var(--fg-default); font-weight: 500; }
 .product-detail-tabs { position: sticky; top: 0; z-index: 8; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #fffffff2; backdrop-filter: blur(14px); }
@@ -394,38 +371,42 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (max-width: 900px) {
   .commerce-summary { gap: 35px; }.commerce-gallery { grid-template-columns: 1fr; }.commerce-hero-image { grid-column: 1; }.commerce-thumbs { grid-column: 1; grid-row: 2; flex-direction: row; }}
 @media (max-width: 700px) {
-  .product-breadcrumb { overflow: hidden; white-space: nowrap; }.commerce-summary { display: block; padding-top: 5px; padding-bottom: 45px; }.commerce-gallery { margin-bottom: 35px; }.commerce-hero-image { border-radius: 12px; }.commerce-thumbs button { width: 58px; height: 58px; }.commerce-buy-panel > h1 { font-size: 40px; }.commerce-tagline { font-size: 14px; }.product-detail-tabs { overflow-x: auto; }.product-detail-tabs .shell { width: max-content; min-width: 100%; justify-content: start; gap: 28px; padding: 0 20px; }}
-
-
-/* 회사 워크스페이스 */
-.partner-workspace-console { margin-top: 18px; overflow: hidden; border: 1px solid #dfe2e5; border-radius: 16px; background: #fff; }
-.partner-workspace-console > header { padding: 28px 30px; display: flex; align-items: end; justify-content: space-between; gap: 24px; border-bottom: 1px solid #e8eaec; }
-.partner-workspace-console > header > div:first-child > span, .partner-workspace-grid article > header small { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .12em; }
-.partner-workspace-console > header h2 { margin: 7px 0 5px; font-size: 26px; letter-spacing: -.05em; }
-.partner-workspace-console > header p, .partner-workspace-grid article > header p { margin: 0; color: var(--fg-muted); font-size: 11px; line-height: 1.55; }
-.partner-workspace-console > header > div:last-child { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 3px 10px; padding: 12px 16px; border-radius: 12px; background: #f4f5f6; }
-.partner-workspace-console > header b { font-size: 18px; }
-.partner-workspace-console > header > div:last-child span { color: var(--fg-muted); font-size: 11px; }
-.partner-workspace-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.partner-workspace-grid > article { min-width: 0; padding: 26px 30px 30px; }
-.partner-workspace-grid > article:first-child { border-right: 1px solid #e8eaec; }
-.partner-workspace-grid h3 { margin: 5px 0; font-size: 18px; letter-spacing: -.04em; }
-.partner-workspace-community-list, .partner-member-list, .partner-pending-invites { margin-top: 14px; display: grid; gap: 7px; }
-.partner-workspace-community-list > div, .partner-member-list > div, .partner-pending-invites > div { min-width: 0; padding: 10px; display: flex; align-items: center; gap: 9px; border: 1px solid #e8eaec; border-radius: 8px; }
-.partner-workspace-community-list img, .partner-workspace-community-list i, .partner-member-list i { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 12px; background: #f1f2f3; object-fit: cover; color: var(--accent); font-style: normal; font-weight: 700; }
-.partner-workspace-community-list span, .partner-member-list span, .partner-pending-invites span { min-width: 0; flex: 1; }
-.partner-workspace-community-list strong, .partner-member-list strong, .partner-pending-invites > strong { display: block; font-size: 11px; }
-.partner-workspace-community-list small, .partner-member-list small, .partner-pending-invites small { margin-top: 3px; display: block; overflow: hidden; color: var(--fg-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.partner-workspace-community-list a, .partner-workspace-community-list button, .partner-member-list button, .partner-pending-invites button { border: 0; background: transparent; color: var(--fg-muted); font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.partner-workspace-community-list a { color: var(--accent); }
-.partner-workspace-register { margin-top: 15px; display: inline-flex; color: var(--accent); font-size: 11px; font-weight: 700; }
-.partner-member-invite, .partner-invite-link { margin-top: 18px; display: flex; gap: 7px; }
-.partner-member-invite input, .partner-member-invite select, .partner-invite-link input, .partner-member-list select { min-width: 0; height: 42px; padding: 0 11px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; font: inherit; font-size: 11px; }
-.partner-member-invite input, .partner-invite-link input { flex: 1; }
-.partner-member-invite button, .partner-invite-link button { padding: 0 14px; border: 0; border-radius: 8px; background: #111; color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.partner-member-list select { width: 76px; height: 32px; }
-.partner-member-list em { color: var(--fg-muted); font-size: 11px; font-style: normal; text-transform: uppercase; }
-@media (max-width: 760px) {
+  .product-breadcrumb { overflow: hidden; white-space: nowrap; }
+  .commerce-summary { display: block; padding-top: 5px; padding-bottom: 45px; }
+  .commerce-gallery { margin-bottom: 35px; }
+  .commerce-hero-image { border-radius: 12px; }
+  .commerce-thumbs button { width: 58px; height: 58px; }
+  .commerce-buy-panel > h1 { font-size: 40px; }
+  .commerce-tagline { font-size: 14px; }
+  .product-detail-tabs { overflow-x: auto; }
+  .product-detail-tabs .shell { width: max-content; min-width: 100%; justify-content: start; gap: 28px; padding: 0 20px; }
+  .partner-workspace-console { margin-top: 18px; overflow: hidden; border: 1px solid #dfe2e5; border-radius: 16px; background: #fff; }
+  .partner-workspace-console > header { padding: 28px 30px; display: flex; align-items: end; justify-content: space-between; gap: 24px; border-bottom: 1px solid #e8eaec; }
+  .partner-workspace-console > header > div:first-child > span, .partner-workspace-grid article > header small { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .12em; }
+  .partner-workspace-console > header h2 { margin: 7px 0 5px; font-size: 26px; letter-spacing: -.05em; }
+  .partner-workspace-console > header p, .partner-workspace-grid article > header p { margin: 0; color: var(--fg-muted); font-size: 11px; line-height: 1.55; }
+  .partner-workspace-console > header > div:last-child { display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 3px 10px; padding: 12px 16px; border-radius: 12px; background: #f4f5f6; }
+  .partner-workspace-console > header b { font-size: 18px; }
+  .partner-workspace-console > header > div:last-child span { color: var(--fg-muted); font-size: 11px; }
+  .partner-workspace-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .partner-workspace-grid > article { min-width: 0; padding: 26px 30px 30px; }
+  .partner-workspace-grid > article:first-child { border-right: 1px solid #e8eaec; }
+  .partner-workspace-grid h3 { margin: 5px 0; font-size: 18px; letter-spacing: -.04em; }
+  .partner-workspace-community-list, .partner-member-list, .partner-pending-invites { margin-top: 14px; display: grid; gap: 7px; }
+  .partner-workspace-community-list > div, .partner-member-list > div, .partner-pending-invites > div { min-width: 0; padding: 10px; display: flex; align-items: center; gap: 9px; border: 1px solid #e8eaec; border-radius: 8px; }
+  .partner-workspace-community-list img, .partner-workspace-community-list i, .partner-member-list i { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 12px; background: #f1f2f3; object-fit: cover; color: var(--accent); font-style: normal; font-weight: 700; }
+  .partner-workspace-community-list span, .partner-member-list span, .partner-pending-invites span { min-width: 0; flex: 1; }
+  .partner-workspace-community-list strong, .partner-member-list strong, .partner-pending-invites > strong { display: block; font-size: 11px; }
+  .partner-workspace-community-list small, .partner-member-list small, .partner-pending-invites small { margin-top: 3px; display: block; overflow: hidden; color: var(--fg-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .partner-workspace-community-list a, .partner-workspace-community-list button, .partner-member-list button, .partner-pending-invites button { border: 0; background: transparent; color: var(--fg-muted); font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .partner-workspace-community-list a { color: var(--accent); }
+  .partner-workspace-register { margin-top: 15px; display: inline-flex; color: var(--accent); font-size: 11px; font-weight: 700; }
+  .partner-member-invite, .partner-invite-link { margin-top: 18px; display: flex; gap: 7px; }
+  .partner-member-invite input, .partner-member-invite select, .partner-invite-link input, .partner-member-list select { min-width: 0; height: 42px; padding: 0 11px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; font: inherit; font-size: 11px; }
+  .partner-member-invite input, .partner-invite-link input { flex: 1; }
+  .partner-member-invite button, .partner-invite-link button { padding: 0 14px; border: 0; border-radius: 8px; background: #111; color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .partner-member-list select { width: 76px; height: 32px; }
+  .partner-member-list em { color: var(--fg-muted); font-size: 11px; font-style: normal; text-transform: uppercase; }
   .partner-workspace-console > header { padding: 22px 18px; display: block; }
   .partner-workspace-console > header > div:last-child { margin-top: 16px; width: fit-content; }
   .partner-workspace-grid { grid-template-columns: 1fr; }
@@ -434,9 +415,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .partner-member-invite { flex-wrap: wrap; }
   .partner-member-invite input { flex-basis: 100%; }
 }
-
-
-/* Self-serve registration — Event-us style structured publishing */
 .story-builder-intro { padding: 18px 20px; border-radius: 12px; background: var(--accent-soft); }
 .story-builder-intro > p { margin: 0; line-height: 1.7; }
 .story-builder-intro > div { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 15px; }
@@ -545,7 +523,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .feature-article-aside > a { display: block; margin-top: 17px; color: var(--accent); font-size: 12px; font-weight: 700; }
 @media (max-width: 930px) {.feature-story-layout { grid-template-columns: minmax(0, 760px); max-width: 760px; }.feature-article-aside { display: none; } }
 @media (max-width: 720px) {.feature-top-tabs .shell { width: max-content; min-width: 100%; justify-content: start; padding: 0 16px; }.feature-action-area { position: sticky; bottom: 10px; z-index: 5; padding: 8px; border-radius: 12px; background: #ffffffed; box-shadow: 0 8px 28px #1112; }.feature-content-tabs { overflow-x: auto; }.feature-content-tabs .shell { width: max-content; min-width: 100%; justify-content: start; padding: 0 16px; }.feature-story-layout { width: 100%; padding-top: 60px; }.feature-long-article > header, .feature-long-article > .feature-lead { margin-left: 16px; margin-right: 16px; }.feature-long-article > header h2 { font-size: 40px; }.feature-lead { font-size: 20px; }.feature-long-article > section:not(.feature-founder-quote):not(.feature-related-product) { padding: 65px 24px; }.feature-long-article > section > h3 { font-size: 28px; }.feature-founder-quote { display: block; }.feature-founder-quote > img { min-height: 450px; height: 450px; }.feature-founder-quote > div { padding: 55px 26px; }.feature-related-product { margin: 0 16px; }.feature-related-product > a { grid-template-columns: 120px 1fr; gap: 16px; }.feature-related-product img { width: 120px; height: 120px; }.feature-related-product h3 { font-size: 18px; }.feature-related-product div > strong { margin-top: 13px; } }
-/* Platform header + edge-to-edge campaign banner */
 .site-header { height: auto; background: #fff; }
 .header-primary { height: 76px; display: flex; align-items: center; gap: 38px; }
 .header-primary .logo { width: 136px; }
@@ -568,7 +545,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (max-width: 760px) {
   .site-header { height: auto; margin-bottom: 14px; }.header-primary { height: 64px; gap: 0; }.header-primary .logo { width: 124px; }.header-search { display: none; }.mobile-search-link { width: 34px; height: 34px; display: grid; place-items: center; }.mobile-search-link > span { position: relative; width: 14px; height: 14px; border: 2px solid #111; border-radius: 50%; }.mobile-search-link > span::after { content: ""; position: absolute; width: 6px; height: 2px; right: -5px; bottom: -2px; background: #111; transform: rotate(45deg); }.header-channel-row { overflow: hidden; }.channel-nav { width: 100%; height: 44px; padding: 0 16px; gap: 14px; }.channel-nav a { font-size: 12px; padding: 10px 16px; }.channel-nav > i, .channel-highlight { display: none; }.home-banner-wrap .discovery-banner { aspect-ratio: 16 / 9; border-radius: 12px; }.home-banner-wrap .discovery-banner-copy { left: 20px; bottom: 20px; }.home-banner-wrap .discovery-banner-control { right: 20px; bottom: 20px; }
 }
-/* Home platform refinement — denser discovery UI, less magazine styling */
 .home-top-banner { height: 360px; }
 @media (prefers-reduced-motion: reduce) {
   .home-banner-slide, .home-top-banner > img { transition: none; }
@@ -582,7 +558,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .opportunity-list > a:first-child { border-top-color: #d7d7d7; }
 .opportunity-list p, .opportunity-list span { color: var(--fg-muted); }
 .opportunity-type { padding: 4px 8px; border-radius: 6px; background: #f4f4f5; color: var(--fg-muted); font-size: 12px; font-weight: 700; }
-/* 버튼 모양 CTA는 장식이므로 .button의 hover 변화 없음 (카드 hover 이펙트 제거 방침) */
 @media (max-width: 760px) {
   .home-banner-track { height: 310px; }
   .home-top-banner { height: 310px; }
@@ -647,7 +622,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (max-width: 480px) {
   .community-directory-list { grid-template-columns: 1fr; }
 }
-/* Featable feature brief — profile/discovery layout, not a funding panel */
 .feature-brief-wrap { padding-top: 34px; padding-bottom: 34px; }
 .feature-brief-hero { min-height: 570px; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); overflow: hidden; border-radius: 16px; background: #191919; color: #fff; }
 .feature-brief-copy { min-width: 0; padding: 44px 42px 38px; display: flex; flex-direction: column; }
@@ -661,12 +635,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .feature-brief-excerpt { max-width: 490px; margin: 19px 0 0; color: var(--fg-subtle); font-size: 13px; line-height: 1.7; }
 .feature-brief-metrics { margin-top: auto; padding: 28px 0 23px; display: flex; align-items: center; gap: 20px; border-top: 1px solid #333; }
 .feature-brief-metrics > div { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-/* strong/span은 통계 블록(div)에만 적용한다 — SaveButton도 strong/span을 쓰기 때문에
-   범위를 좁히지 않으면 버튼 라벨이 흰 배경 위 흰 글자가 되어 사라진다. */
 .feature-brief-metrics > div strong { color: #fff; font-size: 18px; line-height: 1; letter-spacing: -.03em; }
 .feature-brief-metrics > div span { color: var(--fg-muted); font-size: 12px; }
-/* 조회수는 "1회 조회" 한 줄로 읽히도록 가로 baseline 정렬 — 세로로 쪼개지면
-   옆 버튼과 정렬이 어긋나 보인다(스트립의 flex-direction: column을 되돌림). */
 .feature-brief-metrics .feature-discovery-metric { margin: 0; flex-direction: row; align-items: baseline; gap: 4px; color: inherit; }
 .feature-brief-metrics .feature-discovery-metric strong { font-size: 20px; }
 .feature-brief-metrics .feature-discovery-metric span { color: var(--fg-muted); font-size: 12px; font-weight: 400; }
@@ -718,7 +688,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .feature-social-proof { margin: 10px 16px 0; }
   .feature-social-proof > span { display: none; }
 }
-/* Founder identity — collectible profile without the NFT/neon visual language */
 @media (max-width: 900px) {
   .founder-id-section { grid-template-columns: minmax(290px, .8fr) 1.2fr; gap: 36px; }
   .founder-id-visual { min-height: 450px; }
@@ -739,12 +708,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .founder-flow > b { display: none; }
   .founder-flow > div, .founder-flow > a, .founder-flow > span[aria-disabled] { min-width: 110px; }
 }
-/* Full-width pages should hand off directly to the footer instead of leaving a dead zone. */
-.founder-page + .footer,
-.community-hub + .footer,
-.feature-project-page + .footer,
 .commerce-product + .footer { margin-top: 0; }
-/* Publishing workspace — operational dashboard */
 .publish-console-nav { height: 76px; border-top: 4px solid var(--accent); background: #171717; color: #fff; }
 .publish-console-nav .shell { height: 72px; display: flex; align-items: center; gap: 48px; }
 .publish-console-nav strong { display: flex; align-items: center; gap: 10px; font-size: 14px; letter-spacing: .02em; }
@@ -772,15 +736,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .submit-persist-state { font-size: 0; }
   .submit-form-card { min-height: 500px; padding: 24px 18px 30px; }
 }
-/* Studio dashboard */
 .publish-console-nav .shell > form { margin-left: auto; }
 .publish-console-nav .shell > form button { padding: 12px 15px; border: 0; border-radius: 8px; background: #2b2b2b; color: #fff; cursor: pointer; font-size: 12px; font-weight: 700; }
 .publish-console-nav .notification-bell { color: #fff; }
 .publish-console-nav .notification-bell:hover, .publish-console-nav .notification-bell[aria-expanded="true"] { border-color: #3d3d3d; background: #292929; }
 .publish-console-nav .notification-bell b { border-color: #171717; }
-/* Admin console */
-/* 사용자 상세 */
-
 .admin-back-link { margin: -8px 0 18px; }
 .admin-back-link a { color: var(--fg-muted); font-size: 12px; font-weight: 700; }
 .admin-back-link a:hover { color: var(--accent); }
@@ -820,7 +780,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .interview-campaign-control > span { position: absolute; z-index: 3; right: 0; top: calc(100% + 7px); width: 220px; padding: 9px 11px; border: 1px solid #e1e3e5; border-radius: 8px; background: #fff; box-shadow: 0 8px 26px rgba(22,24,27,.12); color: var(--fg-default); font-size: 11px; line-height: 1.5; }
 .admin-partner-name { min-width: 0; display: flex; align-items: center; gap: 13px; }
 .admin-partner-name img { width: 46px; height: 46px; flex: none; border: 1px solid #e1e3e5; border-radius: 12px; object-fit: cover; }
-
 .seo-publish-panel { margin-top: 28px; border: 1px solid #dfe3e8; border-radius: 16px; background: #fff; overflow: hidden; }
 .seo-publish-panel > summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; cursor: pointer; list-style: none; }
 .seo-publish-panel > summary::-webkit-details-marker { display: none; }
@@ -856,25 +815,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .admin-stack-list article { grid-template-columns: 1fr auto; }
   .admin-row-actions { grid-column: 1 / -1; }
 }
-/* Studio: one clear next action for a new account */
-/* Studio: Instagram 프로필풍 마이페이지 헤더 */
-.ig-profile-head { display: flex; gap: 26px; padding: 26px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
-.ig-profile-avatar { width: 88px; height: 88px; flex: 0 0 88px; display: grid; place-items: center; overflow: hidden; border: 1px solid #dfe2e5; border-radius: 50%; background: #fff; }
-.ig-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.ig-profile-avatar span { color: var(--accent); font-size: 32px; font-weight: 700; }
-.ig-profile-main { flex: 1; min-width: 0; display: grid; gap: 14px; align-content: center; }
-.ig-profile-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.ig-profile-top h1 { margin: 0; font-size: 20px; letter-spacing: -.03em; }
-.ig-btn { height: 34px; padding: 0 14px; display: inline-flex; align-items: center; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; color: var(--fg-default); font-size: 12px; font-weight: 700; }
-.ig-btn:hover { border-color: #bcc1c7; }
-.ig-btn.primary { margin-left: auto; border-color: var(--accent); background: var(--accent); color: #fff; }
-.ig-btn.primary:hover { background: var(--accent-hover); }
-.ig-profile-stats { display: flex; gap: 26px; }
-.ig-profile-stats > div { display: flex; align-items: baseline; gap: 6px; }
-.ig-profile-stats strong { font-size: 16px; letter-spacing: -.02em; }
-.ig-profile-stats span { color: var(--fg-muted); font-size: 12px; }
-.ig-profile-bio { max-width: 560px; margin: 0; color: var(--fg-default); font-size: 12px; line-height: 1.6; }
-/* Studio: 공개 프로필 카드 미리보기 */
 .ig-founder-preview { margin-top: 16px; padding: 22px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
 .ig-founder-preview-empty { margin-top: 14px; padding: 30px 20px; display: grid; gap: 10px; justify-items: center; border: 1px dashed #d5d9dc; border-radius: 12px; text-align: center; }
 .ig-founder-preview-empty p { margin: 0; color: var(--fg-muted); font-size: 12px; }
@@ -885,25 +825,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .team-pending-invites span { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .team-pending-invites small { color: var(--fg-muted); font-size: 12px; }
 .pending-invite-cancel { border: 0; background: none; color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 700; }
-/* Studio: Instagram 프로필풍 게시물(브랜드) 그리드 */
-.ig-post-section { margin-top: 22px; }
-.ig-post-grid { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(216px, 1fr)); gap: 14px; }
-.ig-post-tile { display: flex; flex-direction: column; overflow: hidden; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; transition: border-color .16s, box-shadow .16s, transform .16s; }
-.ig-post-tile:hover { border-color: #bcc1c7; box-shadow: 0 7px 20px #1111110a; transform: translateY(-1px); }
-.ig-post-tile-image { position: relative; aspect-ratio: 1; background: #f3f4f5; }
-.ig-post-tile-image img { width: 100%; height: 100%; display: block; object-fit: cover; }
-.ig-post-tile-image > span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--accent); font-size: 32px; font-weight: 700; }
-.ig-post-tile-status { position: absolute; top: 8px; left: 8px; z-index: 2; }
-.ig-post-tile-views { position: absolute; right: 8px; bottom: 8px; z-index: 2; padding: 4px 8px; display: flex; align-items: center; gap: 4px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; font-weight: 700; backdrop-filter: blur(2px); }
-.ig-post-tile-views span { font-size: 12px; }
-.ig-post-tile-body { padding: 10px 12px 4px; display: grid; gap: 3px; }
-.ig-post-tile-body strong { font-size: 12px; letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ig-post-tile-body small { color: var(--fg-muted); font-size: 12px; }
-.ig-post-tile-add { align-items: center; justify-content: center; gap: 8px; aspect-ratio: unset; min-height: 100%; border: 1px dashed #d5d9dc; color: var(--fg-muted); text-align: center; padding: 30px 16px; }
-.ig-post-tile-add span { font-size: 26px; font-weight: 400; color: var(--accent); }
-.ig-post-tile-add strong { font-size: 12px; font-weight: 700; }
-.ig-post-tile-add:hover { border-color: var(--accent); color: var(--accent); }
-/* Studio: 프로덕트 애널리틱스 (Vercel Analytics풍) */
 .analytics-panel { margin-top: 22px; padding: 22px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
 .analytics-head { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .analytics-range-tabs { display: flex; gap: 4px; margin-left: auto; padding: 3px; border-radius: 8px; background: #f2f3f4; }
@@ -918,19 +839,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .analytics-chart svg { width: 100%; height: 100%; overflow: visible; }
 .analytics-chart-empty { height: 100%; display: grid; place-items: center; color: var(--fg-subtle); font-size: 12px; text-align: center; }
 .analytics-chart-range { margin-top: 8px; display: flex; justify-content: space-between; color: var(--fg-subtle); font-size: 12px; }
-
-.studio-settings-page { min-height: calc(100vh - 72px); }
-.studio-settings-inner { max-width: 980px; }
-.studio-settings-inner > header { padding: 18px 2px 28px; border-bottom: 1px solid #dfe2e5; }
-.studio-settings-inner > header h1 { margin: 9px 0 0; font-size: 32px; letter-spacing: -.03em; }
-.studio-settings-inner > header p { margin: 8px 0 0; color: var(--fg-muted); font-size: 12px; }
-.studio-settings-card { margin-top: 18px; padding: 24px; display: grid; grid-template-columns: 240px 1fr; gap: 28px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
-.studio-settings-card > div:first-child { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
-.studio-settings-card > div:first-child strong { font-size: 13px; }
-
-.studio-settings-card > div:first-child span { color: var(--fg-default); font-size: 12px; }
-.studio-settings-card > div:first-child small { color: var(--fg-muted); font-size: 12px; }
-.studio-settings-card.marketing-card { align-items: center; }
 .marketing-preference { justify-self: end; display: grid; justify-items: end; gap: 7px; }
 .marketing-preference > button { min-width: 112px; height: 42px; display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid #d8dadd; border-radius: 12px; background: #f6f7f8; color: var(--fg-muted); cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
 .marketing-preference > button > i { position: relative; width: 31px; height: 18px; border-radius: 999px; background: #c9cdd1; transition: background .2s ease; }
@@ -939,9 +847,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .marketing-preference > button.active > i { background: var(--accent); }
 .marketing-preference > button.active > i::after { transform: translateX(13px); }
 .marketing-preference > small { max-width: 260px; color: var(--fg-muted); font-size: 11px; text-align: right; }
-.studio-settings-card > div:first-child span { color: var(--fg-default); font-size: 12px; }
-.studio-settings-card > div:first-child small { color: var(--fg-muted); font-size: 12px; }
-
 .role-settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .role-settings-grid button { min-height: 94px; padding: 16px; display: grid; grid-template-columns: 1fr auto; align-content: center; gap: 5px 12px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; color: var(--fg-strong); cursor: pointer; text-align: left; }
 .role-settings-grid button:hover { border-color: #ff9d8c; }
@@ -950,7 +855,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .role-settings-grid button small { color: var(--fg-muted); font-size: 12px; }
 .role-settings-grid button i { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--fg-muted); font-size: 12px; font-style: normal; font-weight: 700; }
 .role-settings-grid button.active i { color: var(--accent); }
-/* Separate company and product registration */
 .simple-register-nav nav span { display: flex; align-items: center; color: #fff; font-size: 12px; font-weight: 700; }
 .simple-register-nav > .shell > a:last-child { color: var(--fg-subtle); font-size: 12px; font-weight: 700; }
 .simple-registration-page { min-height: calc(100vh - 72px); padding: 44px 0 90px; background: #f3f5f6; }
@@ -1020,8 +924,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .product-preview-device figure { margin: 0; background: #111; }
 .product-preview-device figure img, .product-preview-device figure > div { width: 100%; min-height: 220px; display: grid; place-items: center; object-fit: cover; color: var(--fg-muted); font-size: 12px; }
 .product-preview-device figcaption { padding: 9px 12px; color: var(--fg-muted); font-size: 12px; }
-/* 와디즈식 컬러 섹션 · 폰 프레임 · 번호 매긴 기능 목록 */
-/* Published product page uses the exact same story renderer as Studio preview. */
 .product-category-chip { width: fit-content; padding: 6px 9px; border-radius: 6px; background: #fff0ec; color: var(--accent); font-size: 12px; font-weight: 700; }
 .product-primary-cta { min-height: 54px; padding: 0 17px; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; }
 .product-facts { max-width: 1180px; padding-top: 100px; padding-bottom: 50px; }
@@ -1033,7 +935,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .product-facts dd { margin: 0; font-size: 12px; line-height: 1.7; }
 .product-facts dd > span { display: block; }
 .product-mobile-cta { display: none; }
-/* Public company page: company profile + product hub */
 .company-page { background: #fff; }
 .company-cover { height: 320px; overflow: hidden; background: #151515; }
 .company-cover > img { width: 100%; height: 100%; object-fit: cover; }
@@ -1107,39 +1008,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .product-optional-fields summary small { margin-left: 4px; color: var(--fg-muted); font-weight: 500; }
 .product-optional-fields > div { margin-top: 15px; display: grid; gap: 13px; }
 .product-optional-fields textarea { min-height: 82px; padding: 12px; resize: vertical; }
-/* Role-aware member dashboard */
-.role-dashboard-hero { min-height: 290px; padding: 42px 46px; display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; border-radius: 16px; background: #111; color: #fff; }
-.role-dashboard-hero > div { max-width: 690px; }
-.role-dashboard-hero p { margin: 0 0 12px; color: #ff6b52; font-size: 12px; font-weight: 700; letter-spacing: -0.005em; }
-.role-dashboard-hero span { display: inline-flex; margin-bottom: 18px; padding: 6px 9px; border: 1px solid #ffffff2b; border-radius: 999px; color: #ffffffb8; font-size: 12px; font-weight: 700; }
-.role-dashboard-hero h1 { margin: 0; font-size: clamp(34px, 4.2vw, 58px); line-height: 1.08; letter-spacing: -.03em; }
-.role-dashboard-hero small { display: block; margin-top: 17px; color: #ffffff8f; font-size: 12px; line-height: 1.7; }
-.role-dashboard-hero > a { width: 180px; height: 52px; flex: 0 0 180px; padding: 0 17px; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; }
-.role-dashboard-hero > a b { font-size: 16px; }
-.role-dashboard-state { min-height: 118px; margin-top: 16px; padding: 22px 25px; display: grid; grid-template-columns: 58px 1fr auto; align-items: center; gap: 17px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
-.role-dashboard-avatar { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; background: #fff0ec; color: var(--accent); font-size: 20px; font-weight: 700; }
-.role-dashboard-state > div:nth-child(2) { display: grid; gap: 4px; }
-.role-dashboard-state span { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -0.005em; }
-.role-dashboard-state strong { font-size: 14px; }
-.role-dashboard-state p { margin: 0; color: var(--fg-muted); font-size: 12px; }
-.role-dashboard-state > small { color: var(--fg-muted); font-size: 12px; }
-.role-dashboard-links { margin-top: 22px; padding: 24px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
-.role-dashboard-links > div:last-child { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.role-dashboard-links > div:last-child > a { min-height: 190px; padding: 21px; display: flex; flex-direction: column; border: 1px solid #e1e4e7; border-radius: 12px; transition: border-color .16s, transform .16s, box-shadow .16s; }
-.role-dashboard-links > div:last-child > a:hover { border-color: var(--carrot-300); box-shadow: 0 10px 28px #1111110a; transform: translateY(-2px); }
-.role-dashboard-links i { color: var(--fg-subtle); font-size: 12px; font-style: normal; font-weight: 700; }
-.role-dashboard-links a > span { margin-top: 24px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -0.005em; }
-.role-dashboard-links a > strong { margin-top: 7px; font-size: 18px; letter-spacing: -.03em; }
-.role-dashboard-links a > p { margin: 8px 0 18px; color: var(--fg-muted); font-size: 12px; line-height: 1.6; }
-.role-dashboard-links a > b { margin-top: auto; font-size: 12px; }
-.role-dashboard-collection { margin-top: 22px; padding: 24px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
-.role-dashboard-collection > div:last-child { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.role-dashboard-collection > div:last-child > a { min-width: 0; padding: 15px 16px; display: grid; grid-template-columns: 1fr auto; gap: 5px 14px; border: 1px solid #e5e7e9; border-radius: 8px; }
-.role-dashboard-collection a > span { color: var(--accent); font-size: 12px; font-weight: 700; }
-.role-dashboard-collection a > strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.role-dashboard-collection a > small { overflow: hidden; color: var(--fg-muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.role-dashboard-collection a > b { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
-.role-dashboard-collection > p { margin: 5px 0 0; padding: 30px; border: 1px dashed #dfe2e5; border-radius: 8px; color: var(--fg-muted); font-size: 12px; text-align: center; }
 .role-team-brands { margin-top: 22px; padding: 24px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
 .role-team-brands > div:last-child { display: grid; gap: 9px; }
 .role-team-brands article { min-height: 74px; padding: 12px 14px; display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 13px; border: 1px solid #e5e7e9; border-radius: 8px; }
@@ -1149,17 +1017,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .role-team-brands article strong { font-size: 12px; }
 .role-team-brands article small { overflow: hidden; color: var(--fg-muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .role-team-brands article > a { padding: 9px 11px; border-radius: 6px; background: #111; color: #fff; font-size: 12px; font-weight: 700; }
-/* Partner center */
-/* Partner self-serve registration */
-/* Approved partner/community self-publishing */
 .approved-status-bar { margin: -30px -32px 25px; padding: 14px 18px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid #dff0e6; background: #f0faf4; }
 .approved-status-bar > i { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; background: #2bb66d; color: #fff; font-size: 12px; font-style: normal; font-weight: 700; }
 .approved-status-bar > div { display: grid; gap: 2px; }
 .approved-status-bar > div span { color: var(--success); font-size: 12px; font-weight: 700; letter-spacing: -0.005em; }
 .approved-status-bar > div strong { font-size: 12px; }
-
-
-
 .approved-status-bar > small { margin-left: auto; padding: 5px 8px; border-radius: 999px; background: #fff; color: var(--success); font-size: 12px; font-weight: 700; }
 .approved-form-fields { padding: 28px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
 .approved-form-fields label.wide, .approved-logo-field { grid-column: 1 / -1; }
@@ -1170,13 +1032,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .approved-status-bar > small { margin-left: auto; padding: 5px 8px; border-radius: 999px; background: #fff; color: var(--success); font-size: 12px; font-weight: 700; }
 .approved-form-fields { padding: 28px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
 .approved-form-fields label.wide, .approved-logo-field { grid-column: 1 / -1; }
-
 .approved-form-fields label > span { display: block; margin-bottom: 7px; color: var(--fg-default); font-size: 12px; font-weight: 700; }
 .approved-form-fields input:not([type="file"]), .approved-form-fields textarea { width: 100%; min-height: 45px; padding: 11px 12px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; color: var(--fg-strong); font: inherit; font-size: 12px; outline: none; }
 .approved-form-fields label > span { display: block; margin-bottom: 7px; color: var(--fg-default); font-size: 12px; font-weight: 700; }
 .approved-form-fields input:not([type="file"]), .approved-form-fields textarea { width: 100%; min-height: 45px; padding: 11px 12px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; color: var(--fg-strong); font: inherit; font-size: 12px; outline: none; }
 .approved-form-fields textarea { min-height: 125px; resize: vertical; line-height: 1.65; }
-
 .approved-form-fields input:focus, .approved-form-fields textarea:focus, .approved-form-fields select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 9%, transparent); }
 .approved-logo-field > div { min-height: 92px; padding: 12px; display: flex; align-items: center; gap: 14px; border: 1px dashed #cfd4d8; border-radius: 12px; background: #fafbfb; cursor: pointer; transition: border-color .18s, background .18s; }
 .approved-form-fields input:focus, .approved-form-fields textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 9%, transparent); }
@@ -1255,30 +1115,10 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .feature-brief-metrics .save-item-button.saved { border-color: #ff8c78; background: var(--accent-soft); color: var(--accent); }
 .feature-brief-metrics .save-item-button.saved:hover { background: var(--carrot-200); color: #d9361f; }
 @media (max-width: 700px) {
-  .studio-dashboard { padding: 22px 0 55px; }
-  .ig-profile-head { flex-direction: column; align-items: center; padding: 22px 18px; text-align: center; }
-  .ig-profile-avatar { width: 72px; height: 72px; flex-basis: 72px; }
-  .ig-profile-top { justify-content: center; }
-  .ig-btn.primary { margin-left: 0; }
-  .ig-profile-stats { justify-content: center; }
-  .ig-profile-bio { max-width: none; }
-  .ig-post-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .analytics-panel { padding: 16px; }
   .analytics-head { flex-direction: column; align-items: stretch; }
   .analytics-range-tabs { margin-left: 0; overflow-x: auto; }
   .analytics-stats { grid-template-columns: 1fr; }
-  .studio-status-toggle { justify-self: end; }
-  .studio-row-actions { grid-column: 1 / -1; justify-content: start; padding-top: 10px; border-top: 1px solid #eceef0; }
-  .studio-profile-panel { padding: 0 14px 14px; }
-  .role-dashboard-hero { min-height: 360px; padding: 28px 24px; align-items: stretch; flex-direction: column; }
-  .role-dashboard-hero > a { width: 100%; height: 48px; flex-basis: auto; }
-  .role-dashboard-state { grid-template-columns: 48px 1fr; padding: 18px; }
-  .role-dashboard-avatar { width: 48px; height: 48px; }
-  .role-dashboard-state > small { grid-column: 2; }
-  .role-dashboard-links { padding: 16px; }
-  .role-dashboard-links > div:last-child { grid-template-columns: 1fr; }
-  .role-dashboard-collection { padding: 16px; }
-  .role-dashboard-collection > div:last-child { grid-template-columns: 1fr; }
   .role-switcher { align-items: stretch; flex-direction: column; gap: 12px; }
   .role-switcher > div:first-child { margin-right: 0; }
   .role-team-brands { padding: 16px; }
@@ -1319,9 +1159,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .approved-publishing-form > footer > span { width: 100%; }
   .partner-register-form-shell > footer { flex-wrap: wrap; }
   .invite-page > section { padding: 32px 24px; }
-  .studio-first-start { padding: 28px 22px; grid-template-columns: 1fr; gap: 30px; }
-  .studio-first-copy > a { width: 100%; }
-  .studio-settings-card { padding: 18px; grid-template-columns: 1fr; }
   .marketing-preference { justify-self: start; justify-items: start; }
   .marketing-preference > small { text-align: left; }
   .role-settings-grid { grid-template-columns: 1fr; }
@@ -1398,7 +1235,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .company-about-v2 dl { grid-template-columns: 1fr; }
   .company-sidebar { position: static; }
 }
-/* Three-pane publishing editor */
 @media (max-width: 1100px) {
   .submit-wizard-layout { grid-template-columns: 178px minmax(0, 1fr); }
 }
@@ -1409,13 +1245,10 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .submit-bottom-draft { margin-left: auto; }
   .submit-field-group { padding: 14px; }
 }
-/* 오늘의 발견 — 와이드 배너 캐러셀 */
 @media (max-width: 800px) {
   .discovery-banner { aspect-ratio: 4 / 3; border-radius: 12px; }
   .discovery-banner-copy { left: 18px; bottom: 16px; right: 18px; }
 }
-/* Home opportunity hero — deadlines first, without forcing stock imagery onto support programs */
-/* Product-first discovery rail */
 .product-discovery-rail { min-width: 0; }
 .product-discovery-rail > header { min-height: 58px; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .product-discovery-rail > header span { display: none; }
@@ -1473,7 +1306,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .product-rail-actions a { display: none; }
   .product-square-card { flex-basis: 76vw; }
 }
-/* 법적 고지 페이지 (약관 · 개인정보처리방침) */
 .legal-page { padding-bottom: 90px; }
 .legal-body { max-width: 760px; display: grid; gap: 34px; }
 .legal-body > section > p:first-child { margin-top: 0; }
@@ -1481,8 +1313,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .legal-body p { margin: 0; color: var(--fg-default); font-size: 14px; line-height: 1.85; }
 .legal-body ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; color: var(--fg-default); font-size: 14px; line-height: 1.75; }
 .legal-body li b { color: var(--foreground); }
-/* 파트너 페이지 */
-/* Advertising / community partnership application */
 @media (max-width: 760px) {
   .partner-org-grid { grid-template-columns: 1fr; }
 }
@@ -1500,15 +1330,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .partnership-application-form > footer { padding: 22px 20px; align-items: stretch; flex-direction: column; }
   .partnership-application-form > footer button { width: 100%; }
 }
-.my-dash-heading .eyebrow { margin-bottom: 8px; }
-.my-dash-heading > div > p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 14px; }
 .my-brand-status.on { background: var(--accent-soft); color: var(--accent); }
 .my-brand-status.off { background: #f3f4f6; color: var(--muted); }
 .my-brand-actions a.view { color: var(--accent); }
 .my-brand-actions a.view:hover { text-decoration: underline; }
 #profile { scroll-margin-top: 20px; }
-/* 커머스형 프로덕트 카드 — 블로그 카드 탈피 */
-/* 파운더 스포트라이트 카드 — 인물 사진이 배경으로 녹아드는 다크 카드 */
 @media (max-width: 800px) {
   /* 빌더 카드 — 한 장씩 넘기고, 멈추면 항상 정중앙.
      카드 폭 = 콘텐츠 폭(shell)과 동일, 좌우 패딩 = (뷰포트-카드)/2 로
@@ -1534,50 +1360,41 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .weekly-builders-heading h2 { margin: 6px 0 0; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; letter-spacing: -.03em; }
 .weekly-builders-heading > p { max-width: 430px; margin: 0 0 3px; color: var(--fg-muted); font-size: 14px; line-height: 1.6; text-align: right; }
 @media (max-width: 800px) { .weekly-builders-section { padding-top: 58px; } .weekly-builders-heading { display: block; margin-bottom: 18px; } .weekly-builders-heading > p { margin-top: 10px; text-align: left; } }
-/* 공개 프로필 히어로 — 스포트라이트 카드 확장 */
 .interactive-profile-card { transform: perspective(900px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale3d(1.015, 1.015, 1.015); transform-style: preserve-3d; cursor: grab; will-change: transform; transition: transform .16s ease-out, box-shadow .3s ease, border-color .25s ease; }
 .interactive-profile-card:hover { transform: perspective(900px) rotateX(var(--card-rotate-x)) rotateY(var(--card-rotate-y)) scale3d(1.015, 1.015, 1.015); box-shadow: 0 28px 48px -22px rgba(17,17,17,.28); }
 .interactive-profile-card.is-grabbing { cursor: grabbing; transition: transform .06s linear, box-shadow .2s ease; }
 .profile-card-glare { position: absolute; z-index: 4; inset: -1px; border-radius: inherit; background: radial-gradient(circle at var(--card-glare-x) var(--card-glare-y), rgba(255, 255, 255, .32), rgba(255, 255, 255, .08) 20%, transparent 46%); mix-blend-mode: screen; opacity: 0; pointer-events: none; transition: opacity .22s ease; }
 .interactive-profile-card:hover .profile-card-glare, .interactive-profile-card.is-grabbing .profile-card-glare { opacity: 1; }
-/* 기울일 때 표면을 훑고 지나가는 홀로그램 결 */
 .profile-card-holo { position: absolute; z-index: 3; inset: -1px; border-radius: inherit; background: linear-gradient(115deg, transparent 34%, color-mix(in srgb, var(--accent) 34%, transparent) 45%, rgba(255, 255, 255, .3) 51%, rgba(150, 205, 255, .22) 58%, transparent 68%); background-size: 260% 260%; background-position: var(--card-glare-x) var(--card-glare-y); mix-blend-mode: soft-light; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
 .interactive-profile-card:hover .profile-card-holo { opacity: .55; }
 .interactive-profile-card.is-grabbing .profile-card-holo { opacity: .85; }
-/* 터치 기기 — 목록에서는 정적으로 두고, 탭하면 카드 뷰어를 연다 */
 @media (hover: none), (pointer: coarse) {
   .interactive-profile-card, .interactive-profile-card:hover { transform: none; cursor: default; }
   .interactive-profile-card .founder-spot-photo, .interactive-profile-card .founder-spot-body { transform: none; }
   .profile-card-glare, .profile-card-holo { display: none; }
 }
-/* 홈 다가오는 행사 — 포스터를 앞세운 카드 */
 .home-event-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
-/* .opportunity-card > div 의 flex 규칙을 받지 않도록 블록으로 되돌린다 */
 .home-event-card > .home-event-poster { display: block; position: relative; }
 .home-event-poster .image-card, .home-event-poster .image-card img { aspect-ratio: 4 / 3; }
 .home-event-date { position: absolute; top: 10px; left: 10px; padding: 6px 10px; border-radius: 999px; background: rgba(14, 14, 16, .74); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: -0.005em; backdrop-filter: blur(6px); }
 .home-event-card h3 { margin: 15px 16px 0; font-size: 16px; line-height: 1.45; letter-spacing: -.03em; }
 .home-event-card > p { margin: 7px 16px 0; color: var(--muted); font-size: 13px; }
 .home-event-card > span { margin: 6px 16px 16px; color: var(--fg-subtle); font-size: 12px; }
-/* 탭해서 열 수 있는 카드 */
 .interactive-profile-card.is-expandable { cursor: pointer; }
 .profile-card-expand-hint { position: absolute; right: 12px; bottom: 12px; z-index: 5; padding: 7px 11px; display: none; border-radius: 999px; background: rgba(12, 12, 14, .62); color: rgba(255, 255, 255, .82); font-size: 12px; font-weight: 700; letter-spacing: -0.005em; backdrop-filter: blur(8px); pointer-events: none; }
 @media (hover: none), (pointer: coarse) { .profile-card-expand-hint { display: block; } }
-/* 카드 뷰어 — 배경을 덮고 카드만 띄워 손으로 돌린다 */
 .card-showcase { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; }
 .card-showcase-backdrop { position: absolute; inset: 0; border: 0; padding: 0; background: rgba(8, 8, 10, .82); backdrop-filter: blur(9px); cursor: zoom-out; animation: showcase-fade .22s ease; }
 .card-showcase-stage { position: relative; z-index: 1; width: min(340px, 82vw); perspective: 1400px; display: grid; justify-items: center; gap: 22px; animation: showcase-rise .32s cubic-bezier(.22, 1, .36, 1); }
 .card-showcase-card { position: relative; width: 100%; transform: rotateX(var(--show-rot-x, 0deg)) rotateY(var(--show-rot-y, 0deg)); transform-style: preserve-3d; touch-action: none; cursor: grab; will-change: transform; }
 .card-showcase-card:active { cursor: grabbing; }
 .card-showcase-face { border-radius: 20px; overflow: hidden; backface-visibility: hidden; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .9); }
-/* 앞면이 카드 크기를 정하고, 뒷면은 그 크기에 겹쳐 놓는다 */
 .card-showcase-front { position: relative; background: #17171b; }
 .card-showcase-front > .showcase-card-inner { width: 100%; transform: none; }
 .card-showcase-back { position: absolute; inset: 0; transform: rotateY(180deg); background: linear-gradient(150deg, #1b1b21, #101014); border: 1px solid #2b2b33; }
 .card-showcase-back-default { height: 100%; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 28px; text-align: center; background-image: repeating-linear-gradient(45deg, color-mix(in srgb, var(--accent) 9%, transparent) 0 2px, transparent 2px 13px); }
 .card-showcase-back-default strong { font-size: 26px; letter-spacing: -.03em; color: #fff; }
 .card-showcase-back-default span { color: var(--fg-muted); font-size: 12px; line-height: 1.7; word-break: keep-all; }
-/* 회전에 따라 앞면을 훑는 빛 */
 .card-showcase-sheen { position: absolute; z-index: 6; inset: 0; border-radius: inherit; background: radial-gradient(circle at var(--show-glare-x, 50%) var(--show-glare-y, 50%), rgba(255, 255, 255, .3), color-mix(in srgb, var(--accent) 20%, transparent) 16%, transparent 42%); mix-blend-mode: soft-light; opacity: .75; pointer-events: none; }
 .card-showcase-hint { margin: 0; color: rgba(255, 255, 255, .62); font-size: 12px; font-weight: 700; transition: opacity .3s ease; }
 .card-showcase-hint.is-hidden { opacity: 0; }
@@ -1591,7 +1408,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (prefers-reduced-motion: reduce) {
   .interactive-profile-card, .interactive-profile-card:hover, .interactive-profile-card.is-grabbing { transform: none; transition: none; }
 }
-/* 브랜드 TEAM PROFILE — 공개 페이지와 스튜디오가 같은 카드 언어를 사용 */
 .team-card-label { position: absolute; z-index: 2; top: 16px; left: 16px; padding: 7px 10px; border: 1px solid #ffffff42; border-radius: 999px; background: #111714a3; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: -0.005em; backdrop-filter: blur(10px); }
 .team-card-corner-action { position: absolute; z-index: 3; top: 14px; right: 14px; width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #ffffff66; border-radius: 50%; background: #ffffffd9; color: var(--fg-strong); box-shadow: 0 8px 22px #1112; backdrop-filter: blur(10px); }
 .team-card-founder-id { position: absolute; z-index: 3; top: 17px; right: 16px; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: -0.005em; text-shadow: 0 1px 8px #000a; }
@@ -1638,7 +1454,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .team-profile-form-card { padding: 20px; }
   .company-about-v2 > p { max-width: 100%; word-break: normal; overflow-wrap: anywhere; }
   }
-/* Admin console — left navigation */
 .submission-review-controls { margin-top: 18px; padding-top: 17px; display: grid; gap: 9px; border-top: 1px solid #e8eaec; }
 .submission-review-controls textarea { width: 100%; min-height: 72px; padding: 11px 12px; border: 1px solid #dfe2e5; border-radius: 8px; font: inherit; font-size: 12px; resize: vertical; outline: none; }
 .submission-review-controls textarea:focus { border-color: var(--accent); }
@@ -1669,10 +1484,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .partner-submission-admin-list dl { grid-template-columns: 1fr; }
   .partner-submission-admin-list dl > div:nth-child(odd) { padding-right: 0; }
 }
-/* 파트너 등급 — Featured Partner (VIP) */
-/* 팀원 대시보드의 팀 카드 편집 링크 (초대 버튼 자리) */
 @media (max-width: 600px) { .event-cohost-invite { flex-direction: column; } .event-cohost-invite .button { width: 100%; } .event-cohost-list article { grid-template-columns: 32px 1fr auto; } .event-cohost-list article em { display: none; } }
-/* Event publishing studio and attendee experience */
 .field-help { margin-top: 7px; display: block; color: var(--fg-muted); font-size: 12px; font-weight: 500; }
 @media (max-width: 1280px) {
   .partner-register-workspace { grid-template-columns: 1fr; }
@@ -1728,10 +1540,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .event-attendee-list article time { display: none; }
   .event-registration-controls { grid-column: 2 / -1; }
 }
-/* 홈 — 이번 주의 창업가 (인스타형 훅 카드) */
 @media (max-width: 1100px) { .founder-hook-card { flex-basis: min(72vw, 300px); } }
 @media (max-width: 560px) { .founder-hook-card { flex-basis: 76vw; } }
-/* 인터뷰 등록 폼 */
 .interview-form-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px; align-items: start; }
 .interview-form-main { min-width: 0; }
 .interview-questions { display: grid; gap: 18px; margin: 28px 0; }
@@ -1746,8 +1556,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .interview-preview-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .interview-preview-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--fg-muted); font-size: 12px; font-weight: 700; line-height: 1.7; text-align: center; }
 @media (max-width: 900px) { .interview-form-layout { display: block; } .interview-preview { position: static; margin-top: 34px; max-width: 320px; } }
-/* Admin growth dashboard */
-
 .admin-analytics-page { max-width: 1320px; }
 .admin-range-filter { display: flex; align-items: center; justify-content: flex-end; gap: 7px; margin: -8px 0 18px; }
 .admin-range-filter > span { margin-right: 6px; color: var(--fg-muted); font-size: 11px; font-weight: 700; }
@@ -1762,7 +1570,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .admin-growth-metrics article > span { display: block; margin-bottom: 24px; color: var(--fg-muted); font-size: 12px; font-weight: 700; }
 .admin-growth-metrics article.primary > span { color: var(--fg-subtle); }
 .admin-growth-metrics article > strong { display: block; font-size: clamp(34px, 3.2vw, 48px); line-height: 1; letter-spacing: -.03em; }
-
 .admin-growth-metrics article > strong em { margin-left: 5px; color: var(--fg-muted); font-size: 13px; font-style: normal; font-weight: 700; letter-spacing: -.02em; }
 .admin-growth-metrics article > p { margin: 16px 0 0; color: var(--fg-muted); font-size: 12px; }
 .admin-traffic-grid { margin-top: 16px; }
@@ -1861,20 +1668,16 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .admin-content-pulse > div a { min-height: 96px; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 1fr auto; padding: 17px; border-radius: 12px; background: #f5f6f7; }
 .admin-content-pulse a > span { color: var(--fg-muted); font-size: 12px; font-weight: 700; }
 .admin-content-pulse a > strong { grid-row: 2; font-size: 24px; letter-spacing: -.03em; }
-
 .admin-content-pulse a > strong em { margin-left: 3px; color: var(--fg-muted); font-size: 12px; font-style: normal; }
 .admin-content-pulse a > i { grid-column: 2; grid-row: 1 / 3; align-self: end; color: var(--fg-subtle); font-style: normal; }
 @media (max-width: 1100px) { .admin-growth-metrics { grid-template-columns: repeat(2, 1fr); } .admin-analytics-grid, .admin-analytics-grid.lower, .admin-conversion-grid { grid-template-columns: 1fr; } .admin-funnel-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .admin-range-filter { margin-top: 0; justify-content: flex-start; } .admin-growth-metrics { grid-template-columns: 1fr; } .admin-growth-metrics article { min-height: 140px; } .admin-analytics-panel, .admin-content-pulse, .admin-funnel-panel, .admin-source-performance { padding: 20px; } .admin-funnel-panel > header, .admin-source-performance > header { align-items: flex-start; } .admin-funnel-panel > header p, .admin-source-performance > header p { display: none; } .admin-funnel-grid { grid-template-columns: 1fr; } .admin-content-pulse > header { align-items: flex-start; } .admin-content-pulse > header > p { display: none; } .admin-content-pulse > div { grid-template-columns: repeat(2, 1fr); } .admin-recent-users > div { grid-template-columns: 36px minmax(0, 1fr) 62px; } .admin-recent-users > div > em { display: none; } .admin-source-table { overflow-x: auto; } .admin-source-table > div { min-width: 620px; } }
 .admin-content-pulse a > strong em { margin-left: 3px; color: var(--fg-muted); font-size: 12px; font-style: normal; }
 .admin-content-pulse a > i { grid-column: 2; grid-row: 1 / 3; align-self: end; color: var(--fg-subtle); font-style: normal; }
-
 @media (max-width: 1100px) { .admin-growth-metrics { grid-template-columns: repeat(2, 1fr); } .admin-analytics-grid, .admin-analytics-grid.lower { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .admin-growth-metrics { grid-template-columns: 1fr; } .admin-growth-metrics article { min-height: 140px; } .admin-analytics-panel, .admin-content-pulse { padding: 20px; } .admin-content-pulse > header { align-items: flex-start; } .admin-content-pulse > header > p { display: none; } .admin-content-pulse > div { grid-template-columns: repeat(2, 1fr); } .admin-recent-users > div { grid-template-columns: 36px minmax(0, 1fr) 62px; } .admin-recent-users > div > em { display: none; } }
-/* 홈 — 새로 등록된 프로덕트(좌) + 실시간 베스트(우) 배치 */
 .fresh-rail-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .fresh-rail-head .section-header { flex: 1; min-width: 0; }
-/* 2개까지는 반반 채우고, 많아지면 가로 슬라이드 */
 .fresh-rail-track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .fresh-rail-track::-webkit-scrollbar { display: none; }
 .fresh-rail-track > * { flex: 0 0 calc((100% - 18px) / 2); min-width: 0; scroll-snap-align: center; }
@@ -1891,11 +1694,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .fresh-rail-track > * { flex-basis: var(--card-w); scroll-snap-align: center; }
 }
 @media (max-width: 800px) { .home-interview-section { padding-top: 65px; } }
-
-/* ===== 모바일 대응 일괄 보강 (2026-08) ===== */
-/* /submit 역할 게이트 — 700px 미디어쿼리 안에 갇혀 있던 규칙을 전 폭으로 복원 */
 .role-gate-page { display: grid; place-items: center; }
-/* 스튜디오 상단 내비 — 모바일에서 숨기지 않고 가로 스크롤 줄로 */
 @media (max-width: 760px) {
   .publish-console-nav { height: auto; }
   .publish-console-nav .shell { height: auto; flex-wrap: wrap; gap: 12px 18px; padding-top: 13px; }
@@ -1903,7 +1702,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .publish-console-nav nav::-webkit-scrollbar { display: none; }
   .publish-console-nav nav a { padding: 2px 0 10px; white-space: nowrap; }
 }
-/* 공개 페이지 좁은 화면 보강 */
 @media (max-width: 700px) {
   .community-identity { flex-wrap: wrap; gap: 16px; padding-bottom: 34px; }
   .community-logo.large { width: 72px; height: 72px; border-radius: 16px; }
@@ -1929,92 +1727,34 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .admin-signup-chart { gap: 4px; }
   .admin-signup-chart b, .admin-signup-chart small { font-size: 12px; }
 }
-/* submit 위저드 — 긴 URL/슬러그가 좁은 화면에서 밀어내지 않게 */
 @media (max-width: 430px) {
   .product-preview-device { width: 246px; height: 500px; }
 }
-/* 검증 후속 보정 */
 .role-gate-page > .role-gate-card { max-width: 560px; }
 @media (max-width: 760px) {
   .simple-register-nav .shell > a::after { content: none; }
 }
-/* 게스트 신청 완료 후 계정 연결 유도 */
-/* 비공개 항목 알림 — 공개하지 않으면 아무에게도 보이지 않는다는 걸 알려준다 */
-/* 둘러보기 대시보드의 만들기 입구 — 역할을 바꾸지 않아도 올릴 수 있다 */
-.member-make-cta { margin-top: 26px; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 22px; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 16px; background: #fff; }
-.member-make-cta strong { display: block; font-size: 18px; letter-spacing: -.03em; }
-.member-make-cta p { margin: 8px 0 0; max-width: 460px; color: var(--muted); font-size: 13px; line-height: 1.65; word-break: keep-all; }
-.member-make-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.member-make-actions > a:last-child { color: var(--muted); font-size: 12px; font-weight: 700; }
-.member-make-actions > a:last-child:hover { color: var(--accent); }
 @media (max-width: 700px) {
-  .studio-unpublished-alert, .member-make-cta { padding: 18px; }
-  .member-make-actions { width: 100%; }
-  .member-make-actions .button { flex: 1; text-align: center; }
 }
-/* 저장 버튼 위계 — 공개가 기본, 비공개 저장은 눈에 덜 띄게 */
 .simple-registration-card > footer button.ghost { min-width: 100px; border: 0; background: transparent; color: var(--fg-muted); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .simple-registration-card > footer button.ghost:hover { color: var(--fg-default); }
 .product-publish-hint { margin: 12px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; text-align: right; }
 @media (max-width: 700px) { .product-publish-hint { text-align: left; } }
-/* START HERE — 기업 정보는 대안 경로로 낮춘다 */
-/* 완성본 표지를 쓰는 인터뷰 카드 — 이미지만 보여준다 */
-.feature-hero:hover img,
-.product-card:hover img,
-.event-card:hover img,
-.story-card:hover img,
-.curation-bubble:hover .curation-image,
-.spotlight-card:hover .image-card img,
-.editorial-card:hover img,
-.home-top-banner:hover > img,
-.discovery-feature-card:hover img,
-.company-product-grid > a:hover img,
-.product-square-card:hover > img,
-.partner-org-card:hover .partner-org-logo img,
 .founder-hook-card:hover > img {
   transform: none;
 }
-.brand-card:hover,
-.community-card:hover,
-.job-row:hover,
-.support-card:hover,
-.opportunity-card:hover,
-.community-directory-card:hover,
-.founder-avatar-picker button:hover,
-.admin-metric-card:hover,
-.studio-overview-grid > a:hover,
-.ig-post-tile:hover,
-.company-product-grid > a:hover,
-.role-dashboard-links > div:last-child > a:hover,
-.partner-org-card:hover,
-.commerce-card:hover,
-.founder-spot-card:not(.interactive-profile-card):hover,
 .team-profile-admin-card:hover {
   transform: none;
 }
-/* 스토리 상세 사이드바 — 좋아요·공유를 실제 버튼으로 */
 .feature-aside-actions { padding-top: 17px; display: grid; gap: 8px; border-bottom: 0 !important; }
 .feature-aside-actions .save-item-button, .feature-aside-actions .share-item-button { width: 100%; min-height: 42px; justify-content: center; }
 .feature-aside-actions .save-item-button.saved { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-/* 스토리 카드 조회수 */
 .story-card .eyebrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-/* 파운더 페이지 프로덕트 카드 · 프로덕트 상세 지표 */
 .product-aside-stats { margin: 14px 0 0; display: flex; gap: 14px; color: var(--fg-muted); font-size: 12px; font-weight: 700; }
 .product-aside-stats strong { color: var(--fg-default); font-weight: 700; }
-/* 행사 상세 지표 */
-/* 좁은 화면에서 버튼 라벨이 단어 중간에 끊기지 않게 */
-.studio-row-actions a, .studio-row-actions button,
-.ig-btn, .studio-status-toggle, .team-hub-edit-link,
 .ig-post-tile-status, .studio-exit-link, .text-link { white-space: nowrap; }
-/* 한글 문장은 단어 단위로 끊는다 */
-.card-body h3, .card-body > p, .studio-panel-heading span,
-.my-event-empty span, .ig-founder-preview-empty p,
-.role-dashboard-links p, .member-make-cta p { word-break: keep-all; }
-/* 역할·직함 줄은 임의 길이의 한글/영문이 들어오므로 단어 단위로 끊는다 */
-.team-card-body > strong, .founder-card-role, .founder-hero-role,
 .opportunity-card h3, .community-card h3, .brand-card h3 { word-break: keep-all; }
 .founders-list-note { margin-top: 26px; color: var(--muted); font-size: 12px; font-weight: 700; }
-/* 글 하단 — 같은 주제의 창업가 인터뷰로 잇는 카드 */
 .feature-related-interview { margin-top: 48px; padding-top: 30px; border-top: 1px solid var(--border); }
 .feature-related-interview > p { margin: 0 0 14px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .1em; }
 .feature-related-interview > a { display: flex; align-items: center; gap: 18px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #fff; transition: border-color .2s ease, transform .2s ease; }
@@ -2026,10 +1766,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .feature-related-interview small { color: var(--muted); font-size: 12px; line-height: 1.5; word-break: keep-all; }
 .feature-related-interview strong { margin-top: 4px; color: var(--accent); font-size: 12px; font-weight: 700; }
 @media (max-width: 560px) { .feature-related-interview > a { gap: 14px; padding: 13px; } .feature-related-interview img { width: 72px; height: 92px; } }
-
-
-
-/* Community manager console */
 .managed-community-page { min-height: calc(100vh - 76px); background: #f4f5f6; }
 .managed-community-heading { padding: 54px 0 30px; display: flex; align-items: end; justify-content: space-between; gap: 24px; }
 .managed-community-heading span { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .12em; }
@@ -2176,29 +1912,9 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .founder-community-affiliations small { color: var(--fg-muted); font-size: 11px; }
 .founder-community-affiliations em { color: var(--accent); font-style: normal; }
 @media (max-width: 760px) { .managed-community-heading { padding-top: 38px; display: block; } .managed-community-heading > a { display: inline-flex; margin-top: 18px; } .managed-community-grid { grid-template-columns: 1fr; } .managed-community-grid > article { grid-template-columns: 62px minmax(0, 1fr); padding: 18px; } .managed-community-logo { width: 62px; height: 62px; border-radius: 16px; } .managed-community-status { top: 18px; right: 18px; } .managed-community-copy { padding-right: 60px; } .managed-community-empty { min-height: 280px; padding: 30px 20px; } .community-operations-heading { padding: 22px 18px; display: block; } .community-operation-summary { margin-top: 18px; } .community-operation-summary span { flex: 1; min-width: 0; } .community-operation-grid { grid-template-columns: 1fr; } .community-operation-panel, .community-operation-panel:nth-child(2n), .community-operation-panel:nth-last-child(-n+2) { padding: 22px 18px; border-right: 0; border-bottom: 1px solid #e8eaec; } .community-operation-panel:last-child { border-bottom: 0; } .community-manager-invite { flex-wrap: wrap; } .community-manager-invite input { flex-basis: 100%; } .community-founder-grid, .community-member-grid { grid-template-columns: 1fr; } .community-membership-admin { padding: 22px 18px; } .community-membership-admin > header { display: block; } .community-membership-admin > header > div:last-child { margin-top: 12px; width: fit-content; } .community-member-invite { flex-wrap: wrap; } .community-member-invite input { flex-basis: 100%; } .community-membership-group > article { grid-template-columns: 42px minmax(0, 1fr) auto; } .community-member-public-state { display: none; } }
-
-/* 파운더 센터 — 내 인터뷰와 성과 */
-.studio-story-section { margin-top: 34px; }
-.studio-story-list { margin-top: 16px; display: grid; gap: 10px; }
-.studio-story-list article { display: flex; align-items: center; gap: 16px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: #fff; }
-.studio-story-list img { width: 54px; height: 68px; flex: 0 0 auto; border-radius: 8px; object-fit: cover; }
-.studio-story-list article > div:first-of-type { min-width: 0; flex: 1; display: grid; gap: 3px; }
-.studio-story-list strong { font-size: 14px; letter-spacing: -.03em; }
-.studio-story-list span { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.studio-story-list em { color: var(--fg-muted); font-size: 11px; font-style: normal; font-weight: 700; }
-.studio-story-metrics { flex: 0 0 auto; display: grid; grid-template-columns: auto auto; align-items: baseline; gap: 2px 6px; text-align: right; }
-.studio-story-metrics b { font-size: 18px; letter-spacing: -.04em; }
-.studio-story-metrics small { color: var(--fg-muted); font-size: 11px; font-weight: 700; }
-.studio-story-list article > a { flex: 0 0 auto; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; color: var(--fg-default); font-size: 12px; font-weight: 700; white-space: nowrap; }
-.studio-story-list article > a:hover { border-color: var(--accent); color: var(--accent); }
 @media (max-width: 700px) {
-  .studio-story-list article { flex-wrap: wrap; gap: 12px; }
-  .studio-story-metrics { order: 10; }
-  .studio-story-list article > a { order: 11; margin-left: auto; }
 }
-/* 지원사업 카드 — 원래 고정높이 스타일 복원 (EntityCard 대신 전용 마크업) */
 .support-card { min-width: 0; min-height: 262px; padding: 22px; display: flex; flex-direction: column; border-radius: var(--radius-lg); background: #fff; }
-/* 지원사업 카드 — SEED 정렬 디벨롭 */
 .support-card { min-width: 0; min-height: 268px; padding: 20px; display: flex; flex-direction: column; border-radius: var(--radius-lg); background: #fff; }
 .support-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .support-card-top .badge { background: var(--gray-200); color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 500; }
@@ -2246,9 +1962,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   border-radius: var(--radius-md);
   color: #fff;
 }
-
 .support-card-bottom .button.button-xsmall span { color: #fff; }
-
 @media (max-width: 800px) {
   .listing-heading { margin-bottom: 30px; }
   .listing-heading .event-submit-link { display: inline-flex; width: auto; max-width: 100%; min-width: 0; margin-top: 20px; padding: 0 18px; height: 46px; font-size: 14px; }
@@ -2270,8 +1984,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .community-directory-list { grid-template-columns: 1fr; }
   .community-sort { margin-left: auto; }
 }
-
-/* 모바일 목록 페이지 최적화 — 주석 피드백 반영 */
 @media (max-width: 800px) {
   .listing-heading { margin-bottom: 30px; }
   .listing-heading .event-submit-link { display: inline-flex; width: auto; max-width: 100%; min-width: 0; margin-top: 20px; padding: 0 18px; height: 46px; font-size: 14px; }
@@ -2293,6 +2005,3 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .community-directory-list { grid-template-columns: 1fr; }
   .community-sort { margin-left: auto; }
 }
-
-
-
