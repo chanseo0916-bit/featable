@@ -80,6 +80,29 @@
 
 .community-directory-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 
+@media (max-width: 760px) {
+  .community-toolbar form { width: 100%; margin-top: 16px; }
+  .community-toolbar input { font-size: 13px; }
+  .community-toolbar button { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 8px; background: var(--surface); color: var(--fg-default); font-size: 0; }
+  .community-toolbar button::before { content: ""; grid-area: 1 / 1; width: 11px; height: 11px; border: 2px solid currentColor; border-radius: 50%; }
+  .community-toolbar button::after { content: ""; grid-area: 1 / 1; width: 2px; height: 6px; margin: 7px 0 0 8px; background: currentColor; transform: rotate(-45deg); }
+  .community-panel-head { height: auto; flex-wrap: wrap; gap: 8px; }
+  .community-sort a { padding: 6px 8px; }
+  .entity-card.is-row { padding: 14px; gap: 12px; }
+  .entity-card.is-row .entity-card-logo { width: 52px; height: 52px; }
+  .entity-card.is-row h3 { flex-wrap: wrap; row-gap: 3px; font-size: 15px; }
+  .entity-card.is-row .arrow { margin-left: 2px; }
+}
+
+@media (max-width: 640px) {
+  .entity-card.is-row { align-items: flex-start; }
+  .entity-card.is-row .entity-card-logo { width: 46px; height: 46px; border-radius: 10px; }
+  .entity-card.is-row h3 { display: block; }
+  .entity-card.is-row h3 .badge { display: inline-block; margin-top: 4px; max-width: 100%; }
+  .entity-card.is-row .arrow { display: none; }
+  .community-directory-list { grid-template-columns: 1fr; }
+}
+
 
 .community-directory-card { min-width: 0; min-height: 220px; padding: 19px; display: flex; flex-direction: column; border-radius: 12px; background: #fff; }
 
