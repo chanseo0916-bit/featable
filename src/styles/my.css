@@ -1,5 +1,6 @@
 /* 마이 대시보드 도메인 스타일 — dash-* 통합 체계 */
 
+.dash-page { background: var(--gray-100); min-height: calc(100vh - 130px); padding: 38px 0 80px; }
 .dash-profile-avatar { width: 88px; height: 88px; flex: 0 0 88px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--border); border-radius: 50%; background: #fff; }
 .dash-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .dash-profile-avatar span { color: var(--accent); font-size: var(--fs-t8); font-weight: 700; }
