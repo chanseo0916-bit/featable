@@ -2450,7 +2450,13 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
   line-height: 1.45;
 }
 .support-card-bottom span:first-child { max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.support-card-check { margin-left: auto; }
+.support-card-bottom .button.button-xsmall {
+  height: auto;
+  padding: 8px 14px;
+  font-size: var(--fs-t2);
+  border-radius: var(--radius-md);
+  color: #fff;
+}
 
 
 
