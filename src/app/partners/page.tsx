@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Footer, Header } from "@/components/site-shell";
-import { PartnerDirectoryCardVisual } from "@/components/publishing-preview-cards";
+import { PartnerDirectoryCard } from "@/components/publishing-preview-cards";
 import { getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
 
@@ -30,12 +30,17 @@ export default async function PartnersPage() {
           const basicPartners = partners.filter((partner) => !partner.featured);
           const renderCard = (partner: (typeof partners)[number]) => {
             const external = !partner.href.startsWith("/");
-            const card = <PartnerDirectoryCardVisual name={partner.name} logoUrl={partner.logoUrl} field={partner.field} intro={partner.intro} description={partner.description} featured={partner.featured} external={external} />;
-            const className = partner.featured ? "partner-org-card is-featured" : "partner-org-card";
-            return external ? (
-              <a className={className} href={partner.href} target="_blank" rel="noopener noreferrer" key={partner.name}>{card}</a>
-            ) : (
-              <Link className={className} href={partner.href} key={partner.name}>{card}</Link>
+            return (
+              <PartnerDirectoryCard
+                key={partner.name}
+                name={partner.name}
+                logoUrl={partner.logoUrl}
+                field={partner.field}
+                intro={partner.intro}
+                featured={partner.featured}
+                external={external}
+                href={partner.href}
+              />
             );
           };
           return (

@@ -1011,8 +1011,7 @@
 
 
 .partner-org-card.is-featured {
-  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
-  background: linear-gradient(180deg, var(--accent-soft) 0%, #fff 34%);
+  background: linear-gradient(180deg, var(--accent-soft) 0%, #fff 40%);
 }
 
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Footer, Header } from "@/components/site-shell";
 import { getCommunities, getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
-import { CommunityDirectoryCardVisual } from "@/components/publishing-preview-cards";
+import { CommunityDirectoryCard } from "@/components/publishing-preview-cards";
 
 export const metadata = createPageMetadata({
   title: "창업 커뮤니티 찾기",
@@ -78,9 +78,14 @@ export default async function CommunitiesPage({ searchParams }: { searchParams: 
             </div>
             <div className="community-directory-list">
             {filtered.map(({ community }) => (
-              <Link className="community-directory-card" href={`/communities/${community.slug}`} key={community.slug}>
-                <CommunityDirectoryCardVisual name={community.name} logoUrl={community.logoUrl} field={community.field} intro={community.intro} founderCount={community.founderSlugs?.length ?? 0} brandCount={community.brandSlugs?.length ?? 0} eventCount={community.eventSlugs?.length ?? 0} />
-              </Link>
+              <CommunityDirectoryCard
+                slug={community.slug}
+                key={community.slug}
+                name={community.name}
+                logoUrl={community.logoUrl}
+                field={community.field}
+                intro={community.intro}
+              />
             ))}
             {filtered.length === 0 && <p className="community-empty">조건에 맞는 커뮤니티가 없습니다.</p>}
             </div>

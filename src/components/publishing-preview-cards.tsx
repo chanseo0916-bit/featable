@@ -1,6 +1,9 @@
+import Link from "next/link";
+import { Badge } from "@/components/site-shell";
+import { EntityCard } from "@/components/cards/entity-card";
 import type { PublishingProfileInput } from "@/app/my/publishing/[token]/actions";
 
-export interface PartnerDirectoryCardVisualProps {
+export interface PartnerDirectoryCardProps {
   name: string;
   logoUrl: string;
   field?: string;
@@ -8,41 +11,76 @@ export interface PartnerDirectoryCardVisualProps {
   description?: string;
   featured?: boolean;
   external?: boolean;
+  href: string;
 }
 
-export function PartnerDirectoryCardVisual({ name, logoUrl, field, intro, description, featured = false, external = true }: PartnerDirectoryCardVisualProps) {
-  return <>
-    {featured && <span className="partner-featured-badge">Featable 파트너</span>}
-    <div className="partner-org-logo">{logoUrl ? <img src={logoUrl} alt={`${name} 로고`} /> : <span>{name.slice(0, 1) || "P"}</span>}</div>
-    <div className="partner-org-body"><div className="partner-org-title"><h3>{name || "파트너 이름"}</h3>{field && <span className="badge">{field}</span>}</div>{intro && <p>{intro}</p>}{description && <small>{description}</small>}<span className="text-link">{external ? "웹사이트 방문 →" : "자세히 보기 →"}</span></div>
-  </>;
+/** 파트너 디렉터리 카드 — EntityCard row 레이아웃 단일 구현 */
+export function PartnerDirectoryCard({
+  name, logoUrl, field, intro, featured = false, external = true, href,
+}: PartnerDirectoryCardProps) {
+  return (
+    <EntityCard
+      layout="row"
+      href={href}
+      logo={logoUrl || null}
+      logoAlt={name}
+      title={name}
+      badge={<Badge tone={featured ? "orange" : "default"}>{featured ? "Featable 파트너" : field}</Badge>}
+      description={intro}
+    />
+  );
 }
 
-export interface CommunityDirectoryCardVisualProps {
+export interface CommunityDirectoryCardProps {
+  slug: string;
   name: string;
   logoUrl: string;
   field: string;
   intro: string;
-  founderCount?: number;
-  brandCount?: number;
-  eventCount?: number;
-  approved?: boolean;
 }
 
-export function CommunityDirectoryCardVisual({ name, logoUrl, field, intro, founderCount = 0, brandCount = 0, eventCount = 0, approved = false }: CommunityDirectoryCardVisualProps) {
-  return <>
-    <div className="community-card-head">{logoUrl ? <img src={logoUrl} alt={`${name} 로고`} /> : <span className="publishing-logo-placeholder">{name.slice(0, 1) || "C"}</span>}<span><i /> {approved ? "승인된 커뮤니티" : "활동 중"}</span></div>
-    <div className="community-directory-copy"><div><h2>{name || "커뮤니티 이름"}</h2><span>{field || "분야"}</span></div><p>{intro || "어떤 사람들이 함께하는 커뮤니티인지 소개해주세요."}</p></div>
-    <div className="community-card-stats"><span><b>{founderCount}</b> Founder</span><span><b>{brandCount}</b> Brand</span><span><b>{eventCount}</b> Event</span><span className="button button-small community-card-cta">커뮤니티 보기 <span aria-hidden="true">→</span></span></div>
-  </>;
+/** 커뮤니티 디렉터리 카드 — 파트너와 같은 row 레이아웃 */
+export function CommunityDirectoryCard({ slug, name, logoUrl, field, intro }: CommunityDirectoryCardProps) {
+  return (
+    <EntityCard
+      layout="row"
+      href={`/communities/${slug}`}
+      logo={logoUrl || null}
+      logoAlt={name}
+      title={name}
+      badge={<Badge>{field}</Badge>}
+      description={intro || "어떤 사람들이 함께하는 커뮤니티인지 소개해주세요."}
+    />
+  );
 }
 
 export function PartnerPublishingPreview({ value }: { value: PublishingProfileInput }) {
-  return <div className="partner-org-card publishing-card-preview"><PartnerDirectoryCardVisual name={value.name} logoUrl={value.logoUrl} field={value.field || "분야"} intro={value.intro || "파트너를 한 문장으로 소개해주세요."} description={value.description || "상세 소개가 이곳에 표시됩니다."} /></div>;
+  return (
+    <div className="publishing-card-preview">
+      <PartnerDirectoryCard
+        name={value.name}
+        logoUrl={value.logoUrl}
+        field={value.field || "분야"}
+        intro={value.intro || "파트너를 한 문장으로 소개해주세요."}
+        href="#"
+        external={false}
+      />
+    </div>
+  );
 }
 
 export function CommunityPublishingPreview({ value }: { value: PublishingProfileInput }) {
-  return <div className="community-directory-card publishing-card-preview"><CommunityDirectoryCardVisual name={value.name} logoUrl={value.logoUrl} field={value.field} intro={value.intro} approved /></div>;
+  return (
+    <div className="publishing-card-preview">
+      <CommunityDirectoryCard
+        slug="preview"
+        name={value.name || "커뮤니티 이름"}
+        logoUrl={value.logoUrl}
+        field={value.field || "분야"}
+        intro={value.intro}
+      />
+    </div>
+  );
 }
 
 export function PublishingDetailPreview({ value, type }: { value: PublishingProfileInput; type: "partner" | "community" }) {
