@@ -6,6 +6,7 @@ import { RowControls } from "../admin-controls";
 import { AdminDeleteButton } from "../admin-editor";
 import { ADMIN_PAGE_SIZE, AdminListTools, AdminPageHeader, AdminPagination, formatAdminDate, parseAdminQuery, StatusBadge, type PublishStatus } from "../admin-ui";
 import { StoryForm, type StoryFormInitial } from "./story-form";
+import { InterviewCampaignButton } from "./interview-campaign-button";
 
 export const metadata: Metadata = { title: "스토리 관리" };
 
@@ -14,6 +15,8 @@ interface StoryRow {
   cover_url: string | null; body: StoryBlock[] | null; brand_id: string | null; founder_id: string | null;
   status: PublishStatus; is_featured: boolean; published_at: string | null; view_count: number;
 }
+
+interface CampaignRow { feature_id: string; status: string; recipient_count: number; sent_count: number; failed_count: number; interview_email_deliveries: { clicked_at: string | null }[] | null; }
 
 const KIND_LABEL: Record<string, string> = {
   interview: "인터뷰", "brand-story": "브랜드 스토리", "product-feature": "프로덕트 피처",
@@ -60,6 +63,10 @@ export default async function AdminStoriesPage({ searchParams }: { searchParams:
     .order("updated_at", { ascending: false })
     .range(from, from + ADMIN_PAGE_SIZE - 1);
   const rows = (data ?? []) as StoryRow[];
+  const { data: campaignData } = rows.length
+    ? await supabase.from("interview_email_campaigns").select("feature_id,status,recipient_count,sent_count,failed_count,interview_email_deliveries(clicked_at)").in("feature_id", rows.map((row) => row.id))
+    : { data: [] };
+  const campaigns = new Map(((campaignData ?? []) as CampaignRow[]).map((campaign) => [campaign.feature_id, campaign]));
 
   return (
     <main className="admin-main shell">
@@ -82,6 +89,7 @@ export default async function AdminStoriesPage({ searchParams }: { searchParams:
               </div>
               <StatusBadge status={row.status} />
               <div className="admin-row-actions">
+                {row.kind === "interview" && row.status === "published" && <InterviewCampaignButton featureId={row.id} {...campaigns.get(row.id)} clickedCount={campaigns.get(row.id)?.interview_email_deliveries?.filter((delivery) => delivery.clicked_at).length} />}
                 <RowControls table="features" id={row.id} isFeatured={row.is_featured} status={row.status} />
                 <Link href={`/admin/stories?edit=${row.id}`} className="admin-action-button">편집</Link>
                 <AdminDeleteButton table="features" id={row.id} name={row.title} />

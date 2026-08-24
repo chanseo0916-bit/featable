@@ -5,7 +5,15 @@ import { resolve } from "node:path";
 const root = process.cwd();
 const localEnv = resolve(root, ".env.local");
 const backupEnv = resolve(root, ".env.local.deploy-backup");
-const npx = process.platform === "win32" ? "npx.cmd" : "npx";
+const openNextCli = resolve(
+  root,
+  "node_modules",
+  "@opennextjs",
+  "cloudflare",
+  "dist",
+  "cli",
+  "index.js",
+);
 const serverSecretNames = [
   "ANTHROPIC_API_KEY",
   "BIZINFO_API_KEY",
@@ -43,12 +51,17 @@ try {
   const childEnv = { ...process.env };
   for (const name of serverSecretNames) delete childEnv[name];
 
-  for (const command of ["build", "deploy"]) {
-    const result = spawnSync(npx, ["opennextjs-cloudflare", command], {
+for (const command of ["build", "deploy"]) {
+  const args = [openNextCli, command];
+
+  if (command === "build") {
+    args.push("--dangerouslyUseUnsupportedNextVersion");
+  }
+
+  const result = spawnSync(process.execPath, args, {
       cwd: root,
       env: childEnv,
       stdio: "inherit",
-      shell: process.platform === "win32",
     });
     if (result.error) throw result.error;
     if (result.status !== 0) process.exitCode = result.status ?? 1;

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
 import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
 import { syncBizinfoSupportPrograms as runBizinfoSync } from "@/lib/bizinfo-sync";
+import { queueInterviewCampaign } from "@/lib/interview-campaigns";
 
 function revalidateCuration() {
   revalidatePath("/");
@@ -33,6 +34,16 @@ async function requireAdmin() {
     .maybeSingle();
 
   return profile?.role === "admin" ? supabase : null;
+}
+
+export async function sendInterviewMarketingEmail(featureId: string): Promise<{ error?: string; message?: string }> {
+  const supabase = await requireAdmin();
+  if (!supabase) return { error: "관리자 권한이 없습니다." };
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+  const result = await queueInterviewCampaign(featureId, user.id);
+  revalidatePath("/admin/stories");
+  return result;
 }
 
 /** 관리자만 공개 Founder 번호를 조정할 수 있습니다. 번호는 비워서 해제할 수도 있습니다. */

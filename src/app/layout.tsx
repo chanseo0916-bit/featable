@@ -3,6 +3,8 @@ import { JsonLd, type SeoSchema } from "@/components/seo-json-ld";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_NAME_DISPLAY, SITE_NAME_KO, SITE_SOCIAL_IMAGE, SITE_URL } from "@/lib/site";
 import "pretendard/dist/web/static/pretendard.css";
 import "./globals.css";
+import { Suspense } from "react";
+import { ActivityTracker } from "@/components/activity-tracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -94,6 +96,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="ko" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <JsonLd data={jsonLd} />
+        <Suspense fallback={null}><ActivityTracker /></Suspense>
         {children}
       </body>
     </html>

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SITE_URL } from "@/lib/site";
 import { isMemberType, safeNextPath } from "@/lib/auth";
 import { notifySlackNewSignup } from "@/lib/slack";
+import { recordServerActivity } from "@/lib/activity";
 
 export type AuthState = { error?: string; message?: string };
 
@@ -28,6 +29,8 @@ export async function login(
   if (error) {
     return { error: "이메일 또는 비밀번호가 올바르지 않습니다." };
   }
+
+  await recordServerActivity({ userId: data.user.id, eventName: "login", path: "/login", entityType: "user", entityId: data.user.id });
 
   revalidatePath("/", "layout");
   const { data: profile } = await supabase
@@ -106,6 +109,7 @@ export async function signup(
       memberType,
       marketingAccepted,
     });
+    await recordServerActivity({ userId: data.user.id, eventName: "signup", path: "/login", entityType: "user", entityId: data.user.id, metadata: { method: "email" } });
   }
 
   if (data.session) {

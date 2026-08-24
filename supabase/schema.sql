@@ -514,6 +514,53 @@ create table publishing_invitations (
   updated_at timestamptz not null default now()
 );
 
+-- ---------- Unified product analytics ----------
+create table user_activity_events (
+  id bigint generated always as identity primary key,
+  user_id uuid references profiles(id) on delete set null,
+  session_id text not null check (char_length(session_id) between 8 and 80),
+  event_name text not null check (event_name in ('page_view','signup','login','brand_created','product_published','story_published','event_created','partner_inquiry')),
+  path text not null default '/',
+  entity_type text,
+  entity_id text,
+  referrer text,
+  source text,
+  medium text,
+  campaign text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table interview_email_campaigns (
+  id uuid primary key default uuid_generate_v4(),
+  feature_id uuid not null unique references features(id) on delete cascade,
+  status text not null default 'draft' check (status in ('draft','queued','sending','completed','failed')),
+  recipient_count integer not null default 0,
+  sent_count integer not null default 0,
+  failed_count integer not null default 0,
+  created_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  started_at timestamptz,
+  completed_at timestamptz,
+  updated_at timestamptz not null default now()
+);
+
+create table interview_email_deliveries (
+  id uuid primary key default uuid_generate_v4(),
+  campaign_id uuid not null references interview_email_campaigns(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  email text not null,
+  display_name text,
+  status text not null default 'queued' check (status in ('queued','sending','sent','failed','skipped')),
+  provider_message_id text,
+  error text,
+  sent_at timestamptz,
+  clicked_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (campaign_id, user_id)
+);
+
 -- ---------- 커뮤니티 연결 (Community ↔ Founder/Brand) ----------
 create table community_founders (
   community_id uuid references communities(id) on delete cascade,
@@ -527,6 +574,15 @@ create table community_brands (
   primary key (community_id, brand_id)
 );
 
+create table community_managers (
+  community_id uuid not null references communities(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  role text not null default 'manager' check (role in ('manager', 'editor')),
+  added_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  primary key (community_id, user_id)
+);
+
 -- ---------- 인덱스 ----------
 create index idx_brands_status on brands(status);
 create index idx_brands_category on brands(category);
@@ -537,6 +593,10 @@ create index idx_features_status on features(status);
 create index idx_features_brand on features(brand_id);
 create index idx_support_close_at on support_programs(close_at);
 create index idx_events_starts_at on events(starts_at);
+create index idx_events_community on events(community_id);
+create index idx_community_founders_founder on community_founders(founder_id);
+create index idx_community_brands_brand on community_brands(brand_id);
+create index idx_community_managers_user on community_managers(user_id, created_at desc);
 create index partner_submissions_user_updated_idx on partner_submissions(user_id, updated_at desc);
 create index partner_submissions_status_created_idx on partner_submissions(status, created_at asc);
 create index partnership_inquiries_status_created_idx on partnership_inquiries(status, created_at desc);
@@ -544,6 +604,13 @@ create index partnership_inquiries_email_created_idx on partnership_inquiries(lo
 create index publishing_invitations_user_status_idx on publishing_invitations(user_id, status, created_at desc);
 create index publishing_invitations_email_status_idx on publishing_invitations(lower(invitee_email), status, created_at desc);
 create index partners_owner_idx on partners(owner_user_id, created_at desc);
+create index activity_created_idx on user_activity_events(created_at desc);
+create index activity_session_created_idx on user_activity_events(session_id, created_at desc);
+create index activity_user_created_idx on user_activity_events(user_id, created_at desc) where user_id is not null;
+create index activity_event_created_idx on user_activity_events(event_name, created_at desc);
+create index interview_campaign_status_idx on interview_email_campaigns(status, created_at);
+create index interview_delivery_status_idx on interview_email_deliveries(status, created_at);
+create index interview_delivery_campaign_idx on interview_email_deliveries(campaign_id, status);
 create index event_registrations_event_status_idx on event_registrations(event_id, status, applied_at);
 create index event_registrations_user_idx on event_registrations(user_id, applied_at desc);
 create unique index event_registrations_event_email_unique on event_registrations(event_id, lower(applicant_email));
@@ -596,6 +663,25 @@ returns boolean language sql stable security definer set search_path = public as
     where e.id = target_event_id and (e.submitted_by = auth.uid() or is_admin())
   );
 $$;
+
+create or replace function can_manage_community(target_community_id uuid)
+returns boolean language sql stable security definer set search_path = public, auth as $$
+  select exists (
+    select 1 from communities c
+    where c.id = target_community_id
+      and (
+        c.manager_user_id = auth.uid()
+        or is_admin()
+        or exists (
+          select 1 from community_managers cm
+          where cm.community_id = c.id and cm.user_id = auth.uid()
+        )
+      )
+  );
+$$;
+
+revoke execute on function can_manage_community(uuid) from public, anon;
+grant execute on function can_manage_community(uuid) to authenticated;
 
 -- 브랜드와 소속 프로덕트의 공개 상태를 한 트랜잭션에서 함께 변경
 create or replace function public.set_brand_publication_state(
@@ -817,10 +903,17 @@ alter table partnership_inquiries enable row level security;
 alter table publishing_invitations enable row level security;
 alter table community_founders enable row level security;
 alter table community_brands enable row level security;
+alter table community_managers enable row level security;
+alter table user_activity_events enable row level security;
+alter table interview_email_campaigns enable row level security;
+alter table interview_email_deliveries enable row level security;
 
 -- profiles: 본인만 조회/수정, admin 전체
 create policy "profiles_select_own" on profiles for select using (id = auth.uid() or is_admin());
 create policy "profiles_update_own" on profiles for update using (id = auth.uid());
+create policy "activity_admin_select" on user_activity_events for select using (is_admin());
+create policy "interview_campaign_admin_select" on interview_email_campaigns for select using (is_admin());
+create policy "interview_delivery_admin_select" on interview_email_deliveries for select using (is_admin());
 revoke update on table profiles from authenticated;
 grant update (full_name, member_type, terms_agreed_at, privacy_agreed_at, marketing_agreed_at, onboarding_completed_at) on table profiles to authenticated;
 
@@ -901,9 +994,11 @@ create policy "support_select" on support_programs for select using (status = 'p
 create policy "support_write" on support_programs for all using (is_admin()) with check (is_admin());
 
 create policy "communities_select" on communities for select using (status = 'published' or manager_user_id = auth.uid() or is_admin());
-create policy "communities_write" on communities for all
-  using (manager_user_id = auth.uid() or is_admin())
-  with check (manager_user_id = auth.uid() or is_admin());
+create policy "communities_insert" on communities for insert with check (manager_user_id = auth.uid() or is_admin());
+create policy "communities_update" on communities for update
+  using (manager_user_id = auth.uid() or is_admin() or exists (select 1 from community_managers cm where cm.community_id = id and cm.user_id = auth.uid() and cm.role = 'manager'))
+  with check (manager_user_id = auth.uid() or is_admin() or exists (select 1 from community_managers cm where cm.community_id = id and cm.user_id = auth.uid() and cm.role = 'manager'));
+create policy "communities_delete" on communities for delete using (manager_user_id = auth.uid() or is_admin());
 
 create policy "partner_submissions_select" on partner_submissions for select
   using (user_id = auth.uid() or is_admin());
@@ -925,7 +1020,9 @@ create policy "jobs_select" on jobs for select using (status = 'published' or ow
 create policy "jobs_write" on jobs for all using (owns_brand(brand_id) or is_admin()) with check (owns_brand(brand_id) or is_admin());
 
 create policy "partners_select" on partners for select using (true);
-create policy "partners_write" on partners for all using (is_admin()) with check (is_admin());
+create policy "partners_insert" on partners for insert with check (owner_user_id = auth.uid() or is_admin());
+create policy "partners_update" on partners for update using (owner_user_id = auth.uid() or is_admin()) with check (owner_user_id = auth.uid() or is_admin());
+create policy "partners_delete" on partners for delete using (is_admin());
 
 create policy "partnership_inquiries_admin_select" on partnership_inquiries for select using (is_admin());
 create policy "partnership_inquiries_admin_update" on partnership_inquiries for update using (is_admin()) with check (is_admin());
@@ -934,9 +1031,13 @@ create policy "publishing_invitations_select_own" on publishing_invitations for 
 create policy "publishing_invitations_admin_write" on publishing_invitations for all using (is_admin()) with check (is_admin());
 
 create policy "community_founders_select" on community_founders for select using (true);
-create policy "community_founders_write" on community_founders for all using (is_admin()) with check (is_admin());
+create policy "community_founders_write" on community_founders for all using (can_manage_community(community_id)) with check (can_manage_community(community_id));
 create policy "community_brands_select" on community_brands for select using (true);
-create policy "community_brands_write" on community_brands for all using (is_admin()) with check (is_admin());
+create policy "community_brands_write" on community_brands for all using (can_manage_community(community_id)) with check (can_manage_community(community_id));
+create policy "community_managers_select_related" on community_managers for select using (can_manage_community(community_id));
+create policy "community_managers_owner_insert" on community_managers for insert with check (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin())));
+create policy "community_managers_owner_update" on community_managers for update using (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin()))) with check (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin())));
+create policy "community_managers_owner_delete" on community_managers for delete using (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin())));
 
 -- ============================================================
 -- Storage: 이미지 버킷

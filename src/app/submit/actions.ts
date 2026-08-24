@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { slugify, randomSuffix } from "@/lib/slug";
 import type { StoryBlock } from "@/lib/types";
 import { cleanSeoSlug, conciseSeoDescription, normalizeKeywords, seoTitle, storyText } from "@/lib/content-seo";
+import { recordServerActivity } from "@/lib/activity";
 
 export interface PublishInput {
   // STEP 1 — 기본정보
@@ -306,6 +307,8 @@ export async function createStandaloneBrand(input: BrandRegistrationInput): Prom
     .eq("founder_id", founder.id)
     .is("brand_id", null);
 
+  await recordServerActivity({ userId: user.id, eventName: "brand_created", path: `/brands/${brand.slug}`, entityType: "brand", entityId: brand.id });
+
   revalidatePath("/my");
   revalidatePath("/brands");
   revalidatePath("/stories");
@@ -358,6 +361,7 @@ export async function createStandaloneProduct(input: ProductRegistrationInput): 
   );
   if ("error" in result) return { ok: false, error: result.error };
   if (input.publish) await supabase.from("brands").update({ status: "published", is_indexable: true, published_at: new Date().toISOString() }).eq("id", brand.id);
+  if (input.publish) await recordServerActivity({ userId: user.id, eventName: "product_published", path: `/products/${result.slug}`, entityType: "product", entityId: result.slug });
   revalidatePath("/my");
   revalidatePath("/brands");
   revalidatePath("/products");
@@ -488,6 +492,9 @@ export async function publishBrand(input: PublishInput): Promise<PublishResult> 
     await supabase.from("brands").delete().eq("id", brand.id);
     return { ok: false, error: productRes.error };
   }
+
+  await recordServerActivity({ userId: user.id, eventName: "brand_created", path: `/brands/${brand.slug}`, entityType: "brand", entityId: brand.id });
+  if (input.publish) await recordServerActivity({ userId: user.id, eventName: "product_published", path: `/products/${productRes.slug}`, entityType: "product", entityId: productRes.slug });
 
   revalidatePath("/");
   revalidatePath("/brands");

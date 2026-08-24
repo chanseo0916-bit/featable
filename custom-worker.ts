@@ -10,12 +10,17 @@ const worker = {
   fetch: handler.fetch,
   async scheduled(event: ScheduledEvent, env: FeatableWorkerEnv, ctx: WorkerContext) {
     if (!env.SYNC_CRON_SECRET) throw new Error("SYNC_CRON_SECRET is missing.");
-    const request = new Request("https://featable.kr/api/cron/bizinfo", {
-      method: "POST",
-      headers: { authorization: `Bearer ${env.SYNC_CRON_SECRET}`, "x-featable-cron": event.cron },
-    });
-    const response = await handler.fetch(request, env, ctx);
-    if (!response.ok) throw new Error(`Bizinfo synchronization failed (${response.status}): ${await response.text()}`);
+    const paths = event.cron === "0 */6 * * *"
+      ? ["/api/cron/bizinfo", "/api/cron/interview-emails"]
+      : ["/api/cron/interview-emails"];
+    for (const path of paths) {
+      const request = new Request(`https://featable.kr${path}`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${env.SYNC_CRON_SECRET}`, "x-featable-cron": event.cron },
+      });
+      const response = await handler.fetch(request, env, ctx);
+      if (!response.ok) throw new Error(`${path} failed (${response.status}): ${await response.text()}`);
+    }
   },
 };
 

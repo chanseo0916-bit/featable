@@ -3,6 +3,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { notifySlackPartnershipInquiry } from "@/lib/slack";
+import { recordServerActivity } from "@/lib/activity";
 
 export type PartnershipInquiryState = { ok?: boolean; error?: string };
 
@@ -50,5 +51,6 @@ export async function submitPartnershipInquiry(_previous: PartnershipInquiryStat
   if (error || !data) return { error: "문의 접수에 실패했습니다. 최신 SQL 적용 여부를 확인해주세요." };
 
   await notifySlackPartnershipInquiry({ id: data.id, inquiryType, organization, contactName, contactEmail, objective, budget: inquiryType === "advertiser" ? budget : communitySize });
+  await recordServerActivity({ userId: user?.id, eventName: "partner_inquiry", path: "/partners/apply", entityType: "partnership_inquiry", entityId: data.id, metadata: { inquiryType } });
   return { ok: true };
 }
