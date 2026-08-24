@@ -104,8 +104,8 @@ export function ProfileEditor({
   }
 
   const input =
-    "w-full rounded-lg border border-border px-4 py-2.5 text-sm outline-none transition-colors focus:border-accent";
-  const label = "mb-1 mt-3 block text-xs font-semibold text-muted";
+    "w-full rounded-lg border border-border px-4 py-3 text-base outline-none transition-colors focus:border-accent";
+  const label = "mb-1.5 mt-4 block text-[13px] font-bold text-fg-default";
 
   return (
     <section className={setupMode ? "simple-registration-card profile-setup-card" : "rounded-2xl border border-border bg-white p-6"}>
@@ -144,7 +144,7 @@ export function ProfileEditor({
           </div>}
 
           {!setupMode && !open && (
-            <p className="mt-6 border-t border-border pt-5 text-xs leading-relaxed text-muted">
+            <p className="mt-6 border-t border-border pt-5 text-[13px] leading-relaxed text-muted">
               대표자는 브랜드 팀의 첫 번째 멤버로 표시됩니다. &lsquo;프로필 편집&rsquo;을 누르면
               팀 카드와 Founder 페이지에 쓰이는 정보를 함께 수정할 수 있습니다.
             </p>
