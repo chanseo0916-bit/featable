@@ -475,7 +475,7 @@
 .product-story-renderer.compact .product-story-empty-public p { font-size: 12px; }
 
 
-.product-story-copy.highlight { background: linear-gradient(135deg, #ff6a45, #d9361e); color: #fff; }
+.product-story-copy.highlight { background: linear-gradient(135deg, #ff6a45, var(--accent-hover)); color: #fff; }
 
 
 .product-story-copy.highlight small { color: #ffd9c9; }
@@ -499,7 +499,7 @@
 .product-story-features { padding: 90px 90px; }
 
 
-.product-story-features.highlight { background: linear-gradient(135deg, #ff6a45, #d9361e); color: #fff; }
+.product-story-features.highlight { background: linear-gradient(135deg, #ff6a45, var(--accent-hover)); color: #fff; }
 
 
 .product-story-features h3 { max-width: 680px; margin: 0 0 44px; font-size: clamp(30px, 4.4vw, 44px); line-height: 1.18; letter-spacing: -.03em; }

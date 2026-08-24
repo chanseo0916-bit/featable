@@ -211,7 +211,7 @@
 .team-profile-form-card > p.success { background: #edf9f1; color: #168347; }
 
 
-.team-profile-form-card > p.error { background: #fff0ed; color: #d93620; }
+.team-profile-form-card > p.error { background: var(--accent-soft); color: #d93620; }
 
 
 .team-profile-form-card > button { margin-top: 20px; min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; }
@@ -220,7 +220,7 @@
 .team-profile-live-card { min-height: 410px; padding: 28px; position: sticky; top: 24px; border-radius: 16px; background: #151515; color: #fff; box-shadow: 0 20px 50px #1112; }
 
 
-.team-profile-live-card > span { color: #ff785e; font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
+.team-profile-live-card > span { color: var(--carrot-500); font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
 
 
 .team-profile-live-card > div, .team-profile-live-card img { width: 118px; height: 118px; border-radius: 20px; object-fit: cover; }
@@ -235,7 +235,7 @@
 .team-profile-live-card h2 { margin: 26px 0 0; font-size: 26px; }
 
 
-.team-profile-live-card strong { margin-top: 7px; color: #ff785e; font-size: 12px; }
+.team-profile-live-card strong { margin-top: 7px; color: var(--carrot-500); font-size: 12px; }
 
 
 .team-profile-live-card p { min-height: 50px; margin: 20px 0 0; color: var(--fg-subtle); font-size: 12px; line-height: 1.7; }
@@ -469,10 +469,10 @@
 .partner-submission-summary a > span[data-status="submitted"], .partner-submission-summary a > span[data-status="in_review"] { background: #fff3df; color: #a85d00; }
 
 
-.partner-submission-summary a > span[data-status="approved"] { background: #eaf8ef; color: #247b48; }
+.partner-submission-summary a > span[data-status="approved"] { background: #eaf8ef; color: var(--success); }
 
 
-.partner-submission-summary a > span[data-status="rejected"] { background: #fff0ed; color: #cf4032; }
+.partner-submission-summary a > span[data-status="rejected"] { background: var(--accent-soft); color: #cf4032; }
 
 
 .partner-register-page { background: #f4f5f6; }
@@ -532,7 +532,7 @@
 .partner-register-side nav span[data-status="submitted"], .partner-register-side nav span[data-status="in_review"] { color: #a85d00; }
 
 
-.partner-register-side nav span[data-status="approved"] { color: #247b48; }
+.partner-register-side nav span[data-status="approved"] { color: var(--success); }
 
 
 .partner-register-side nav span[data-status="rejected"] { color: #cf4032; }
@@ -559,10 +559,10 @@
 .partner-register-form-shell > header em[data-status="submitted"], .partner-register-form-shell > header em[data-status="in_review"] { background: #fff3df; color: #a85d00; }
 
 
-.partner-register-form-shell > header em[data-status="approved"] { background: #eaf8ef; color: #247b48; }
+.partner-register-form-shell > header em[data-status="approved"] { background: #eaf8ef; color: var(--success); }
 
 
-.partner-register-form-shell > header em[data-status="rejected"] { background: #fff0ed; color: #cf4032; }
+.partner-register-form-shell > header em[data-status="rejected"] { background: var(--accent-soft); color: #cf4032; }
 
 
 .partner-register-types { padding: 18px 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border-bottom: 1px solid #e8eaec; }
@@ -571,7 +571,7 @@
 .partner-register-types button { min-height: 67px; padding: 13px; display: grid; gap: 5px; border: 1px solid #dfe2e5; border-radius: 8px; background: #fff; color: var(--fg-strong); text-align: left; cursor: pointer; }
 
 
-.partner-register-types button.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: #fff7f5; }
+.partner-register-types button.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--carrot-100); }
 
 
 .partner-register-types strong { font-size: 12px; }
@@ -634,7 +634,7 @@
 .publishing-detail-preview footer strong { color: var(--accent); }
 
 
-.partner-review-note { margin: 22px 32px 0; padding: 14px 15px; border-radius: 8px; background: #fff1ed; }
+.partner-review-note { margin: 22px 32px 0; padding: 14px 15px; border-radius: 8px; background: var(--accent-soft); }
 
 
 .partner-review-note strong { color: #c63c2f; font-size: 12px; }
@@ -839,7 +839,7 @@
 .partnership-form-grid textarea { min-height: 130px; resize: vertical; line-height: 1.65; }
 
 
-.partnership-form-grid input:focus, .partnership-form-grid select:focus, .partnership-form-grid textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #ef412510; }
+.partnership-form-grid input:focus, .partnership-form-grid select:focus, .partnership-form-grid textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 6%, transparent); }
 
 
 .partnership-consent { margin: 24px 42px 0; display: flex; align-items: flex-start; gap: 9px; color: var(--fg-muted); font-size: 12px; line-height: 1.5; }
@@ -851,7 +851,7 @@
 .partnership-consent a { color: var(--fg-strong); text-decoration: underline; }
 
 
-.partnership-form-error { margin: 15px 42px 0; padding: 11px 13px; border-radius: 8px; background: #fff0ed; color: #c83c2f; font-size: 12px; }
+.partnership-form-error { margin: 15px 42px 0; padding: 11px 13px; border-radius: 8px; background: var(--accent-soft); color: #c83c2f; font-size: 12px; }
 
 
 .partnership-application-form > footer { min-height: 100px; padding: 24px 42px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
@@ -977,10 +977,10 @@
 .partner-submission-admin-list header em[data-status="submitted"], .partner-submission-admin-list header em[data-status="in_review"] { background: #fff3df; color: #a85d00; }
 
 
-.partner-submission-admin-list header em[data-status="approved"] { background: #eaf8ef; color: #247b48; }
+.partner-submission-admin-list header em[data-status="approved"] { background: #eaf8ef; color: var(--success); }
 
 
-.partner-submission-admin-list header em[data-status="rejected"] { background: #fff0ed; color: #cf4032; }
+.partner-submission-admin-list header em[data-status="rejected"] { background: var(--accent-soft); color: #cf4032; }
 
 
 .partner-submission-admin-list dl { margin: 19px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #e8eaec; }

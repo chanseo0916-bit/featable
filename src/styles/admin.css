@@ -193,7 +193,7 @@
 .admin-status { display: inline-flex; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
 
 
-.admin-status-published { background: #fff0ed; color: var(--accent); }
+.admin-status-published { background: var(--accent-soft); color: var(--accent); }
 
 
 .admin-status-draft { background: #f0f1f2; color: var(--fg-muted); }
@@ -253,7 +253,7 @@
 .admin-founder-number-editor > span { display: block; margin-top: 5px; font-size: 12px; }
 
 
-.admin-founder-number-editor .success { color: #247b48; }
+.admin-founder-number-editor .success { color: var(--success); }
 
 
 .admin-founder-number-editor .error { color: #d53e31; }
@@ -541,7 +541,7 @@
 .ig-post-tile-status .studio-status-toggle.on { background: rgba(239,255,246,.94); }
 
 
-.studio-product-status { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 5px 8px; border-radius: 999px; background: rgba(255,255,255,.94); color: #15803d; font-size: 12px; font-weight: 700; backdrop-filter: blur(3px); }
+.studio-product-status { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 5px 8px; border-radius: 999px; background: rgba(255,255,255,.94); color: var(--success); font-size: 12px; font-weight: 700; backdrop-filter: blur(3px); }
 
 
 .ig-post-tile > .studio-row-actions { justify-content: flex-start !important; padding: 8px 12px 12px; }
@@ -730,7 +730,7 @@
 .admin-edit-grid input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
 
 
-.admin-dialog-error { margin: 0 28px 16px; padding: 10px 12px; border-radius: 8px; background: #fff0ed; color: #d53e31; font-size: 12px; }
+.admin-dialog-error { margin: 0 28px 16px; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); color: #d53e31; font-size: 12px; }
 
 
 .admin-dialog-actions { position: sticky; bottom: 0; padding: 17px 28px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #eceef0; background: #fff; }
@@ -844,7 +844,7 @@
 .admin-recent-users > div { min-height: 67px; display: grid; grid-template-columns: 38px minmax(0, 1fr) 92px 54px; align-items: center; gap: 12px; border-bottom: 1px solid #eceef0; }
 
 
-.admin-recent-users > div > i { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #fff0ed; color: var(--accent); font-size: 12px; font-style: normal; font-weight: 700; }
+.admin-recent-users > div > i { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-style: normal; font-weight: 700; }
 
 
 .admin-recent-users p { min-width: 0; margin: 0; }

@@ -292,7 +292,7 @@
 .seo-fields-grid input, .seo-fields-grid textarea { width: 100%; border: 1px solid #dfe3e8; border-radius: 12px; padding: 13px 14px; font: inherit; outline: none; }
 
 
-.seo-fields-grid input:focus, .seo-fields-grid textarea:focus { border-color: #ef4125; box-shadow: 0 0 0 3px rgba(239,65,37,.08); }
+.seo-fields-grid input:focus, .seo-fields-grid textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(239,65,37,.08); }
 
 
 .seo-fields-grid textarea { min-height: 88px; resize: vertical; }
@@ -340,7 +340,7 @@
 .approved-publishing-form > header p, .approved-publishing-preview > header p { margin: 8px 0 0; color: var(--fg-muted); font-size: 12px; line-height: 1.55; }
 
 
-.approved-publishing-message { margin: 0 32px 18px; padding: 11px 13px; border-radius: 8px; background: #fff3f0; color: #b83725; font-size: 12px; }
+.approved-publishing-message { margin: 0 32px 18px; padding: 11px 13px; border-radius: 8px; background: var(--carrot-100); color: #b83725; font-size: 12px; }
 
 
 .approved-publishing-form > footer { position: sticky; bottom: 0; z-index: 5; min-height: 76px; padding: 15px 32px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #e0e3e5; background: #fffffff2; box-shadow: 0 -8px 22px #11111108; backdrop-filter: blur(10px); }
@@ -469,7 +469,7 @@
 .submit-review-list button:last-child { border-bottom: 0; border-radius: 0 0 8px 8px; }
 
 
-.submit-review-list button > i { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: #fff0ed; color: var(--accent); font-size: 12px; font-style: normal; font-weight: 700; }
+.submit-review-list button > i { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-style: normal; font-weight: 700; }
 
 
 .submit-review-list button > i.done { background: #eaf8f0; color: #1a9b58; }

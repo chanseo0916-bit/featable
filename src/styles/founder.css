@@ -25,7 +25,7 @@
 .founder-card-column .founder-profile-actions { max-width: 420px; flex-wrap: wrap; }
 
 
-.founder-id-visual { min-height: 520px; position: relative; overflow: hidden; border-radius: 20px; background: #ef4125; box-shadow: 0 20px 50px #ef412523; }
+.founder-id-visual { min-height: 520px; position: relative; overflow: hidden; border-radius: 20px; background: var(--accent); box-shadow: 0 20px 50px color-mix(in srgb, var(--accent) 14%, transparent); }
 
 
 .founder-id-mark { position: absolute; z-index: 2; top: 26px; left: 27px; color: #fff; font-size: 32px; font-weight: 700; letter-spacing: -.03em; }
@@ -97,7 +97,7 @@
 .founder-support-button:hover { background: #d9361f; transform: translateY(-1px); }
 
 
-.founder-support-button.is-supported { background: #fff3f0; color: var(--accent); }
+.founder-support-button.is-supported { background: var(--carrot-100); color: var(--accent); }
 
 
 .founder-support-button.is-supported:hover { background: #ffe5df; }

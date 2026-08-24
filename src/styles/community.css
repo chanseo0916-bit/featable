@@ -90,13 +90,13 @@
   .community-sort a { padding: 6px 8px; }
   .entity-card.is-row { padding: 14px; gap: 12px; }
   .entity-card.is-row .entity-card-logo { width: 52px; height: 52px; }
-  .entity-card.is-row h3 { flex-wrap: wrap; row-gap: 3px; font-size: 15px; }
+  .entity-card.is-row h3 { flex-wrap: wrap; row-gap: 3px; font-size: 16px; }
   .entity-card.is-row .arrow { margin-left: 2px; }
 }
 
 @media (max-width: 640px) {
   .entity-card.is-row { align-items: flex-start; }
-  .entity-card.is-row .entity-card-logo { width: 46px; height: 46px; border-radius: 10px; }
+  .entity-card.is-row .entity-card-logo { width: 46px; height: 46px; border-radius: 12px; }
   .entity-card.is-row h3 { display: block; }
   .entity-card.is-row h3 .badge { display: inline-block; margin-top: 4px; max-width: 100%; }
   .entity-card.is-row .arrow { display: none; }
