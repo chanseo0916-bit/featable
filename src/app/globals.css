@@ -455,7 +455,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .curation-rail { justify-content: start; }.live-stage { grid-template-columns: minmax(0, 1.5fr) minmax(300px, .8fr); gap: 24px; }.live-ranking { padding-left: 22px; }.ranking-list img { width: 65px; }.spotlight-card { height: 420px; }.editorial-grid { grid-template-columns: 1.2fr .8fr; grid-template-rows: 360px 280px; }.editorial-1 { grid-row: span 2; }.editorial-3 { grid-column: 2; }.opportunity-grid { gap: 50px; }
 }
 @media (max-width: 760px) {
-  .shell { width: calc(100% - 32px); max-width: 620px; }.logo { width: 126px; }.footer-logo { width: 145px; }.nav-actions { gap: 9px; }.nav-submit { width: 40px; height: 40px; padding: 0; font-size: 0; }.nav-submit::after { content: "+"; color: white; font-size: 22px; font-weight: 500; }.nav-submit span { display: none; }.home-banner-wrap { padding-top: 18px; }.home-top-banner { height: 330px; border-radius: 12px; }.home-banner-copy { left: 23px; width: calc(100% - 46px); }.home-banner-copy h1 { font-size: 32px; }.home-banner-copy p { max-width: 88%; font-size: 12px; line-height: 1.55; }.home-banner-shade { background: linear-gradient(90deg, #000000d9, #00000078 75%, #0002); }.home-banner-control { right: 14px; bottom: 14px; }.discovery-search { height: 58px; margin-top: 35px; padding-left: 18px; }.discovery-search input { font-size: 13px; }.search-hint { display: none; }.discovery-search button { flex: 0 0 44px; width: 44px; height: 44px; }.curation-rail-shell { margin-top: 24px; }.curation-rail { gap: 15px; padding-bottom: 24px; }.curation-bubble { min-width: 72px; }.curation-image { width: 66px; height: 66px; }.live-stage { display: block; padding-top: 36px; }.stage-tabs { gap: 18px; }.stage-tabs a { font-size: 12px; }.stage-heading > span { display: none; }.spotlight-card { height: 420px; border-radius: 16px; }.spotlight-copy { left: 21px; right: 21px; bottom: 24px; }.spotlight-copy h2 { font-size: 32px; }.spotlight-count { display: none; }.mini-features { display: none; }.live-ranking { margin-top: 48px; padding-left: 0; border-left: 0; }.ranking-head h2 { font-size: 26px; }.ranking-list a { min-height: 88px; }.ranking-list img { width: 82px; }.after-feed-search { margin-top: 70px; padding: 27px 20px; display: block; }.after-feed-search .discovery-search { margin-top: 20px; }.mz-curation-section, .fresh-products { padding-top: 85px; }.editorial-grid { display: flex; overflow-x: auto; gap: 12px; scrollbar-width: none; }.editorial-card { flex: 0 0 82%; height: 390px; }.editorial-card h3, .editorial-2 h3, .editorial-3 h3 { font-size: 24px; }.fresh-products .product-grid { grid-template-columns: repeat(2, 1fr); }.opportunity-band { margin-top: 90px; padding: 70px 0; }.opportunity-grid { display: block; }.opportunity-copy { margin-bottom: 55px; }.opportunity-copy h2 { font-size: 40px; }.opportunity-list > a { grid-template-columns: 61px 1fr 18px; gap: 12px; }.opportunity-list h3 { font-size: 14px; }.new-final-cta { padding-top: 90px; }.new-final-cta h2 { font-size: 48px; }
+  .shell { width: calc(100% - 32px); max-width: 620px; }.logo { width: 126px; }.footer-logo { width: 145px; }.nav-actions { gap: 9px; }.nav-submit { width: 40px; height: 40px; padding: 0; font-size: 0; }.nav-submit::after { content: "+"; color: white; font-size: 22px; font-weight: 500; }.nav-submit span { display: none; }.home-banner-wrap { padding-top: 18px; }.home-top-banner { height: 330px; border-radius: 12px; }.home-banner-copy { left: 23px; width: calc(100% - 46px); }.home-banner-copy h1 { font-size: 32px; }.home-banner-copy p { max-width: 88%; font-size: 12px; line-height: 1.55; }.home-banner-shade { background: linear-gradient(90deg, #000000d9, #00000078 75%, #0002); }.home-banner-control { right: 14px; bottom: 14px; }.discovery-search { height: 58px; margin-top: 35px; padding-left: 18px; }.discovery-search input { font-size: 13px; }.search-hint { display: none; }.discovery-search button { flex: 0 0 44px; width: 44px; height: 44px; }.curation-rail-shell { margin-top: 24px; }.curation-rail { gap: 15px; padding-bottom: 24px; }.curation-bubble { min-width: 72px; }.curation-image { width: 66px; height: 66px; }.live-stage { display: block; padding-top: 36px; }.stage-tabs { gap: 18px; }.stage-tabs a { font-size: 12px; }.stage-heading > span { display: none; }.spotlight-card { height: 420px; border-radius: 16px; }.spotlight-copy { left: 21px; right: 21px; bottom: 24px; }.spotlight-copy h2 { font-size: 32px; }.spotlight-count { display: none; }.mini-features { display: none; }.live-ranking { margin-top: 48px; padding-left: 0; border-left: 0; }.ranking-head h2 { font-size: 26px; }.ranking-list a { min-height: 88px; }.ranking-list img { width: 82px; }.after-feed-search { margin-top: 70px; padding: 27px 20px; display: block; }.after-feed-search .discovery-search { margin-top: 20px; }.mz-curation-section, .fresh-products { padding-top: 85px; }.editorial-grid { display: flex; overflow-x: auto; gap: 12px; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }.editorial-card { flex: 0 0 82%; height: 390px; }.editorial-card h3, .editorial-2 h3, .editorial-3 h3 { font-size: 24px; }.fresh-products .product-grid { grid-template-columns: repeat(2, 1fr); }.opportunity-band { margin-top: 90px; padding: 70px 0; }.opportunity-grid { display: block; }.opportunity-copy { margin-bottom: 55px; }.opportunity-copy h2 { font-size: 40px; }.opportunity-list > a { grid-template-columns: 61px 1fr 18px; gap: 12px; }.opportunity-list h3 { font-size: 14px; }.new-final-cta { padding-top: 90px; }.new-final-cta h2 { font-size: 48px; }
 }
 @media (max-width: 430px) {
   .discovery-title-row h1 { font-size: 40px; }.discovery-search input::placeholder { font-size: 12px; }.spotlight-card { height: 380px; }.spotlight-copy h2 { font-size: 28px; }.spotlight-copy > p { font-size: 12px; }.fresh-product-card .card-body h3 { font-size: 16px; }.fresh-product-card .card-meta span { font-size: 12px; }.opportunity-copy h2 { font-size: 32px; }
@@ -1615,7 +1615,16 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .product-rail-actions a { margin-right: 4px; color: var(--fg-muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
 .product-rail-actions button { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid #dde0e3; border-radius: 50%; background: #fff; color: var(--fg-strong); cursor: pointer; transition: border-color .16s, color .16s, background .16s; }
 .product-rail-actions button:hover { border-color: #111; background: #111; color: #fff; }
-.product-square-track { display: flex; gap: 14px; overflow-x: auto; padding: 2px 2px 13px; scroll-behavior: smooth; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.product-square-track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 2px 16px 13px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
+  scrollbar-width: none;
+}
 .product-square-track::-webkit-scrollbar { display: none; }
 .product-square-card { position: relative; flex: 0 0 calc((100% - 28px) / 3); min-width: 0; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 16px; background: #e9eaec; color: #fff; scroll-snap-align: start; box-shadow: 0 10px 26px -22px #1118; }
 .product-square-card > img { object-fit: cover; transition: transform .35s ease; }
@@ -2093,11 +2102,14 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 /* 2개까지는 반반 채우고, 많아지면 가로 슬라이드 */
 .fresh-rail-track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .fresh-rail-track::-webkit-scrollbar { display: none; }
-.fresh-rail-track > * { flex: 0 0 calc((100% - 18px) / 2); min-width: 0; scroll-snap-align: start; }
+.fresh-rail-track > * { flex: 0 0 calc((100% - 18px) / 2); min-width: 0; scroll-snap-align: center; }
 .home-interview-section { padding-top: 96px; }
-@media (max-width: 800px) { .fresh-rail-track > * { flex-basis: 76vw; } }
+@media (max-width: 800px) {
+  .fresh-rail-track { margin-inline: -16px; padding-inline: 16px; }
+  .fresh-rail-track > * { flex-basis: 76vw; scroll-snap-align: center; }
+}
 @media (max-width: 800px) { .home-interview-section { padding-top: 65px; } }
-@media (max-width: 800px) { .live-main + .live-ranking { margin-top: 72px; } }
+@media (max-width: 800px) { .live-main + .live-ranking { margin-top: 88px; } }
 /* ===== 모바일 대응 일괄 보강 (2026-08) ===== */
 /* /submit 역할 게이트 — 700px 미디어쿼리 안에 갇혀 있던 규칙을 전 폭으로 복원 */
 .role-gate-page { display: grid; place-items: center; }
