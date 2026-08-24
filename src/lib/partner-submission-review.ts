@@ -3,6 +3,34 @@ import { randomSuffix, slugify } from "@/lib/slug";
 
 type SubmissionPayload = Record<string, string | boolean | string[]>;
 const clean = (value: unknown) => typeof value === "string" ? value.trim() : "";
+const parseDate = (value: unknown) => {
+  const raw = clean(value);
+  if (!raw) return null;
+  const timestamp = Date.parse(raw);
+  return Number.isNaN(timestamp) ? null : new Date(timestamp);
+};
+const isWebUrl = (value: string) => {
+  if (!value) return false;
+  try { return ["http:", "https:"].includes(new URL(value).protocol); } catch { return false; }
+};
+const safeGalleryUrls = (value: unknown) => Array.isArray(value)
+  ? value.filter((item): item is string => typeof item === "string" && isWebUrl(item.trim())).map((item) => item.trim()).slice(0, 8)
+  : [];
+const validateEventPayload = (payload: SubmissionPayload) => {
+  const startsAt = parseDate(payload.startsAt);
+  const endsAt = parseDate(payload.endsAt);
+  const deadline = parseDate(payload.deadline);
+  if (!startsAt) return "행사 시작 일시가 올바르지 않습니다.";
+  if (clean(payload.endsAt) && !endsAt) return "행사 종료 일시가 올바르지 않습니다.";
+  if (endsAt && endsAt.getTime() < startsAt.getTime()) return "행사 종료 일시는 시작 일시 이후여야 합니다.";
+  if (clean(payload.deadline) && !deadline) return "신청 마감 일시가 올바르지 않습니다.";
+  if (deadline && deadline.getTime() > startsAt.getTime()) return "신청 마감은 행사 시작 이전이어야 합니다.";
+  if (clean(payload.capacity)) {
+    const capacity = Number(clean(payload.capacity));
+    if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100000) return "행사 정원 값이 올바르지 않습니다.";
+  }
+  return null;
+};
 const parseProgram = (value: string) => value.split("\n").map((line) => { const [time, title, speaker] = line.split("|").map((part) => part.trim()); return { time, title: title || time, speaker }; }).filter((item) => item.title).slice(0, 30);
 
 export async function reviewPartnerSubmissionWithClient(
@@ -31,8 +59,10 @@ export async function reviewPartnerSubmissionWithClient(
   let publishError: { message: string } | null = null;
 
   if (row.submission_type === "event") {
+    const eventValidationError = validateEventPayload(payload);
+    if (eventValidationError) return { ok: false, error: eventValidationError };
     path = `/events/${slug}`;
-    ({ error: publishError } = await supabase.from("events").insert({ slug, name, host: clean(payload.host), starts_at: new Date(clean(payload.startsAt)).toISOString(), ends_at: clean(payload.endsAt) ? new Date(clean(payload.endsAt)).toISOString() : null, deadline: clean(payload.deadline) ? new Date(clean(payload.deadline)).toISOString() : null, location: clean(payload.location) || (Boolean(payload.isOnline) ? "온라인" : ""), is_online: Boolean(payload.isOnline), fee: clean(payload.fee) || null, is_paid: Boolean(payload.isPaid), payment_account: Boolean(payload.isPaid) ? clean(payload.paymentAccount) || null : null, payment_notice: Boolean(payload.isPaid) ? clean(payload.paymentNotice) || "입금 확인 후 주최자가 신청을 승인합니다." : null, category: clean(payload.category) || "기타", audience: clean(payload.audience) || null, description: clean(payload.description), gallery_urls: Array.isArray(payload.galleryUrls) ? payload.galleryUrls.slice(0, 8) : [], program: parseProgram(clean(payload.program)), apply_url: payload.registrationMode === "internal" ? null : clean(payload.applyUrl), registration_mode: payload.registrationMode === "internal" ? "internal" : "external", approval_mode: payload.isPaid ? "manual" : payload.approvalMode === "manual" ? "manual" : "instant", capacity: clean(payload.capacity) ? Number(clean(payload.capacity)) : null, waitlist_enabled: payload.waitlistEnabled !== false, cover_url: clean(payload.coverUrl) || null, submitted_by: row.user_id, is_featured: true, status: "published" }));
+    ({ error: publishError } = await supabase.from("events").insert({ slug, name, host: clean(payload.host), starts_at: new Date(clean(payload.startsAt)).toISOString(), ends_at: clean(payload.endsAt) ? new Date(clean(payload.endsAt)).toISOString() : null, deadline: clean(payload.deadline) ? new Date(clean(payload.deadline)).toISOString() : null, location: clean(payload.location) || (Boolean(payload.isOnline) ? "온라인" : ""), is_online: Boolean(payload.isOnline), fee: clean(payload.fee) || null, is_paid: Boolean(payload.isPaid), payment_account: Boolean(payload.isPaid) ? clean(payload.paymentAccount) || null : null, payment_notice: Boolean(payload.isPaid) ? clean(payload.paymentNotice) || "입금 확인 후 주최자가 신청을 승인합니다." : null, category: clean(payload.category) || "기타", audience: clean(payload.audience) || null, description: clean(payload.description), gallery_urls: safeGalleryUrls(payload.galleryUrls), program: parseProgram(clean(payload.program)), apply_url: payload.registrationMode === "internal" ? null : clean(payload.applyUrl), registration_mode: payload.registrationMode === "internal" ? "internal" : "external", approval_mode: payload.isPaid ? "manual" : payload.approvalMode === "manual" ? "manual" : "instant", capacity: clean(payload.capacity) ? Number(clean(payload.capacity)) : null, waitlist_enabled: payload.waitlistEnabled !== false, cover_url: clean(payload.coverUrl) || null, submitted_by: row.user_id, is_featured: true, status: "published" }));
   } else if (row.submission_type === "support") {
     path = `/support/${slug}`;
     ({ error: publishError } = await supabase.from("support_programs").insert({ slug, name, agency: clean(payload.agency), target: clean(payload.target), benefits: clean(payload.benefits), amount: clean(payload.amount) || null, open_at: clean(payload.openAt) || null, close_at: clean(payload.closeAt), region: clean(payload.region) || "전국", field: clean(payload.field) || null, apply_url: clean(payload.applyUrl), status: "published" }));
@@ -42,7 +72,7 @@ export async function reviewPartnerSubmissionWithClient(
   }
   if (publishError) return { ok: false, error: `공개 데이터 생성에 실패했습니다: ${publishError.message}` };
 
-  const { error: updateError } = await supabase.from("partner_submissions").update({ status: "approved", review_note: clean(input.note) || null, reviewed_at: new Date().toISOString(), reviewed_by: input.reviewedBy ?? null, published_path: path, updated_at: new Date().toISOString() }).eq("id", input.id);
-  if (updateError) return { ok: false, error: "콘텐츠는 공개됐지만 제안 상태 갱신에 실패했습니다." };
+  const { data: updatedSubmission, error: updateError } = await supabase.from("partner_submissions").update({ status: "approved", review_note: clean(input.note) || null, reviewed_at: new Date().toISOString(), reviewed_by: input.reviewedBy ?? null, published_path: path, updated_at: new Date().toISOString() }).eq("id", input.id).select("id").maybeSingle();
+  if (updateError || !updatedSubmission) return { ok: false, error: "콘텐츠는 공개됐지만 제안 상태 갱신에 실패했습니다." };
   return { ok: true, path };
 }

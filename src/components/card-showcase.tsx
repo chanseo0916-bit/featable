@@ -46,7 +46,7 @@ export function CardShowcase({
     card.style.setProperty("--show-glare-y", `${glareY}%`);
   }, []);
 
-  const spin = useCallback(() => {
+  const spin = useCallback(function animateSpin() {
     if (dragging.current) return;
     const v = velocity.current;
     if (Math.abs(v.x) < SPIN_STOP && Math.abs(v.y) < SPIN_STOP) {
@@ -58,7 +58,7 @@ export function CardShowcase({
     v.x *= SPIN_DECAY;
     v.y *= SPIN_DECAY;
     paint();
-    frame.current = requestAnimationFrame(spin);
+    frame.current = requestAnimationFrame(animateSpin);
   }, [paint]);
 
   useEffect(() => {

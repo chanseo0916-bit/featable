@@ -62,8 +62,8 @@ export async function updateFounderNumber(userId: string, rawValue: string): Pro
     if (duplicate) return { error: "이미 다른 사용자가 사용 중인 번호입니다." };
   }
 
-  const { error } = await supabase.from("founders").update({ founder_number: value }).eq("id", founder.id);
-  if (error) return { error: `고유 번호 저장에 실패했습니다: ${error.message}` };
+  const { data: updated, error } = await supabase.from("founders").update({ founder_number: value }).eq("id", founder.id).select("id").maybeSingle();
+  if (error || !updated) return { error: `고유 번호 저장에 실패했습니다${error ? `: ${error.message}` : ": 대상이 이미 변경되었거나 없습니다."}` };
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${userId}`);
   revalidatePath("/founders");
@@ -122,24 +122,29 @@ export async function updateAdminContent(
     ? { data: null }
     : await supabase.from(table).select("slug").eq("id", id).maybeSingle();
   let error: { message: string } | null = null;
+  let changed = false;
 
   if (table === "brands") {
-    ({ error } = await supabase.from("brands").update({
+    const result = await supabase.from("brands").update({
       name: clean(input.name), tagline: clean(input.tagline), category: clean(input.category) || "기타",
       description: clean(input.description), website: clean(input.website) || null,
       logo_url: clean(input.logoUrl) || null, cover_url: clean(input.coverUrl) || null,
       problem: clean(input.problem) || null, audience: clean(input.audience) || null,
       updated_at: new Date().toISOString(),
-    }).eq("id", id));
+    }).eq("id", id).select("id").maybeSingle();
+    error = result.error;
+    changed = Boolean(result.data);
   } else if (table === "products") {
-    ({ error } = await supabase.from("products").update({
+    const result = await supabase.from("products").update({
       name: clean(input.name), tagline: clean(input.tagline), category: clean(input.category) || "기타",
       problem: clean(input.problem), solution: clean(input.solution), price: clean(input.price) || null,
       buy_url: clean(input.buyUrl) || null, official_url: clean(input.officialUrl) || null,
       hero_url: clean(input.heroUrl) || null,
       features: clean(input.features).split("\n").map((item) => item.trim()).filter(Boolean),
       updated_at: new Date().toISOString(),
-    }).eq("id", id));
+    }).eq("id", id).select("id").maybeSingle();
+    error = result.error;
+    changed = Boolean(result.data);
   } else if (table === "events") {
     const startsAt = clean(input.startsAt);
     if (!startsAt || Number.isNaN(Date.parse(startsAt))) return { error: "행사 일시를 확인해주세요." };
@@ -147,7 +152,7 @@ export async function updateAdminContent(
     if (registrationMode === "external" && !isWebUrl(clean(input.applyUrl))) return { error: "외부 신청 URL을 확인해주세요." };
     const capacity = clean(input.capacity) ? Number(clean(input.capacity)) : null;
     if (capacity !== null && (!Number.isInteger(capacity) || capacity < 1)) return { error: "정원은 1명 이상으로 입력해주세요." };
-    ({ error } = await supabase.from("events").update({
+    const result = await supabase.from("events").update({
       name: clean(input.name), host: clean(input.host), starts_at: new Date(startsAt).toISOString(),
       location: clean(input.location), is_online: Boolean(input.isOnline), fee: clean(input.fee) || null,
       category: clean(input.category) || "기타", audience: clean(input.audience) || null,
@@ -157,24 +162,30 @@ export async function updateAdminContent(
       capacity,
       waitlist_enabled: Boolean(input.waitlistEnabled),
       cover_url: clean(input.coverUrl) || null,
-    }).eq("id", id));
+    }).eq("id", id).select("id").maybeSingle();
+    error = result.error;
+    changed = Boolean(result.data);
   } else if (table === "support_programs") {
     if (!clean(input.closeAt)) return { error: "마감일은 필수입니다." };
-    ({ error } = await supabase.from("support_programs").update({
+    const result = await supabase.from("support_programs").update({
       name: clean(input.name), agency: clean(input.agency), target: clean(input.target),
       benefits: clean(input.benefits), amount: clean(input.amount) || null,
       open_at: clean(input.openAt) || null, close_at: clean(input.closeAt),
       region: clean(input.region) || "전국", field: clean(input.field) || null,
       apply_url: clean(input.applyUrl),
-    }).eq("id", id));
+    }).eq("id", id).select("id").maybeSingle();
+    error = result.error;
+    changed = Boolean(result.data);
   } else {
-    ({ error } = await supabase.from("partners").update({
+    const result = await supabase.from("partners").update({
       name: clean(input.name), logo_url: clean(input.logoUrl), href: clean(input.href),
       intro: clean(input.intro), field: clean(input.field) || null,
       description: clean(input.description) || null,
-    }).eq("id", id));
+    }).eq("id", id).select("id").maybeSingle();
+    error = result.error;
+    changed = Boolean(result.data);
   }
-  if (error) return { error: `수정에 실패했습니다: ${error.message}` };
+  if (error || !changed) return { error: `수정에 실패했습니다: ${error?.message ?? "대상이 이미 변경되었거나 없습니다."}` };
 
   revalidateCuration();
   const target = publicPath(table, current?.slug);
@@ -188,8 +199,8 @@ export async function deleteAdminContent(
 ): Promise<{ error?: string }> {
   const supabase = await requireAdmin();
   if (!supabase) return { error: "관리자 권한이 없습니다." };
-  const { error } = await supabase.from(table).delete().eq("id", id);
-  if (error) return { error: `삭제에 실패했습니다: ${error.message}` };
+  const { data: deleted, error } = await supabase.from(table).delete().eq("id", id).select("id").maybeSingle();
+  if (error || !deleted) return { error: `삭제에 실패했거나 대상이 이미 없습니다${error ? `: ${error.message}` : "."}` };
   revalidateCuration();
   return {};
 }
@@ -202,11 +213,13 @@ export async function setFeatured(
   const supabase = await requireAdmin();
   if (!supabase) return { error: "관리자 권한이 없습니다." };
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from(table)
     .update({ is_featured: value })
-    .eq("id", id);
-  if (error) return { error: "변경에 실패했습니다." };
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+  if (error || !updated) return { error: "변경에 실패했거나 대상이 없습니다." };
 
   revalidatePath("/");
   revalidatePath("/admin");
@@ -222,8 +235,8 @@ export async function setStatus(
   const supabase = await requireAdmin();
   if (!supabase) return { error: "관리자 권한이 없습니다." };
 
-  const { error } = await supabase.from(table).update({ status }).eq("id", id);
-  if (error) return { error: "변경에 실패했습니다." };
+  const { data: updated, error } = await supabase.from(table).update({ status }).eq("id", id).select("id").maybeSingle();
+  if (error || !updated) return { error: "변경에 실패했거나 대상이 없습니다." };
 
   revalidateCuration();
   return {};
@@ -366,8 +379,8 @@ export async function deleteCuration(
   const supabase = await requireAdmin();
   if (!supabase) return { error: "관리자 권한이 없습니다." };
 
-  const { error } = await supabase.from(table).delete().eq("id", id);
-  if (error) return { error: "삭제에 실패했습니다." };
+  const { data: deleted, error } = await supabase.from(table).delete().eq("id", id).select("id").maybeSingle();
+  if (error || !deleted) return { error: "삭제에 실패했거나 대상이 이미 없습니다." };
 
   revalidateCuration();
   return {};
@@ -447,7 +460,7 @@ export async function updateStory(id: string, input: StoryInput): Promise<{ erro
   const { data: current } = await supabase.from("features").select("slug,published_at").eq("id", id).maybeSingle();
   if (!current) return { error: "스토리를 찾을 수 없습니다." };
 
-  const { error } = await supabase.from("features").update({
+  const { data: updated, error } = await supabase.from("features").update({
     title: input.title.trim(),
     kind: input.kind,
     excerpt: input.excerpt.trim(),
@@ -465,8 +478,8 @@ export async function updateStory(id: string, input: StoryInput): Promise<{ erro
     og_image_url: input.coverUrl?.trim() || null,
     is_indexable: input.publish,
     updated_at: new Date().toISOString(),
-  }).eq("id", id);
-  if (error) return { error: `스토리 수정에 실패했습니다: ${error.message}` };
+  }).eq("id", id).select("id").maybeSingle();
+  if (error || !updated) return { error: `스토리 수정에 실패했습니다: ${error?.message ?? "대상이 이미 변경되었거나 없습니다."}` };
 
   revalidateStories(current.slug);
   return { slug: current.slug };

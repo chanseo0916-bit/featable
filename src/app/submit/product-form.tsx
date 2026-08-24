@@ -146,7 +146,7 @@ export function ProductRegistrationForm({ brands, initialBrandId, initial, editP
   }
 
   return <section className="simple-registration-card product-registration-card">
-    <div className="product-registration-tabs"><button className={step === 0 ? "active" : ""} onClick={() => setStep(0)}><i>1</i> 프로덕트 정보</button><span>→</span><button className={step === 1 ? "active" : ""} onClick={() => form.name && form.tagline && setStep(1)}><i>2</i> 상세페이지</button><small className={syncState}>{syncState === "saving" ? "저장 중…" : syncState === "error" ? "브라우저에 저장됨" : "서버에 자동 저장됨"}</small></div>
+    <div className="product-registration-tabs"><button className={step === 0 ? "active" : ""} onClick={() => setStep(0)}><i>1</i> 프로덕트 정보</button><span>→</span><button className={step === 1 ? "active" : ""} onClick={() => form.name && form.tagline && setStep(1)}><i>2</i> 상세페이지</button><small className={syncState}>{syncState === "saving" ? "저장 중…" : syncState === "error" ? "브라우저에 저장됨" : syncState === "saved" ? "서버에 자동 저장됨" : "변경사항 저장 대기"}</small></div>
     {step === 0 ? <>
       <div className="simple-registration-heading"><span>프로덕트</span><h1>{editProductId ? "프로덕트 정보를 수정하세요." : "무엇을 만들고 있나요?"}</h1><p>필수 정보와 상세페이지를 각각 나누어 관리합니다.</p></div>
       <div className="product-basic-grid">

@@ -46,7 +46,8 @@ export async function invitePartnerMember(partnerId: string, emailInput: string,
 export async function cancelPartnerInvitation(partnerId: string, invitationId: string): Promise<Result> {
   const access = await ownerAccess(partnerId);
   if (!access) return { ok: false, error: "회사 대표만 초대를 취소할 수 있습니다." };
-  await access.admin.from("partner_invitations").delete().eq("id", invitationId).eq("partner_id", partnerId).eq("status", "pending");
+  const { data: cancelled, error } = await access.admin.from("partner_invitations").delete().eq("id", invitationId).eq("partner_id", partnerId).eq("status", "pending").select("id").maybeSingle();
+  if (error || !cancelled) return { ok: false, error: "초대를 취소하지 못했거나 이미 처리되었습니다." };
   refresh(partnerId);
   return { ok: true, message: "초대를 취소했습니다." };
 }
@@ -55,8 +56,8 @@ export async function updatePartnerMemberRole(partnerId: string, userId: string,
   const access = await ownerAccess(partnerId);
   if (!access) return { ok: false, error: "회사 대표만 권한을 변경할 수 있습니다." };
   if (!(["manager", "editor", "viewer"] as string[]).includes(role)) return { ok: false, error: "팀원 권한을 확인해주세요." };
-  const { error } = await access.admin.from("partner_members").update({ member_role: role }).eq("partner_id", partnerId).eq("user_id", userId);
-  if (error) return { ok: false, error: "팀원 권한을 변경하지 못했습니다." };
+  const { data: updated, error } = await access.admin.from("partner_members").update({ member_role: role }).eq("partner_id", partnerId).eq("user_id", userId).select("partner_id").maybeSingle();
+  if (error || !updated) return { ok: false, error: "팀원 권한을 변경하지 못했거나 대상이 없습니다." };
   refresh(partnerId);
   return { ok: true, message: "팀원 권한을 변경했습니다." };
 }
@@ -64,8 +65,8 @@ export async function updatePartnerMemberRole(partnerId: string, userId: string,
 export async function removePartnerMember(partnerId: string, userId: string): Promise<Result> {
   const access = await ownerAccess(partnerId);
   if (!access) return { ok: false, error: "회사 대표만 팀원을 내보낼 수 있습니다." };
-  const { error } = await access.admin.from("partner_members").delete().eq("partner_id", partnerId).eq("user_id", userId);
-  if (error) return { ok: false, error: "팀원을 내보내지 못했습니다." };
+  const { data: removed, error } = await access.admin.from("partner_members").delete().eq("partner_id", partnerId).eq("user_id", userId).select("partner_id").maybeSingle();
+  if (error || !removed) return { ok: false, error: "팀원을 내보내지 못했거나 이미 삭제되었습니다." };
   refresh(partnerId);
   return { ok: true, message: "팀원을 회사 팀에서 내보냈습니다." };
 }
@@ -75,8 +76,8 @@ export async function linkPartnerCommunity(partnerId: string, communityId: strin
   if (!access) return { ok: false, error: "회사 대표만 커뮤니티를 연결할 수 있습니다." };
   const { data: community } = await access.admin.from("communities").select("id").eq("id", communityId).eq("manager_user_id", access.user.id).maybeSingle();
   if (!community) return { ok: false, error: "내가 대표 운영자인 커뮤니티만 회사에 연결할 수 있습니다." };
-  const { error } = await access.admin.from("communities").update({ partner_id: partnerId }).eq("id", community.id);
-  if (error) return { ok: false, error: "커뮤니티를 회사에 연결하지 못했습니다." };
+  const { data: linked, error } = await access.admin.from("communities").update({ partner_id: partnerId }).eq("id", community.id).select("id").maybeSingle();
+  if (error || !linked) return { ok: false, error: "커뮤니티를 회사에 연결하지 못했거나 대상이 없습니다." };
   refresh(partnerId);
   return { ok: true, message: "커뮤니티를 회사 워크스페이스에 연결했습니다." };
 }
@@ -84,8 +85,8 @@ export async function linkPartnerCommunity(partnerId: string, communityId: strin
 export async function unlinkPartnerCommunity(partnerId: string, communityId: string): Promise<Result> {
   const access = await ownerAccess(partnerId);
   if (!access) return { ok: false, error: "회사 대표만 커뮤니티 연결을 해제할 수 있습니다." };
-  const { error } = await access.admin.from("communities").update({ partner_id: null }).eq("id", communityId).eq("partner_id", partnerId);
-  if (error) return { ok: false, error: "커뮤니티 연결을 해제하지 못했습니다." };
+  const { data: unlinked, error } = await access.admin.from("communities").update({ partner_id: null }).eq("id", communityId).eq("partner_id", partnerId).select("id").maybeSingle();
+  if (error || !unlinked) return { ok: false, error: "커뮤니티 연결을 해제하지 못했거나 이미 해제되었습니다." };
   refresh(partnerId);
   return { ok: true, message: "커뮤니티 연결을 해제했습니다." };
 }

@@ -13,9 +13,19 @@ export default async function ProductSubmitPage({ searchParams }: { searchParams
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/submit/product");
   const { data: founder } = await supabase.from("founders").select("id").eq("user_id", user.id).maybeSingle();
-  if (!founder) redirect("/submit");
-  const { data } = await supabase.from("brands").select("id,name").eq("founder_id", founder.id).order("created_at", { ascending: true });
-  const brands = data ?? [];
+  const [{ data: ownedBrands }, { data: editorMemberships }] = await Promise.all([
+    founder
+      ? supabase.from("brands").select("id,name").eq("founder_id", founder.id)
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    supabase.from("brand_members").select("brand_id").eq("user_id", user.id).eq("member_role", "editor"),
+  ]);
+  const editorBrandIds = (editorMemberships ?? []).map((membership) => membership.brand_id);
+  const { data: memberBrands } = editorBrandIds.length
+    ? await supabase.from("brands").select("id,name").in("id", editorBrandIds)
+    : { data: [] as { id: string; name: string }[] };
+  const brands = [...(ownedBrands ?? []), ...(memberBrands ?? [])]
+    .filter((brand, index, all) => all.findIndex((candidate) => candidate.id === brand.id) === index)
+    .sort((a, b) => a.name.localeCompare(b.name));
   if (!brands.length) redirect("/my/brand/new");
   const { brand } = await searchParams;
   const initialBrandId = brands.some((item) => item.id === brand) ? brand : brands[0].id;
