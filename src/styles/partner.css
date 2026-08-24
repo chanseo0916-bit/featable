@@ -709,16 +709,14 @@
 .partner-org-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
 
 
-.partner-org-card { display: flex; flex-direction: column; overflow: hidden; border: 0; border-radius: 12px; background: #fff; transition: box-shadow .2s ease; }
+.partner-org-card { display: flex; flex-direction: column; overflow: hidden; border: 0; border-radius: var(--radius-lg); background: #fff; }
 
-
-.partner-org-card:hover { box-shadow: 0 6px 20px rgba(17, 17, 17, .07); }
 
 
 .partner-org-logo { aspect-ratio: 21 / 9; overflow: hidden; background: #f7f8f8; }
 
 
-.partner-org-logo img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.partner-org-logo img { width: 100%; height: 100%; object-fit: cover; }
 
 
 .partner-org-body { flex: 1; display: flex; flex-direction: column; gap: 11px; padding: 22px 24px 24px; }
@@ -1012,7 +1010,10 @@
 .partner-org-card { position: relative; }
 
 
-.partner-org-card.is-featured { background: #fff; box-shadow: none; }
+.partner-org-card.is-featured {
+  border: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: linear-gradient(180deg, var(--accent-soft) 0%, #fff 34%);
+}
 
 
 .partner-featured-badge { position: absolute; top: 12px; right: 12px; padding: 6px 10px; border-radius: 999px; background: #111111cc; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: -.02em; backdrop-filter: blur(4px); }
