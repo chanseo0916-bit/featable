@@ -235,6 +235,27 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .footer { margin-top: 110px; padding: 60px 0 22px; border-top: 1px solid var(--border); background: #fff; }.footer-top { display: flex; justify-content: space-between; padding-bottom: 50px; }.footer-brand-lockup { display: flex; align-items: center; gap: 12px; }.footer-brand-lockup > span { padding-left: 12px; border-left: 1px solid #d9dcdf; color: #43474b; font-size: 15px; font-weight: 750; letter-spacing: -.03em; }.footer-top p { color: var(--muted); font-size: 13px; margin-top: 14px; }.footer-links { display: flex; gap: 90px; }.footer-links div { display: grid; gap: 10px; min-width: 100px; }.footer-links strong { font-size: 12px; margin-bottom: 4px; }.footer-links a { color: var(--muted); font-size: 12px; }.partner-area { padding: 26px 0 30px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }.partner-area .eyebrow { margin-bottom: 15px; }.partner-marquee { width: 100%; overflow: hidden; }.partner-marquee-track { width: max-content; display: flex; animation: partner-marquee 28s linear infinite; }.partner-marquee:hover .partner-marquee-track { animation-play-state: paused; }.partner-row { flex: 0 0 auto; display: flex; gap: 20px; padding-right: 20px; }.partner-row a { width: 104px; height: 46px; padding: 5px 10px; display: grid; place-items: center; border-radius: 8px; overflow: hidden; filter: grayscale(1); opacity: .75; }.partner-row a:hover { filter: none; opacity: 1; }.partner-row img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }.footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 22px; color: #aaa; font-size: 12px; }.footer-meta { display: flex; gap: 16px; }.footer-legal { display: flex; gap: 16px; }.footer-legal a { color: #aaa; }.footer-legal a:hover { color: var(--muted); }
 @keyframes partner-marquee { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .partner-marquee-track { animation: none; } }
+
+/* Keep differently proportioned partner marks fully visible in the footer rail. */
+.partner-row { gap: 16px; padding-right: 16px; }
+.partner-row a {
+  width: 148px;
+  height: 64px;
+  padding: 10px 16px;
+  overflow: visible;
+  background: #fafafa;
+  transition: filter .2s ease, opacity .2s ease, background .2s ease;
+}
+.partner-row a:hover { background: #f5f6f6; }
+.partner-row img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+}
 @media (max-width: 800px) { .shell { width: min(100% - 32px, 620px); }.site-header { height: 64px; }.nav-wrap { gap: 0; }.desktop-nav { display: none; }.nav-actions { gap: 12px; }.login-link { display: none; }.button-small { padding: 9px 11px; font-size: 12px; }.hero { min-height: auto; padding-top: 65px; padding-bottom: 58px; }.hero-copy { width: 100%; }.hero-art { display: none; } h1 { font-size: 48px; }.hero-tags { flex-wrap: wrap; gap: 10px; }.category-scroll { width: calc(100% - 32px); }.section { padding-top: 65px; }.section-header h2 { font-size: 24px; }.feature-hero { height: 380px; }.feature-overlay { left: 22px; bottom: 24px; right: 20px; }.product-grid { grid-template-columns: repeat(2, 1fr); gap: 22px 12px; }.brand-grid, .community-grid, .story-grid { grid-template-columns: 1fr; }.event-grid { grid-template-columns: 1fr; gap: 15px; }.support-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.job-row > span { display: none; }.job-row .badge { margin-left: auto; }.cta-inner { min-height: 310px; display: block; padding-top: 58px; }.cta-inner .button { margin-top: 25px; }.footer { margin-top: 70px; }.footer-top { display: block; padding-bottom: 35px; }.footer-links { margin-top: 35px; gap: 45px; }.footer-bottom { display: block; line-height: 2; }.footer-meta { display: block; }.footer-legal { margin-top: 4px; } }
 @media (max-width: 430px) { .product-grid { gap: 26px 10px; }.card-body h3 { font-size: 15px; }.card-body > p { font-size: 12px; }.person-line { font-size: 12px; }.feature-overlay h3 { font-size: 27px; }.support-card-grid { grid-template-columns: 1fr; }.support-card { min-height: 238px; padding: 19px; } }
 

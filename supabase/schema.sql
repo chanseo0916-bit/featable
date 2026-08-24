@@ -253,7 +253,7 @@ create table features (
   id uuid primary key default uuid_generate_v4(),
   brand_id uuid references brands(id) on delete cascade,
   founder_id uuid references founders(id) on delete set null,
-  slug text not null unique,
+  slug text not null unique constraint features_slug_ascii check (slug !~ '[^\x00-\x7F]'),
   title text not null,
   cover_url text,
   kind text not null default 'brand-story'

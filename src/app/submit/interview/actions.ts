@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { randomSuffix } from "@/lib/slug";
+import { randomSuffix, slugify } from "@/lib/slug";
 import { conciseSeoDescription } from "@/lib/content-seo";
 import type { StoryBlock } from "@/lib/types";
 
@@ -80,7 +80,10 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     hook_label: input.hookLabel.trim() || null,
   };
 
-  let slug = brand?.slug ? `${brand.slug}-interview` : `${displayName.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-|-$/g, "") || "member"}-interview`;
+  // Cloudflare의 정적 에셋 라우팅은 비ASCII 동적 경로를 앱에 넘기지 않아
+  // 한글 이름으로 만든 인터뷰 주소가 저장 직후 404가 될 수 있다.
+  const slugBase = brand?.slug ? slugify(brand.slug) : slugify(displayName);
+  let slug = `${slugBase || "member"}-interview`;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     let { error } = await supabase.from("features").insert({ ...baseRow, ...hookColumns, slug } as never);
     if (error && /hook_intro|hook_label/.test(error.message ?? "")) {
@@ -94,7 +97,7 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
       return { ok: true, slug };
     }
     if (error.message?.includes("duplicate") || error.message?.includes("unique")) {
-      slug = `${brand?.slug ?? "member"}-interview-${randomSuffix()}`;
+      slug = `${slugBase || "member"}-interview-${randomSuffix()}`;
       continue;
     }
     return { ok: false, error: "인터뷰 저장에 실패했습니다. 잠시 후 다시 시도해주세요." };

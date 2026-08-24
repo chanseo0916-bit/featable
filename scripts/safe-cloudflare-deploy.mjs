@@ -50,6 +50,10 @@ try {
 
   const childEnv = { ...process.env };
   for (const name of serverSecretNames) delete childEnv[name];
+  if (process.platform === "win32") {
+    const shim = resolve(root, "scripts", "windows-cp-sync-shim.cjs");
+    childEnv.NODE_OPTIONS = [childEnv.NODE_OPTIONS, `--require=${shim}`].filter(Boolean).join(" ");
+  }
 
 for (const command of ["build", "deploy"]) {
   const args = [openNextCli, command];
