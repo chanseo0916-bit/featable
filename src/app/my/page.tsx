@@ -30,6 +30,18 @@ interface MyBrand {
 }
 
 interface MyProduct { id: string; brand_id: string; slug: string; name: string; hero_url: string | null; view_count: number; status: string; }
+interface MyStory {
+  id: string;
+  slug: string;
+  title: string;
+  kind: string;
+  cover_url: string | null;
+  view_count: number | null;
+  status: string;
+  published_at: string | null;
+  hook_label: string | null;
+}
+
 interface ProductDraftRow { draft_key: string; payload: { name?: string; tagline?: string; brandId?: string }; updated_at: string; }
 
 function ninetyDaysAgoIso(): string {
@@ -290,8 +302,29 @@ export default async function MyPage() {
     }
   }
 
+  // 내가 올린 글(인터뷰 포함) — 창업가가 자기 성과를 보러 돌아올 수 있게 한다
+  let myStories: MyStory[] = [];
+  let storyLikes: Record<string, number> = {};
+  if (founder) {
+    const { data: storyRows } = await supabase
+      .from("features")
+      .select("id,slug,title,kind,cover_url,view_count,status,published_at,hook_label")
+      .eq("founder_id", founder.id)
+      .order("published_at", { ascending: false });
+    myStories = (storyRows ?? []) as MyStory[];
+    if (myStories.length) {
+      const { data: likeRows } = await supabase
+        .from("item_like_counts")
+        .select("item_slug,like_count")
+        .eq("item_type", "feature")
+        .in("item_slug", myStories.map((story) => story.slug));
+      storyLikes = Object.fromEntries(((likeRows ?? []) as { item_slug: string; like_count: number }[]).map((row) => [row.item_slug, row.like_count]));
+    }
+  }
+
   const publishedCount = brands.filter((brand) => brand.status === "published").length;
-  const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0);
+  const storyViews = myStories.reduce((sum, story) => sum + (story.view_count ?? 0), 0);
+  const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0) + storyViews;
 
   // 임시저장: ① 비공개(draft) 상태로 저장된 프로덕트 ② 아직 등록 전인 작성 중 서버 초안
   const publishedProducts = products.filter((product) => product.status === "published");
@@ -371,6 +404,30 @@ export default async function MyPage() {
           <div className="studio-unpublished-links">
             {draftBrands.map((brand) => <span className="studio-unpublished-item" key={brand.id}><b>{brand.name}</b><BrandStatusButton brandId={brand.id} published={false} /></span>)}
             {draftProducts.map((product) => <Link className="studio-unpublished-item" href={`/my/product/${product.slug}`} key={product.id}><b>{product.name}</b><em>공개하러 가기 →</em></Link>)}
+          </div>
+        </section>}
+
+        {myStories.length > 0 && <section className="studio-story-section">
+          <div className="studio-panel-heading">
+            <strong>내 인터뷰</strong>
+            <span>사람들이 읽고 있어요. 링크를 공유하면 더 많이 발견됩니다.</span>
+          </div>
+          <div className="studio-story-list">
+            {myStories.map((story) => (
+              <article key={story.id}>
+                {story.cover_url && <img src={story.cover_url} alt="" />}
+                <div>
+                  <strong>{story.hook_label ?? story.title}</strong>
+                  <span>{story.title}</span>
+                  <em>{story.status === "published" ? "공개 중" : "비공개"}</em>
+                </div>
+                <div className="studio-story-metrics">
+                  <b>{(story.view_count ?? 0).toLocaleString("ko-KR")}</b><small>조회</small>
+                  <b>{(storyLikes[story.slug] ?? 0).toLocaleString("ko-KR")}</b><small>좋아요</small>
+                </div>
+                <Link href={`/stories/${story.slug}`}>보기 →</Link>
+              </article>
+            ))}
           </div>
         </section>}
 
