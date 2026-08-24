@@ -204,7 +204,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .feature-hero { height: 420px; display: block; position: relative; overflow: hidden; background: #222; }
 .feature-hero .image-card, .feature-hero img { height: 100%; width: 100%; }
 .feature-hero img { object-fit: cover; opacity: .65; transition: transform .5s; }
-.feature-hero:hover img { transform: scale(1.03); }
+
 .feature-overlay { position: absolute; left: 40px; bottom: 34px; max-width: 650px; color: white; }
 .feature-overlay h3 { font-size: clamp(26px, 4vw, 42px); letter-spacing: -.03em; line-height: 1.2; margin: 14px 0 10px; }
 .feature-overlay p { font-size: 14px; color: #ddd; margin-bottom: 20px; }
@@ -215,7 +215,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .product-card, .event-card, .story-card { min-width: 0; }
 .image-card { position: relative; aspect-ratio: 1.16; overflow: hidden; background: #f2f2f2; }
 .image-card img { display: block; width: 100%; aspect-ratio: 1.16; object-fit: cover; transition: transform .4s; }
-.product-card:hover img, .event-card:hover img, .story-card:hover img { transform: scale(1.04); }
+
 .card-body { padding-top: 15px; }
 .card-meta { display: flex; align-items: center; justify-content: space-between; min-height: 20px; color: var(--fg-muted); font-size: 12px; }
 .card-body h3 { margin: 11px 0 6px; font-size: 18px; letter-spacing: -.03em; }
@@ -401,8 +401,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .stage-tabs a.active::after, .stage-tabs button.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -10px; height: 2px; background: var(--accent); }
 .spotlight-card { height: 470px; display: block; position: relative; overflow: hidden; border-radius: 20px; background: #111; color: white; }
 .spotlight-card .image-card, .spotlight-card .image-card img { width: 100%; height: 100%; }
-.spotlight-card .image-card img { object-fit: cover; transition: transform .7s ease; }
-.spotlight-card:hover .image-card img { transform: scale(1.035); }
+.spotlight-card .image-card img { object-fit: cover; }
+
 .spotlight-shade { position: absolute; inset: 0; background: linear-gradient(180deg, #00000006 15%, #00000016 42%, #000000d9 100%); }
 .spotlight-badges { position: absolute; top: 25px; left: 25px; display: flex; align-items: center; gap: 10px; }
 .spotlight-badges > span { font-size: 12px; font-weight: 700; }
@@ -435,7 +435,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .ranking-more { height: 42px; display: flex; align-items: center; justify-content: space-between; color: var(--fg-default); font-size: 12px; font-weight: 700; }
 .mz-curation-section { padding-top: 120px; }
 .editorial-grid { display: grid; grid-template-columns: 1.34fr .83fr .83fr; grid-template-rows: 430px; gap: 14px; }
-.editorial-card { min-width: 0; position: relative; overflow: hidden; border-radius: 16px; color: white; }.editorial-card img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .6s; }.editorial-card:hover img { transform: scale(1.04); }.editorial-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, #0000000a, #000000bd); }.editorial-index { position: absolute; top: 21px; left: 21px; font-size: 12px; font-weight: 700; letter-spacing: -.01em; }.editorial-card > div:last-child { position: absolute; left: 22px; right: 22px; bottom: 23px; }.editorial-card p { margin-bottom: 8px; font-size: 13px; color: #eee; }.editorial-card h3 { margin: 0; font-size: 24px; line-height: 1.3; letter-spacing: -.03em; }.editorial-2 h3, .editorial-3 h3 { font-size: 18px; }
+.editorial-card img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.editorial-card { min-width: 0; position: relative; overflow: hidden; border-radius: 16px; color: white; }.editorial-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, #0000000a, #000000bd); }.editorial-index { position: absolute; top: 21px; left: 21px; font-size: 12px; font-weight: 700; letter-spacing: -.01em; }.editorial-card > div:last-child { position: absolute; left: 22px; right: 22px; bottom: 23px; }.editorial-card p { margin-bottom: 8px; font-size: 13px; color: #eee; }.editorial-card h3 { margin: 0; font-size: 24px; line-height: 1.3; letter-spacing: -.03em; }.editorial-2 h3, .editorial-3 h3 { font-size: 18px; }
 .fresh-products { padding-top: 120px; }.fresh-product-card .product-image-wrap { position: relative; overflow: hidden; border-radius: 16px; }.fresh-product-card .image-card img { aspect-ratio: .94; }.drop-label { position: absolute; top: 13px; left: 13px; padding: 5px 9px; border-radius: 6px; background: #111111b8; color: #fff; font-size: 12px; font-weight: 500; letter-spacing: -.01em; backdrop-filter: blur(4px); }.heart-label { position: absolute; top: 12px; right: 13px; width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; background: #ffffffdd; color: var(--fg-strong); font-size: 16px; }.fresh-product-card .card-meta span:first-child { color: var(--accent); font-weight: 700; }.fresh-product-card .card-body h3 { font-size: 18px; }
 .opportunity-band { margin-top: 120px; padding: 92px 0; background: #111; color: white; }
 .opportunity-grid { display: grid; grid-template-columns: .7fr 1.3fr; gap: 90px; }.opportunity-copy h2 { margin: 0 0 20px; font-size: 48px; line-height: 1.12; letter-spacing: -.03em; }.opportunity-copy > p:not(.eyebrow) { color: var(--fg-muted); font-size: 13px; line-height: 1.7; }.opportunity-copy > a { display: inline-block; margin-top: 25px; color: var(--accent); font-size: 12px; font-weight: 700; }
@@ -649,7 +650,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .opportunity-section { padding-top: 82px; }
 .opportunity-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .opportunity-card { min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: #fff; transition: border-color .2s; }
-.opportunity-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+
 .opportunity-card > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .opportunity-type { padding: 4px 8px; border-radius: 6px; background: #f4f4f5; color: var(--fg-muted); font-size: 12px; font-weight: 700; }
 .opportunity-card > div strong { color: var(--accent); font-size: 12px; }
@@ -2578,7 +2579,7 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
 
 /* 커머스형 프로덕트 카드 — 블로그 카드 탈피 */
 .commerce-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: white; transition: border-color .2s ease; }
-.commerce-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+
 .commerce-card .image-card img { aspect-ratio: 1.35; }
 .commerce-card .product-image-wrap { position: relative; }
 .commerce-card .product-chip { position: absolute; left: 10px; bottom: 10px; padding: 4px 8px; border-radius: 6px; background: rgba(255, 255, 255, .95); color: var(--fg-default); font-size: 12px; font-weight: 700; letter-spacing: 0; backdrop-filter: blur(3px); }
@@ -2594,7 +2595,6 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
 .commerce-card .product-meta-row .avatar.tiny { width: 20px; height: 20px; }
 .commerce-card .product-meta-row > strong { font-size: 14px; letter-spacing: -.01em; color: var(--foreground); }
 .commerce-card .product-meta-row > strong.meta-cta { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 7px 13px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: 0; transition: background .2s ease, color .2s ease; }
-.commerce-card:hover .product-meta-row > strong.meta-cta { background: var(--accent); color: white; }
 
 /* 파운더 스포트라이트 카드 — 인물 사진이 배경으로 녹아드는 다크 카드 */
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
