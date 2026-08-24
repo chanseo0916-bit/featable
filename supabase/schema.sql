@@ -1102,20 +1102,22 @@ create policy "partner_submissions_update" on partner_submissions for update
 create policy "partner_submissions_delete" on partner_submissions for delete
   using ((user_id = auth.uid() and status in ('draft', 'rejected')) or is_admin());
 
-create policy "jobs_select" on jobs for select using (
+create policy "jobs_public_select" on jobs for select to anon, authenticated using (
   status = 'published'
-  or (brand_id is not null and owns_brand(brand_id))
-  or (community_id is not null and can_manage_community(community_id))
-  or (partner_id is not null and can_manage_partner(partner_id))
-  or is_admin()
 );
-create policy "jobs_insert" on jobs for insert with check (
+create policy "jobs_manager_select" on jobs for select to authenticated using (
   (brand_id is not null and owns_brand(brand_id))
   or (community_id is not null and can_manage_community(community_id))
   or (partner_id is not null and can_manage_partner(partner_id))
   or is_admin()
 );
-create policy "jobs_update" on jobs for update using (
+create policy "jobs_insert" on jobs for insert to authenticated with check (
+  (brand_id is not null and owns_brand(brand_id))
+  or (community_id is not null and can_manage_community(community_id))
+  or (partner_id is not null and can_manage_partner(partner_id))
+  or is_admin()
+);
+create policy "jobs_update" on jobs for update to authenticated using (
   (brand_id is not null and owns_brand(brand_id))
   or (community_id is not null and can_manage_community(community_id))
   or (partner_id is not null and can_manage_partner(partner_id))
@@ -1126,7 +1128,7 @@ create policy "jobs_update" on jobs for update using (
   or (partner_id is not null and can_manage_partner(partner_id))
   or is_admin()
 );
-create policy "jobs_delete" on jobs for delete using (
+create policy "jobs_delete" on jobs for delete to authenticated using (
   (brand_id is not null and owns_brand(brand_id))
   or (community_id is not null and can_manage_community(community_id))
   or (partner_id is not null and can_manage_partner(partner_id))
