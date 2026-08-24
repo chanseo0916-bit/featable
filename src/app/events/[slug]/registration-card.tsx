@@ -52,7 +52,7 @@ export function EventRegistrationCard({
   const [state, action, pending] = useActionState(boundAction, {});
   const currentStatus = state.status ?? registration?.status;
 
-  if (mode === "closed" || closed || (mode === "internal" && !eventId)) return <aside className="event-registration-panel closed"><span>신청 마감</span><h2>신청이 마감됐어요.</h2><p>다른 행사를 둘러보고 새로운 만남을 찾아보세요.</p><Link className="button secondary" href="/events">다른 행사 보기</Link></aside>;
+  if (mode === "closed" || closed || (mode === "internal" && !eventId)) return <aside className="event-registration-panel closed"><span>신청 마감</span><h2>신청이 마감됐어요.</h2><p>다른 행사를 둘러보고 새로운 만남을 찾아보세요.</p><Link className="button button-secondary" href="/events">다른 행사 보기</Link></aside>;
 
   if (mode === "external") return <aside className="event-registration-panel external">
     <span>외부 신청</span><h2>외부 사이트에서 신청해요.</h2><p>신청 내역과 변경 사항은 연결되는 행사 사이트에서 관리됩니다.</p>

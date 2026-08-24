@@ -140,7 +140,7 @@ export default async function SupportPage({
           </div>
 
           {hasFilters ? (
-            <Link className="support-filter-reset" href="/support">
+            <Link className="button button-xsmall button-secondary support-filter-reset" href="/support">
               필터 초기화 ↺
             </Link>
           ) : null}

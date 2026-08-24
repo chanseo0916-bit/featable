@@ -37,6 +37,8 @@
   --fg-default: #3d434a;
   --fg-muted: #66707a;
   --fg-subtle: #9aa0a6;
+  --danger: #d93025;
+  --danger-hover: #c5221f;
 }
 
 @theme inline {
@@ -148,6 +150,25 @@ summary::-webkit-details-marker { display: none; }
 }
 .button-small { padding: 0 16px; height: 44px; font-size: 14px; }
 .button-xsmall { padding: 0 12px; height: 36px; font-size: 13px; }
+
+/* SEED Box Button variant 체계
+   - primary(.button): 주요 액션 — 한 화면 1~2개로 제한
+   - secondary(.button-secondary): 서브 액션 — 테두리형, 같은 크기 체계
+   - danger(.button-danger): 파괴적 액션(취소·탈퇴 등) */
+.button-secondary {
+  border: 1px solid #dfe2e5;
+  background: #fff;
+  color: var(--fg-strong);
+}
+.button-secondary:hover { border-color: var(--fg-muted); }
+.button-secondary:focus-visible {
+  outline-color: color-mix(in srgb, var(--fg-default) 40%, white);
+}
+.button-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.button-danger:hover { background: var(--danger-hover); }
 .hero { min-height: 510px; display: flex; align-items: center; justify-content: space-between; padding-top: 58px; padding-bottom: 58px; }
 .hero-copy { width: 62%; }
 .eyebrow { color: var(--muted); font-size: 13px; letter-spacing: -.01em; font-weight: 500; margin: 0 0 12px; }
@@ -2883,7 +2904,7 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
 .event-registration-panel.status { border-color: color-mix(in srgb, var(--accent) 30%, #dfe2e5); }
 .event-registration-panel.status h2 { color: var(--accent); }
 .event-registration-panel.status form { display: inline; margin-left: 18px; }
-.event-cancel-button { border: 0; background: transparent; color: var(--fg-muted); font-size: 12px; text-decoration: underline; cursor: pointer; }
+.event-cancel-button { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 12px; border: 0; border-radius: var(--radius-md); background: var(--danger, #d93025); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .event-registration-error { margin: 0; color: #c63c2d; font-size: 12px; font-weight: 700; }
 .event-registration-login { color: var(--fg-muted); font-size: 12px; line-height: 1.6; }
 .event-registration-login a { color: var(--fg-default); text-decoration: underline; }
