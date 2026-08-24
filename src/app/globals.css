@@ -237,13 +237,16 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 @media (prefers-reduced-motion: reduce) { .partner-marquee-track { animation: none; } }
 
 /* Keep differently proportioned partner marks fully visible in the footer rail. */
-.partner-row { gap: 16px; padding-right: 16px; }
+.partner-board { width: 100%; }
+.partner-board .partner-row { display: flex; flex-wrap: wrap; gap: 12px; padding: 0; }
 .partner-row a {
-  width: 148px;
+  width: 168px;
   height: 64px;
   padding: 10px 16px;
-  overflow: visible;
+  flex: 0 0 168px;
+  overflow: hidden;
   background: #fafafa;
+  border: 1px solid #f2f3f3;
   transition: filter .2s ease, opacity .2s ease, background .2s ease;
 }
 .partner-row a:hover { background: #f5f6f6; }
