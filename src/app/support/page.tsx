@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Footer, Header } from "@/components/site-shell";
-import { EntityCard } from "@/components/cards/entity-card";
 import { getPartners, getSupportPrograms } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
 
@@ -162,18 +161,23 @@ export default async function SupportPage({
           <>
           <div className="support-card-grid">
             {pagePrograms.map((program) => (
-              <EntityCard
+              <Link
                 href={`/support/${program.slug}`}
+                className="support-card"
                 key={program.slug}
-                layout="text"
-                top={<span className="badge">{program.field ?? "지원사업"}</span>}
-                topRight={`D-${dday(program.closeAt)}`}
-                title={program.name}
-                subtitle={program.agency || "기업마당"}
-                description={program.benefits}
-                footerLeft={`${program.region} · ${program.target}`}
-                footerRight={`마감 ${program.closeAt.slice(5).replace("-", ".")}`}
-              />
+              >
+                <div className="support-card-top">
+                  <span className="badge">{program.field ?? "지원사업"}</span>
+                  <strong>D-{dday(program.closeAt)}</strong>
+                </div>
+                <h3>{program.name}</h3>
+                <p className="support-card-agency">{program.agency || "기업마당"}</p>
+                <p className="support-card-benefits">{program.benefits}</p>
+                <div className="support-card-bottom">
+                  <span>{program.region} · {program.target}</span>
+                  <span>마감 {program.closeAt.slice(5).replace("-", ".")}</span>
+                </div>
+              </Link>
             ))}
           </div>
           {pageCount > 1 ? (

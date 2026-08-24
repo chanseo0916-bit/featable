@@ -2238,6 +2238,7 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
 .feature-related-interview strong { margin-top: 4px; color: var(--accent); font-size: 12px; font-weight: 700; }
 @media (max-width: 560px) { .feature-related-interview > a { gap: 14px; padding: 13px; } .feature-related-interview img { width: 72px; height: 92px; } }
 
+
 /* Community manager console */
 .managed-community-page { min-height: calc(100vh - 76px); background: #f4f5f6; }
 .managed-community-heading { padding: 54px 0 30px; display: flex; align-items: end; justify-content: space-between; gap: 24px; }
@@ -2405,3 +2406,13 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
   .studio-story-metrics { order: 10; }
   .studio-story-list article > a { order: 11; margin-left: auto; }
 }
+/* 지원사업 카드 — 원래 고정높이 스타일 복원 (EntityCard 대신 전용 마크업) */
+.support-card { min-width: 0; min-height: 262px; padding: 22px; display: flex; flex-direction: column; border-radius: var(--radius-lg); background: #fff; }
+.support-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.support-card-top strong { color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: -.02em; }
+.support-card h3 { margin: 18px 0 8px; font-size: var(--fs-t4); font-weight: 700; line-height: 1.45; letter-spacing: -.03em; }
+.support-card-agency { margin: 0; color: #5f6368; font-size: 12.5px; font-weight: 600; letter-spacing: -.02em; }
+.support-card-benefits { margin: 14px 0 20px; overflow: hidden; color: var(--fg-muted); font-size: 12.5px; line-height: 1.7; letter-spacing: -.02em; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.support-card-bottom { margin-top: auto; padding-top: 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border-top: 1px solid var(--gray-200); color: var(--fg-muted); font-size: 12.5px; line-height: 1.45; }
+.support-card-bottom span:first-child { max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.support-card-bottom span:last-child { flex: 0 0 auto; color: var(--fg-default); font-weight: 650; }
