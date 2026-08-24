@@ -77,7 +77,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     images: imageUrls(community.logoUrl),
   }));
 
-<<<<<<< HEAD
 
   return [
     ...staticPaths,
