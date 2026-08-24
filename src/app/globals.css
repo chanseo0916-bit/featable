@@ -2137,8 +2137,15 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .fresh-rail-track > * { flex: 0 0 calc((100% - 18px) / 2); min-width: 0; scroll-snap-align: center; }
 .home-interview-section { padding-top: 96px; }
 @media (max-width: 800px) {
-  .fresh-rail-track { margin-inline: -16px; padding-inline: 16px; }
-  .fresh-rail-track > * { flex-basis: 76vw; scroll-snap-align: center; }
+  /* 새로 등록된 프로덕트 — 한 장씩, 멈추면 항상 정중앙 */
+  .fresh-rail-track {
+    --card-w: min(calc(100vw - 64px), 340px);
+    --edge: calc((100vw - var(--card-w)) / 2);
+    margin-inline: -16px;
+    padding-inline: var(--edge);
+    scroll-padding-inline: var(--edge);
+  }
+  .fresh-rail-track > * { flex-basis: var(--card-w); scroll-snap-align: center; }
 }
 @media (max-width: 800px) { .home-interview-section { padding-top: 65px; } }
 
