@@ -1771,15 +1771,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .founder-spotlight-grid > * { flex: 0 0 var(--card-w); scroll-snap-align: center; }
   .founder-spot-body h3 { font-size: 18px; }
 }
-
-@media (max-width: 800px) {
-  /* 카드 확대·틸트 끔 — 스냅 중앙 정렬이 눈에도 정확히 보이도록 */
-  .interactive-profile-card {
-    transform: none !important;
-    transition: none;
-  }
-  .interactive-profile-card:hover { transform: none !important; }
-}
 .weekly-builders-section { padding-top: 82px; }
 .weekly-builders-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 24px; }
 .weekly-builders-heading h2 { margin: 6px 0 0; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; letter-spacing: -.03em; }
