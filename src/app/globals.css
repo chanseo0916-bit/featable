@@ -13,13 +13,24 @@
 /* Featable 디자인 토큰 — 순백 배경 + 오렌지 강조 (다크모드 없음, 브랜드 아이덴티티) */
 :root {
   --background: #ffffff;
-  --surface: #f7f7f8;
-  --foreground: #111111;
+  --surface: var(--gray-100);
+  --foreground: var(--gray-1000);
   --muted: #66707a; /* = --fg-muted */
-  --border: #e5e7eb;
+  --border: var(--gray-400);
   --accent: #ef4125;
   --accent-hover: #d9361e;
   --accent-soft: #fff0ed;
+  /* SEED gray palette — seed-design.io/foundations/color/palette */
+  --gray-100: #f7f8f9;
+  --gray-200: #f3f4f5;
+  --gray-300: #eeeff1;
+  --gray-400: #dcdee3;
+  --gray-500: #d1d3d8;
+  --gray-600: #b0b3ba;
+  --gray-700: #868b94;
+  --gray-800: #555d6d;
+  --gray-900: #2a3038;
+  --gray-1000: #1a1c20;
   /* SEED(당근) 타이포 스케일 — font-size 토큰 (t1~t12) */
   --fs-t1: 12px;
   --fs-t2: 13px;
@@ -42,10 +53,10 @@
   --radius-2xl: 20px;
 
   /* SEED 정렬 텍스트 그레이 — 4단계 */
-  --fg-strong: #191f28;
-  --fg-default: #3d434a;
-  --fg-muted: #66707a;
-  --fg-subtle: #9aa0a6;
+  --fg-strong: var(--gray-1000);
+  --fg-default: var(--gray-900);
+  --fg-muted: var(--gray-700);
+  --fg-subtle: var(--gray-600);
   --danger: #d93025;
   --danger-hover: #c5221f;
 }
