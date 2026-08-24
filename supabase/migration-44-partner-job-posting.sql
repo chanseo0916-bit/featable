@@ -14,6 +14,13 @@ alter table public.jobs
   drop constraint if exists jobs_owner_required;
 
 alter table public.jobs
+  drop constraint if exists jobs_type_check;
+
+alter table public.jobs
+  add constraint jobs_type_check
+  check (type in ('정규직', '계약직', '인턴', '파트타임'));
+
+alter table public.jobs
   add constraint jobs_owner_required
   check (num_nonnulls(brand_id, community_id, partner_id) = 1);
 

@@ -32,12 +32,12 @@ export function OrganizationJobEditor({ organizations, jobId, initial }: { organ
     <div className="approved-form-fields">
       <label><span>게시 조직 *</span><select value={`${form.organizationType}:${form.organizationId}`} onChange={(event) => { const [organizationType, organizationId] = event.target.value.split(":"); set({ organizationType: organizationType as JobOrganizationType, organizationId }); }}>{organizations.map((item) => <option value={`${item.type}:${item.id}`} key={`${item.type}:${item.id}`}>{organizationTypeLabel[item.type]} · {item.name}</option>)}</select></label>
       <label><span>고용 형태 *</span><select value={form.type} onChange={(event) => set({ type: event.target.value as JobEmploymentType })}>{["정규직", "계약직", "인턴", "파트타임"].map((type) => <option value={type} key={type}>{type}</option>)}</select></label>
-      <label className="wide"><span>공고 제목 *</span><input maxLength={120} value={form.title} onChange={(event) => set({ title: event.target.value })} placeholder="예: Product Designer를 찾습니다" /></label>
-      <label><span>담당 역할 *</span><input maxLength={100} value={form.role} onChange={(event) => set({ role: event.target.value })} placeholder="예: 제품 디자인" /></label>
+      <label className="wide"><span>공고 제목 *</span><input minLength={2} maxLength={120} value={form.title} onChange={(event) => set({ title: event.target.value })} placeholder="예: Product Designer를 찾습니다" /></label>
+      <label><span>담당 역할 *</span><input minLength={2} maxLength={100} value={form.role} onChange={(event) => set({ role: event.target.value })} placeholder="예: 제품 디자인" /></label>
       <label><span>근무 위치 *</span><input maxLength={120} value={form.location} onChange={(event) => set({ location: event.target.value })} placeholder="예: 서울 / 하이브리드" /></label>
-      <label className="wide"><span>채용 소개 *</span><textarea value={form.description} onChange={(event) => set({ description: event.target.value })} placeholder="팀과 포지션, 함께 해결할 문제를 소개해주세요." /></label>
+      <label className="wide"><span>채용 소개 * <small>20자 이상</small></span><textarea minLength={20} value={form.description} onChange={(event) => set({ description: event.target.value })} placeholder="팀과 포지션, 함께 해결할 문제를 소개해주세요." /></label>
       <label className="wide"><span>자격 요건 <small>한 줄에 하나씩</small></span><textarea value={form.requirements} onChange={(event) => set({ requirements: event.target.value })} placeholder={"관련 경력 2년 이상\n원활한 커뮤니케이션 능력"} /></label>
-      <label><span>지원 링크 *</span><input type="url" value={form.applyUrl} onChange={(event) => set({ applyUrl: event.target.value })} placeholder="https://" /></label>
+      <label><span>지원 링크 *</span><input type="text" inputMode="url" value={form.applyUrl} onChange={(event) => set({ applyUrl: event.target.value })} onBlur={() => { const value = form.applyUrl.trim(); if (value && !/^https?:\/\//i.test(value)) set({ applyUrl: `https://${value}` }); }} placeholder="https://" /></label>
       <label><span>지원 마감일</span><input type="date" value={form.deadline} onChange={(event) => set({ deadline: event.target.value })} /></label>
       <label><span>노출 상태</span><select value={form.status} onChange={(event) => set({ status: event.target.value as "published" | "hidden" })}><option value="published">바로 공개</option><option value="hidden">숨김</option></select></label>
     </div>

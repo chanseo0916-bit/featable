@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getMyJobAccess, jobOrganizationKey, type JobOrganizationType } from "@/lib/job-access";
 import { randomSuffix, slugify } from "@/lib/slug";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type JobEmploymentType = "정규직" | "계약직" | "인턴" | "파트타임";
 export interface OrganizationJobInput {
@@ -25,6 +26,7 @@ const clean = (value: string, max: number) => value.trim().slice(0, max);
 const validUrl = (value: string) => { try { return ["http:", "https:"].includes(new URL(value).protocol); } catch { return false; } };
 
 function payload(input: OrganizationJobInput) {
+  const rawApplyUrl = clean(input.applyUrl, 500);
   return {
     organizationType: input.organizationType,
     organizationId: clean(input.organizationId, 80),
@@ -34,10 +36,19 @@ function payload(input: OrganizationJobInput) {
     location: clean(input.location, 120),
     description: clean(input.description, 5000),
     requirements: input.requirements.split(/\r?\n/).map((item) => clean(item.replace(/^[-•]\s*/, ""), 180)).filter(Boolean).slice(0, 12),
-    applyUrl: clean(input.applyUrl, 500),
+    applyUrl: rawApplyUrl && !/^https?:\/\//i.test(rawApplyUrl) ? `https://${rawApplyUrl}` : rawApplyUrl,
     deadline: clean(input.deadline, 10),
     status: input.status,
   };
+}
+
+function saveError(error: { code?: string; message?: string; details?: string; hint?: string }, operation: "create" | "update") {
+  console.error(`[jobs:${operation}]`, { code: error.code, message: error.message, details: error.details, hint: error.hint });
+  if (error.code === "42501") return "이 조직의 채용 공고 작성 권한을 확인하지 못했습니다. 다시 로그인한 뒤 시도해주세요.";
+  if (error.code === "23503") return "선택한 회사 또는 커뮤니티 연결을 확인해주세요.";
+  if (error.code === "23514") return "게시 조직이나 고용 형태를 다시 확인해주세요.";
+  if (error.code === "23505") return "공고 주소가 중복됐습니다. 다시 저장해주세요.";
+  return `채용 공고를 저장하지 못했습니다.${error.code ? ` (오류 ${error.code})` : " 잠시 후 다시 시도해주세요."}`;
 }
 
 function validate(value: ReturnType<typeof payload>) {
@@ -70,44 +81,48 @@ function revalidateJobs(id?: string, slug?: string) {
 }
 
 export async function createOrganizationJob(input: OrganizationJobInput): Promise<Result> {
-  const { supabase, user, organizations } = await getMyJobAccess();
+  const { user, organizations } = await getMyJobAccess();
   if (!user) return { ok: false, error: "로그인이 필요합니다." };
   const value = payload(input);
   const invalid = validate(value);
   if (invalid) return { ok: false, error: invalid };
   const allowed = new Set(organizations.map((item) => jobOrganizationKey(item.type, item.id)));
   if (!allowed.has(jobOrganizationKey(value.organizationType, value.organizationId))) return { ok: false, error: "이 조직 명의로 공고를 올릴 권한이 없습니다." };
+  const admin = createAdminClient();
+  if (!admin) return { ok: false, error: "채용 공고 저장 기능을 준비하지 못했습니다. 잠시 후 다시 시도해주세요." };
 
   const base = slugify(value.title) || "job";
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const slug = `${base}-${randomSuffix()}`;
-    const { data, error } = await supabase.from("jobs").insert({
+    const { data, error } = await admin.from("jobs").insert({
       ...ownerColumns(value.organizationType, value.organizationId), slug, title: value.title, role: value.role, type: value.type,
       location: value.location, description: value.description, requirements: value.requirements, apply_url: value.applyUrl,
       deadline: value.deadline || null, status: value.status, updated_at: new Date().toISOString(),
     } as never).select("id,slug").single();
     if (!error && data) { revalidateJobs(data.id, data.slug); return { ok: true, id: data.id, slug: data.slug }; }
-    if (!error?.message?.toLowerCase().includes("unique")) return { ok: false, error: "채용 공고를 저장하지 못했습니다." };
+    if (error?.code !== "23505" && !error?.message?.toLowerCase().includes("unique")) return { ok: false, error: saveError(error, "create") };
   }
   return { ok: false, error: "채용 공고 주소를 만들지 못했습니다. 다시 시도해주세요." };
 }
 
 export async function updateOrganizationJob(id: string, input: OrganizationJobInput): Promise<Result> {
-  const { supabase, user, organizations } = await getMyJobAccess();
+  const { user, organizations } = await getMyJobAccess();
   if (!user) return { ok: false, error: "로그인이 필요합니다." };
   const value = payload(input);
   const invalid = validate(value);
   if (invalid) return { ok: false, error: invalid };
   const allowed = new Set(organizations.map((item) => jobOrganizationKey(item.type, item.id)));
   if (!allowed.has(jobOrganizationKey(value.organizationType, value.organizationId))) return { ok: false, error: "이 조직 명의로 공고를 수정할 권한이 없습니다." };
-  const { data: current } = await supabase.from("jobs").select("id,slug,brand_id,community_id,partner_id").eq("id", id).maybeSingle();
+  const admin = createAdminClient();
+  if (!admin) return { ok: false, error: "채용 공고 저장 기능을 준비하지 못했습니다. 잠시 후 다시 시도해주세요." };
+  const { data: current } = await admin.from("jobs").select("id,slug,brand_id,community_id,partner_id").eq("id", id).maybeSingle();
   if (!current || !allowed.has(ownerKey(current))) return { ok: false, error: "이 채용 공고를 수정할 권한이 없습니다." };
-  const { error } = await supabase.from("jobs").update({
+  const { error } = await admin.from("jobs").update({
     ...ownerColumns(value.organizationType, value.organizationId), title: value.title, role: value.role, type: value.type,
     location: value.location, description: value.description, requirements: value.requirements, apply_url: value.applyUrl,
     deadline: value.deadline || null, status: value.status, updated_at: new Date().toISOString(),
   } as never).eq("id", current.id);
-  if (error) return { ok: false, error: "채용 공고를 저장하지 못했습니다." };
+  if (error) return { ok: false, error: saveError(error, "update") };
   revalidateJobs(current.id, current.slug);
   return { ok: true, id: current.id, slug: current.slug };
 }
