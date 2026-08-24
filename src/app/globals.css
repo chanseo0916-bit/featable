@@ -2431,8 +2431,8 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
   overflow: hidden;
   color: var(--fg-default);
   font-size: var(--fs-t3);
-  line-height: 1.65;
-  letter-spacing: -.01em;
+  line-height: 1.7;
+  letter-spacing: -0.005em;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -2457,6 +2457,8 @@ p font sizes to 12-step token scale, reduce weights to 400/500/700)
   border-radius: var(--radius-md);
   color: #fff;
 }
+
+.support-card-bottom .button.button-xsmall span { color: #fff; }
 
 
 
