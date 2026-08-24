@@ -1752,19 +1752,23 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 /* 커머스형 프로덕트 카드 — 블로그 카드 탈피 */
 /* 파운더 스포트라이트 카드 — 인물 사진이 배경으로 녹아드는 다크 카드 */
 @media (max-width: 800px) {
-  /* 빌더 카드 — 한 장씩, 스냅 시 항상 화면 정중앙 */
+  /* 빌더 카드 — 한 장씩 넘기고, 멈추면 항상 정중앙.
+     카드 폭 = 콘텐츠 폭(shell)과 동일, 좌우 패딩 = (뷰포트-카드)/2 로
+     스냅 포인트가 정확히 뷰포트 중앙에 오도록 계산 */
   .founder-spotlight-grid {
     display: flex;
     overflow-x: auto;
     gap: 14px;
-    margin-inline: calc(50% - 50vw);
-    padding-inline: max(16px, calc(50vw - (100vw - 64px) / 2));
+    margin-inline: -16px;
+    --card-w: min(calc(100vw - 64px), 340px);
+    --edge: calc((100vw - var(--card-w)) / 2);
+    padding-inline: var(--edge);
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: max(16px, calc(50vw - (100vw - 64px) / 2));
+    scroll-padding-inline: var(--edge);
     scrollbar-width: none;
   }
   .founder-spotlight-grid::-webkit-scrollbar { display: none; }
-  .founder-spotlight-grid > * { flex: 0 0 min(calc(100vw - 64px), 340px); scroll-snap-align: center; }
+  .founder-spotlight-grid > * { flex: 0 0 var(--card-w); scroll-snap-align: center; }
   .founder-spot-body h3 { font-size: 18px; }
 }
 .weekly-builders-section { padding-top: 82px; }
