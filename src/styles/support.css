@@ -1,0 +1,90 @@
+/* support 도메인 스타일 — globals.css에서 분리됨 */
+
+
+.support-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+
+
+.support-card { min-width: 0; min-height: 262px; padding: 22px; display: flex; flex-direction: column; border-radius: 12px; background: #fff; transition: box-shadow .2s ease; }
+
+
+.support-card:hover { box-shadow: 0 6px 20px rgba(17, 17, 17, .07); }
+
+
+.support-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+
+.support-card-top span { max-width: 72%; padding: 5px 9px; overflow: hidden; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -.02em; text-overflow: ellipsis; white-space: nowrap; }
+
+
+.support-card-top strong { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -.02em; }
+
+
+.support-card h3 { margin: 18px 0 8px; font-size: 18px; font-weight: 700; line-height: 1.45; letter-spacing: -.03em; }
+
+
+.support-card-agency { margin: 0; color: var(--fg-default); font-size: 12px; font-weight: 500; letter-spacing: -.02em; }
+
+
+.support-card-benefits { margin: 14px 0 20px; overflow: hidden; color: var(--fg-muted); font-size: 12px; line-height: 1.7; letter-spacing: -.02em; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+
+
+.support-card-bottom { margin-top: auto; padding-top: 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border-top: 1px solid #f0f0f0; color: var(--fg-muted); font-size: 12px; line-height: 1.45; }
+
+
+.support-card-bottom span:first-child { max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+
+.support-card-bottom span:last-child { flex: 0 0 auto; color: var(--fg-default); font-weight: 700; }
+
+
+.support-pagination { margin-top: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+
+.support-pagination a, .support-pagination span { min-width: 36px; height: 36px; padding: 0 10px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 8px; color: var(--fg-muted); font-size: 13px; font-weight: 500; letter-spacing: -.01em; }
+
+
+.support-pagination a:hover, .support-pagination a.active { border-color: var(--foreground); background: var(--foreground); color: #fff; }
+
+
+.support-pagination span { opacity: .35; }
+
+
+.support-filter-toolbar { display: grid; gap: 16px; margin-bottom: 26px; padding: 18px 20px; border-radius: 12px; background: #fff; }
+
+
+.support-filter-group { display: flex; align-items: center; gap: 14px; }
+
+
+.support-filter-label { width: auto; flex: 0 0 auto; color: var(--muted); font-size: 12px; font-weight: 500; letter-spacing: -.02em; }
+
+
+.support-filter-group .filter-chips { gap: 6px; }
+
+
+.support-filter-group .filter-chips a { padding: 7px 13px; font-size: 12px; font-weight: 500; letter-spacing: -.01em; transition: background .15s ease, border-color .15s ease, color .15s ease; }
+
+
+.support-filter-reset { justify-self: end; display: inline-flex; align-items: center; gap: 4px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; color: var(--fg-default); font-size: 12px; font-weight: 500; transition: background .15s ease, border-color .15s ease; }
+
+
+.support-filter-reset:hover { background: #f4f4f5; border-color: #d9d9de; color: var(--foreground); }
+
+
+.support-result-meta { margin: 0 0 14px; color: var(--fg-default); font-size: 13px; font-weight: 500; letter-spacing: -.02em; }
+
+
+.support-result-meta p { margin: 0; }
+
+
+.support-result-meta strong { color: var(--accent); font-weight: 700; }
+
+
+.support-empty { display: grid; justify-items: center; gap: 10px; padding: 76px 24px; border-top: 1px solid var(--foreground); border-bottom: 1px solid var(--border); text-align: center; }
+
+
+.support-empty strong { font-size: 18px; letter-spacing: -.03em; }
+
+
+.support-empty p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+
+.support-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 55px; }
