@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import {
   addCommunityFounder,
   addCommunityManager,
+  inviteCommunityMember,
   linkCommunityBrand,
   linkCommunityEvent,
   removeCommunityFounder,
   removeCommunityManager,
+  removeCommunityMember,
+  reviewCommunityMembership,
   updateCommunityManagerRole,
   unlinkCommunityBrand,
   unlinkCommunityEvent,
@@ -45,9 +48,21 @@ export interface CommunityManagerOption {
   role: "manager" | "editor";
 }
 
+export interface CommunityMembershipOption {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  displayRole: string;
+  status: "requested" | "invited" | "active";
+  isPublic: boolean;
+}
+
 interface Props {
   slug: string;
   isOwner: boolean;
+  canManageMembers: boolean;
   founders: CommunityFounderOption[];
   founderCandidates: CommunityFounderOption[];
   brands: CommunityBrandOption[];
@@ -55,11 +70,12 @@ interface Props {
   events: CommunityEventOption[];
   eventCandidates: CommunityEventOption[];
   managers: CommunityManagerOption[];
+  memberships: CommunityMembershipOption[];
 }
 
 type Result = { ok: true; savedAt: number } | { ok: false; error: string };
 
-export function CommunityOperations({ slug, isOwner, founders, founderCandidates, brands, brandCandidates, events, eventCandidates, managers }: Props) {
+export function CommunityOperations({ slug, isOwner, canManageMembers, founders, founderCandidates, brands, brandCandidates, events, eventCandidates, managers, memberships }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [notice, setNotice] = useState("");
@@ -68,6 +84,10 @@ export function CommunityOperations({ slug, isOwner, founders, founderCandidates
   const [eventId, setEventId] = useState("");
   const [managerEmail, setManagerEmail] = useState("");
   const [managerRole, setManagerRole] = useState<"manager" | "editor">("manager");
+  const [memberEmail, setMemberEmail] = useState("");
+  const requests = memberships.filter((item) => item.status === "requested");
+  const activeMembers = memberships.filter((item) => item.status === "active");
+  const invitedMembers = memberships.filter((item) => item.status === "invited");
 
   function run(action: () => Promise<Result>, success: string, reset?: () => void) {
     setNotice("");
@@ -117,7 +137,18 @@ export function CommunityOperations({ slug, isOwner, founders, founderCandidates
         <div className="community-operation-list manager-list">{managers.length ? managers.map((item) => <article key={item.userId}><i>{item.name.slice(0, 1).toUpperCase()}</i><div><strong>{item.name}</strong><span>{item.email}</span></div>{isOwner && <div className="community-manager-controls"><select value={item.role} disabled={pending} onChange={(event) => run(() => updateCommunityManagerRole(slug, item.userId, event.target.value as "manager" | "editor"), "운영자 권한을 변경했습니다.")}><option value="manager">매니저</option><option value="editor">에디터</option></select><button disabled={pending} onClick={() => run(() => removeCommunityManager(slug, item.userId), "공동 운영자를 삭제했습니다.")}>삭제</button></div>}</article>) : <EmptyRow text="아직 공동 운영자가 없습니다." />}</div>
       </OperationPanel>
     </div>
+    <section className="community-membership-admin">
+      <header><div><span>REAL MEMBERS</span><h3>커뮤니티 멤버</h3><p>운영 권한과 행사 참가 여부와 별개인 실제 커뮤니티 소속을 관리합니다.</p></div><div><b>{activeMembers.length}</b><small>활동 멤버</small><b>{requests.length}</b><small>가입 대기</small></div></header>
+      {canManageMembers ? <div className="community-member-invite"><input type="email" value={memberEmail} onChange={(event) => setMemberEmail(event.target.value)} placeholder="Featable 가입 이메일로 멤버 초대" /><button type="button" disabled={pending || !memberEmail.trim()} onClick={() => run(() => inviteCommunityMember(slug, memberEmail), "멤버 초대를 보냈습니다.", () => setMemberEmail(""))}>멤버 초대</button></div> : <p className="community-operation-readonly">에디터는 멤버 목록을 확인할 수 있고, 승인과 초대는 매니저가 담당합니다.</p>}
+      {requests.length > 0 && <div className="community-membership-group"><h4>가입 신청 <span>{requests.length}</span></h4>{requests.map((item) => <article key={item.id}><MemberIdentity item={item} />{canManageMembers && <div className="community-membership-actions"><button type="button" disabled={pending} onClick={() => run(() => reviewCommunityMembership(slug, item.id, false), "가입 신청을 거절했습니다.")}>거절</button><button type="button" className="primary" disabled={pending} onClick={() => run(() => reviewCommunityMembership(slug, item.id, true), "커뮤니티 멤버로 승인했습니다.")}>멤버 승인</button></div>}</article>)}</div>}
+      <div className="community-membership-group"><h4>현재 멤버 <span>{activeMembers.length}</span></h4>{activeMembers.length ? activeMembers.map((item) => <article key={item.id}><MemberIdentity item={item} /><span className="community-member-public-state">{item.isPublic ? "프로필 공개" : "소속 비공개"}</span>{canManageMembers && <button type="button" disabled={pending} onClick={() => run(() => removeCommunityMember(slug, item.id), "멤버를 내보냈습니다.")}>내보내기</button>}</article>) : <EmptyRow text="아직 활동 중인 멤버가 없습니다." />}</div>
+      {invitedMembers.length > 0 && <div className="community-membership-group"><h4>초대 대기 <span>{invitedMembers.length}</span></h4>{invitedMembers.map((item) => <article key={item.id}><MemberIdentity item={item} /><span className="community-member-public-state">수락 대기 중</span></article>)}</div>}
+    </section>
   </section>;
+}
+
+function MemberIdentity({ item }: { item: CommunityMembershipOption }) {
+  return <><span className="community-member-admin-avatar">{item.avatarUrl ? <img src={item.avatarUrl} alt="" /> : item.name.slice(0, 1)}</span><div><strong>{item.name}</strong><small>{item.email} · {item.displayRole}</small></div></>;
 }
 
 function OperationPanel({ number, label, title, description, children }: { number: string; label: string; title: string; description: string; children: ReactNode }) {

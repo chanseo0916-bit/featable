@@ -621,6 +621,23 @@ create table community_managers (
   primary key (community_id, user_id)
 );
 
+create table community_memberships (
+  id uuid primary key default uuid_generate_v4(),
+  community_id uuid not null references communities(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  status text not null default 'requested' check (status in ('requested', 'invited', 'active', 'declined', 'left')),
+  display_role text not null default '멤버',
+  is_public boolean not null default true,
+  initiated_by text not null default 'user' check (initiated_by in ('user', 'manager')),
+  invited_by uuid references profiles(id) on delete set null,
+  requested_at timestamptz,
+  joined_at timestamptz,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (community_id, user_id)
+);
+
 -- ---------- 인덱스 ----------
 create index idx_brands_status on brands(status);
 create index idx_brands_category on brands(category);
@@ -635,6 +652,8 @@ create index idx_events_community on events(community_id);
 create index idx_community_founders_founder on community_founders(founder_id);
 create index idx_community_brands_brand on community_brands(brand_id);
 create index idx_community_managers_user on community_managers(user_id, created_at desc);
+create index idx_community_memberships_community_status on community_memberships(community_id, status, joined_at desc);
+create index idx_community_memberships_user_status on community_memberships(user_id, status, joined_at desc);
 create index partner_submissions_user_updated_idx on partner_submissions(user_id, updated_at desc);
 create index partner_submissions_status_created_idx on partner_submissions(status, created_at asc);
 create index partnership_inquiries_status_created_idx on partnership_inquiries(status, created_at desc);
@@ -970,6 +989,7 @@ alter table publishing_invitations enable row level security;
 alter table community_founders enable row level security;
 alter table community_brands enable row level security;
 alter table community_managers enable row level security;
+alter table community_memberships enable row level security;
 alter table user_activity_events enable row level security;
 alter table interview_email_campaigns enable row level security;
 alter table interview_email_deliveries enable row level security;
@@ -1140,6 +1160,8 @@ create policy "community_managers_select_related" on community_managers for sele
 create policy "community_managers_owner_insert" on community_managers for insert with check (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin())));
 create policy "community_managers_owner_update" on community_managers for update using (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin()))) with check (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin())));
 create policy "community_managers_owner_delete" on community_managers for delete using (exists (select 1 from communities c where c.id = community_id and (c.manager_user_id = auth.uid() or is_admin())));
+create policy "community_memberships_select_visible" on community_memberships for select using (user_id = auth.uid() or can_manage_community(community_id) or (status = 'active' and is_public = true));
+create policy "community_memberships_manage" on community_memberships for all using (can_manage_community(community_id)) with check (can_manage_community(community_id));
 
 -- ============================================================
 -- Storage: 이미지 버킷

@@ -6,6 +6,7 @@ import { FounderSupportButton } from "@/components/founder-support-button";
 import { InteractiveProfileCard } from "@/components/interactive-profile-card";
 import { getCatalog, getFeatures, getFounder, getPartners } from "@/lib/data";
 import { getFounderSupportState } from "@/app/founders/actions";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   absoluteUrl,
   breadcrumbJsonLd,
@@ -48,6 +49,10 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
   const founderProducts = products.filter((product) => product.founderSlug === founder.slug);
   const founderFeatures = features.filter((feature) => feature.founderSlug === founder.slug);
   const supportState = await getFounderSupportState(founder.slug);
+  const admin = createAdminClient();
+  const { data: founderRow } = admin ? await admin.from("founders").select("user_id").eq("slug", founder.slug).maybeSingle() : { data: null };
+  const { data: affiliationRows } = admin && founderRow ? await admin.from("community_memberships").select("display_role,community:communities(slug,name,logo_url,field)").eq("user_id", founderRow.user_id).eq("status", "active").eq("is_public", true).order("joined_at", { ascending: true }) : { data: [] };
+  const affiliations = (affiliationRows ?? []) as unknown as Array<{ display_role: string; community: { slug: string; name: string; logo_url: string | null; field: string } | null }>;
   const snsEntries = Object.entries(founder.sns ?? {}).filter(([, value]) => value);
   const categories = Array.from(new Set(founderBrands.map((brand) => brand.category)));
   const founderNumber = founder.founderNumber ?? 0;
@@ -70,6 +75,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
           })),
         }
       : {}),
+    ...(affiliations.length > 0 ? { memberOf: affiliations.flatMap((item) => item.community ? [{ "@type": "Organization", "@id": entityId(`/communities/${item.community.slug}`, "organization"), name: item.community.name }] : []) } : {}),
   };
   const jsonLd = {
     "@context": "https://schema.org",
@@ -137,6 +143,7 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
             </div>
 
             {founder.bio && <p className="founder-profile-bio">{founder.bio}</p>}
+            {affiliations.length > 0 && <div className="founder-community-affiliations"><span>COMMUNITY</span>{affiliations.map((item) => item.community && <Link href={`/communities/${item.community.slug}`} key={item.community.slug}><i>{item.community.logo_url ? <img src={item.community.logo_url} alt="" /> : item.community.name.slice(0, 1)}</i><b>{item.community.name}</b><small>{item.display_role || "멤버"}</small><em>↗</em></Link>)}</div>}
           </div>
         </section>
 

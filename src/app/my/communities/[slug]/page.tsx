@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { StudioNav } from "../../studio-nav";
 import { CommunityEditor } from "./community-editor";
-import { CommunityOperations, type CommunityBrandOption, type CommunityEventOption, type CommunityFounderOption, type CommunityManagerOption } from "./community-operations";
+import { CommunityOperations, type CommunityBrandOption, type CommunityEventOption, type CommunityFounderOption, type CommunityManagerOption, type CommunityMembershipOption } from "./community-operations";
 
 export const metadata: Metadata = { title: "커뮤니티 운영 · FEATABLE" };
 
@@ -40,7 +40,7 @@ export default async function EditCommunityPage({ params }: { params: Promise<{ 
     } else notFound();
   }
 
-  const [founderLinksResult, brandLinksResult, eventLinksResult, founderCandidatesResult, ownFounderResult, membershipsResult, ownEventsResult, cohostsResult, managersResult] = await Promise.all([
+  const [founderLinksResult, brandLinksResult, eventLinksResult, founderCandidatesResult, ownFounderResult, membershipsResult, ownEventsResult, cohostsResult, managersResult, communityMembershipsResult] = await Promise.all([
     admin.from("community_founders").select("founder_id,founder:founders(id,slug,name,avatar_url,headline)").eq("community_id", community.id),
     admin.from("community_brands").select("brand_id,brand:brands(id,slug,name,logo_url,tagline)").eq("community_id", community.id),
     admin.from("events").select("id,slug,name,cover_url,starts_at").eq("community_id", community.id).order("starts_at", { ascending: true }),
@@ -50,6 +50,7 @@ export default async function EditCommunityPage({ params }: { params: Promise<{ 
     admin.from("events").select("id,slug,name,cover_url,starts_at").eq("submitted_by", user.id).order("starts_at", { ascending: false }),
     admin.from("event_cohosts").select("event_id").eq("user_id", user.id),
     admin.from("community_managers").select("user_id,role,profile:profiles(full_name,email)").eq("community_id", community.id).order("created_at", { ascending: true }),
+    admin.from("community_memberships").select("id,user_id,status,display_role,is_public").eq("community_id", community.id).in("status", ["requested", "invited", "active"]).order("created_at", { ascending: true }),
   ]);
 
   const founderLinks = (founderLinksResult.data ?? []) as unknown as Array<{ founder_id: string; founder: RawFounder | null }>;
@@ -79,6 +80,15 @@ export default async function EditCommunityPage({ params }: { params: Promise<{ 
   }
   const eventCandidates = [...eventCandidateMap.values()].filter((item) => !linkedEventIds.has(item.id));
   const managers: CommunityManagerOption[] = ((managersResult.data ?? []) as unknown as Array<{ user_id: string; role: "manager" | "editor"; profile: { full_name: string | null; email: string | null } | null }>).map((item) => ({ userId: item.user_id, role: item.role, name: item.profile?.full_name || item.profile?.email || "Featable 멤버", email: item.profile?.email || "" }));
+  const membershipRows = (communityMembershipsResult.data ?? []) as Array<{ id: string; user_id: string; status: "requested" | "invited" | "active"; display_role: string; is_public: boolean }>;
+  const membershipUserIds = membershipRows.map((item) => item.user_id);
+  const [{ data: membershipProfiles }, { data: membershipFounders }] = membershipUserIds.length ? await Promise.all([
+    admin.from("profiles").select("id,full_name,email").in("id", membershipUserIds),
+    admin.from("founders").select("user_id,avatar_url").in("user_id", membershipUserIds),
+  ]) : [{ data: [] }, { data: [] }];
+  const membershipProfileMap = new Map((membershipProfiles ?? []).map((item) => [item.id, item]));
+  const membershipFounderMap = new Map((membershipFounders ?? []).map((item) => [item.user_id, item]));
+  const memberships: CommunityMembershipOption[] = membershipRows.map((item) => { const profile = membershipProfileMap.get(item.user_id); return { id: item.id, userId: item.user_id, status: item.status, displayRole: item.display_role, isPublic: item.is_public, name: profile?.full_name || profile?.email || "Featable 멤버", email: profile?.email || "", avatarUrl: membershipFounderMap.get(item.user_id)?.avatar_url || "" }; });
   const sns = community.sns && typeof community.sns === "object" ? community.sns : {};
 
   return <>
@@ -86,7 +96,7 @@ export default async function EditCommunityPage({ params }: { params: Promise<{ 
     <main className="approved-publishing-page"><div className="shell">
       <div className="approved-publishing-heading"><div><span>COMMUNITY CONSOLE</span><h2>{community.name}</h2></div><p>공개 정보와 커뮤니티 연결을 한곳에서 관리합니다.</p></div>
       {accessRole === "editor" ? <section className="community-editor-access-note"><span>EDITOR ACCESS</span><strong>연결 콘텐츠를 관리하는 에디터로 참여 중입니다.</strong><p>커뮤니티 기본 정보는 대표 운영자와 매니저가 수정할 수 있어요.</p></section> : <CommunityEditor slug={community.slug} initial={{ name: community.name, logoUrl: community.logo_url ?? "", field: community.field, intro: community.intro, website: community.website ?? "", instagram: typeof sns.instagram === "string" ? sns.instagram : "" }} />}
-      <CommunityOperations slug={community.slug} isOwner={isOwner} founders={founders} founderCandidates={founderCandidates} brands={brands} brandCandidates={brandCandidates} events={events} eventCandidates={eventCandidates} managers={managers} />
+      <CommunityOperations slug={community.slug} isOwner={isOwner} canManageMembers={accessRole !== "editor"} founders={founders} founderCandidates={founderCandidates} brands={brands} brandCandidates={brandCandidates} events={events} eventCandidates={eventCandidates} managers={managers} memberships={memberships} />
     </div></main>
   </>;
 }
