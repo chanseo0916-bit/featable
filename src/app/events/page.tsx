@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Footer, Header } from "@/components/site-shell";
-import { EventCard } from "@/components/event-card";
+import { EntityCard } from "@/components/cards/entity-card";
 import { getEvents, getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
 
@@ -11,4 +11,21 @@ export const metadata = createPageMetadata({
   path: "/events",
 });
 
-export default async function EventsPage() { const partners = await getPartners(); const events = await getEvents(); return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><h1>행사</h1><p>창업가와 만드는 사람들이 만나는 자리.</p></div><Link className="button event-submit-link" href="/my/partner/register?type=event">내 행사 등록하기 →</Link></div><div className="event-grid">{events.map((event) => <EventCard event={event} key={event.slug} />)}</div></main><Footer partners={partners} /></>; }
+export default async function EventsPage() {
+  const partners = await getPartners();
+  const events = await getEvents();
+  return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><h1>행사</h1><p>창업가와 만드는 사람들이 만나는 자리.</p></div><Link className="button event-submit-link" href="/my/partner/register?type=event">내 행사 등록하기 →</Link></div><div className="event-grid">{events.map((event) => (
+    <EntityCard
+      href={`/events/${event.slug}`}
+      key={event.slug}
+      layout="image"
+      media={event.coverUrl}
+      mediaAlt={event.name}
+      ratio={1.45}
+      metaLead={<span className="entity-card-meta-lead">{new Date(event.startsAt).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</span>}
+      metaBadge={<span className={`badge${event.registrationMode === "internal" ? " badge-orange" : ""}`}>{event.registrationMode === "internal" ? "FEATABLE 신청" : "외부 신청"}</span>}
+      title={event.name}
+      description={`${event.host} · ${event.location}`}
+    />
+  ))}</div></main><Footer partners={partners} /></>;
+}

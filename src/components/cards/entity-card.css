@@ -1,0 +1,181 @@
+/* ============================================================
+   EntityCard — 모든 목록 카드의 단일 스타일 (DESIGN.md 규칙 내장)
+   - hover는 그림자만, transform 모션 없음
+   - 뱃지/메타는 제목 위 한 줄
+   - 숫자 메타(조회수 등) 슬롯 없음
+   ============================================================ */
+
+.entity-card { display: block; min-width: 0; }
+
+/* ---------- image 레이아웃: 프로덕트 / 스토리 / 행사 ---------- */
+
+.entity-card.is-image .image-card {
+  aspect-ratio: var(--card-ratio, 1.5);
+}
+
+.entity-card-media { position: relative; }
+
+.entity-card-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #111111cc;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+  backdrop-filter: blur(4px);
+}
+
+.entity-card.is-image .image-card img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.entity-card-body { padding-top: 15px; }
+
+.entity-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+  color: #999;
+  font-size: 12.5px;
+}
+
+.entity-card-meta > :first-child:has(+ *) { margin-right: auto; }
+
+.entity-card-meta .entity-card-meta-lead {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.entity-card-body h3 {
+  margin: 11px 0 6px;
+  font-size: 17px;
+  letter-spacing: -.03em;
+  line-height: 1.35;
+}
+
+.entity-card-body > p,
+.entity-card-desc {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* ---------- row 레이아웃: 브랜드 / 커뮤니티 / 파트너 ---------- */
+
+.entity-card.is-row {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 12px;
+  background: #fff;
+  transition: box-shadow .2s;
+}
+
+.entity-card-logo {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f4f4f5;
+  object-fit: cover;
+}
+
+span.entity-card-logo {
+  display: grid;
+  place-items: center;
+  color: #999;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.entity-card-copy { min-width: 0; }
+
+.entity-card.is-row h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+}
+
+.entity-card.is-row h3 .badge { flex: 0 0 auto; }
+
+.entity-card.is-row p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- text 레이아웃: 지원사업 등 이미지 없는 카드 ---------- */
+
+.entity-card.is-text {
+  min-width: 0;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: #fff;
+  transition: box-shadow .2s;
+}
+
+.entity-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.entity-card-top strong { color: var(--accent); font-size: 12.5px; font-weight: 700; letter-spacing: -.02em; }
+
+.entity-card.is-text h3 {
+  margin: 18px 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -.03em;
+}
+
+.entity-card-subtitle {
+  margin: -4px 0 0;
+  color: #5f6368;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.entity-card-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #f0f0f0;
+  color: #8b8f96;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.entity-card-footer span:first-child { max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entity-card-footer span:last-child { flex: 0 0 auto; color: #555; font-weight: 650; }
+
+/* ---------- 공통 ---------- */
+
+/* hover 이펙트 없음 — 사용자 지정 */

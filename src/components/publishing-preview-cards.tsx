@@ -33,7 +33,7 @@ export function CommunityDirectoryCardVisual({ name, logoUrl, field, intro, foun
   return <>
     <div className="community-card-head">{logoUrl ? <img src={logoUrl} alt={`${name} 로고`} /> : <span className="publishing-logo-placeholder">{name.slice(0, 1) || "C"}</span>}<span><i /> {approved ? "승인된 커뮤니티" : "활동 중"}</span></div>
     <div className="community-directory-copy"><div><h2>{name || "커뮤니티 이름"}</h2><span>{field || "분야"}</span></div><p>{intro || "어떤 사람들이 함께하는 커뮤니티인지 소개해주세요."}</p></div>
-    <div className="community-card-stats"><span><b>{founderCount}</b> Founder</span><span><b>{brandCount}</b> Brand</span><span><b>{eventCount}</b> Event</span><strong>커뮤니티 보기 →</strong></div>
+    <div className="community-card-stats"><span><b>{founderCount}</b> Founder</span><span><b>{brandCount}</b> Brand</span><span><b>{eventCount}</b> Event</span><span className="button button-small community-card-cta">커뮤니티 보기 <span aria-hidden="true">→</span></span></div>
   </>;
 }
 

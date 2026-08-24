@@ -1,7 +1,50 @@
-import Link from "next/link";
 import { Badge, ImageCard } from "@/components/site-shell";
+import { EntityCard } from "@/components/cards/entity-card";
 import type { Brand, Feature, Product } from "@/lib/types";
 
-export function ProductCard({ product, brandName }: { product: Product; brandName?: string }) { return <Link href={`/products/${product.slug}`} className="product-card"><ImageCard src={product.heroUrl} alt={product.name} /><div className="card-body"><div className="card-meta"><Badge>{product.category}</Badge><span>{brandName ?? product.brandSlug}</span></div><h3>{product.name}</h3><p>{product.tagline}</p></div></Link>; }
-export function BrandCard({ brand }: { brand: Brand }) { return <Link href={`/brands/${brand.slug}`} className="brand-card"><img className="brand-logo" src={brand.logoUrl} alt="" /><div className="brand-card-copy"><h3>{brand.name}<Badge>{brand.category}</Badge></h3><p>{brand.tagline}</p></div><span className="arrow">→</span></Link>; }
-export function FeatureCard({ feature }: { feature: Feature }) { return <Link href={`/stories/${feature.slug}`} className="story-card"><ImageCard src={feature.coverUrl} alt={feature.title} /><div className="story-card-copy"><div><h3>{feature.title}</h3><p className="muted-copy">{feature.excerpt}</p></div></div></Link>; }
+export function ProductCard({ product, brandName }: { product: Product; brandName?: string }) {
+  return (
+    <EntityCard
+      layout="image"
+      href={`/products/${product.slug}`}
+      media={product.heroUrl}
+      mediaAlt={product.name}
+      ratio={1.16}
+      metaBadge={<Badge>{product.category}</Badge>}
+      metaText={brandName ?? product.brandSlug}
+      title={product.name}
+      description={product.tagline}
+    />
+  );
+}
+
+export function BrandCard({ brand }: { brand: Brand }) {
+  return (
+    <EntityCard
+      layout="row"
+      href={`/brands/${brand.slug}`}
+      logo={brand.logoUrl}
+      logoAlt={brand.name}
+      title={brand.name}
+      badge={<Badge>{brand.category}</Badge>}
+      description={brand.tagline}
+    />
+  );
+}
+
+export function FeatureCard({ feature }: { feature: Feature }) {
+  return (
+    <EntityCard
+      layout="image"
+      href={`/stories/${feature.slug}`}
+      media={feature.coverUrl}
+      mediaAlt={feature.title}
+      ratio={1.55}
+      title={feature.title}
+      description={feature.excerpt}
+    />
+  );
+}
+
+// re-exports kept so existing imports keep working
+export { Badge, ImageCard };
