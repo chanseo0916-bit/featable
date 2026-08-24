@@ -82,13 +82,15 @@
 }
 
 .entity-card-logo {
-  width: 56px;
+  width: 84px;
   height: 56px;
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: 12px;
   background: #f4f4f5;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
 span.entity-card-logo {
