@@ -1636,6 +1636,16 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .product-square-copy strong { margin-top: 6px; font-size: clamp(17px, 2vw, 23px); line-height: 1.2; letter-spacing: -.03em; }
 .product-square-copy em { max-width: 100%; margin-top: 6px; overflow: hidden; color: #d7d9dc; font-size: 12px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 760px) {
+  /* 에디터픽 슬라이드 — 좌우 대칭 여백 + 중앙 스냅 */
+  .product-square-track {
+    margin-inline: -16px;
+    padding-inline: max(16px, calc((100vw - min(calc(100vw - 32px), 620px)) / 2));
+    scroll-padding-inline: max(16px, calc((100vw - min(calc(100vw - 32px), 620px)) / 2));
+  }
+  .product-square-card {
+    flex-basis: min(calc(100vw - 96px), 300px);
+    scroll-snap-align: center;
+  }
   .home-opportunity-wrap { width: calc(100% - 32px); padding-top: 12px; }
   .home-opportunity-banner { aspect-ratio: 16 / 9; border-radius: 12px; }
   .home-opportunity-copy { left: 21px; right: 21px; bottom: 22px; }
