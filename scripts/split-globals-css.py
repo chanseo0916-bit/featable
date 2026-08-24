@@ -21,6 +21,19 @@ DOMAINS = {
     "event": [r"\.event-", r"\.event\b", r"\.events"],
     "support": [r"\.support-", r"\.support\b", r"\.bizinfo"],
     "community": [r"\.community-"],
+    "partner": [r"\.partner-", r"\.partners", r"\.publishing-", r"\.team-profile", r"\.team-member", r"\.partnership"],
+    "admin": [r"\.admin-", r"\.studio-"],
+    "founder": [r"\.founder-"],
+    "product-detail": [r"\.commerce", r"\.product-story", r"\.product-content", r"\.product-hero",
+                       r"\.product-intro", r"\.product-favorite", r"\.product-public",
+                       r"\.feature-pills", r"\.mentor-note", r"\.detail-actions", r"\.outline-button",
+                       r"\.product-summary", r"\.two-column", r"\.product-related"],
+    "home": [r"\.home-banner", r"\.home-opportunity", r"\.live-ranking", r"\.ranking-", r"\.curation-",
+             r"\.spotlight", r"\.editorial", r"\.discovery-", r"\.fresh-product", r"\.mini-features",
+             r"\.stage-tabs", r"\.stage-heading", r"\.opportunity-card", r"\.opportunity-section",
+             r"\.new-final-cta", r"\.mz-curation", r"\.live-stage", r"\.live-main", r"\.live-dot"],
+    "submit-forms": [r"\.submit-", r"\.simple-form-fields", r"\.approved-publishing", r"\.seo-fields",
+                     r"\.story-add-buttons", r"\.wizard"],
 }
 
 COMMON_PROTECT = [
@@ -148,10 +161,18 @@ def main():
     open(SRC, "w", encoding="utf-8", newline='').write(new_css)
 
     g = open(SRC, encoding="utf-8", newline='').read()
-    imports = "".join(f'@import "../styles/{d}.css";{eol}' for d in ["event", "support", "community"])
-    marker = '@import "../components/cards/entity-card.css";' + eol
-    if "../styles/event.css" not in g and marker in g:
-        g = g.replace(marker, marker + imports, 1)
+    imports = "".join(f'@import "../styles/{d}.css";{eol}' for d in moved if moved[d])
+    missing = [imp for imp in imports.splitlines() if imp.split('"')[1] not in g]
+    if missing:
+        marker = '@import "../components/cards/entity-card.css";' + eol
+        eol2 = "\r\n" if "\r\n" in g[:200] else "\n"
+        block = eol2.join(missing) + eol2
+        if marker in g:
+            g = g.replace(marker, marker + block, 1)
+        else:
+            # 마커 없으면 tailwindcss import 뒤에 삽입
+            m = re.search(r'@import "tailwindcss";' + eol2, g)
+            g = g[:m.end()] + block + g[m.end():]
         open(SRC, "w", encoding="utf-8", newline='').write(g)
     print("globals.css 업데이트 완료")
 
