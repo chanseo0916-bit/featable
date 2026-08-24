@@ -1,4 +1,4 @@
-import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
+import { getCatalog, getCommunities, getEvents, getFeatures, getJobs, getSupportPrograms } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -9,12 +9,13 @@ const markdownItem = (label: string, path: string, description: string) =>
   `- [${clean(label)}](${siteLink(path)}): ${clean(description)}`;
 
 export async function GET() {
-  const [{ brands, products, founders }, features, events, supportPrograms, communities] = await Promise.all([
+  const [{ brands, products, founders }, features, events, supportPrograms, communities, jobs] = await Promise.all([
     getCatalog(),
     getFeatures(),
     getEvents(),
     getSupportPrograms(),
     getCommunities(),
+    getJobs(),
   ]);
 
   const brandBySlug = new Map(brands.map((brand) => [brand.slug, brand]));
@@ -83,6 +84,13 @@ export async function GET() {
       `${community.field} 분야의 커뮤니티입니다. ${community.intro}`,
     )),
     "",
+    "## 채용",
+    "",
+    ...jobs.map((job) => markdownItem(
+      job.title,
+      `/jobs/${encodeURIComponent(job.slug)}`,
+      `${job.organizationName ?? (job.brandSlug ? brandBySlug.get(job.brandSlug)?.name : undefined) ?? "Featable 공개 조직"}의 ${job.role} 포지션입니다. 근무지: ${job.location}.`,
+    )),
     "",
     "## 공개 목록",
     "",
@@ -92,6 +100,7 @@ export async function GET() {
     markdownItem("이벤트 목록", "/events", "공개 이벤트를 확인합니다."),
     markdownItem("지원사업 목록", "/support", "공개 창업 지원 프로그램을 확인합니다."),
     markdownItem("커뮤니티 목록", "/communities", "공개 커뮤니티를 탐색합니다."),
+    markdownItem("채용 목록", "/jobs", "공개 채용 정보를 확인합니다."),
     "",
   ].join("\n");
 

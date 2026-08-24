@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
+import { getCatalog, getCommunities, getEvents, getFeatures, getJobs, getSupportPrograms } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
 
 const absoluteUrl = (path: string) => new URL(path, `${SITE_URL}/`).toString();
@@ -8,13 +8,13 @@ const imageUrls = (...urls: Array<string | undefined>) =>
   [...new Set(urls.filter((url): url is string => Boolean(url)).map(absoluteUrl))];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ brands, products, founders }, features, events, supportPrograms, communities] = await Promise.all([
+  const [{ brands, products, founders }, features, events, supportPrograms, communities, jobs] = await Promise.all([
     getCatalog(),
     getFeatures(),
     getEvents(),
     getSupportPrograms(),
     getCommunities(),
-
+    getJobs(),
   ]);
 
   const staticPaths = [
@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/events",
     "/support",
     "/communities",
+    "/jobs",
     "/partners",
     "/partners/apply",
   ].map((path) => ({
@@ -77,6 +78,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     images: imageUrls(community.logoUrl),
   }));
 
+  const brandBySlug = new Map(brands.map((brand) => [brand.slug, brand]));
+  const jobEntries = jobs.map((job) => ({
+    url: absoluteUrl(`/jobs/${job.slug}`),
+    changeFrequency: "weekly" as const,
+    priority: 0.5,
+    images: imageUrls(job.organizationLogoUrl ?? (job.brandSlug ? brandBySlug.get(job.brandSlug)?.logoUrl : undefined)),
+  }));
 
   return [
     ...staticPaths,
@@ -87,5 +95,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...eventEntries,
     ...supportEntries,
     ...communityEntries,
+    ...jobEntries,
   ];
 }
