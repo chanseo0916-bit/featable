@@ -80,14 +80,22 @@ async function requireCommunityAccess(slug: string): Promise<CommunityAccess | {
   const admin = createAdminClient();
   if (!admin) return { error: "커뮤니티 관리 도구를 준비하지 못했습니다." };
 
-  const { data: community } = await admin.from("communities").select("id,name,manager_user_id").eq("slug", slug).maybeSingle();
+  const { data: community } = await admin.from("communities").select("id,name,manager_user_id,partner_id").eq("slug", slug).maybeSingle();
   if (!community) return { error: "커뮤니티를 찾을 수 없습니다." };
   const isOwner = community.manager_user_id === user.id;
   let role: CommunityAccess["role"] = "owner";
   if (!isOwner) {
     const { data: manager } = await admin.from("community_managers").select("role").eq("community_id", community.id).eq("user_id", user.id).maybeSingle();
-    if (!manager) return { error: "이 커뮤니티를 관리할 권한이 없습니다." };
-    role = manager.role === "editor" ? "editor" : "manager";
+    if (manager) role = manager.role === "editor" ? "editor" : "manager";
+    else if (community.partner_id) {
+      const [{ data: partner }, { data: partnerMember }] = await Promise.all([
+        admin.from("partners").select("owner_user_id").eq("id", community.partner_id).maybeSingle(),
+        admin.from("partner_members").select("member_role").eq("partner_id", community.partner_id).eq("user_id", user.id).maybeSingle(),
+      ]);
+      if (partner?.owner_user_id === user.id || partnerMember?.member_role === "manager") role = "manager";
+      else if (partnerMember?.member_role === "editor") role = "editor";
+      else return { error: "이 커뮤니티를 관리할 권한이 없습니다." };
+    } else return { error: "이 커뮤니티를 관리할 권한이 없습니다." };
   }
   return { admin, userId: user.id, communityId: community.id, communityName: community.name, isOwner, role };
 }

@@ -89,7 +89,7 @@ export async function GET() {
     ...jobs.map((job) => markdownItem(
       job.title,
       `/jobs/${encodeURIComponent(job.slug)}`,
-      `${brandBySlug.get(job.brandSlug)?.name ?? "Featable 공개 브랜드"}의 ${job.role} 포지션입니다. 근무지: ${job.location}.`,
+      `${job.organizationName ?? (job.brandSlug ? brandBySlug.get(job.brandSlug)?.name : undefined) ?? "Featable 공개 조직"}의 ${job.role} 포지션입니다. 근무지: ${job.location}.`,
     )),
     "",
     "## 공개 목록",

@@ -213,11 +213,19 @@ export interface Community {
 export interface Job {
   slug: string;
   title: string;
-  brandSlug: string;
+  brandSlug?: string;
+  communityId?: string;
+  partnerId?: string;
+  organizationName?: string;
+  organizationLogoUrl?: string;
   role: string;
   type: "정규직" | "계약직" | "인턴" | "파트타임";
   location: string;
   applyUrl?: string;
+  description?: string;
+  requirements?: string[];
+  deadline?: string;
+  postedAt?: string;
 }
 
 export interface Partner {

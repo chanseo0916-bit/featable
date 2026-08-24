@@ -103,7 +103,8 @@ export function PartnerDashboard({
             <Link href="/my/partner/register?type=event"><i>01</i><div><strong>행사 등록</strong><span>데모데이·밋업·교육·네트워킹</span></div><b>→</b></Link>
             <Link href="/my/partner/register?type=support"><i>02</i><div><strong>지원사업 등록</strong><span>모집 대상·혜택·마감 일정</span></div><b>→</b></Link>
             <Link href="/my/partner/register?type=community"><i>03</i><div><strong>커뮤니티 등록</strong><span>커뮤니티 소개 및 공동 기획</span></div><b>→</b></Link>
-            <Link href="/submit/interview"><i>04</i><div><strong>인터뷰 등록</strong><span>브랜드 없이도 내 이야기를 게시할 수 있어요</span></div><b>→</b></Link>
+            <Link href="/my/jobs/new"><i>04</i><div><strong>채용 공고 등록</strong><span>승인된 파트너 조직의 공고를 바로 공개</span></div><b>→</b></Link>
+            <Link href="/submit/interview"><i>05</i><div><strong>인터뷰 등록</strong><span>브랜드 없이도 내 이야기를 게시할 수 있어요</span></div><b>→</b></Link>
             <Link className="partner-action-all" href="/my/partner/register">등록 현황 전체보기 →</Link>
           </aside>
         </div>

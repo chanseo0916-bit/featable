@@ -8,7 +8,7 @@ import { CommunityOperations, type CommunityBrandOption, type CommunityEventOpti
 
 export const metadata: Metadata = { title: "커뮤니티 운영 · FEATABLE" };
 
-interface CommunityRow { id: string; slug: string; name: string; logo_url: string | null; intro: string; field: string; website: string | null; sns: Record<string, unknown> | null; manager_user_id: string | null; }
+interface CommunityRow { id: string; slug: string; name: string; logo_url: string | null; intro: string; field: string; website: string | null; sns: Record<string, unknown> | null; manager_user_id: string | null; partner_id: string | null; }
 interface RawFounder { id: string; slug: string; name: string; avatar_url: string | null; headline: string; }
 interface RawBrand { id: string; slug: string; name: string; logo_url: string | null; tagline: string; }
 interface RawEvent { id: string; slug: string; name: string; cover_url: string | null; starts_at: string; }
@@ -21,15 +21,23 @@ export default async function EditCommunityPage({ params }: { params: Promise<{ 
   const admin = createAdminClient();
   if (!admin) notFound();
 
-  const { data: rawCommunity } = await admin.from("communities").select("id,slug,name,logo_url,intro,field,website,sns,manager_user_id").eq("slug", slug).maybeSingle();
+  const { data: rawCommunity } = await admin.from("communities").select("id,slug,name,logo_url,intro,field,website,sns,manager_user_id,partner_id").eq("slug", slug).maybeSingle();
   const community = rawCommunity as CommunityRow | null;
   if (!community) notFound();
   const isOwner = community.manager_user_id === user.id;
   let accessRole: "owner" | "manager" | "editor" = "owner";
   if (!isOwner) {
     const { data: access } = await admin.from("community_managers").select("role").eq("community_id", community.id).eq("user_id", user.id).maybeSingle();
-    if (!access) notFound();
-    accessRole = access.role === "editor" ? "editor" : "manager";
+    if (access) accessRole = access.role === "editor" ? "editor" : "manager";
+    else if (community.partner_id) {
+      const [{ data: partner }, { data: partnerMember }] = await Promise.all([
+        admin.from("partners").select("owner_user_id").eq("id", community.partner_id).maybeSingle(),
+        admin.from("partner_members").select("member_role").eq("partner_id", community.partner_id).eq("user_id", user.id).maybeSingle(),
+      ]);
+      if (partner?.owner_user_id === user.id || partnerMember?.member_role === "manager") accessRole = "manager";
+      else if (partnerMember?.member_role === "editor") accessRole = "editor";
+      else notFound();
+    } else notFound();
   }
 
   const [founderLinksResult, brandLinksResult, eventLinksResult, founderCandidatesResult, ownFounderResult, membershipsResult, ownEventsResult, cohostsResult, managersResult] = await Promise.all([

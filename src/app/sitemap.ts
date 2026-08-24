@@ -83,7 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: absoluteUrl(`/jobs/${job.slug}`),
     changeFrequency: "weekly" as const,
     priority: 0.5,
-    images: imageUrls(brandBySlug.get(job.brandSlug)?.logoUrl),
+    images: imageUrls(job.organizationLogoUrl ?? (job.brandSlug ? brandBySlug.get(job.brandSlug)?.logoUrl : undefined)),
   }));
 
   return [

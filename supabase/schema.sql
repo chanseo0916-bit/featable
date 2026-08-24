@@ -415,6 +415,7 @@ create table support_programs (
 create table communities (
   id uuid primary key default uuid_generate_v4(),
   manager_user_id uuid references profiles(id) on delete set null,
+  partner_id uuid,
   slug text not null unique,
   name text not null,
   logo_url text,
@@ -450,15 +451,22 @@ alter table events
 -- ---------- Job ----------
 create table jobs (
   id uuid primary key default uuid_generate_v4(),
-  brand_id uuid not null references brands(id) on delete cascade,
+  brand_id uuid references brands(id) on delete cascade,
+  community_id uuid references communities(id) on delete cascade,
+  partner_id uuid,
   slug text not null unique,
   title text not null,
   role text not null default '',
   type text not null default '정규직' check (type in ('정규직','계약직','인턴','파트타임')),
   location text not null default '',
   apply_url text,
+  description text not null default '',
+  requirements text[] not null default '{}',
+  deadline date,
   status content_status not null default 'published',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint jobs_owner_required check (num_nonnulls(brand_id, community_id, partner_id) = 1)
 );
 
 -- ---------- Partner (푸터 로고) ----------
@@ -471,6 +479,36 @@ create table partners (
   sort_order integer not null default 0,
   created_at timestamptz not null default now()
 );
+
+create table partner_members (
+  partner_id uuid not null references partners(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  member_role text not null default 'editor' check (member_role in ('manager', 'editor', 'viewer')),
+  invited_by uuid references profiles(id) on delete set null,
+  joined_at timestamptz not null default now(),
+  primary key (partner_id, user_id)
+);
+
+create table partner_invitations (
+  id uuid primary key default uuid_generate_v4(),
+  partner_id uuid not null references partners(id) on delete cascade,
+  invitee_user_id uuid references profiles(id) on delete cascade,
+  invitee_email text not null,
+  member_role text not null default 'editor' check (member_role in ('manager', 'editor', 'viewer')),
+  invited_by uuid not null references profiles(id) on delete cascade,
+  token uuid not null default uuid_generate_v4() unique,
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined', 'expired')),
+  expires_at timestamptz not null default now() + interval '7 days',
+  created_at timestamptz not null default now()
+);
+
+alter table communities
+  add constraint communities_partner_fk
+  foreign key (partner_id) references partners(id) on delete set null;
+
+alter table jobs
+  add constraint jobs_partner_fk
+  foreign key (partner_id) references partners(id) on delete cascade;
 
 -- ---------- Partnership inquiries (advertisers / community partners) ----------
 create table partnership_inquiries (
@@ -604,6 +642,12 @@ create index partnership_inquiries_email_created_idx on partnership_inquiries(lo
 create index publishing_invitations_user_status_idx on publishing_invitations(user_id, status, created_at desc);
 create index publishing_invitations_email_status_idx on publishing_invitations(lower(invitee_email), status, created_at desc);
 create index partners_owner_idx on partners(owner_user_id, created_at desc);
+create index jobs_partner_created_idx on jobs(partner_id, created_at desc);
+create index jobs_community_created_idx on jobs(community_id, created_at desc);
+create index communities_partner_idx on communities(partner_id, created_at desc);
+create index partner_members_user_idx on partner_members(user_id, joined_at desc);
+create index partner_invitations_partner_idx on partner_invitations(partner_id, created_at desc);
+create index partner_invitations_email_idx on partner_invitations(lower(invitee_email), status);
 create index activity_created_idx on user_activity_events(created_at desc);
 create index activity_session_created_idx on user_activity_events(session_id, created_at desc);
 create index activity_user_created_idx on user_activity_events(user_id, created_at desc) where user_id is not null;
@@ -656,6 +700,25 @@ returns boolean language sql security definer set search_path = public stable as
   );
 $$;
 
+create or replace function is_partner_owner(target_partner_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from partners p where p.id = target_partner_id and (p.owner_user_id = auth.uid() or is_admin()));
+$$;
+
+create or replace function can_manage_partner(target_partner_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select is_partner_owner(target_partner_id) or exists (
+    select 1 from partner_members pm where pm.partner_id = target_partner_id and pm.user_id = auth.uid() and pm.member_role in ('manager', 'editor')
+  );
+$$;
+
+create or replace function can_edit_partner_profile(target_partner_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select is_partner_owner(target_partner_id) or exists (
+    select 1 from partner_members pm where pm.partner_id = target_partner_id and pm.user_id = auth.uid() and pm.member_role = 'manager'
+  );
+$$;
+
 create or replace function can_manage_event(target_event_id uuid)
 returns boolean language sql stable security definer set search_path = public as $$
   select exists (
@@ -672,6 +735,7 @@ returns boolean language sql stable security definer set search_path = public, a
       and (
         c.manager_user_id = auth.uid()
         or is_admin()
+        or (c.partner_id is not null and can_manage_partner(c.partner_id))
         or exists (
           select 1 from community_managers cm
           where cm.community_id = c.id and cm.user_id = auth.uid()
@@ -899,6 +963,8 @@ alter table communities enable row level security;
 alter table partner_submissions enable row level security;
 alter table jobs enable row level security;
 alter table partners enable row level security;
+alter table partner_members enable row level security;
+alter table partner_invitations enable row level security;
 alter table partnership_inquiries enable row level security;
 alter table publishing_invitations enable row level security;
 alter table community_founders enable row level security;
@@ -1016,13 +1082,49 @@ create policy "partner_submissions_update" on partner_submissions for update
 create policy "partner_submissions_delete" on partner_submissions for delete
   using ((user_id = auth.uid() and status in ('draft', 'rejected')) or is_admin());
 
-create policy "jobs_select" on jobs for select using (status = 'published' or owns_brand(brand_id) or is_admin());
-create policy "jobs_write" on jobs for all using (owns_brand(brand_id) or is_admin()) with check (owns_brand(brand_id) or is_admin());
+create policy "jobs_select" on jobs for select using (
+  status = 'published'
+  or (brand_id is not null and owns_brand(brand_id))
+  or (community_id is not null and can_manage_community(community_id))
+  or (partner_id is not null and can_manage_partner(partner_id))
+  or is_admin()
+);
+create policy "jobs_insert" on jobs for insert with check (
+  (brand_id is not null and owns_brand(brand_id))
+  or (community_id is not null and can_manage_community(community_id))
+  or (partner_id is not null and can_manage_partner(partner_id))
+  or is_admin()
+);
+create policy "jobs_update" on jobs for update using (
+  (brand_id is not null and owns_brand(brand_id))
+  or (community_id is not null and can_manage_community(community_id))
+  or (partner_id is not null and can_manage_partner(partner_id))
+  or is_admin()
+) with check (
+  (brand_id is not null and owns_brand(brand_id))
+  or (community_id is not null and can_manage_community(community_id))
+  or (partner_id is not null and can_manage_partner(partner_id))
+  or is_admin()
+);
+create policy "jobs_delete" on jobs for delete using (
+  (brand_id is not null and owns_brand(brand_id))
+  or (community_id is not null and can_manage_community(community_id))
+  or (partner_id is not null and can_manage_partner(partner_id))
+  or is_admin()
+);
 
 create policy "partners_select" on partners for select using (true);
 create policy "partners_insert" on partners for insert with check (owner_user_id = auth.uid() or is_admin());
-create policy "partners_update" on partners for update using (owner_user_id = auth.uid() or is_admin()) with check (owner_user_id = auth.uid() or is_admin());
+create policy "partners_update" on partners for update using (can_edit_partner_profile(id)) with check (can_edit_partner_profile(id));
 create policy "partners_delete" on partners for delete using (is_admin());
+create policy "partner_members_select" on partner_members for select using (user_id = auth.uid() or can_manage_partner(partner_id) or is_admin());
+create policy "partner_members_insert" on partner_members for insert with check (is_partner_owner(partner_id));
+create policy "partner_members_update" on partner_members for update using (is_partner_owner(partner_id)) with check (is_partner_owner(partner_id));
+create policy "partner_members_delete" on partner_members for delete using (is_partner_owner(partner_id) or user_id = auth.uid());
+create policy "partner_invitations_select" on partner_invitations for select using (is_partner_owner(partner_id) or invitee_user_id = auth.uid() or lower(invitee_email) = lower(coalesce(auth.jwt() ->> 'email', '')));
+create policy "partner_invitations_insert" on partner_invitations for insert with check (is_partner_owner(partner_id) and invited_by = auth.uid());
+create policy "partner_invitations_update" on partner_invitations for update using (is_partner_owner(partner_id) or invitee_user_id = auth.uid() or lower(invitee_email) = lower(coalesce(auth.jwt() ->> 'email', '')));
+create policy "partner_invitations_delete" on partner_invitations for delete using (is_partner_owner(partner_id));
 
 create policy "partnership_inquiries_admin_select" on partnership_inquiries for select using (is_admin());
 create policy "partnership_inquiries_admin_update" on partnership_inquiries for update using (is_admin()) with check (is_admin());

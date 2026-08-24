@@ -23,8 +23,13 @@ export default async function MyCommunitiesPage() {
   if (!user) redirect("/login?next=/my/communities");
 
   const admin = createAdminClient();
-  const { data: managedRows } = admin ? await admin.from("community_managers").select("community_id").eq("user_id", user.id) : { data: [] };
+  const [{ data: managedRows }, { data: ownedPartners }, { data: partnerMemberships }] = admin ? await Promise.all([
+    admin.from("community_managers").select("community_id").eq("user_id", user.id),
+    admin.from("partners").select("id").eq("owner_user_id", user.id),
+    admin.from("partner_members").select("partner_id").eq("user_id", user.id).in("member_role", ["manager", "editor"]),
+  ]) : [{ data: [] }, { data: [] }, { data: [] }];
   const delegatedIds = (managedRows ?? []).map((item) => item.community_id);
+  const partnerIds = [...new Set([...(ownedPartners ?? []).map((item) => item.id), ...(partnerMemberships ?? []).map((item) => item.partner_id)])];
   const { data: ownedRows } = await supabase.from("communities")
     .select("id,slug,name,logo_url,intro,field,status")
     .eq("manager_user_id", user.id)
@@ -32,7 +37,12 @@ export default async function MyCommunitiesPage() {
   const { data: delegatedRows } = admin && delegatedIds.length
     ? await admin.from("communities").select("id,slug,name,logo_url,intro,field,status").in("id", delegatedIds).order("created_at", { ascending: false })
     : { data: [] };
-  const communities = [...(ownedRows ?? []), ...(delegatedRows ?? []).filter((item) => !(ownedRows ?? []).some((owned) => owned.id === item.id))] as ManagedCommunity[];
+  const { data: partnerRows } = admin && partnerIds.length
+    ? await admin.from("communities").select("id,slug,name,logo_url,intro,field,status").in("partner_id", partnerIds).order("created_at", { ascending: false })
+    : { data: [] };
+  const communityMap = new Map<string, ManagedCommunity>();
+  [...(ownedRows ?? []), ...(delegatedRows ?? []), ...(partnerRows ?? [])].forEach((item) => communityMap.set(item.id, item as ManagedCommunity));
+  const communities = [...communityMap.values()];
 
   return <>
     <StudioNav active="communities" />

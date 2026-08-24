@@ -381,7 +381,13 @@ interface JobRow {
   type: Job["type"];
   location: string;
   apply_url: string | null;
-  brand: { slug: string } | null;
+  description: string | null;
+  requirements: string[] | null;
+  deadline: string | null;
+  created_at: string;
+  brand: { slug: string; name: string; logo_url: string | null } | null;
+  community: { id: string; name: string; logo_url: string | null } | null;
+  partner: { id: string; name: string; logo_url: string | null } | null;
 }
 
 function supportStatus(openAt: string | null, closeAt: string): SupportProgram["status"] {
@@ -607,26 +613,42 @@ export const getJobs = cache(async (): Promise<Job[]> => {
 
   try {
     const supabase = createClient(url!, key!);
-    const { data, error } = await supabase
+    let { data, error }: { data: unknown; error: { message?: string } | null } = await supabase
       .from("jobs")
-      .select("slug,title,role,type,location,apply_url,brand:brands(slug)")
+      .select("slug,title,role,type,location,apply_url,description,requirements,deadline,created_at,brand:brands(slug,name,logo_url),community:communities(id,name,logo_url),partner:partners(id,name,logo_url)")
       .eq("status", "published")
       .order("created_at", { ascending: false });
+    if (error && /description|requirements|deadline|community|partner|relationship/i.test(error.message ?? "")) {
+      // migration-44 적용 전에도 기존 브랜드 채용 목록은 계속 노출한다.
+      ({ data, error } = await supabase
+        .from("jobs")
+        .select("slug,title,role,type,location,apply_url,created_at,brand:brands(slug,name,logo_url)")
+        .eq("status", "published")
+        .order("created_at", { ascending: false }));
+    }
     if (error) {
       reportPublicDataFallback("jobs", error);
       return developmentFallback(mockJobs);
     }
 
     const live: Job[] = ((data ?? []) as unknown as JobRow[])
-      .filter((job) => Boolean(job.brand?.slug))
+      .filter((job) => Boolean(job.brand?.slug || job.community?.id || job.partner?.id))
       .map((job) => ({
         slug: job.slug,
         title: job.title,
-        brandSlug: job.brand!.slug,
+        brandSlug: job.brand?.slug,
+        communityId: job.community?.id,
+        partnerId: job.partner?.id,
+        organizationName: job.partner?.name ?? job.community?.name ?? job.brand?.name,
+        organizationLogoUrl: job.partner?.logo_url ?? job.community?.logo_url ?? job.brand?.logo_url ?? undefined,
         role: job.role,
         type: job.type,
         location: job.location,
         applyUrl: job.apply_url ?? undefined,
+        description: job.description ?? undefined,
+        requirements: job.requirements ?? [],
+        deadline: job.deadline ?? undefined,
+        postedAt: job.created_at,
       }));
     return live; // 실데이터만 노출 (데모 콘텐츠 제거)
   } catch (error) {
