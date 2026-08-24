@@ -36,6 +36,11 @@ const PROFILE_ROLES = [
 
 const CUSTOM_ROLE = "__custom__";
 
+/* SEED Field 스펙: 라벨 13px/700 위, 입력 44px 아래. 간격은 섹션 단위로 묶는다 */
+const input =
+  "w-full rounded-lg border border-border bg-white px-4 h-11 text-base text-fg-strong outline-none transition-colors placeholder:text-fg-subtle focus:border-accent focus:ring-2 focus:ring-accent-soft";
+const label = "block mb-2 text-[13px] font-bold text-fg-default";
+
 export function ProfileEditor({
   initial,
   setupMode = false,
@@ -103,16 +108,12 @@ export function ProfileEditor({
     }
   }
 
-  const input =
-    "w-full rounded-lg border border-border px-4 py-3 text-base outline-none transition-colors focus:border-accent";
-  const label = "mb-1.5 mt-4 block text-[13px] font-bold text-fg-default";
-
   return (
-    <section className={setupMode ? "simple-registration-card profile-setup-card" : "rounded-2xl border border-border bg-white p-6"}>
+    <section className={setupMode ? "simple-registration-card profile-setup-card" : "rounded-2xl border border-border bg-white p-8"}>
       {setupMode && <div className="simple-registration-heading profile-setup-heading"><span>MY PROFILE</span><h1>내 프로필 카드를 만들어보세요.</h1><p>역할과 소개를 입력하면 공개 프로필 카드에 바로 반영됩니다.</p></div>}
-      <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
+      <div className="grid gap-10 lg:grid-cols-[1fr_300px]">
         <div>
-          {!setupMode && <div className="flex items-center justify-between">
+          {!setupMode && <div className="flex flex-wrap items-center justify-between gap-4 pb-7 border-b border-border">
             <div className="flex items-center gap-4">
               {form.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -123,20 +124,20 @@ export function ProfileEditor({
                 </div>
               )}
               <div>
-                <h2 className="font-bold">{form.name || "팀 프로필"}</h2>
-                <p className="text-xs text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
+                <h2 className="text-lg font-bold">{form.name || "팀 프로필"}</h2>
+                <p className="text-[13px] text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               {slug && (
-                <Link href={`/founders/${slug}`} className="whitespace-nowrap text-xs font-semibold text-accent hover:underline">
+                <Link href={`/founders/${slug}`} className="whitespace-nowrap text-[13px] font-bold text-accent hover:underline">
                   공개 프로필 보기 →
                 </Link>
               )}
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="whitespace-nowrap rounded-lg border border-border px-4 py-2 text-xs font-bold transition-colors hover:border-accent hover:text-accent"
+                className="whitespace-nowrap rounded-lg border border-border px-4 py-2 text-[13px] font-bold transition-colors hover:border-accent hover:text-accent"
               >
                 {open ? "접기" : "프로필 편집"}
               </button>
@@ -144,40 +145,43 @@ export function ProfileEditor({
           </div>}
 
           {!setupMode && !open && (
-            <p className="mt-6 border-t border-border pt-5 text-[13px] leading-relaxed text-muted">
+            <p className="mt-6 text-[13px] leading-relaxed text-muted">
               대표자는 브랜드 팀의 첫 번째 멤버로 표시됩니다. &lsquo;프로필 편집&rsquo;을 누르면
               팀 카드와 Founder 페이지에 쓰이는 정보를 함께 수정할 수 있습니다.
             </p>
           )}
 
           {open && (
-        <div className={setupMode ? "profile-setup-fields" : "mt-6 border-t border-border pt-5"}>
-          <label className={label}>프로필 캐릭터</label>
-          <div className="founder-avatar-picker">
-            {AVATAR_PRESETS.map((avatar) => (
-              <button className={form.avatarUrl === avatar.value ? "active" : ""} type="button" aria-label={avatar.label} aria-pressed={form.avatarUrl === avatar.value} key={avatar.value} onClick={() => set({ avatarUrl: avatar.value })}>
-                <img src={avatar.value} alt="" />
-                <span>{form.avatarUrl === avatar.value ? "선택됨" : avatar.label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="founder-photo-option">
-            <span>캐릭터 대신 내 사진을 사용하고 싶다면</span>
-            <label>
-              {uploading ? "업로드 중…" : "사진 업로드"}
-              <input type="file" accept="image/*" className="hidden" disabled={uploading}
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
-            </label>
+        <div className={setupMode ? "profile-setup-fields" : "mt-8"}>
+
+          {/* ── 기본 정보 ── */}
+          {!setupMode && <p className="mb-5 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">기본 정보</p>}
+          <div className="founder-avatar-picker-wrap">
+            <span className={label}>프로필 이미지</span>
+            <div className="founder-avatar-picker">
+              {AVATAR_PRESETS.map((avatar) => (
+                <button className={form.avatarUrl === avatar.value ? "active" : ""} type="button" aria-label={avatar.label} aria-pressed={form.avatarUrl === avatar.value} key={avatar.value} onClick={() => set({ avatarUrl: avatar.value })}>
+                  <img src={avatar.value} alt="" />
+                  <span>{form.avatarUrl === avatar.value ? "선택됨" : avatar.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="founder-photo-option">
+              <span>캐릭터 대신 내 사진을 사용하고 싶다면</span>
+              <label>
+                {uploading ? "업로드 중…" : "사진 업로드"}
+                <input type="file" accept="image/*" className="hidden" disabled={uploading}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
+              </label>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
-            <div>
-              <label className={label}>이름 *</label>
-              <input className={input} value={form.name} onChange={(e) => set({ name: e.target.value })} />
-            </div>
-            <div>
-              <label className={label}>역할 *</label>
-              <select className={input} value={roleOption} onChange={(e) => {
+          <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
+            <label className={label}>이름 *
+              <input className={`${input} mt-2`} value={form.name} onChange={(e) => set({ name: e.target.value })} />
+            </label>
+            <label className={label}>역할 *
+              <select className={`${input} mt-2`} value={roleOption} onChange={(e) => {
                 const value = e.target.value;
                 setRoleOption(value);
                 set({ role: value === CUSTOM_ROLE ? "" : value });
@@ -186,44 +190,44 @@ export function ProfileEditor({
                 {PROFILE_ROLES.map((role) => <option value={role} key={role}>{role}</option>)}
                 <option value={CUSTOM_ROLE}>기타 · 직접 입력</option>
               </select>
-              {roleOption === CUSTOM_ROLE && <input className={`${input} mt-2`} value={form.role} maxLength={40} autoFocus placeholder="나의 역할을 직접 입력해주세요" onChange={(e) => set({ role: e.target.value })} />}
-            </div>
+            </label>
           </div>
+          {roleOption === CUSTOM_ROLE && <input className={`${input} mt-3`} value={form.role} maxLength={40} autoFocus placeholder="나의 역할을 직접 입력해주세요" onChange={(e) => set({ role: e.target.value })} />}
 
-          <label className={label}>한 줄 소개</label>
-          <input className={input} value={form.headline} placeholder="기록을 사랑하는 개발자"
-            onChange={(e) => set({ headline: e.target.value })} />
+          <label className={`${label} mt-5 block`}>한 줄 소개
+            <input className={`${input} mt-2`} value={form.headline} placeholder="기록을 사랑하는 개발자"
+              onChange={(e) => set({ headline: e.target.value })} />
+          </label>
 
-          <label className={label}>이야기</label>
-          <textarea className={`${input} min-h-24`} value={form.bio}
-            placeholder="왜 창업했는지, 어떤 여정을 지나왔는지"
-            onChange={(e) => set({ bio: e.target.value })} />
+          <label className={`${label} mt-5 block`}>이야기
+            <textarea className={`${input} mt-2 min-h-28 py-3`} value={form.bio}
+              placeholder="왜 창업했는지, 어떤 여정을 지나왔는지"
+              onChange={(e) => set({ bio: e.target.value })} />
+          </label>
 
-          <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
-            <div>
-              <label className={label}>인스타그램</label>
-              <input className={input} value={form.instagram} placeholder="@handle 또는 링크"
+          {/* ── SNS / 링크 ── */}
+          {!setupMode && <p className="mb-5 mt-8 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">링크</p>}
+          <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
+            <label className={label}>인스타그램
+              <input className={`${input} mt-2`} value={form.instagram} placeholder="@handle 또는 링크"
                 onChange={(e) => set({ instagram: e.target.value })} />
-            </div>
-            <div>
-              <label className={label}>X (트위터)</label>
-              <input className={input} value={form.x} placeholder="@handle 또는 링크"
+            </label>
+            <label className={label}>X (트위터)
+              <input className={`${input} mt-2`} value={form.x} placeholder="@handle 또는 링크"
                 onChange={(e) => set({ x: e.target.value })} />
-            </div>
-            <div>
-              <label className={label}>링크드인</label>
-              <input className={input} value={form.linkedin} placeholder="프로필 링크"
+            </label>
+            <label className={label}>링크드인
+              <input className={`${input} mt-2`} value={form.linkedin} placeholder="프로필 링크"
                 onChange={(e) => set({ linkedin: e.target.value })} />
-            </div>
-            <div>
-              <label className={label}>개인 사이트</label>
-              <input className={input} value={form.website} placeholder="https://"
+            </label>
+            <label className={label}>개인 사이트
+              <input className={`${input} mt-2`} value={form.website} placeholder="https://"
                 onChange={(e) => set({ website: e.target.value })} />
-            </div>
+            </label>
           </div>
 
           {notice && (
-            <p className={`mt-4 rounded-lg px-4 py-3 text-xs ${notice.ok ? "bg-accent-soft text-accent" : "bg-red-50 text-red-600"}`}>
+            <p className={`mt-5 rounded-lg px-4 py-3 text-sm ${notice.ok ? "bg-accent-soft text-accent" : "bg-red-50 text-red-600"}`}>
               {notice.text}
             </p>
           )}
@@ -232,7 +236,7 @@ export function ProfileEditor({
             type="button"
             onClick={save}
             disabled={saving}
-            className="mt-4 rounded-lg bg-accent px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+            className="button button-small mt-6 w-full sm:w-auto"
           >
             {saving ? "저장 중…" : setupMode ? "내 프로필 저장하기" : "프로필 저장"}
           </button>
@@ -242,7 +246,7 @@ export function ProfileEditor({
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
         <aside className="self-start lg:sticky lg:top-6">
-          <p className="mb-2 text-xs font-semibold text-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 팀 카드"}</p>
+          <p className="mb-3 text-[13px] font-bold text-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 팀 카드"}</p>
           <div className="pointer-events-none">
             <TeamProfileCard
               name={form.name || "이름을 입력하세요"}
@@ -255,7 +259,7 @@ export function ProfileEditor({
               actionLabel="프로필"
             />
           </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-muted">
+          <p className="mt-3 text-xs leading-relaxed text-muted">
             {setupMode ? "저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다." : "브랜드의 TEAM PROFILE에서 대표자 카드로 노출됩니다."}
           </p>
         </aside>
