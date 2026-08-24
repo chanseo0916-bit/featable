@@ -52,7 +52,7 @@ function CardContent({ name, title, headline, avatarUrl, bio, label = "팀", met
 }
 
 export function TeamProfileCard(props: TeamProfileCardProps) {
-  const className = `founder-spot-card team-profile-visual-card${props.muted ? " is-private" : ""}`;
+  const className = `founder-spot-card dash-team-visual-card${props.muted ? " is-private" : ""}`;
   return props.href
     ? <Link href={props.href} className={className}><CardContent {...props} /></Link>
     : <article className={className}><CardContent {...props} /></article>;
