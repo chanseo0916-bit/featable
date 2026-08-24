@@ -7,7 +7,7 @@
 .support-card { min-width: 0; min-height: 262px; padding: 22px; display: flex; flex-direction: column; border-radius: 12px; background: #fff; transition: box-shadow .2s ease; }
 
 
-.support-card:hover { box-shadow: 0 6px 20px rgba(17, 17, 17, .07); }
+
 
 
 .support-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
