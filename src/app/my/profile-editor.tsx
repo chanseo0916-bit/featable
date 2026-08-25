@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { TeamProfileCard } from "@/components/team-profile-card";
 import { updateFounderProfile, type ProfileInput } from "./actions";
 
@@ -44,10 +45,13 @@ const label = "block mb-2 text-[13px] font-bold text-fg-default";
 export function ProfileEditor({
   initial,
   setupMode = false,
+  afterSaveHref,
 }: {
   initial: ProfileEditorInitial;
   setupMode?: boolean;
+  afterSaveHref?: string;
 }) {
+  const router = useRouter();
   const initialRole = initial.role?.trim() ?? "";
   const [form, setForm] = useState<ProfileInput>({
     name: initial.name ?? "",
@@ -103,6 +107,7 @@ export function ProfileEditor({
     if (result.ok) {
       setSlug(result.slug);
       setNotice({ ok: true, text: "프로필이 저장되었습니다." });
+      if (afterSaveHref) router.push(afterSaveHref);
     } else {
       setNotice({ ok: false, text: result.error });
     }

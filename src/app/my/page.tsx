@@ -219,7 +219,11 @@ export default async function MyPage() {
   // 가입할 때 고른 역할이 아니라 실제로 가진 것으로 판단한다.
   // 역할을 잘못 고른 사람이 이미 만든 프로필·브랜드를 못 보는 일이 없어야 한다.
   const { data: ownFounder } = await supabase.from("founders").select("id").eq("user_id", user.id).maybeSingle();
-  if (memberType !== "founder" && !ownFounder) {
+  const { count: ownedBrandCount } = ownFounder
+    ? await supabase.from("brands").select("id", { count: "exact", head: true }).eq("founder_id", ownFounder.id)
+    : { count: 0 };
+  const hasFounderWorkspace = memberType === "founder" || Boolean(ownFounder && (ownedBrandCount ?? 0) > 0);
+  if (!hasFounderWorkspace) {
     const [{ data: savedRows }, { data: followedRows }, { data: supportedRows }, catalog, features, events, supportPrograms, communities] = await Promise.all([
       supabase.from("saved_items").select("item_type,item_slug,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(12),
       supabase.from("brand_follows").select("brand:brands(slug,name,tagline)").eq("user_id", user.id).limit(12),

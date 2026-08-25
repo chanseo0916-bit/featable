@@ -16,6 +16,7 @@ export default async function InterviewSubmitPage({ searchParams }: { searchPara
     supabase.from("founders").select("id,name").eq("user_id", user.id).maybeSingle(),
     supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
   ]);
+  if (!founder) redirect("/my/profile?setup=interview");
   const { data } = founder
     ? await supabase.from("brands").select("id,name").eq("founder_id", founder.id).order("created_at", { ascending: true })
     : { data: [] };
