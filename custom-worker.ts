@@ -18,7 +18,7 @@ const worker = {
   async scheduled(event: ScheduledEvent, env: FeatableWorkerEnv, ctx: WorkerContext) {
     if (!env.SYNC_CRON_SECRET) throw new Error("SYNC_CRON_SECRET is missing.");
     const paths = event.cron === "0 */6 * * *"
-      ? ["/api/cron/bizinfo", "/api/cron/interview-emails"]
+      ? ["/api/cron/bizinfo", "/api/cron/interview-emails", "/api/cron/board-images"]
       : ["/api/cron/interview-emails"];
     for (const path of paths) {
       const request = new Request(`https://featable.kr${path}`, {

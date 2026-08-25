@@ -156,6 +156,21 @@ export default async function BoardDetailPage({
               </div>
             </header>
             <div className="board-post-body">{post.body}</div>
+            {post.images.length > 0 && (
+              <div className="board-post-images" aria-label="게시글 첨부 이미지">
+                {post.images.map((image, index) => (
+                  <figure key={image.id}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={image.url}
+                      alt={`게시글 첨부 이미지 ${index + 1}`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </figure>
+                ))}
+              </div>
+            )}
             <footer className="board-post-reactions" id="board-post-reactions">
               {user ? (
                 <form action={setBoardPostLike}>

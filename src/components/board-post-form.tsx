@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { BoardImageUploader } from "@/components/board-image-uploader";
 import {
   BOARD_AUTHOR_VISIBILITIES,
   BOARD_CATEGORIES,
   type BoardAuthorVisibility,
   type BoardCategory,
+  type BoardPostImage,
 } from "@/lib/board";
 
 type BoardPostFormValues = {
@@ -11,6 +13,7 @@ type BoardPostFormValues = {
   category: BoardCategory;
   title: string;
   body: string;
+  images: BoardPostImage[];
 };
 
 type BoardPostFormProps = {
@@ -27,6 +30,7 @@ const EMPTY_VALUES: BoardPostFormValues = {
   category: "free",
   title: "",
   body: "",
+  images: [],
 };
 
 /** Shared create/edit form so board fields and validation stay in one place. */
@@ -111,6 +115,8 @@ export function BoardPostForm({
         />
         <p>개인정보나 연락처는 꼭 필요한 경우에만 적어주세요.</p>
       </div>
+
+      <BoardImageUploader initialImages={values.images} />
 
       {error && <p className="board-write-error" role="alert">{error}</p>}
 

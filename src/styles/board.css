@@ -621,6 +621,177 @@
   line-height: 1.45;
 }
 
+.board-image-uploader {
+  padding: 20px 2px;
+  display: grid;
+  gap: 10px;
+  border-bottom: 1px solid var(--gray-300);
+}
+
+.board-image-uploader:focus-within {
+  border-bottom-color: var(--accent);
+}
+
+.board-image-uploader__head,
+.board-image-uploader__head > div,
+.board-image-uploader__item-footer {
+  display: flex;
+  align-items: center;
+}
+
+.board-image-uploader__head {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.board-image-uploader__head > div {
+  gap: 8px;
+}
+
+.board-image-uploader__head strong {
+  color: var(--fg-muted);
+  font-size: var(--fs-t1);
+  font-weight: 700;
+}
+
+.board-image-uploader__head span {
+  color: var(--fg-subtle);
+  font-size: var(--fs-t1);
+  font-weight: 500;
+}
+
+.board-image-uploader__add {
+  position: relative;
+  min-height: 44px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: var(--fs-t2);
+  font-weight: 700;
+}
+
+.board-image-uploader__add:has(input:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--accent) 32%, var(--background));
+  outline-offset: 2px;
+}
+
+.board-image-uploader__add:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.board-image-uploader__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.board-image-uploader__hint,
+.board-image-uploader__status,
+.board-image-uploader__error {
+  margin: 0;
+  font-size: var(--fs-t1);
+  line-height: 1.45;
+}
+
+.board-image-uploader__hint,
+.board-image-uploader__status {
+  color: var(--fg-subtle);
+}
+
+.board-image-uploader__status:empty {
+  display: none;
+}
+
+.board-image-uploader__error {
+  color: var(--error);
+}
+
+.board-image-uploader__grid {
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+
+.board-image-uploader__item {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+}
+
+.board-image-uploader__item figure {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--gray-200);
+}
+
+.board-image-uploader__item img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.board-image-uploader__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--fg-strong) 55%, transparent);
+  color: var(--background);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+}
+
+.board-image-uploader__item-footer {
+  min-height: 44px;
+  padding: 4px 6px 4px 10px;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.board-image-uploader__item-footer > span {
+  overflow: hidden;
+  color: var(--fg-subtle);
+  font-size: var(--fs-t1);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-image-uploader__remove {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--error);
+  cursor: pointer;
+  font-size: var(--fs-t1);
+  font-weight: 700;
+}
+
+.board-image-uploader__remove:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  outline-offset: 1px;
+}
+
 .board-form-field > p {
   margin: 0;
   color: var(--fg-subtle);
@@ -752,6 +923,31 @@
   letter-spacing: -0.01em;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
+}
+
+.board-post-images {
+  margin: -12px 0 36px;
+  display: grid;
+  gap: 10px;
+}
+
+.board-post-images:has(figure:nth-child(2)) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.board-post-images figure {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--gray-200);
+}
+
+.board-post-images img {
+  width: 100%;
+  max-height: 680px;
+  display: block;
+  object-fit: contain;
 }
 
 .board-post-reactions {
@@ -1399,6 +1595,11 @@
 
   .board-post-body {
     padding: 24px 0 34px;
+  }
+
+  .board-post-images,
+  .board-post-images:has(figure:nth-child(2)) {
+    grid-template-columns: 1fr;
   }
 
   .board-comments {

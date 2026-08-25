@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { processBoardImageCleanup } from "@/lib/board-images-admin";
 import { getBoardAdminAccess } from "./access";
 
 const UUID_PATTERN =
@@ -88,6 +89,8 @@ export async function deleteBoardPost(input: { id: string }): Promise<BoardActio
   }
   if (!data) return { ok: false, error: "게시글을 찾을 수 없습니다." };
 
+  await processBoardImageCleanup();
+
   revalidateBoard(postId);
   return { ok: true, message: "게시글을 삭제했습니다." };
 }
@@ -140,6 +143,10 @@ export async function moderateBoardReport(input: {
   }
 
   revalidateBoard(postId);
+
+  if (input.decision === "delete" && !commentId) {
+    await processBoardImageCleanup();
+  }
 
   if (input.decision === "dismiss") {
     return { ok: true, message: "신고를 기각했습니다." };

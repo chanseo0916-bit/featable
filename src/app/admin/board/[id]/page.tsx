@@ -46,6 +46,12 @@ interface BoardAdminComment {
   created_at: string;
 }
 
+interface BoardAdminImage {
+  id: string;
+  storage_path: string;
+  sort_order: number;
+}
+
 interface BoardAdminReport {
   id: string;
   post_id: string;
@@ -136,7 +142,7 @@ export default async function AdminBoardPostPage({
   if (!postData) notFound();
 
   const post = postData as BoardAdminPostDetail;
-  const [authorResult, commentsResult, reportsResult] = await Promise.all([
+  const [authorResult, commentsResult, reportsResult, imagesResult] = await Promise.all([
     admin
       .from("profiles")
       .select("id,email,full_name,member_type,created_at")
@@ -154,9 +160,18 @@ export default async function AdminBoardPostPage({
       .eq("post_id", post.id)
       .order("created_at", { ascending: false })
       .limit(200),
+    admin
+      .from("board_post_images")
+      .select("id,storage_path,sort_order")
+      .eq("post_id", post.id)
+      .order("sort_order", { ascending: true }),
   ]);
   const author = (authorResult.data as BoardAdminAuthor | null) ?? null;
   const comments = (commentsResult.data ?? []) as BoardAdminComment[];
+  const images = ((imagesResult.data ?? []) as BoardAdminImage[]).map((image) => ({
+    id: image.id,
+    url: admin.storage.from("board-images").getPublicUrl(image.storage_path).data.publicUrl,
+  }));
   let reportTargetComments = [...comments];
   const reports = ((reportsResult.data ?? []) as BoardAdminReport[]).sort((a, b) => {
     const statusRank = { pending: 0, resolved: 1, dismissed: 2 } as const;
@@ -250,6 +265,19 @@ export default async function AdminBoardPostPage({
             </p>
           </header>
           <div className="admin-board-post-body">{post.body}</div>
+          {images.length > 0 && (
+            <div className="admin-board-post-images" aria-label="게시글 첨부 이미지">
+              {images.map((image, index) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={image.id}
+                  src={image.url}
+                  alt={`게시글 첨부 이미지 ${index + 1}`}
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          )}
         </article>
 
         <aside className="admin-board-detail-aside">

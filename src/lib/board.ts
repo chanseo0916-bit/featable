@@ -70,6 +70,12 @@ export interface BoardPostSummary {
 export interface BoardPost extends BoardPostSummary {
   body: string;
   status: string;
+  images: BoardPostImage[];
+}
+
+export interface BoardPostImage {
+  id: string;
+  url: string;
 }
 
 export interface BoardComment {
@@ -214,6 +220,7 @@ function postFromRow(row: DatabaseRow): BoardPost {
     authorVisibility,
     body,
     status: textValue(row.status, "published"),
+    images: [],
   };
 }
 
@@ -358,7 +365,28 @@ export async function getBoardPost(id: string): Promise<BoardPost | null> {
       .maybeSingle();
     if (error || !data) return null;
 
-    return postFromRow(data as unknown as DatabaseRow);
+    const post = postFromRow(data as unknown as DatabaseRow);
+    const { data: imageRows, error: imageError } = await supabase
+      .from("board_post_images")
+      .select("id,storage_path,sort_order")
+      .eq("post_id", post.id)
+      .order("sort_order", { ascending: true });
+
+    if (!imageError && imageRows) {
+      post.images = (imageRows as unknown as DatabaseRow[])
+        .map((row) => {
+          const imageId = textValue(row.id);
+          const storagePath = textValue(row.storage_path);
+          if (!validUuid(imageId) || !storagePath) return null;
+          const url = supabase.storage
+            .from("board-images")
+            .getPublicUrl(storagePath).data.publicUrl;
+          return url ? { id: imageId, url } : null;
+        })
+        .filter((image): image is BoardPostImage => image !== null);
+    }
+
+    return post;
   } catch {
     return null;
   }

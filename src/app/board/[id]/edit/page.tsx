@@ -85,6 +85,7 @@ export default async function BoardEditPage({
               category: post.category,
               title: post.title,
               body: post.body,
+              images: post.images,
             }}
           />
         </div>
