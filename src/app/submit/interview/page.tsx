@@ -9,14 +9,15 @@ export const metadata: Metadata = { title: "인터뷰 등록 · FEATABLE" };
 
 export default async function InterviewSubmitPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const { edit } = await searchParams;
+  const interviewHref = edit ? `/submit/interview?edit=${encodeURIComponent(edit)}` : "/submit/interview";
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/submit/interview");
+  if (!user) redirect(`/login?next=${encodeURIComponent(interviewHref)}`);
   const [{ data: founder }, { data: profile }] = await Promise.all([
     supabase.from("founders").select("id,name").eq("user_id", user.id).maybeSingle(),
     supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
   ]);
-  if (!founder) redirect("/my/profile?setup=interview");
+  if (!founder) redirect(`/my/profile?setup=interview&returnTo=${encodeURIComponent(interviewHref)}`);
   const { data } = founder
     ? await supabase.from("brands").select("id,name").eq("founder_id", founder.id).order("created_at", { ascending: true })
     : { data: [] };
@@ -27,11 +28,11 @@ export default async function InterviewSubmitPage({ searchParams }: { searchPara
     if (!founder) notFound();
     const { data: interview } = await supabase
       .from("features")
-      .select("slug,title,cover_url,brand_id,founder_id,hook_intro,hook_label,body,kind")
+      .select("slug,title,cover_url,brand_id,founder_id,created_by,hook_intro,hook_label,body,kind")
       .eq("slug", edit)
       .eq("kind", "interview")
       .maybeSingle();
-    if (!interview || interview.founder_id !== founder.id) notFound();
+    if (!interview || (interview.founder_id !== founder.id && interview.created_by !== user.id)) notFound();
     const blocks = Array.isArray(interview.body)
       ? interview.body as { type?: string; heading?: string; body?: string }[]
       : [];

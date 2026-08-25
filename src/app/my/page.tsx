@@ -15,6 +15,7 @@ import { PendingInviteControl, TeamMemberControls } from "./team-management-cont
 import type { BrandMemberRole } from "./team-actions";
 import { TeamProfileCard } from "@/components/team-profile-card";
 import { PartnerDashboard } from "./partner-dashboard";
+import { StudioWelcomeGuide } from "./studio-welcome-guide";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -133,7 +134,7 @@ const roleDashboard = {
   cards: { href: string; kicker: string; title: string; copy: string }[];
 }>;
 
-function MemberDashboard({ memberType, name, email, savedItems, teamBrands, teamHub = [], myUserId }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[]; teamBrands: TeamBrand[]; teamHub?: TeamHubBrand[]; myUserId?: string }) {
+function MemberDashboard({ memberType, name, email, savedItems, teamBrands, teamHub = [], myUserId }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[]; teamBrands: TeamBrand[]; teamHub?: TeamHubBrand[]; myUserId: string }) {
   const role = roleDashboard[memberType];
   const stateTitle = teamBrands.length
     ? `${teamBrands.length}개 브랜드의 팀으로 참여 중이에요.`
@@ -147,6 +148,7 @@ function MemberDashboard({ memberType, name, email, savedItems, teamBrands, team
       : role.emptyCopy;
 
   return <>
+    <StudioWelcomeGuide userId={myUserId} memberType={memberType} />
     <DashNav />
     <main className="dash-page dash">
       <div className="shell dash-shell">
@@ -262,7 +264,7 @@ export default async function MyPage() {
         .select("id,title,submission_type,status,updated_at")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false });
-      return <PartnerDashboard name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} events={events} supportPrograms={supportPrograms} communities={communities} submissions={submissionRows ?? []} />;
+      return <><StudioWelcomeGuide userId={user.id} memberType="partner" /><PartnerDashboard name={memberName} email={user.email ?? ""} savedItems={savedItems} teamBrands={teamBrands} events={events} supportPrograms={supportPrograms} communities={communities} submissions={submissionRows ?? []} /></>;
     }
     // 팀원도 소속 브랜드의 팀 프로필 허브를 같은 구조로 본다
     let teamHub: TeamHubBrand[] = [];
@@ -313,7 +315,7 @@ export default async function MyPage() {
     const { data: storyRows } = await supabase
       .from("features")
       .select("id,slug,title,kind,cover_url,view_count,status,published_at,hook_label")
-      .eq("founder_id", founder.id)
+      .or(`founder_id.eq.${founder.id},created_by.eq.${user.id}`)
       .order("published_at", { ascending: false });
     myStories = (storyRows ?? []) as MyStory[];
     if (myStories.length) {
@@ -377,6 +379,7 @@ export default async function MyPage() {
   }
 
   return <>
+    <StudioWelcomeGuide userId={user.id} memberType="founder" />
     <DashNav founder />
 
     <main className="dash-page">

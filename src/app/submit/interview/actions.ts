@@ -69,6 +69,7 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     published_at: now,
     brand_id: brand?.id ?? null,
     founder_id: founder.id,
+    created_by: user.id,
     seo_title: `${input.title.trim()} ${displayName} 인터뷰`.slice(0, 60),
     seo_description: conciseSeoDescription(`${brandName} ${displayName} 인터뷰. ${excerptSource}`),
     primary_keyword: `${displayName} 인터뷰`,
@@ -130,12 +131,12 @@ export async function updateFounderInterview(slug: string, input: InterviewInput
 
   const { data: interview, error: interviewError } = await admin
     .from("features")
-    .select("id,slug,founder_id,kind")
+    .select("id,slug,founder_id,created_by,kind")
     .eq("slug", slug)
     .eq("kind", "interview")
     .maybeSingle();
   if (interviewError) return { ok: false, error: "인터뷰 정보를 불러오지 못했습니다." };
-  if (!interview || interview.founder_id !== founder.id) {
+  if (!interview || (interview.founder_id !== founder.id && interview.created_by !== user.id)) {
     return { ok: false, error: "본인이 작성한 인터뷰만 수정할 수 있습니다." };
   }
 

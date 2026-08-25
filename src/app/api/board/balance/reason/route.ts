@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { isUuid } from "@/lib/board-balance";
+import {
+  isMissingBalanceSchema,
+  isUuid,
+  sanitizeBoardBalanceReasonCounts,
+} from "@/lib/board-balance";
 import { BOARD_VIEWER_COOKIE } from "@/lib/board-viewer";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -102,7 +106,8 @@ export async function POST(request: NextRequest) {
     return errorResponse("vote required", 409);
   }
 
-  const reasons = vote.choice === "a" ? game.option_a_reasons : game.option_b_reasons;
+  const choice = vote.choice === "a" ? "a" : "b";
+  const reasons = choice === "a" ? game.option_a_reasons : game.option_b_reasons;
   if (!Array.isArray(reasons) || reasonIndex >= reasons.length) {
     return errorResponse("invalid reason", 400);
   }
@@ -110,12 +115,34 @@ export async function POST(request: NextRequest) {
   const voterKey = vote && typeof vote.voter_key === "string" ? vote.voter_key : "";
   if (!isUuid(voterKey)) return errorResponse("vote required", 409);
 
-  const { error: updateError } = await admin
+  const { data: updatedVote, error: updateError } = await admin
     .from("board_balance_votes")
     .update({ reason_index: reasonIndex })
     .eq("game_id", gameId)
-    .eq("voter_key", voterKey);
-  if (updateError) return errorResponse("could not save reason", 503);
+    .eq("voter_key", voterKey)
+    .select("reason_index")
+    .maybeSingle();
+  if (updateError || updatedVote?.reason_index !== reasonIndex) {
+    return errorResponse("could not save reason", updateError ? 503 : 409);
+  }
 
-  return NextResponse.json({ ok: true, gameId, reasonIndex });
+  let reasonCounts: number[] | undefined;
+  const { data: reasonSummaries, error: reasonSummaryError } = await admin.rpc(
+    "get_board_balance_reason_counts",
+    { p_game_id: gameId, p_choice: choice },
+  );
+  if (reasonSummaryError) {
+    if (!isMissingBalanceSchema(reasonSummaryError)) {
+      console.error("[board-balance] Failed to read updated reason totals.", reasonSummaryError);
+    }
+  } else {
+    reasonCounts = sanitizeBoardBalanceReasonCounts(reasonSummaries, reasons.length);
+  }
+
+  return NextResponse.json({
+    ok: true,
+    gameId,
+    reasonIndex,
+    ...(reasonCounts ? { reasonCounts } : {}),
+  });
 }

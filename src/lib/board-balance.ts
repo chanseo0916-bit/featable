@@ -78,11 +78,30 @@ function countValue(value: unknown): number {
   return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 0;
 }
 
-function isMissingBalanceSchema(error: { code?: string; message?: string } | null | undefined): boolean {
+export function sanitizeBoardBalanceReasonCounts(value: unknown, length: number): number[] {
+  const safeLength = Number.isSafeInteger(length) && length > 0 ? length : 0;
+  const counts = Array.from({ length: safeLength }, () => 0);
+  if (!Array.isArray(value)) return counts;
+
+  for (const item of value) {
+    if (item === null || typeof item !== "object") continue;
+    const row = item as DatabaseRow;
+    const index = typeof row.reason_index === "number"
+      ? row.reason_index
+      : Number(row.reason_index);
+    if (!Number.isSafeInteger(index) || index < 0 || index >= safeLength) continue;
+    counts[index] = countValue(row.reason_count);
+  }
+  return counts;
+}
+
+export function isMissingBalanceSchema(error: { code?: string; message?: string } | null | undefined): boolean {
   return (
     error?.code === "42P01" ||
+    error?.code === "42883" ||
+    error?.code === "PGRST202" ||
     error?.code === "PGRST205" ||
-    /relation .* does not exist/i.test(error?.message ?? "")
+    /(?:relation|function) .* does not exist|could not find the function/i.test(error?.message ?? "")
   );
 }
 
@@ -172,6 +191,7 @@ export async function getCurrentBoardBalanceGame(): Promise<BoardBalanceGame | n
     // Do not include live totals in the RSC payload before this viewer votes;
     // otherwise the hidden result could still bias a technically curious user.
     const counts = emptyCounts();
+    let reasonCounts: number[] = [];
     if (userId && viewerChoice) {
       const { data: summaries, error: summaryError } = await admin.rpc(
         "get_board_balance_vote_summaries",
@@ -190,6 +210,28 @@ export async function getCurrentBoardBalanceGame(): Promise<BoardBalanceGame | n
       counts.a = countValue(summary?.option_a_count);
       counts.b = countValue(summary?.option_b_count);
       counts.total = counts.a + counts.b;
+
+      // Like the primary result, reason distribution is hidden until this
+      // viewer submits their own reason so the aggregate cannot bias them.
+      if (viewerReasonIndex !== null) {
+        const selectedReasons = viewerChoice === "a"
+          ? reasonValues(gameRow.option_a_reasons)
+          : reasonValues(gameRow.option_b_reasons);
+        const { data: reasonSummaries, error: reasonSummaryError } = await admin.rpc(
+          "get_board_balance_reason_counts",
+          { p_game_id: gameId, p_choice: viewerChoice },
+        );
+        if (reasonSummaryError) {
+          if (!isMissingBalanceSchema(reasonSummaryError)) {
+            console.error("[board-balance] Failed to read reason totals.", reasonSummaryError);
+          }
+        } else {
+          reasonCounts = sanitizeBoardBalanceReasonCounts(
+            reasonSummaries,
+            selectedReasons.length,
+          );
+        }
+      }
     }
 
     return {
@@ -204,6 +246,7 @@ export async function getCurrentBoardBalanceGame(): Promise<BoardBalanceGame | n
       optionAReasons: reasonValues(gameRow.option_a_reasons),
       optionBReasons: reasonValues(gameRow.option_b_reasons),
       viewerReasonIndex,
+      reasonCounts,
       counts,
       viewerChoice,
     };

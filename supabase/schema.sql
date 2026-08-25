@@ -253,6 +253,7 @@ create table features (
   id uuid primary key default uuid_generate_v4(),
   brand_id uuid references brands(id) on delete cascade,
   founder_id uuid references founders(id) on delete set null,
+  created_by uuid references profiles(id) on delete set null,
   slug text not null unique constraint features_slug_ascii check (slug !~ '[^\x00-\x7F]'),
   title text not null,
   cover_url text,
@@ -394,6 +395,21 @@ create table event_cohosts (
   created_by uuid references profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   unique (event_id, user_id)
+);
+
+create table event_announcements (
+  id uuid primary key default uuid_generate_v4(),
+  event_id uuid not null references events(id) on delete cascade,
+  created_by uuid not null references profiles(id) on delete cascade,
+  recipient_filter text not null check (recipient_filter in ('active', 'confirmed', 'pending', 'waitlisted')),
+  subject text not null check (char_length(subject) between 5 and 80),
+  body text not null check (char_length(body) between 10 and 4000),
+  status text not null default 'sending' check (status in ('sending', 'sent', 'partial', 'failed')),
+  recipient_count integer not null default 0 check (recipient_count >= 0),
+  delivered_count integer not null default 0 check (delivered_count >= 0),
+  failed_count integer not null default 0 check (failed_count >= 0),
+  created_at timestamptz not null default now(),
+  sent_at timestamptz
 );
 
 -- ---------- Support Program (관리자 큐레이션) ----------
@@ -649,6 +665,7 @@ create index idx_products_brand on products(brand_id);
 create index idx_products_category on products(category);
 create index idx_features_status on features(status);
 create index idx_features_brand on features(brand_id);
+create index features_created_by_idx on features(created_by, created_at desc);
 create index idx_support_close_at on support_programs(close_at);
 create index idx_events_starts_at on events(starts_at);
 create index idx_events_community on events(community_id);
@@ -683,6 +700,7 @@ create unique index event_registrations_event_email_unique on event_registration
 create unique index event_registrations_guest_token_unique on event_registrations(guest_token_hash) where guest_token_hash is not null;
 create index event_cohosts_user_idx on event_cohosts(user_id, created_at desc);
 create index event_cohosts_event_status_idx on event_cohosts(event_id, status, created_at desc);
+create index event_announcements_event_created_idx on event_announcements(event_id, created_at desc);
 create index idx_founder_supports_founder on founder_supports(founder_id);
 create index brand_members_user_idx on brand_members(user_id);
 create index brand_invitations_brand_idx on brand_invitations(brand_id, created_at desc);
@@ -757,6 +775,47 @@ returns boolean language sql stable security definer set search_path = public as
     )
   );
 $$;
+
+create or replace function create_event_announcement(
+  p_event_id uuid,
+  p_recipient_filter text,
+  p_subject text,
+  p_body text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  announcement_id uuid;
+begin
+  if auth.uid() is null then raise exception 'authentication_required'; end if;
+  if not can_manage_event(p_event_id) then raise exception 'forbidden'; end if;
+  if p_recipient_filter not in ('active', 'confirmed', 'pending', 'waitlisted') then raise exception 'invalid_recipient_filter'; end if;
+  if char_length(trim(coalesce(p_subject, ''))) not between 5 and 80 then raise exception 'invalid_subject'; end if;
+  if char_length(trim(coalesce(p_body, ''))) not between 10 and 4000 then raise exception 'invalid_body'; end if;
+
+  perform pg_advisory_xact_lock(hashtextextended(p_event_id::text, 0));
+  if exists (
+    select 1 from event_announcements
+    where event_id = p_event_id
+      and status in ('sending', 'sent', 'partial')
+      and created_at > now() - interval '60 seconds'
+  ) then
+    raise exception 'announcement_rate_limited';
+  end if;
+
+  insert into event_announcements (event_id, created_by, recipient_filter, subject, body)
+  values (p_event_id, auth.uid(), p_recipient_filter, trim(p_subject), trim(p_body))
+  returning id into announcement_id;
+
+  return announcement_id;
+end;
+$$;
+
+revoke all on function create_event_announcement(uuid, text, text, text) from public, anon;
+grant execute on function create_event_announcement(uuid, text, text, text) to authenticated;
 
 create or replace function can_manage_community(target_community_id uuid)
 returns boolean language sql stable security definer set search_path = public, auth as $$
@@ -990,6 +1049,7 @@ alter table mentor_notes enable row level security;
 alter table events enable row level security;
 alter table event_registrations enable row level security;
 alter table event_cohosts enable row level security;
+alter table event_announcements enable row level security;
 alter table support_programs enable row level security;
 alter table communities enable row level security;
 alter table partner_submissions enable row level security;
@@ -1065,13 +1125,38 @@ create policy "products_delete_own" on products for delete using (owns_brand(bra
 
 -- features
 create policy "features_select_published" on features for select
-  using (status = 'published' or (brand_id is not null and owns_brand(brand_id)) or is_admin());
+  using (
+    status = 'published'
+    or created_by = auth.uid()
+    or (brand_id is not null and owns_brand(brand_id))
+    or (founder_id is not null and owns_founder(founder_id))
+    or is_admin()
+  );
 create policy "features_insert_authenticated" on features for insert
-  with check (auth.uid() is not null and (brand_id is null or owns_brand(brand_id) or is_admin()));
+  with check (
+    is_admin()
+    or (
+      auth.uid() is not null
+      and created_by = auth.uid()
+      and founder_id is not null
+      and owns_founder(founder_id)
+      and (brand_id is null or owns_brand(brand_id))
+    )
+  );
 create policy "features_update_own" on features for update
-  using ((brand_id is not null and owns_brand(brand_id)) or is_admin());
+  using (
+    created_by = auth.uid()
+    or (brand_id is not null and owns_brand(brand_id))
+    or (founder_id is not null and owns_founder(founder_id))
+    or is_admin()
+  );
 create policy "features_delete_own" on features for delete
-  using ((brand_id is not null and owns_brand(brand_id)) or is_admin());
+  using (
+    created_by = auth.uid()
+    or (brand_id is not null and owns_brand(brand_id))
+    or (founder_id is not null and owns_founder(founder_id))
+    or is_admin()
+  );
 
 -- mentor_notes: 공개 읽기, mentor/admin만 작성
 create policy "mentor_notes_select" on mentor_notes for select using (status = 'published' or is_admin());
@@ -1094,6 +1179,8 @@ create policy "event_cohosts_select_related" on event_cohosts for select
     or is_admin()
     or exists (select 1 from events e where e.id = event_id and e.submitted_by = auth.uid())
   );
+create policy "event_announcements_select_managers" on event_announcements for select
+  using (can_manage_event(event_id));
 
 create policy "support_select" on support_programs for select using (status = 'published' or is_admin());
 create policy "support_write" on support_programs for all using (is_admin()) with check (is_admin());

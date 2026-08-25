@@ -17,6 +17,7 @@ type VoteResponse = {
 
 type ReasonResponse = {
   reasonIndex?: number;
+  reasonCounts?: number[];
 };
 
 function isChoice(value: unknown): value is BoardBalanceChoice {
@@ -25,6 +26,11 @@ function isChoice(value: unknown): value is BoardBalanceChoice {
 
 function isCount(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
+
+function readReasonCounts(value: unknown): number[] | undefined {
+  if (!Array.isArray(value) || !value.every(isCount)) return undefined;
+  return value;
 }
 
 function readVoteResponse(value: unknown): VoteResponse | null {
@@ -53,7 +59,10 @@ function readReasonResponse(value: unknown): ReasonResponse | null {
   return typeof payload.reasonIndex === "number"
     && Number.isSafeInteger(payload.reasonIndex)
     && payload.reasonIndex >= 0
-    ? { reasonIndex: payload.reasonIndex }
+    ? {
+        reasonIndex: payload.reasonIndex,
+        reasonCounts: readReasonCounts(payload.reasonCounts),
+      }
     : null;
 }
 
@@ -62,6 +71,23 @@ function resultPercentages(counts: BoardBalanceGameData["counts"]) {
 
   const a = Math.round((counts.a / counts.total) * 100);
   return { a, b: 100 - a };
+}
+
+function distributionPercentages(counts: number[]) {
+  const total = counts.reduce((sum, count) => sum + count, 0);
+  if (total <= 0) return counts.map(() => 0);
+
+  const exact = counts.map((count) => (count / total) * 100);
+  const percentages = exact.map(Math.floor);
+  const remainder = 100 - percentages.reduce((sum, percentage) => sum + percentage, 0);
+  const priority = exact
+    .map((percentage, index) => ({ index, fraction: percentage - Math.floor(percentage) }))
+    .sort((left, right) => right.fraction - left.fraction || left.index - right.index);
+
+  for (let index = 0; index < remainder; index += 1) {
+    percentages[priority[index].index] += 1;
+  }
+  return percentages;
 }
 
 export function BoardBalanceGame({
@@ -75,6 +101,9 @@ export function BoardBalanceGame({
   const [counts, setCounts] = useState(game.counts);
   const [pendingChoice, setPendingChoice] = useState<BoardBalanceChoice | null>(null);
   const [reasonIndex, setReasonIndex] = useState<number | null>(game.viewerReasonIndex);
+  const [reasonCounts, setReasonCounts] = useState<number[] | null>(() => (
+    game.viewerReasonIndex === null ? null : readReasonCounts(game.reasonCounts) ?? null
+  ));
   const [pendingReasonIndex, setPendingReasonIndex] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [reasonError, setReasonError] = useState("");
@@ -82,6 +111,12 @@ export function BoardBalanceGame({
   const hasVote = choice !== null;
   const hasResult = hasVote && game.viewerAuthenticated;
   const selectedReasons = choice === "a" ? game.optionAReasons : game.optionBReasons;
+  const reasonTotal = reasonCounts?.reduce((total, count) => total + count, 0) ?? 0;
+  const hasReasonResults = reasonIndex !== null
+    && reasonIndex < selectedReasons.length
+    && reasonCounts !== null
+    && reasonCounts.length === selectedReasons.length;
+  const reasonPercentages = distributionPercentages(hasReasonResults ? reasonCounts : []);
 
   async function vote(nextChoice: BoardBalanceChoice) {
     if (hasVote || pendingChoice) return;
@@ -122,7 +157,7 @@ export function BoardBalanceGame({
   }
 
   async function selectReason(nextReasonIndex: number) {
-    if (!hasResult || pendingReasonIndex !== null) return;
+    if (!hasResult || pendingReasonIndex !== null || reasonIndex === nextReasonIndex) return;
 
     setReasonError("");
     setPendingReasonIndex(nextReasonIndex);
@@ -142,6 +177,11 @@ export function BoardBalanceGame({
         );
       }
       setReasonIndex(payload.reasonIndex);
+      setReasonCounts(
+        payload.reasonCounts?.length === selectedReasons.length
+          ? payload.reasonCounts
+          : null,
+      );
     } catch (reasonSaveError) {
       setReasonError(
         reasonSaveError instanceof Error
@@ -277,8 +317,15 @@ export function BoardBalanceGame({
 
       {hasResult && selectedReasons.length > 0 && (
         <fieldset className={styles.reasons} disabled={pendingReasonIndex !== null}>
-          <legend>이 선택을 한 가장 큰 이유는?</legend>
-          <div>
+          <legend>
+            {reasonIndex === null
+              ? "왜 이 선택을 하셨나요?"
+              : "같은 선택을 한 사람들은 왜 그렇게 생각했을까요?"}
+          </legend>
+          {reasonIndex === null && (
+            <p className={styles.reasonPrompt}>가장 가까운 이유를 골라주세요. 다른 창업자들의 이유와 비교할 수 있어요.</p>
+          )}
+          <div className={styles.reasonOptions} data-results={hasReasonResults ? "true" : "false"}>
             {selectedReasons.map((reason, index) => (
               <button
                 type="button"
@@ -287,24 +334,45 @@ export function BoardBalanceGame({
                 onClick={() => selectReason(index)}
                 key={`${index}-${reason}`}
               >
-                <span>{reason}</span>
+                <span className={styles.reasonOptionTopline}>
+                  <span>{reason}</span>
+                  {reasonIndex === index && <small>내 이유</small>}
+                </span>
+                {hasReasonResults ? (
+                  <span className={styles.reasonResult}>
+                    <progress
+                      className={styles.reasonBar}
+                      max="100"
+                      value={reasonPercentages[index] ?? 0}
+                      aria-label={`${reason} ${reasonPercentages[index] ?? 0}%`}
+                    />
+                    <span className={styles.reasonResultMeta}>
+                      {reasonPercentages[index] ?? 0}% · {(reasonCounts[index] ?? 0).toLocaleString("ko-KR")}명
+                    </span>
+                  </span>
+                ) : null}
                 {pendingReasonIndex === index && <small>저장 중...</small>}
               </button>
             ))}
           </div>
+          {hasReasonResults && reasonTotal > 0 && (
+            <p className={styles.reasonInsight} aria-live="polite">
+              이 이유를 고른 창업자는 나를 포함해 <strong>{(reasonCounts[reasonIndex] ?? 0).toLocaleString("ko-KR")}명</strong>이에요.
+            </p>
+          )}
+          {reasonIndex !== null && !hasReasonResults && (
+            <p className={styles.reasonPending}>이유별 응답을 집계하고 있어요.</p>
+          )}
           {reasonError && <p className={styles.error} role="alert">{reasonError}</p>}
         </fieldset>
       )}
 
-      {hasResult && (
-        <div className={styles.status} aria-live="polite">
-          <p>내 선택은 <strong>{choice === "a" ? "A" : "B"}</strong>예요.</p>
-          {game.discussionPostId && (
-            <Link href={`/board/${game.discussionPostId}#comments`}>
-              다른 의견도 보기
-              <span aria-hidden="true">→</span>
-            </Link>
-          )}
+      {hasResult && game.discussionPostId && (
+        <div className={styles.reasonFooter}>
+          <Link href={`/board/${game.discussionPostId}#comments`}>
+            토론에서 의견 나누기
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       )}
     </section>

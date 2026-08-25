@@ -18,6 +18,7 @@ export type BoardBalanceGame = {
   optionAReasons: string[];
   optionBReasons: string[];
   viewerReasonIndex: number | null;
+  reasonCounts: number[];
   counts: BoardBalanceCounts;
   viewerChoice: BoardBalanceChoice | null;
 };

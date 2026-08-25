@@ -7,6 +7,8 @@ import { EventSettingsEditor } from "./event-settings-editor";
 import type { RegistrationField } from "./actions";
 import { EventCohostManager } from "./cohost-manager";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { EventAnnouncementComposer } from "./announcement-composer";
+import type { AnnouncementRecipientFilter } from "./announcement-actions";
 
 interface RegistrationRow {
   id: string;
@@ -36,10 +38,30 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
   const { data } = await supabase.from("event_registrations").select("id,status,applicant_name,applicant_email,note,applied_at").eq("event_id", event.id).neq("status", "verification_pending").order("applied_at", { ascending: true });
   const registrations = (data ?? []) as RegistrationRow[];
   const activeCount = registrations.filter((item) => item.status === "confirmed").length;
+  const announcementCounts: Record<AnnouncementRecipientFilter, number> = {
+    active: registrations.filter((item) => ["pending", "confirmed", "waitlisted"].includes(item.status)).length,
+    confirmed: registrations.filter((item) => item.status === "confirmed").length,
+    pending: registrations.filter((item) => item.status === "pending").length,
+    waitlisted: registrations.filter((item) => item.status === "waitlisted").length,
+  };
+  const { data: announcementRows } = admin
+    ? await admin.from("event_announcements").select("id,subject,recipient_filter,recipient_count,delivered_count,failed_count,status,created_at").eq("event_id", event.id).order("created_at", { ascending: false }).limit(5)
+    : { data: [] };
+  const announcementHistory = (announcementRows ?? []).map((item) => ({
+    id: item.id,
+    subject: item.subject,
+    recipientFilter: item.recipient_filter as AnnouncementRecipientFilter,
+    recipientCount: item.recipient_count,
+    deliveredCount: item.delivered_count,
+    failedCount: item.failed_count,
+    status: item.status as "sending" | "sent" | "partial" | "failed",
+    createdAt: item.created_at,
+  }));
 
   return <><DashNav active="events" /><main className="dash-page event-attendees-page"><div className="shell dash-shell">
     <header className="event-attendees-heading"><div><p>EVENT GUESTS</p><h1>{event.name}</h1><span>{new Date(event.starts_at).toLocaleString("ko-KR")} · 확정 {activeCount}{event.capacity ? ` / ${event.capacity}명` : "명"}</span></div><Link href={`/events/${event.slug}`} target="_blank">공개 페이지 ↗</Link></header>
     <section className="event-attendee-list"><header><strong>신청자 {registrations.length}명</strong><span>이름과 이메일은 행사 신청 관리 목적으로만 사용해주세요.</span></header>{registrations.length ? registrations.map((item, index) => <article key={item.id}><i>{String(index + 1).padStart(2, "0")}</i><div><strong>{item.applicant_name}</strong><a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>{item.note && <p>{item.note}</p>}</div><time>{new Date(item.applied_at).toLocaleString("ko-KR")}</time><em data-status={item.status}>{statusLabel[item.status]}</em>{(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={event.slug} />}</article>) : <div className="my-event-empty"><strong>아직 신청자가 없어요.</strong><span>신청자가 생기면 이곳에서 바로 확인할 수 있습니다.</span></div>}</section>
+    <EventAnnouncementComposer eventId={event.id} eventSlug={event.slug} eventName={event.name} counts={announcementCounts} history={announcementHistory} />
     <EventSettingsEditor eventId={event.id} slug={event.slug} name={event.name} host={event.host} description={event.description} startsAt={event.starts_at} endsAt={event.ends_at} location={event.location} isOnline={event.is_online} category={event.category} capacity={event.capacity} registrationMode={event.registration_mode} applyUrl={event.apply_url ?? ""} approvalMode={event.approval_mode} galleryUrls={(event.gallery_urls ?? []) as string[]} registrationFields={(event.registration_fields ?? []) as RegistrationField[]} isPaid={Boolean(event.is_paid)} paymentAccount={event.payment_account ?? ""} paymentNotice={event.payment_notice ?? ""} />
     {event.submitted_by === user.id && <EventCohostManager eventId={event.id} slug={event.slug} initial={cohostRows as { id: string; email: string; role: string; status: "pending" | "accepted" | "declined"; profile?: { full_name?: string | null } | null }[]} />}
   </div></main></>;

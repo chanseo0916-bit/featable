@@ -115,7 +115,7 @@ export function ProfileEditor({
 
   return (
     <section className={setupMode ? "simple-registration-card profile-setup-card" : "rounded-2xl border border-border bg-white p-8"}>
-      {setupMode && <div className="simple-registration-heading profile-setup-heading"><span>MY PROFILE</span><h1>내 프로필 카드를 만들어보세요.</h1><p>역할과 소개를 입력하면 공개 프로필 카드에 바로 반영됩니다.</p></div>}
+      {setupMode && <div className="simple-registration-heading profile-setup-heading"><span>STEP 1 · PROFILE</span><h1>인터뷰에 표시될 내 정보</h1><p>이름, 역할, 사진을 확인해주세요. 프로필을 저장하면 STEP 2 인터뷰 작성 화면으로 자동 이동합니다.</p></div>}
       <div className="grid gap-10 lg:grid-cols-[1fr_300px]">
         <div>
           {!setupMode && <div className="flex flex-wrap items-center justify-between gap-4 pb-7 border-b border-border">
@@ -243,7 +243,7 @@ export function ProfileEditor({
             disabled={saving}
             className="button button-small mt-6 w-full sm:w-auto"
           >
-            {saving ? "저장 중…" : setupMode ? "내 프로필 저장하기" : "프로필 저장"}
+            {saving ? "저장 중…" : setupMode ? "저장하고 인터뷰 작성하기 →" : "프로필 저장"}
           </button>
         </div>
           )}
