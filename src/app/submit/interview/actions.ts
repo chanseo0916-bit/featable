@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { randomSuffix, slugify } from "@/lib/slug";
 import { conciseSeoDescription } from "@/lib/content-seo";
 import type { StoryBlock } from "@/lib/types";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface InterviewAnswer {
   question: string;
@@ -124,19 +125,22 @@ export async function updateFounderInterview(slug: string, input: InterviewInput
     supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
   ]);
   if (!founder) return { ok: false, error: "Founder 프로필을 찾을 수 없습니다." };
+  const admin = createAdminClient();
+  if (!admin) return { ok: false, error: "저장 서버 설정을 확인할 수 없습니다." };
 
-  const { data: interview } = await supabase
+  const { data: interview, error: interviewError } = await admin
     .from("features")
     .select("id,slug,founder_id,kind")
     .eq("slug", slug)
     .eq("kind", "interview")
     .maybeSingle();
+  if (interviewError) return { ok: false, error: "인터뷰 정보를 불러오지 못했습니다." };
   if (!interview || interview.founder_id !== founder.id) {
     return { ok: false, error: "본인이 작성한 인터뷰만 수정할 수 있습니다." };
   }
 
   const { data: brand } = input.brandId
-    ? await supabase.from("brands").select("id,name").eq("id", input.brandId).eq("founder_id", founder.id).maybeSingle()
+    ? await admin.from("brands").select("id,name").eq("id", input.brandId).eq("founder_id", founder.id).maybeSingle()
     : { data: null };
   if (input.brandId && !brand) return { ok: false, error: "본인이 소유한 브랜드만 연결할 수 있습니다." };
 
@@ -162,9 +166,9 @@ export async function updateFounderInterview(slug: string, input: InterviewInput
     hook_label: input.hookLabel.trim() || null,
   };
 
-  let { error } = await supabase.from("features").update({ ...row, ...hookColumns } as never).eq("id", interview.id);
+  let { error } = await admin.from("features").update({ ...row, ...hookColumns } as never).eq("id", interview.id);
   if (error && /hook_intro|hook_label/.test(error.message ?? "")) {
-    ({ error } = await supabase.from("features").update(row as never).eq("id", interview.id));
+    ({ error } = await admin.from("features").update(row as never).eq("id", interview.id));
   }
   if (error) return { ok: false, error: "인터뷰 수정에 실패했습니다. 잠시 후 다시 시도해주세요." };
 

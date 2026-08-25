@@ -24,6 +24,18 @@ export const INTERVIEW_QUESTIONS = [
   { key: "life", label: "인생 목표", placeholder: "숫자여도 좋고, 문장이어도 좋아요.", required: false },
 ];
 
+async function withTimeout<T>(promise: Promise<T>, milliseconds: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("SAVE_TIMEOUT")), milliseconds);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 export function InterviewForm({ brands, founderName, initial }: { brands: BrandChoice[]; founderName: string; initial?: InterviewFormInitialValue }) {
   const router = useRouter();
   const [brandId, setBrandId] = useState(initial?.brandId ?? brands[0]?.id ?? "");
@@ -67,12 +79,25 @@ export function InterviewForm({ brands, founderName, initial }: { brands: BrandC
       coverUrl,
       answers: INTERVIEW_QUESTIONS.map((question) => ({ question: question.label, answer: answers[question.key] ?? "" })),
     };
-    const result = initial
-      ? await updateFounderInterview(initial.slug, payload)
-      : await createFounderInterview(payload);
-    setSaving(false);
-    if (!result.ok || !result.slug) { setError(result.error ?? "저장에 실패했습니다."); return; }
-    router.push(`/stories/${result.slug}`);
+    try {
+      const result = await withTimeout(
+        initial
+          ? updateFounderInterview(initial.slug, payload)
+          : createFounderInterview(payload),
+        25_000,
+      );
+      if (!result.ok || !result.slug) {
+        setError(result.error ?? "저장에 실패했습니다.");
+        return;
+      }
+      router.push(`/stories/${result.slug}`);
+    } catch (saveError) {
+      setError(saveError instanceof Error && saveError.message === "SAVE_TIMEOUT"
+        ? "저장 응답이 늦어지고 있어요. 새로고침 후 반영 여부를 확인하고 다시 시도해주세요."
+        : "저장 중 연결이 끊겼습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
