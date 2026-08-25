@@ -67,14 +67,23 @@ export function BoardPostForm({
         </div>
       </fieldset>
 
-      <div className="board-form-field">
-        <label htmlFor="board-category">카테고리</label>
-        <select id="board-category" name="category" defaultValue={values.category} required>
+      <fieldset className="board-form-field board-category-field">
+        <legend>카테고리</legend>
+        <div className="board-category-options">
           {BOARD_CATEGORIES.map((category) => (
-            <option key={category.value} value={category.value}>{category.label}</option>
+            <label className="board-category-option" key={category.value}>
+              <input
+                type="radio"
+                name="category"
+                value={category.value}
+                defaultChecked={category.value === values.category}
+                required
+              />
+              <span>{category.label}</span>
+            </label>
           ))}
-        </select>
-      </div>
+        </div>
+      </fieldset>
 
       <div className="board-form-field">
         <label htmlFor="board-title">제목</label>
