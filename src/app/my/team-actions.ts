@@ -26,7 +26,7 @@ export interface SiteNotification {
   title: string;
   message: string;
   href: string | null;
-  data: { brand_name?: string; member_role?: BrandMemberRole; kind?: string; publishing_invitation_id?: string; registration_type?: "partner" | "community"; organization?: string; post_id?: string; comment_id?: string };
+  data: { brand_name?: string; member_role?: BrandMemberRole; kind?: string; publishing_invitation_id?: string; registration_type?: "partner" | "community"; organization?: string; post_id?: string; comment_id?: string; event_id?: string; event_slug?: string; cohost_id?: string };
   readAt: string | null;
   actionStatus: "accepted" | "declined" | null;
   createdAt: string;
@@ -143,6 +143,21 @@ export async function respondToInAppInvitation(invitationId: string, accept: boo
   if (error) return { ok: false, error: "초대가 만료되었거나 이미 처리되었습니다." };
   revalidatePath("/my");
   return { ok: true, brandSlug: typeof data === "string" ? data : null };
+}
+
+export async function respondToEventCohostInvitation(cohostId: string, accept: boolean): Promise<{ ok: true; eventSlug: string | null } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  const { data, error } = await supabase.rpc("respond_to_event_cohost_invitation", {
+    p_cohost_id: cohostId,
+    p_accept: accept,
+  });
+  if (error) return { ok: false, error: "초대가 이미 처리됐거나 취소됐습니다." };
+  const eventSlug = typeof data === "string" ? data : null;
+  revalidatePath("/my/events");
+  if (eventSlug) revalidatePath(`/my/events/${eventSlug}`);
+  return { ok: true, eventSlug };
 }
 
 export async function acceptBrandInvitation(formData: FormData): Promise<void> {

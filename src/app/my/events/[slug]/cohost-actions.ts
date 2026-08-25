@@ -24,10 +24,49 @@ export async function inviteEventCohost(eventId: string, slug: string, emailInpu
   const { data: invitee } = await checked.admin.from("profiles").select("id,email,full_name").ilike("email", email).maybeSingle();
   if (!invitee) return { ok: false, error: "Featable에 가입한 계정의 이메일만 초대할 수 있어요." };
   if (invitee.id === checked.user.id) return { ok: false, error: "본인은 이미 주최자입니다." };
-  const { error } = await checked.admin.from("event_cohosts").upsert({ event_id: eventId, user_id: invitee.id, email: invitee.email ?? email, role: "cohost", created_by: checked.user.id }, { onConflict: "event_id,user_id" });
-  if (error) return { ok: false, error: "공동 주최자를 추가하지 못했습니다. migration-34 적용 여부를 확인해주세요." };
-  await checked.admin.from("notifications").insert({ user_id: invitee.id, actor_id: checked.user.id, type: "system", title: "행사 공동 주최자로 추가됐어요", message: `${invitee.full_name || email}님이 행사 관리에 참여할 수 있습니다.`, href: `/my/events/${slug}`, data: { kind: "event_cohost_invite", event_id: eventId, event_slug: slug } });
-  await sendEventCohostInviteEmail({ email: invitee.email ?? email, name: invitee.full_name || "Featable 멤버", eventName: (await checked.admin.from("events").select("name").eq("id", eventId).maybeSingle()).data?.name ?? "행사", slug });
+  const { data: existing } = await checked.admin.from("event_cohosts").select("id,status,invitation_version").eq("event_id", eventId).eq("user_id", invitee.id).maybeSingle();
+  if (existing?.status === "accepted") return { ok: false, error: "이미 이 행사를 함께 운영하고 있어요." };
+  if (existing?.status === "pending") return { ok: false, error: "이미 공동 주최 초대를 보냈어요." };
+
+  const invitationVersion = (existing?.invitation_version ?? 0) + 1;
+  const values = {
+    event_id: eventId,
+    user_id: invitee.id,
+    email: invitee.email ?? email,
+    role: "cohost",
+    status: "pending",
+    responded_at: null,
+    invitation_version: invitationVersion,
+    created_by: checked.user.id,
+    created_at: new Date().toISOString(),
+  };
+  const mutation = existing
+    ? checked.admin.from("event_cohosts").update(values).eq("id", existing.id).select("id").maybeSingle()
+    : checked.admin.from("event_cohosts").insert(values).select("id").single();
+  const { data: cohost, error } = await mutation;
+  if (error || !cohost) return { ok: false, error: "공동 주최 초대를 보내지 못했습니다. migration-57 적용 여부를 확인해주세요." };
+
+  await checked.admin.from("notifications").delete()
+    .eq("user_id", invitee.id)
+    .eq("data->>kind", "event_cohost_invite")
+    .eq("data->>event_id", eventId)
+    .is("action_status", null);
+  await checked.admin.from("notifications").insert({
+    user_id: invitee.id,
+    actor_id: checked.user.id,
+    type: "system",
+    title: "행사 공동 주최자 초대가 왔어요",
+    message: `${invitee.full_name || email}님, 초대를 수락하면 신청자 확인·승인과 행사 수정을 함께 할 수 있어요.`,
+    href: `/my/events/${slug}`,
+    data: { kind: "event_cohost_invite", event_id: eventId, event_slug: slug, cohost_id: cohost.id },
+  });
+  await sendEventCohostInviteEmail({
+    email: invitee.email ?? email,
+    name: invitee.full_name || "Featable 멤버",
+    eventName: (await checked.admin.from("events").select("name").eq("id", eventId).maybeSingle()).data?.name ?? "행사",
+    slug,
+    invitationVersion,
+  });
   revalidatePath(`/my/events/${slug}`);
   return { ok: true };
 }
@@ -35,8 +74,9 @@ export async function inviteEventCohost(eventId: string, slug: string, emailInpu
 export async function removeEventCohost(eventId: string, slug: string, cohostId: string) {
   const checked = await assertOwner(eventId);
   if (checked.error || !checked.admin) return { ok: false, error: checked.error ?? "권한을 확인하지 못했습니다." };
-  const { error } = await checked.admin.from("event_cohosts").delete().eq("id", cohostId).eq("event_id", eventId);
-  if (error) return { ok: false, error: "공동 주최자를 삭제하지 못했습니다." };
+  const { data, error } = await checked.admin.from("event_cohosts").delete().eq("id", cohostId).eq("event_id", eventId).select("id").maybeSingle();
+  if (error || !data) return { ok: false, error: "공동 주최자를 삭제하지 못했습니다." };
+  await checked.admin.from("notifications").delete().eq("data->>cohost_id", cohostId).is("action_status", null);
   revalidatePath(`/my/events/${slug}`);
   return { ok: true };
 }

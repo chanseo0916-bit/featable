@@ -388,6 +388,9 @@ create table event_cohosts (
   user_id uuid not null references profiles(id) on delete cascade,
   email text not null,
   role text not null default 'cohost' check (role in ('cohost', 'editor')),
+  status text not null default 'accepted' check (status in ('pending', 'accepted', 'declined')),
+  responded_at timestamptz,
+  invitation_version integer not null default 1,
   created_by uuid references profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   unique (event_id, user_id)
@@ -678,6 +681,8 @@ create index event_registrations_event_status_idx on event_registrations(event_i
 create index event_registrations_user_idx on event_registrations(user_id, applied_at desc);
 create unique index event_registrations_event_email_unique on event_registrations(event_id, lower(applicant_email));
 create unique index event_registrations_guest_token_unique on event_registrations(guest_token_hash) where guest_token_hash is not null;
+create index event_cohosts_user_idx on event_cohosts(user_id, created_at desc);
+create index event_cohosts_event_status_idx on event_cohosts(event_id, status, created_at desc);
 create index idx_founder_supports_founder on founder_supports(founder_id);
 create index brand_members_user_idx on brand_members(user_id);
 create index brand_invitations_brand_idx on brand_invitations(brand_id, created_at desc);
@@ -742,7 +747,14 @@ create or replace function can_manage_event(target_event_id uuid)
 returns boolean language sql stable security definer set search_path = public as $$
   select exists (
     select 1 from events e
-    where e.id = target_event_id and (e.submitted_by = auth.uid() or is_admin())
+    where e.id = target_event_id and (
+      e.submitted_by = auth.uid()
+      or is_admin()
+      or exists (
+        select 1 from event_cohosts c
+        where c.event_id = e.id and c.user_id = auth.uid() and c.status = 'accepted'
+      )
+    )
   );
 $$;
 
@@ -977,6 +989,7 @@ alter table features enable row level security;
 alter table mentor_notes enable row level security;
 alter table events enable row level security;
 alter table event_registrations enable row level security;
+alter table event_cohosts enable row level security;
 alter table support_programs enable row level security;
 alter table communities enable row level security;
 alter table partner_submissions enable row level security;
@@ -1075,6 +1088,12 @@ create policy "events_select" on events for select using (status = 'published' o
 create policy "events_write" on events for all using (is_admin()) with check (is_admin());
 create policy "event_registrations_select_related" on event_registrations for select
   using (user_id = auth.uid() or can_manage_event(event_id));
+create policy "event_cohosts_select_related" on event_cohosts for select
+  using (
+    user_id = auth.uid()
+    or is_admin()
+    or exists (select 1 from events e where e.id = event_id and e.submitted_by = auth.uid())
+  );
 
 create policy "support_select" on support_programs for select using (status = 'published' or is_admin());
 create policy "support_write" on support_programs for all using (is_admin()) with check (is_admin());

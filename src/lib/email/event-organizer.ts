@@ -10,7 +10,7 @@ export async function sendEventOrganizerApplicationEmail(input: { eventId: strin
   if (!event) return;
   const [{ data: owner }, { data: cohosts }] = await Promise.all([
     admin.from("profiles").select("email").eq("id", event.submitted_by).maybeSingle(),
-    admin.from("event_cohosts").select("email").eq("event_id", input.eventId),
+    admin.from("event_cohosts").select("email").eq("event_id", input.eventId).eq("status", "accepted"),
   ]);
   const recipients = [...new Set([owner?.email, ...(cohosts ?? []).map((cohost) => cohost.email)].filter((email): email is string => Boolean(email)))];
   if (!recipients.length) return;

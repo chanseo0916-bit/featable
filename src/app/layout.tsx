@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { ActivityTracker } from "@/components/activity-tracker";
 import { MobileBottomNavigation } from "@/components/mobile-bottom-navigation";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import splitStageStyles from "@/components/board-split-stage.module.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -61,7 +62,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children, board }: LayoutProps<"/">) {
   const websiteId = `${SITE_URL}/#website`;
   const organizationId = `${SITE_URL}/#organization`;
   const jsonLd = {
@@ -99,7 +100,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <JsonLd data={jsonLd} />
         <Suspense fallback={null}><ActivityTracker /></Suspense>
-        {children}
+        <div className={splitStageStyles.stage}>
+          <div className={splitStageStyles.page}>{children}</div>
+          {board}
+        </div>
         <ScrollToTop />
         <Suspense fallback={null}><MobileBottomNavigation /></Suspense>
       </body>

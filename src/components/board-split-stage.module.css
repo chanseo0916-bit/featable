@@ -1,0 +1,172 @@
+.stage {
+  --board-split-width: clamp(390px, 31vw, 460px);
+  width: 100%;
+  min-width: 0;
+  flex: 1 0 auto;
+  overflow-x: clip;
+}
+
+.page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  container-name: board-split-page;
+  container-type: inline-size;
+  transition: width 360ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.stage:has(:global(#board-split-panel)) .page {
+  width: calc(100% - var(--board-split-width));
+}
+
+@container board-split-page (max-width: 1100px) {
+  .stage:has(:global(#board-split-panel)) .page :global(.header-primary) {
+    gap: 22px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.founder-spotlight-grid),
+  .stage:has(:global(#board-split-panel)) .page :global(.opportunity-card-grid),
+  .stage:has(:global(#board-split-panel)) .page :global(.product-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.footer-links) {
+    gap: 42px;
+  }
+}
+
+@container board-split-page (max-width: 900px) {
+  .stage:has(:global(#board-split-panel)) .page :global(.live-stage) {
+    display: block;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.live-stage) > :last-child {
+    width: 100%;
+    max-width: none;
+    margin-top: 42px;
+  }
+}
+
+@container board-split-page (max-width: 760px) {
+  .stage:has(:global(#board-split-panel)) .page :global(.shell) {
+    width: calc(100% - 32px);
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.header-primary) {
+    gap: 14px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.header-primary .logo) {
+    width: 112px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.nav-actions) {
+    display: none;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.channel-nav) {
+    width: 100%;
+    padding-inline: 16px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-wrap) {
+    width: calc(100% - 32px);
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-banner) {
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-copy) {
+    right: 21px;
+    bottom: 22px;
+    left: 21px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-copy > strong) {
+    max-width: 88%;
+    font-size: 24px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-copy > small) {
+    max-width: 80%;
+    overflow: hidden;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-copy > em) {
+    display: none;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-control) {
+    right: 15px;
+    bottom: 15px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.weekly-builders-heading),
+  .stage:has(:global(#board-split-panel)) .page :global(.footer-top),
+  .stage:has(:global(#board-split-panel)) .page :global(.footer-bottom) {
+    display: block;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.weekly-builders-heading > p) {
+    margin-top: 10px;
+    text-align: left;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.new-final-cta .shell) {
+    min-height: 210px;
+    padding: 28px 22px;
+    display: block;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.new-final-cta .button) {
+    margin-top: 22px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.footer-links) {
+    margin-top: 35px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.footer-legal) {
+    margin-top: 4px;
+  }
+}
+
+@container board-split-page (max-width: 520px) {
+  .stage:has(:global(#board-split-panel)) .page :global(.founder-spotlight-grid),
+  .stage:has(:global(#board-split-panel)) .page :global(.opportunity-card-grid),
+  .stage:has(:global(#board-split-panel)) .page :global(.product-grid) {
+    grid-template-columns: 1fr;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-copy > strong) {
+    max-width: 100%;
+    font-size: 22px;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-copy > small) {
+    display: none;
+  }
+
+  .stage:has(:global(#board-split-panel)) .page :global(.home-opportunity-control) {
+    top: 14px;
+    right: 14px;
+    bottom: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .stage:has(:global(#board-split-panel)) .page {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page {
+    transition: none;
+  }
+}
