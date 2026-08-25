@@ -10,7 +10,7 @@
 .event-card.is-featured { box-shadow: none; }
 
 
-.event-featured-label { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 6px 10px; border-radius: 999px; background: #111111cc; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: -.02em; backdrop-filter: blur(4px); }
+.event-featured-label { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 6px 10px; border-radius: 999px; background: color-mix(in srgb, var(--gray-1000) 80%, transparent); color: var(--background); font-size: var(--fs-t1); font-weight: 700; letter-spacing: -.02em; backdrop-filter: blur(4px); }
 
 
 .event-card .image-card img { aspect-ratio: 1.45; }
@@ -19,7 +19,7 @@
 .event-card .card-body { padding-left: 18px; padding-right: 18px; }
 
 
-.event-date { display: flex; justify-content: space-between; align-items: center; color: var(--accent); font-size: 13px; }
+.event-date { display: flex; justify-content: space-between; align-items: center; color: var(--accent); font-size: var(--fs-t2); }
 
 
 .event-card h3 { line-height: 1.35; }
@@ -28,9 +28,9 @@
 .event-card p { margin-bottom: 17px; }
 
 
-.event-submit-link { min-width: 150px; text-align: center; }
+.button.event-submit-link { min-width: 0; height: 44px; padding: 0 16px; display: inline-flex; align-items: center; font-size: var(--fs-t2); text-align: center; }
 
-.event-day { color: white; font-size: 16px; }
+.event-day { color: var(--background); font-size: var(--fs-t4); }
 
 
 .event-publish-mode { margin: 24px 32px 0; padding: 6px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; border-radius: 12px; background: #f2f3f4; }

@@ -307,7 +307,7 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .listing-page { padding-top: 80px; min-height: 640px; }
 .listing-heading { display: flex; justify-content: space-between; align-items: end; margin-bottom: 48px; }
 .listing-heading h1, .search-heading h1 { font-size: clamp(30px, 4vw, 40px); letter-spacing: -.02em; margin: 0 0 10px; }
-.listing-heading p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 16px; }
+.listing-heading p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: var(--fs-t4); }
 .listing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px 20px; }
 .story-list-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 38px 22px; }
 .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }

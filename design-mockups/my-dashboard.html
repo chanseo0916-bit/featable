@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>/my 대시보드 리디자인 시안 — Featable</title>
+<style>
+/* ═══════════════════════════════════════════
+   Featable /my 리디자인 시안 (SEED 기반)
+   정적 목업 — 데이터는 실제 값 예시
+   ═══════════════════════════════════════════ */
+/* 실제 프로젝트 globals.css 토큰과 동일 (이식 시 그대로 매칭) */
+:root {
+  /* gray scale — SEED */
+  --gray-100: #f7f8f9; --gray-200: #f3f4f5; --gray-300: #e5e7eb;
+  --gray-500: #95a1af; --gray-700: #637381; --gray-900: #333b44; --gray-1000: #191f28;
+  /* carrot scale — SEED */
+  --carrot-600: #ff6c00; --carrot-100: #fff2ec;
+  --success: #079171; --success-bg: #d9f6e9;
+  --error: #b42318; --error-bg: #fee4e2;
+  --border: var(--gray-300);
+  /* typography — SEED 12-step */
+  --fs-t1: 12px; --fs-t2: 13px; --fs-t3: 14px; --fs-t4: 16px;
+  --fs-t5: 18px; --fs-t6: 20px; --fs-t7: 22px; --fs-t9: 28px;
+  /* radius */
+  --radius-xs: 4px; --radius-sm: 6px; --radius-md: 8px;
+  --radius-lg: 12px; --radius-xl: 16px; --radius-pill: 999px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+  background: var(--gray-100); color: var(--gray-1000); font-size: var(--fs-t3);
+}
+
+/* ── 상단 네비 (개선: 높이 축소 + 텍스트 확대) ── */
+.dash-nav {
+  background: var(--gray-1000); border-top: 3px solid var(--carrot-600);
+  height: 60px; display: flex; align-items: center;
+}
+.dash-nav .inner {
+  max-width: 1180px; width: 100%; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; gap: 32px; height: 100%;
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: var(--fs-t4); color: #fff; letter-spacing: -.02em; }
+.brand em { background: var(--carrot-600); color: #fff; font-style: normal; font-size: var(--fs-t1); font-weight: 700; padding: 3px 7px; border-radius: var(--radius-xs); }
+.dash-nav nav { display: flex; gap: 4px; height: 100%; margin-left: 12px; }
+.dash-nav nav a {
+  display: flex; align-items: center; padding: 0 14px; position: relative;
+  color: var(--gray-500); text-decoration: none; font-size: var(--fs-t3); font-weight: 700;
+}
+.dash-nav nav a.active { color: #fff; }
+.dash-nav nav a.active::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; border-radius: var(--radius-xs) var(--radius-xs) 0 0; background: var(--carrot-600); }
+.nav-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.nav-actions .ghost { color: var(--gray-500); font-size: var(--fs-t2); text-decoration: none; }
+.nav-actions .bell { width: 34px; height: 34px; border-radius: var(--radius-sm); background: #2b2b30; display: grid; place-items: center; color: var(--gray-500); font-size: var(--fs-t3); }
+
+/* ── 본문 ── */
+.page { max-width: 1180px; margin: 0 auto; padding: 36px 24px 80px; }
+
+/* ── 프로필 헤더 카드 (개선: 아바타 크게 + 액션 명확) ── */
+.hero-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; }
+.hero-top { padding: 32px 36px 28px; display: flex; gap: 22px; align-items: center; }
+.avatar { width: 76px; height: 76px; border-radius: var(--radius-pill); background: linear-gradient(135deg, var(--carrot-600), color-mix(in srgb, var(--carrot-600) 75%, white)); color: #fff; display: grid; place-items: center; font-size: var(--fs-t10); font-weight: 700; flex-shrink: 0; box-shadow: 0 4px 14px color-mix(in srgb, var(--carrot-600) 25%, transparent); }
+.hero-id h1 { font-size: var(--fs-t7); font-weight: 700; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+.hero-id h1 .check { width: 20px; height: 20px; border-radius: var(--radius-pill); background: var(--gray-1000); color: #fff; display: grid; place-items: center; font-size: var(--fs-t1); }
+.hero-id p.role { margin-top: 5px; color: var(--gray-700); font-size: var(--fs-t3); }
+
+/* ── 통계 스트립 (개선: 카드 분리 → 한 줄 통합, 숫자 강조) ── */
+.stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--border); }
+.stat-strip .cell { padding: 20px 36px; border-right: 1px solid var(--gray-200); }
+.stat-strip .cell:last-child { border-right: 0; }
+.stat-strip b { display: block; font-size: var(--fs-t9); font-weight: 700; letter-spacing: -.03em; line-height: 1.1; }
+.stat-strip span { display: block; margin-top: 4px; color: var(--gray-700); font-size: var(--fs-t2); font-weight: 500; }
+.stat-strip .cell.accent b { color: var(--carrot-600); }
+
+/* ── 섹션 공통 ── */
+.section { margin-top: 28px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+.sec-head h2 { font-size: var(--fs-t5); font-weight: 700; letter-spacing: -.02em; }
+.sec-head a { color: var(--gray-700); font-size: var(--fs-t2); font-weight: 700; text-decoration: none; }
+.sec-head a:hover { color: var(--carrot-600); }
+
+/* ── 2열 메인 그리드: 좌(애널리틱스+프로덕트) 우(팀/바로가기) ── */
+.cols { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+.panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.panel-head { padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--gray-200); }
+.panel-head strong { font-size: var(--fs-t5); font-weight: 700; letter-spacing: -.01em; }
+.panel-head small { color: var(--gray-700); font-size: var(--fs-t2); }
+
+/* ── 애널리틱스 (개선: 탭 세그먼트 + 숫자 확대) ── */
+.analytics-body { padding: 22px; }
+.seg { display: inline-flex; background: var(--gray-200); border-radius: var(--radius-md); padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; padding: 7px 14px; border-radius: var(--radius-sm); font-size: var(--fs-t2); font-weight: 700; color: var(--gray-700); cursor: pointer; }
+.seg button.on { background: #fff; color: var(--gray-1000); box-shadow: 0 1px 3px color-mix(in srgb, var(--gray-1000) 8%, transparent); }
+.big-num { margin-top: 20px; display: flex; align-items: baseline; gap: 10px; }
+.big-num b { font-size: var(--fs-t11); font-weight: 700; letter-spacing: -.04em; }
+.big-num .delta { font-size: var(--fs-t2); font-weight: 700; color: var(--success); background: var(--success-bg); padding: 3px 8px; border-radius: var(--radius-xs); }
+.chart { margin-top: 16px; height: 120px; display: flex; align-items: flex-end; gap: 6px; }
+.chart i { flex: 1; background: var(--carrot-100); border-radius: var(--radius-xs) 4px 0 0; position: relative; }
+.chart i.hot { background: var(--carrot-600); }
+.mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--gray-200); }
+.mini-stats div b { font-size: var(--fs-t5); font-weight: 700; }
+.mini-stats div span { display: block; margin-top: 2px; color: var(--gray-500); font-size: var(--fs-t1); }
+
+/* ── 프로덕트 행 리스트 (개선: 타일→행, 정보 밀도↑) ── */
+.rows { padding: 12px 14px; display: grid; gap: 4px; }
+.row-item { display: flex; align-items: center; gap: 14px; padding: 16px 14px; border-radius: var(--radius-sm); }
+.row-item:hover { background: var(--gray-100); }
+.thumb { width: 52px; height: 52px; border-radius: var(--radius-md); background: var(--gray-200); object-fit: cover; }
+.row-item .info { flex: 1; min-width: 0; }
+.row-item .info strong { font-size: var(--fs-t4); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.badge-live { font-size: var(--fs-t1); font-weight: 700; color: var(--success); background: var(--success-bg); padding: 2px 7px; border-radius: var(--radius-xs); }
+.row-item .info small { display: block; margin-top: 4px; color: var(--gray-500); font-size: var(--fs-t2); }
+.row-item .views { text-align: right; }
+.row-item .views b { font-size: var(--fs-t4); font-weight: 700; }
+.row-item .views span { display: block; color: var(--gray-500); font-size: var(--fs-t1); }
+.link-btn { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 13px; font-size: 12px; font-weight: 700; color: var(--gray-900); text-decoration: none; background: #fff; }
+.link-btn:hover { border-color: var(--gray-500); }
+.empty-note { margin: 6px 10px 12px; padding: 22px; border: 1px dashed var(--gray-300); border-radius: var(--radius-sm); color: var(--gray-500); font-size: var(--fs-t2); text-align: center; }
+
+/* ── 사이드: 팀 카드 (슬림판) ── */
+.side-stack > * + * { margin-top: 16px; }
+.team-slim { padding: 20px; }
+.team-slim .mem { display: flex; align-items: center; gap: 11px; padding: 11px 10px; border-radius: var(--radius-sm); }
+.team-slim .mem:hover { background: var(--gray-100); }
+.mem .m-avatar { width: 40px; height: 40px; border-radius: var(--radius-pill); background: var(--carrot-100); color: var(--carrot-600); display: grid; place-items: center; font-weight: 700; }
+.mem .m-info { flex: 1; min-width: 0; }
+.mem .m-info b { font-size: var(--fs-t3); }
+.mem .m-info small { display: block; color: var(--gray-500); font-size: 12px; }
+.tag-owner { font-size: var(--fs-t1); font-weight: 700; color: var(--carrot-600); background: var(--carrot-100); padding: 2px 6px; border-radius: var(--radius-xs); }
+
+/* ── 사이드: 바로가기 (아이콘+설명 행) ── */
+.quick { padding: 10px; }
+.quick a { display: flex; align-items: center; gap: 13px; padding: 13px 12px; border-radius: var(--radius-sm); text-decoration: none; color: inherit; }
+.quick a:hover { background: var(--gray-100); }
+.q-ico { width: 38px; height: 38px; border-radius: var(--radius-sm); background: var(--gray-100); display: grid; place-items: center; font-size: var(--fs-t4); flex-shrink: 0; }
+.quick b { display: block; font-size: var(--fs-t3); font-weight: 700; }
+.quick small { display: block; margin-top: 2px; color: var(--gray-500); font-size: 12px; }
+.quick .arr { margin-left: auto; color: var(--gray-300); }
+
+
+/* ── 대표자 팀 카드 (사진 비주얼 카드) ── */
+.team-visual { position: relative; overflow: hidden; border-radius: var(--radius-lg); background: #24242a; color: #fff; box-shadow: 0 14px 34px -20px color-mix(in srgb, var(--gray-1000) 40%, transparent); }
+.team-visual .tv-photo { aspect-ratio: 1 / 1.05; position: relative; display: grid; place-items: center; }
+.team-visual .tv-photo .initial { font-size: var(--fs-t12); font-weight: 700; color: color-mix(in srgb, white 85%, transparent); }
+.tv-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, color-mix(in srgb, var(--gray-1000) 55%, transparent) 100%); }
+.tv-label { position: absolute; top: 14px; left: 14px; z-index: 2; padding: 5px 10px; border: 1px solid color-mix(in srgb, white 30%, transparent); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--gray-1000) 65%, transparent); font-size: 12px; font-weight: 700; backdrop-filter: blur(8px); }
+.tv-no { position: absolute; top: 15px; right: 14px; z-index: 2; font-size: 12px; font-weight: 700; text-shadow: 0 1px 6px color-mix(in srgb, var(--gray-1000) 60%, transparent); }
+.tv-body { position: relative; z-index: 2; margin-top: -34px; padding: 22px 18px 18px; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: linear-gradient(155deg, color-mix(in srgb, white 97%, transparent), color-mix(in srgb, var(--gray-100) 95%, transparent)); color: var(--gray-1000); }
+.tv-body h3 { font-size: var(--fs-t7); font-weight: 700; letter-spacing: -.02em; display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+.tv-body h3 .check { width: 19px; height: 19px; border-radius: var(--radius-pill); background: var(--gray-1000); color: #fff; display: grid; place-items: center; font-size: var(--fs-t1); }
+.tv-role { color: var(--gray-700); font-size: var(--fs-t2); font-weight: 500; }
+.tv-headline { margin-top: 10px; font-size: var(--fs-t3); line-height: 1.55; color: var(--gray-900); }
+.tv-foot { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--gray-200); }
+.tv-foot .state { font-size: var(--fs-t2); font-weight: 700; color: var(--success); }
+.tv-foot a { font-size: var(--fs-t2); font-weight: 700; color: var(--carrot-600); text-decoration: none; }
+
+/* 사이드 스택에서 카드 위 라벨 */
+.side-label { font-size: var(--fs-t2); font-weight: 700; color: var(--gray-700); margin-bottom: 8px; display: block; }
+
+
+
+
+/* ── 임시저장 (드래프트) ── */
+.badge-draft { font-size: var(--fs-t1); font-weight: 700; color: var(--gray-700); background: var(--gray-200); padding: 2px 7px; border-radius: var(--radius-xs); }
+.draft-item { background: var(--gray-100); border-radius: var(--radius-sm); }
+.draft-progress { margin-top: 8px; height: 4px; max-width: 220px; border-radius: var(--radius-pill, 999px); background: var(--gray-200); overflow: hidden; }
+.draft-progress i { display: block; height: 100%; border-radius: inherit; background: var(--carrot-600); }
+
+/* ── 프로덕트 행 썸네일 실제 이미지 느낌 ── */
+.thumb-product { width: 56px; height: 56px; border-radius: var(--radius-md); object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+.row-item .views b { color: var(--fg-strong); }
+
+/* ── 액션: 우리 버튼 체계 (SEED) ── */
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: var(--radius-sm); background: var(--carrot-600); color: #fff; font-size: var(--fs-t2); font-weight: 700; text-decoration: none; border: 0; }
+.btn-secondary { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #fff; color: var(--gray-900); font-size: var(--fs-t2); font-weight: 700; text-decoration: none; }
+.btn-ghost { background: none; border: 0; padding: 8px 10px; color: var(--gray-500); font-size: var(--fs-t2); font-weight: 700; text-decoration: none; border-radius: var(--radius-sm); }
+.btn-ghost:hover { color: var(--carrot-600); background: var(--carrot-100); }
+.text-danger { color: var(--error); }
+
+/* ── 라인 아이콘 (1.8px stroke, SEED 스타일) ── */
+.ico { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.q-ico .ico { width: 19px; height: 19px; }
+.bell-ico { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+/* ── CTA 배너 (축소) ── */
+.cta-band { margin-top: 28px; padding: 26px 32px; border-radius: var(--radius-xl); background: var(--gray-1000); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.cta-band h3 { font-size: var(--fs-t5); font-weight: 700; }
+.cta-band p { margin-top: 5px; color: color-mix(in srgb, white 60%, transparent); font-size: var(--fs-t3); }
+.cta-band a { flex-shrink: 0; background: var(--carrot-600); color: #fff; text-decoration: none; font-weight: 700; font-size: var(--fs-t3); padding: 12px 22px; border-radius: var(--radius-sm); }
+
+.note { max-width: 1180px; margin: 24px auto 40px; padding: 16px 24px; background: var(--carrot-100); border-radius: var(--radius-lg); color: var(--gray-900); font-size: 13px; line-height: 1.6; }
+.note b { color: var(--carrot-600); }
+
+@media (max-width: 900px) {
+  .cols { grid-template-columns: 1fr; }
+  .stat-strip { grid-template-columns: repeat(2, 1fr); }
+  .stat-strip .cell:nth-child(2) { border-right: 0; }
+  .dash-nav nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- 개선 포인트 요약 -->
+<div class="note">
+  <b>이전 대비 개선점:</b> ① 네비 텍스트 12→14px·높이 76→60px &nbsp;② 통계 카드 4개 분산 → <b>히어로 하단 한 줄 스트립</b>으로 통합 (눈 움직임 최소화) &nbsp;③ 애널리틱스에 큰 숫자+미니 차트 추가 (14 같은 숫자가 주인공) &nbsp;④ 프로덕트 타일 → <b>행 리스트</b> (정보 밀도↑) &nbsp;⑤ 팀 카드 슬림화 (OWNER 배지·No.0002·3열 정보표 제거) &nbsp;⑥ 바로가기를 아이콘 행으로 통일
+</div>
+
+<!-- ── 상단 네비 ── -->
+<header class="dash-nav">
+  <div class="inner">
+    <div class="brand">Featable <em>STUDIO</em></div>
+    <nav>
+      <a class="active" href="#">홈</a>
+      <a href="#">내 행사</a>
+      <a href="#">내 커뮤니티</a>
+      <a href="#">내 파트너</a>
+      <a href="#">내 채용</a>
+      <a href="#">내 프로필 카드</a>
+      <a href="#">계정 설정</a>
+    </nav>
+    <div class="nav-actions">
+      <span class="bell"><svg class="bell-ico" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>
+      <a class="ghost" href="#">Featable 홈 ↗</a>
+      <a class="ghost" href="#">로그아웃</a>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ── 프로필 헤더 + 통계 스트립 ── -->
+  <section class="hero-card">
+    <div class="hero-top">
+      <div class="avatar">이</div>
+      <div class="hero-id">
+        <h1>이윤서 <span class="check">✓</span></h1>
+        <p class="role">Founder · YouthFounderClub 대표</p>
+      </div>
+    </div>
+    <div class="stat-strip">
+      <div class="cell"><b>1</b><span>브랜드</span></div>
+      <div class="cell"><b>1</b><span>프로덕트</span></div>
+      <div class="cell accent"><b>14</b><span>누적 조회</span></div>
+      <div class="cell"><b>3</b><span>링크 클릭</span></div>
+    </div>
+  </section>
+
+  <!-- ── 2열: 좌 메인 / 우 사이드 ── -->
+  <div class="cols">
+
+    <!-- 좌측 -->
+    <div>
+      <!-- 애널리틱스 -->
+      <section class="section panel">
+        <div class="panel-head">
+          <strong>프로덕트 성과</strong>
+          <small>전체 프로덕트 집계</small>
+        </div>
+        <div class="analytics-body">
+          <div class="seg">
+            <button>오늘</button><button class="on">7일</button><button>30일</button><button>90일</button>
+          </div>
+          <div class="big-num">
+            <b>14</b><span class="delta">▲ 3건 신규</span>
+          </div>
+          <div class="chart">
+            <i style="height:30%"></i><i style="height:45%"></i><i style="height:25%"></i>
+            <i style="height:55%"></i><i style="height:40%"></i><i class="hot" style="height:90%"></i>
+            <i style="height:62%"></i>
+          </div>
+          <div class="mini-stats">
+            <div><b>14</b><span>조회수</span></div>
+            <div><b>3</b><span>링크 클릭</span></div>
+            <div><b>0</b><span>좋아요</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 내 프로덕트 -->
+      <section class="section panel">
+        <div class="panel-head">
+          <strong>내 프로덕트 <small style="margin-left:6px">1개 · 공개 중</small></strong>
+          <a class="btn-primary" href="#">＋ 새 프로덕트 등록</a>
+        </div>
+        <div class="rows">
+          <div class="row-item">
+            <div class="thumb thumb-product" style="display:grid;place-items:center;background:linear-gradient(135deg, var(--carrot-100), var(--carrot-600));color:#fff;font-size:var(--fs-t5);font-weight:700">창</div>
+            <div class="info">
+              <strong>창업가 커뮤니티 <span class="badge-live">공개 중</span></strong>
+              <small>YouthFounderClub · 8월 12일 등록</small>
+            </div>
+            <div class="views"><b>14</b><span>조회수</span></div>
+            <a class="btn-secondary" href="#">공개 페이지</a>
+            <a class="btn-ghost" href="#">수정</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 임시저장 -->
+      <section class="section panel">
+        <div class="panel-head">
+          <div>
+            <strong>임시저장 <small style="margin-left:6px;color:var(--carrot-600);font-weight:700">1개</small></strong>
+            <small style="display:block;margin-top:3px;color:var(--gray-500)">작성을 완료하지 않은 프로덕트예요</small>
+          </div>
+        </div>
+        <div class="rows">
+          <div class="row-item draft-item">
+            <div class="thumb" style="display:grid;place-items:center;border:1px dashed var(--gray-300);color:var(--gray-500);font-size:var(--fs-t6);background:var(--gray-100)">✎</div>
+            <div class="info">
+              <strong>창업가 커뮤니티 <span class="badge-draft">작성 중</span></strong>
+              <small>YouthFounderClub · 마지막 저장 8월 20일 오후 9:00 · 완성까지 2단계 남음</small>
+              <div class="draft-progress"><i style="width:60%"></i></div>
+            </div>
+            <a class="btn-secondary" href="#">이어서 작성</a>
+            <a class="btn-ghost text-danger" href="#">삭제</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta-band">
+        <div>
+          <h3>다음 발견을 준비하세요</h3>
+          <p>새 프로덕트나 인터뷰를 등록하고 더 많은 사람을 만나보세요.</p>
+        </div>
+        <a href="#">＋ 인터뷰 등록</a>
+      </section>
+    </div>
+
+    <!-- 우측 사이드 -->
+    <aside class="side-stack">
+
+      <!-- 내 브랜드 -->
+      <section class="panel">
+        <div class="panel-head" style="padding:20px 22px"><strong style="font-size:var(--fs-t4)">내 브랜드</strong></div>
+        <div class="rows">
+          <div class="row-item" style="padding:12px 10px">
+            <div class="thumb" style="display:grid;place-items:center;font-weight:700;color:var(--carrot-600)">Y</div>
+            <div class="info">
+              <strong>YouthFounderClub <span class="badge-live">공개</span></strong>
+              <small>기타 · 프로덕트 1개</small>
+            </div>
+          </div>
+          <div class="row-item" style="padding:6px 10px 10px">
+            <a class="btn-ghost" href="#" style="flex:1;text-align:center">수정</a>
+            <a class="btn-ghost" href="#" style="flex:1;text-align:center">미리보기</a>
+            <a class="btn-secondary" href="#" style="flex:1;text-align:center">팀 초대</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 브랜드 팀 -->
+      <section class="section panel">
+        <div class="panel-head">
+          <strong>브랜드 팀</strong>
+          <a href="#" style="font-size:var(--fs-t2);font-weight:700;color:var(--gray-700);text-decoration:none">관리 →</a>
+        </div>
+        <div class="rows">
+          <div class="row-item" style="padding:14px 10px">
+            <div class="thumb" style="border-radius:var(--radius-pill);display:grid;place-items:center;background:linear-gradient(135deg, var(--carrot-600), color-mix(in srgb, var(--carrot-600) 75%, white));color:#fff;font-weight:700;font-size:var(--fs-t5)">이</div>
+            <div class="info">
+              <strong>이윤서</strong>
+              <small>Founder · 대표</small>
+            </div>
+          </div>
+        </div>
+        <div style="padding:4px 14px 16px">
+          <button class="btn-secondary" style="width:100%">＋ 팀원 초대하기</button>
+        </div>
+      </section>
+
+      <!-- 바로가기 -->
+      <section class="panel quick">
+        <a href="#">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span><b>행사 등록</b><small>팝업·모임을 열고 모집하세요</small></span>
+          <span class="arr">›</span>
+        </a>
+        <a href="#">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span><b>커뮤니티 만들기</b><small>함께 만드는 창업가 네트워크</small></span>
+          <span class="arr">›</span>
+        </a>
+        <a href="#">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+          <span><b>파트너 등록</b><small>지원사업·혜택을 알려주세요</small></span>
+          <span class="arr">›</span>
+        </a>
+        <a href="#">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span><b>채용 올리기</b><small>팀원을 찾는 가장 빠른 방법</small></span>
+          <span class="arr">›</span>
+        </a>
+      </section>
+
+    </aside>
+  </div>
+
+</main>
+
+</body>
+</html>

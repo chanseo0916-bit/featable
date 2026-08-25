@@ -15,7 +15,7 @@ export const metadata = createPageMetadata({
 export default async function EventsPage() {
   const partners = await getPartners();
   const events = await getEvents();
-  return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><h1>행사</h1><p>창업가와 만드는 사람들이 만나는 자리.</p></div><Link className="button event-submit-link" href="/my/partner/register?type=event">내 행사 등록하기 →</Link></div><div className="event-grid">{events.map((event) => (
+  return <><Header /><main className="shell listing-page"><div className="listing-heading"><div><h1>행사</h1><p>창업가와 만드는 사람들이 만나는 자리.</p></div><Link className="button event-submit-link" href="/my/partner/register?type=event">행사 등록하기 →</Link></div><div className="event-grid">{events.map((event) => (
     <EntityCard
       href={`/events/${event.slug}`}
       key={event.slug}

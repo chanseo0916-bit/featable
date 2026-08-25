@@ -36,6 +36,8 @@
 
 .support-card-bottom span:last-child { flex: 0 0 auto; color: var(--fg-default); font-weight: 700; }
 
+.support-card-check { background: var(--gray-1000) !important; color: var(--background) !important; border: 0 !important; }
+
 
 .support-pagination { margin-top: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
