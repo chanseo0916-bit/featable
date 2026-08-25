@@ -1,0 +1,30 @@
+.mobileSearch {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .mobileSearch {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: var(--radius-lg);
+    color: var(--fg-strong);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobileSearch svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+
+  .mobileSearch:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--accent) 32%, var(--background));
+    outline-offset: 2px;
+  }
+}

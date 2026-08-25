@@ -14,6 +14,13 @@ function relativeTime(value: string) {
   return `${Math.floor(hours / 24)}일 전`;
 }
 
+function notificationMark(item: SiteNotification) {
+  if (item.type === "team_invite") return "T";
+  if (item.data.kind === "board_comment") return "댓";
+  if (item.data.kind === "board_like") return "♥";
+  return "F";
+}
+
 export function NotificationCenter() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -66,7 +73,7 @@ export function NotificationCenter() {
       <header><div><strong>알림</strong></div><button type="button" onClick={() => setOpen(false)}>닫기</button></header>
       {error && <p className="notification-error">{error}</p>}
       {items.length ? <div className="notification-list">{items.map((item) => <article key={item.id} className={!item.readAt ? "unread" : ""}>
-        <i>{item.type === "team_invite" ? "T" : "F"}</i>
+        <i>{notificationMark(item)}</i>
         <div><strong>{item.title}</strong><p>{item.message}</p><small>{relativeTime(item.createdAt)}</small>
           {item.type === "team_invite" && item.invitationId && !item.actionStatus ? <footer><button type="button" disabled={pending} onClick={() => respond(item, false)}>거절</button><button type="button" className="primary" disabled={pending} onClick={() => respond(item, true)}>팀 참여하기</button></footer> : item.actionStatus ? <span className={`notification-status ${item.actionStatus}`}>{item.actionStatus === "accepted" ? "참여 완료" : "초대 거절"}</span> : item.href ? <Link href={item.href}>확인하기 →</Link> : null}
         </div>

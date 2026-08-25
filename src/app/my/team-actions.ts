@@ -26,7 +26,7 @@ export interface SiteNotification {
   title: string;
   message: string;
   href: string | null;
-  data: { brand_name?: string; member_role?: BrandMemberRole; kind?: string; publishing_invitation_id?: string; registration_type?: "partner" | "community"; organization?: string };
+  data: { brand_name?: string; member_role?: BrandMemberRole; kind?: string; publishing_invitation_id?: string; registration_type?: "partner" | "community"; organization?: string; post_id?: string; comment_id?: string };
   readAt: string | null;
   actionStatus: "accepted" | "declined" | null;
   createdAt: string;

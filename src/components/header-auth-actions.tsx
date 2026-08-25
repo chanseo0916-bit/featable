@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { LoginModal } from "@/components/login-modal";
 import { NotificationCenter } from "@/components/notification-center";
 import { LogoutButton } from "@/components/logout-button";
+import styles from "@/components/header-auth-actions.module.css";
 
 /**
  * 헤더 우측 액션 이원화:
@@ -52,25 +53,27 @@ export function HeaderAuthActions() {
     return (
       <>
         <NotificationCenter />
-        <LogoutButton />
-        <Link
-          className="header-profile-card-link"
-          href={profileHref}
-          aria-label="내 프로필 카드 보기"
-          title="내 프로필 카드 보기"
-        >
-          <svg aria-hidden="true" viewBox="0 0 24 24">
-            <rect x="3" y="5" width="18" height="14" rx="2" />
-            <circle cx="9" cy="11" r="2" />
-            <path d="M6 16c.7-1.5 1.7-2.2 3-2.2s2.3.7 3 2.2M14 10h4M14 14h4" />
-          </svg>
-          <span>내 프로필 카드</span>
-        </Link>
-        <div className="nav-submit-wrap">
-          <Link className="button button-small nav-submit" href="/my">
-            마이페이지 <span>↗</span>
+        <div className={styles.desktopActions}>
+          <LogoutButton />
+          <Link
+            className="header-profile-card-link"
+            href={profileHref}
+            aria-label="내 프로필 카드 보기"
+            title="내 프로필 카드 보기"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <circle cx="9" cy="11" r="2" />
+              <path d="M6 16c.7-1.5 1.7-2.2 3-2.2s2.3.7 3 2.2M14 10h4M14 14h4" />
+            </svg>
+            <span>내 프로필 카드</span>
           </Link>
-          <span className="nav-submit-hint">등록한 피쳐를 <b>한곳에서 관리</b></span>
+          <div className="nav-submit-wrap">
+            <Link className="button button-small nav-submit" href="/my">
+              마이페이지 <span>↗</span>
+            </Link>
+            <span className="nav-submit-hint">등록한 피쳐를 <b>한곳에서 관리</b></span>
+          </div>
         </div>
       </>
     );
@@ -78,18 +81,20 @@ export function HeaderAuthActions() {
 
   return (
     <>
-      <button
-        type="button"
-        className="login-link"
-        onClick={() => setLoginOpen(true)}
-      >
-        로그인
-      </button>
-      <div className="nav-submit-wrap">
-        <Link className="button button-small nav-submit" href="/submit">
-          프로필 만들기 <span>↗</span>
-        </Link>
-        <span className="nav-submit-hint">나만의 <b>프로필 카드 만들기</b></span>
+      <div className={styles.desktopActions}>
+        <button
+          type="button"
+          className="login-link"
+          onClick={() => setLoginOpen(true)}
+        >
+          로그인
+        </button>
+        <div className="nav-submit-wrap">
+          <Link className="button button-small nav-submit" href="/submit">
+            프로필 만들기 <span>↗</span>
+          </Link>
+          <span className="nav-submit-hint">나만의 <b>프로필 카드 만들기</b></span>
+        </div>
       </div>
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>

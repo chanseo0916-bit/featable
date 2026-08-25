@@ -5,6 +5,8 @@ import "pretendard/dist/web/static/pretendard.css";
 import "./globals.css";
 import { Suspense } from "react";
 import { ActivityTracker } from "@/components/activity-tracker";
+import { MobileBottomNavigation } from "@/components/mobile-bottom-navigation";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -98,6 +100,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <JsonLd data={jsonLd} />
         <Suspense fallback={null}><ActivityTracker /></Suspense>
         {children}
+        <ScrollToTop />
+        <Suspense fallback={null}><MobileBottomNavigation /></Suspense>
       </body>
     </html>
   );

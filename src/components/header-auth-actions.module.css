@@ -1,0 +1,9 @@
+.desktopActions {
+  display: contents;
+}
+
+@media (max-width: 760px) {
+  .desktopActions {
+    display: none;
+  }
+}

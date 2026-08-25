@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Partner } from "@/lib/types";
 import { HeaderAuthActions } from "@/components/header-auth-actions";
 import { bypassImageOptimization } from "@/lib/images";
+import headerStyles from "@/components/site-header.module.css";
 
 function FeatableLogo({ priority = false }: { priority?: boolean }) {
   return <Image src="/featable-logo.png" alt="FEATABLE" width={2061} height={385} priority={priority} />;
@@ -12,8 +13,8 @@ export function StudioBrand() {
   return <strong className="dash-brand-lockup"><FeatableLogo /><span>STUDIO</span></strong>;
 }
 
-export function Header() {
-  return <header className="site-header"><div className="shell header-primary"><Link className="logo" href="/" aria-label="Featable 홈"><FeatableLogo priority /></Link><form className="header-search" action="/search" role="search" aria-label="사이트 검색"><span aria-hidden="true" /><input name="q" aria-label="창업가, 브랜드, 제품 검색" placeholder="창업가, 브랜드, 제품을 검색해보세요" /><button type="submit" aria-label="검색">검색</button></form><div className="nav-actions"><Link className="mobile-search-link" href="/search" aria-label="사이트 검색"><span aria-hidden="true" /></Link><HeaderAuthActions /></div></div><div className="header-channel-row"><nav className="shell channel-nav" aria-label="주요 메뉴"><Link href="/products">피쳐</Link><Link href="/stories">스토리</Link><Link href="/brands">브랜드</Link><Link href="/events">이벤트</Link><Link href="/support">지원사업</Link><Link href="/communities">커뮤니티</Link><Link href="/jobs">채용</Link><Link href="/partners">파트너</Link></nav></div></header>;
+export function Header({ showChannels = true }: { showChannels?: boolean } = {}) {
+  return <header className="site-header"><div className="shell header-primary"><Link className="logo" href="/" aria-label="Featable 홈"><FeatableLogo priority /></Link><form className="header-search" action="/search" role="search" aria-label="사이트 검색"><span aria-hidden="true" /><input name="q" aria-label="창업가, 브랜드, 제품 검색" placeholder="창업가, 브랜드, 제품을 검색해보세요" /><button type="submit" aria-label="검색">검색</button></form><div className="nav-actions"><Link className={headerStyles.mobileSearch} href="/search" aria-label="사이트 검색"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 4 4" /></svg></Link><HeaderAuthActions /></div></div>{showChannels && <div className="header-channel-row"><nav className="shell channel-nav" aria-label="주요 메뉴"><Link href="/products">피쳐</Link><Link href="/stories">스토리</Link><Link href="/brands">브랜드</Link><Link href="/events">이벤트</Link><Link href="/support">지원사업</Link><Link href="/communities">커뮤니티</Link><Link href="/jobs">채용</Link><Link href="/partners">파트너</Link></nav></div>}</header>;
 }
 
 export function Footer({ partners }: { partners: Partner[] }) {

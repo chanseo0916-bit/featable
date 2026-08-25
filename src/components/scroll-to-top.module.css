@@ -1,0 +1,78 @@
+.button {
+  position: fixed;
+  z-index: 80;
+  right: 28px;
+  bottom: 28px;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0;
+  border: 1px solid rgb(17 17 17 / 14%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 92%);
+  color: var(--fg-strong);
+  box-shadow: 0 12px 32px rgb(17 17 17 / 14%);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(.92);
+  transition: opacity .2s ease, transform .2s ease, border-color .16s ease, background .16s ease, color .16s ease;
+}
+
+.button svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.button span {
+  margin-top: -2px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.button:hover {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+
+.button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 35%, white);
+  outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .button {
+    right: 16px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    width: 46px;
+    height: 46px;
+  }
+
+  .button svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
