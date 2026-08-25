@@ -363,7 +363,15 @@ export async function createBoardComment(formData: FormData): Promise<never> {
     body,
   });
 
-  if (error) commentErrorRedirect(postId);
+  if (error) {
+    console.error("[board] Failed to create comment.", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+    commentErrorRedirect(postId);
+  }
 
   revalidatePath("/board");
   revalidatePath(`/board/${postId}`);
