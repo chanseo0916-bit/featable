@@ -425,7 +425,7 @@ export default async function MyPage() {
                   <b>{(story.view_count ?? 0).toLocaleString("ko-KR")}</b><small>조회</small>
                   <b>{(storyLikes[story.slug] ?? 0).toLocaleString("ko-KR")}</b><small>좋아요</small>
                 </div>
-                <Link href={`/stories/${story.slug}`}>보기 →</Link>
+                <div className="dash-row-actions"><Link href={`/submit/interview?edit=${encodeURIComponent(story.slug)}`}>수정</Link><Link href={`/stories/${story.slug}`}>보기 →</Link></div>
               </article>
             ))}
           </div>

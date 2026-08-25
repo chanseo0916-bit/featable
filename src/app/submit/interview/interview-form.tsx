@@ -2,11 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createFounderInterview } from "./actions";
+import { createFounderInterview, updateFounderInterview } from "./actions";
 
 interface BrandChoice { id: string; name: string; }
+export interface InterviewFormInitialValue {
+  slug: string;
+  brandId: string;
+  hookIntro: string;
+  title: string;
+  hookLabel: string;
+  coverUrl: string;
+  answers: Record<string, string>;
+}
 
-const QUESTIONS = [
+export const INTERVIEW_QUESTIONS = [
   { key: "item", label: "아이템 한 줄 소개", placeholder: "무엇을 만들고 있는지 한두 문장으로 소개해주세요.", required: true },
   { key: "background", label: "창업 배경", placeholder: "어떤 문제를 발견했고, 왜 직접 하게 됐나요?", required: true },
   { key: "hardest", label: "가장 힘들었던 순간", placeholder: "솔직할수록 좋아요. 어떻게 버텼는지도 함께.", required: false },
@@ -15,14 +24,14 @@ const QUESTIONS = [
   { key: "life", label: "인생 목표", placeholder: "숫자여도 좋고, 문장이어도 좋아요.", required: false },
 ];
 
-export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; founderName: string }) {
+export function InterviewForm({ brands, founderName, initial }: { brands: BrandChoice[]; founderName: string; initial?: InterviewFormInitialValue }) {
   const router = useRouter();
-  const [brandId, setBrandId] = useState(brands[0]?.id ?? "");
-  const [hookIntro, setHookIntro] = useState("");
-  const [title, setTitle] = useState("");
-  const [hookLabel, setHookLabel] = useState("");
-  const [coverUrl, setCoverUrl] = useState("");
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [brandId, setBrandId] = useState(initial?.brandId ?? brands[0]?.id ?? "");
+  const [hookIntro, setHookIntro] = useState(initial?.hookIntro ?? "");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [hookLabel, setHookLabel] = useState(initial?.hookLabel ?? "");
+  const [coverUrl, setCoverUrl] = useState(initial?.coverUrl ?? "");
+  const [answers, setAnswers] = useState<Record<string, string>>(initial?.answers ?? {});
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -50,14 +59,17 @@ export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; 
 
   async function submit() {
     setSaving(true); setError("");
-    const result = await createFounderInterview({
+    const payload = {
       brandId,
       hookIntro,
       title,
       hookLabel: hookLabel.trim() || previewLabel,
       coverUrl,
-      answers: QUESTIONS.map((question) => ({ question: question.label, answer: answers[question.key] ?? "" })),
-    });
+      answers: INTERVIEW_QUESTIONS.map((question) => ({ question: question.label, answer: answers[question.key] ?? "" })),
+    };
+    const result = initial
+      ? await updateFounderInterview(initial.slug, payload)
+      : await createFounderInterview(payload);
     setSaving(false);
     if (!result.ok || !result.slug) { setError(result.error ?? "저장에 실패했습니다."); return; }
     router.push(`/stories/${result.slug}`);
@@ -75,7 +87,7 @@ export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; 
         </div>
 
         <div className="interview-questions">
-          {QUESTIONS.map((question) => (
+          {INTERVIEW_QUESTIONS.map((question) => (
             <label key={question.key}>
               <span>{question.label}{question.required ? " *" : ""}</span>
               <textarea
@@ -90,9 +102,9 @@ export function InterviewForm({ brands, founderName }: { brands: BrandChoice[]; 
 
         {error && <p className="form-error">{error}</p>}
         <button className="button" type="button" disabled={saving || uploading} onClick={submit}>
-          {saving ? "게시 중..." : uploading ? "사진 업로드 중..." : "인터뷰 게시하기"}
+          {saving ? "저장 중..." : uploading ? "사진 업로드 중..." : initial ? "수정 내용 저장하기" : "인터뷰 게시하기"}
         </button>
-        <p className="interview-form-note">게시하면 홈 ‘이번 주 인터뷰’와 스토리에 바로 공개됩니다. 어드민 스토리 도구에서 언제든 수정할 수 있어요.</p>
+        <p className="interview-form-note">{initial ? "저장하면 공개 인터뷰에 바로 반영됩니다." : "게시하면 홈 ‘이번 주 인터뷰’와 스토리에 바로 공개됩니다. 내 스튜디오에서 언제든 수정할 수 있어요."}</p>
       </div>
 
       <aside className="interview-preview">

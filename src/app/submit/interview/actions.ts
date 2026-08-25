@@ -47,8 +47,9 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     supabase.from("founders").select("id,name").eq("user_id", user.id).maybeSingle(),
     supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
   ]);
+  if (!founder) return { ok: false, error: "인터뷰를 작성하려면 먼저 Founder 프로필을 만들어주세요." };
   const { data: brand } = input.brandId
-    ? await supabase.from("brands").select("id,slug,name").eq("id", input.brandId).maybeSingle()
+    ? await supabase.from("brands").select("id,slug,name").eq("id", input.brandId).eq("founder_id", founder.id).maybeSingle()
     : { data: null };
   if (input.brandId && !brand) return { ok: false, error: "브랜드를 찾을 수 없습니다." };
   const displayName = founder?.name || profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || "Featable 멤버";
@@ -66,7 +67,7 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     status: "published",
     published_at: now,
     brand_id: brand?.id ?? null,
-    founder_id: founder?.id ?? null,
+    founder_id: founder.id,
     seo_title: `${input.title.trim()} ${displayName} 인터뷰`.slice(0, 60),
     seo_description: conciseSeoDescription(`${brandName} ${displayName} 인터뷰. ${excerptSource}`),
     primary_keyword: `${displayName} 인터뷰`,
@@ -103,4 +104,73 @@ export async function createFounderInterview(input: InterviewInput): Promise<Int
     return { ok: false, error: "인터뷰 저장에 실패했습니다. 잠시 후 다시 시도해주세요." };
   }
   return { ok: false, error: "인터뷰 주소 생성에 실패했습니다. 다시 시도해주세요." };
+}
+
+/** 작성자 본인의 인터뷰만 수정한다. 공개 여부와 관계없이 slug는 유지한다. */
+export async function updateFounderInterview(slug: string, input: InterviewInput): Promise<InterviewResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+  if (!slug || !input.title.trim()) return { ok: false, error: "나를 소개하는 한 줄을 입력해주세요." };
+  if (!input.coverUrl) return { ok: false, error: "커버 사진을 올려주세요." };
+
+  const answered = input.answers
+    .map((item) => ({ question: item.question.trim(), answer: item.answer.trim() }))
+    .filter((item) => item.question && item.answer);
+  if (answered.length < 2) return { ok: false, error: "질문에 최소 2개 이상 답해주세요." };
+
+  const [{ data: founder }, { data: profile }] = await Promise.all([
+    supabase.from("founders").select("id,name").eq("user_id", user.id).maybeSingle(),
+    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+  ]);
+  if (!founder) return { ok: false, error: "Founder 프로필을 찾을 수 없습니다." };
+
+  const { data: interview } = await supabase
+    .from("features")
+    .select("id,slug,founder_id,kind")
+    .eq("slug", slug)
+    .eq("kind", "interview")
+    .maybeSingle();
+  if (!interview || interview.founder_id !== founder.id) {
+    return { ok: false, error: "본인이 작성한 인터뷰만 수정할 수 있습니다." };
+  }
+
+  const { data: brand } = input.brandId
+    ? await supabase.from("brands").select("id,name").eq("id", input.brandId).eq("founder_id", founder.id).maybeSingle()
+    : { data: null };
+  if (input.brandId && !brand) return { ok: false, error: "본인이 소유한 브랜드만 연결할 수 있습니다." };
+
+  const displayName = founder.name || profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || "Featable 멤버";
+  const brandName = brand?.name || "Featable";
+  const excerptSource = answered[0]?.answer ?? "";
+  const row = {
+    title: input.title.trim(),
+    excerpt: excerptSource.length > 140 ? `${excerptSource.slice(0, 137)}...` : excerptSource,
+    cover_url: input.coverUrl,
+    body: answered.map((item) => ({ type: "text", heading: item.question, body: item.answer })) as StoryBlock[],
+    brand_id: brand?.id ?? null,
+    seo_title: `${input.title.trim()} ${displayName} 인터뷰`.slice(0, 60),
+    seo_description: conciseSeoDescription(`${brandName} ${displayName} 인터뷰. ${excerptSource}`),
+    primary_keyword: `${displayName} 인터뷰`,
+    secondary_keywords: [brandName, "창업가 인터뷰"],
+    og_image_url: input.coverUrl,
+    is_indexable: true,
+    updated_at: new Date().toISOString(),
+  };
+  const hookColumns = {
+    hook_intro: input.hookIntro.trim() || null,
+    hook_label: input.hookLabel.trim() || null,
+  };
+
+  let { error } = await supabase.from("features").update({ ...row, ...hookColumns } as never).eq("id", interview.id);
+  if (error && /hook_intro|hook_label/.test(error.message ?? "")) {
+    ({ error } = await supabase.from("features").update(row as never).eq("id", interview.id));
+  }
+  if (error) return { ok: false, error: "인터뷰 수정에 실패했습니다. 잠시 후 다시 시도해주세요." };
+
+  revalidatePath("/");
+  revalidatePath("/stories");
+  revalidatePath(`/stories/${slug}`);
+  revalidatePath("/my");
+  return { ok: true, slug };
 }
