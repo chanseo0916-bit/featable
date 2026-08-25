@@ -9,6 +9,7 @@ import {
 } from "@/lib/board";
 import type { BoardBalanceGame as BoardBalanceGameData } from "@/lib/board-balance-types";
 import styles from "@/components/board-split-panel.module.css";
+import { formatRelativeKst } from "@/lib/datetime";
 
 function fullBoardHref({
   best = false,
@@ -41,23 +42,7 @@ function panelFeedHref({
   return query ? `/board/panel?${query}` : "/board/panel";
 }
 
-function relativeTimeLabel(value: string) {
-  const timestamp = new Date(value).getTime();
-  if (!Number.isFinite(timestamp)) return "";
-
-  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60_000));
-  if (elapsedMinutes < 1) return "방금";
-  if (elapsedMinutes < 60) return `${elapsedMinutes}분 전`;
-  const elapsedHours = Math.floor(elapsedMinutes / 60);
-  if (elapsedHours < 24) return `${elapsedHours}시간 전`;
-  const elapsedDays = Math.floor(elapsedHours / 24);
-  if (elapsedDays < 7) return `${elapsedDays}일 전`;
-
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "short",
-    day: "numeric",
-  }).format(new Date(timestamp));
-}
+const relativeTimeLabel = formatRelativeKst;
 
 export function BoardSplitFeed({
   posts,

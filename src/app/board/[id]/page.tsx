@@ -18,6 +18,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { BoardLikeSubmit } from "./board-like-submit";
 import "@/styles/board.css";
+import { formatDateKst, formatRelativeKst } from "@/lib/datetime";
 
 export const metadata: Metadata = {
   title: "게시판 글",
@@ -32,17 +33,6 @@ type BoardDetailPageProps = {
     notice?: string | string[];
   }>;
 };
-
-function dateLabel(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
 
 function ownershipFromPayload(value: unknown) {
   if (!value || typeof value !== "object") {
@@ -148,7 +138,7 @@ export default async function BoardDetailPage({
                 <div>
                   <strong>{post.authorName}</strong>
                   <span className="board-detail-meta">
-                    <time dateTime={post.createdAt}>{dateLabel(post.createdAt)}</time>
+                    <time dateTime={post.createdAt}>{formatDateKst(post.createdAt)}</time>
                     <span aria-hidden="true">·</span>
                     <span>조회 {post.viewCount.toLocaleString("ko-KR")}</span>
                   </span>
@@ -252,7 +242,7 @@ export default async function BoardDetailPage({
                     <div>
                       <header>
                         <strong>{comment.authorName}</strong>
-                        <time dateTime={comment.createdAt}>{dateLabel(comment.createdAt)}</time>
+                        <time dateTime={comment.createdAt}>{formatRelativeKst(comment.createdAt)}</time>
                         <div className="board-comment-actions">
                           {ownership.commentIds.has(comment.id) ? (
                             <BoardOwnerMenu

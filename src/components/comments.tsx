@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LoginModal } from "@/components/login-modal";
+import { formatRelativeKst } from "@/lib/datetime";
 
 interface CommentRow {
   id: string;
@@ -190,7 +191,7 @@ export function Comments({
                 <p className="text-xs">
                   <b>{row.display_name}</b>
                   <span className="ml-2 text-muted">
-                    {new Date(row.created_at).toLocaleDateString("ko-KR")}
+                    {formatRelativeKst(row.created_at)}
                   </span>
                   {me && (me.id === row.user_id || me.isAdmin) && (
                     <button

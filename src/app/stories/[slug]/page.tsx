@@ -17,6 +17,7 @@ import {
   type SeoSchema,
 } from "@/components/seo-json-ld";
 import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
+import { formatDateKst } from "@/lib/datetime";
 
 const kindLabel = {
   interview: "인터뷰",
@@ -206,7 +207,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
 
             <div className="feature-brief-media">
               <img src={feature.coverUrl} alt={feature.title} />
-              <span>Featable 선정 · {new Date(feature.publishedAt).toLocaleDateString("ko-KR")}</span>
+              <span>Featable 선정 · {formatDateKst(feature.publishedAt)}</span>
             </div>
           </div>
 
@@ -225,7 +226,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
 
         <section id="story" className="shell feature-story-layout">
           <article className="feature-long-article">
-            <header><p>{kindLabel[feature.kind]}</p><h2>{feature.title}</h2><span>{new Date(feature.publishedAt).toLocaleDateString("ko-KR")} · FEATABLE</span></header>
+            <header><p>{kindLabel[feature.kind]}</p><h2>{feature.title}</h2><span>{formatDateKst(feature.publishedAt)} · FEATABLE</span></header>
             <p className="feature-lead">{feature.excerpt}</p>
             <img className="feature-article-cover" src={feature.coverUrl} alt="" />
 

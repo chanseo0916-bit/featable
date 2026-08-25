@@ -15,6 +15,7 @@ import {
 import { getCurrentBoardBalanceGame } from "@/lib/board-balance";
 import { createPageMetadata } from "@/lib/site";
 import "@/styles/board.css";
+import { formatMonthDayKst } from "@/lib/datetime";
 
 export const metadata = createPageMetadata({
   title: "게시판",
@@ -61,15 +62,7 @@ function boardHref({
   return query ? `/board?${query}` : "/board";
 }
 
-function dateLabel(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
+const dateLabel = formatMonthDayKst;
 
 export default async function BoardPage({ searchParams }: BoardPageProps) {
   const params = await searchParams;

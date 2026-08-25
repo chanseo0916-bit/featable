@@ -1,14 +1,9 @@
 import { EntityCard } from "@/components/cards/entity-card";
 import type { Feature } from "@/lib/types";
+import { formatDateKst } from "@/lib/datetime";
 
 /** 인터뷰 표지는 인스타 포스터 비율(630x850)로 들어온다 */
 const INTERVIEW_RATIO = 0.74;
-
-function formatDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
-}
 
 export function InterviewCard({ feature }: { feature: Feature }) {
   return (
@@ -38,7 +33,7 @@ export function ArticleCard({ feature }: { feature: Feature }) {
       top={<span className="story-article-topic">{feature.primaryKeyword ?? "아티클"}</span>}
       title={feature.title}
       description={feature.excerpt}
-      footerLeft={formatDate(feature.publishedAt)}
+      footerLeft={formatDateKst(feature.publishedAt)}
     />
   );
 }
