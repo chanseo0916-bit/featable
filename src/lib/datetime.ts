@@ -17,6 +17,10 @@ const monthDay = new Intl.DateTimeFormat("ko-KR", {
 const dateTime = new Intl.DateTimeFormat("ko-KR", {
   timeZone: KST, month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
 });
+const eventDateTime = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: KST, year: "numeric", month: "long", day: "numeric",
+  weekday: "short", hour: "2-digit", minute: "2-digit",
+});
 
 function parse(value: string): Date | null {
   const date = new Date(value);
@@ -39,6 +43,12 @@ export function formatMonthDayKst(value: string): string {
 export function formatDateTimeKst(value: string): string {
   const date = parse(value);
   return date ? dateTime.format(date) : "";
+}
+
+/** "2026년 8월 26일 (수) 오후 07:00" — 행사 시작 시각처럼 요일까지 필요한 곳 */
+export function formatEventDateTimeKst(value: string): string {
+  const date = parse(value);
+  return date ? eventDateTime.format(date) : "";
 }
 
 /**

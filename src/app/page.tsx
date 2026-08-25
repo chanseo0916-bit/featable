@@ -7,8 +7,9 @@ import { FounderInterviewRail, type FounderInterviewRailItem } from "@/component
 import { FreshProductRail } from "@/components/fresh-product-rail";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
+import { formatMonthDayKst } from "@/lib/datetime";
 
-const dateLabel = (date: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(date));
+const dateLabel = formatMonthDayKst;
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
 const isWithinLastWeek = (date?: string) => Boolean(date && new Date(date).getTime() >= Date.now() - 7 * 86_400_000);
 

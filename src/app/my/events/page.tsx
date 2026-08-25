@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DashNav } from "../dash-nav";
+import { formatMonthDayKst } from "@/lib/datetime";
 
 export const metadata = { title: "내 행사 · Featable", robots: { index: false, follow: false } };
 
@@ -44,7 +45,7 @@ export default async function MyEventsPage() {
 
   return <><DashNav active="events" /><main className="dash-page my-events-page"><div className="shell dash-shell">
     <header className="my-events-heading"><div><p>MY EVENTS</p><h1>내 행사</h1><span>신청한 행사와 내가 등록한 행사를 한곳에서 관리하세요.</span></div><Link href="/events">행사 둘러보기 →</Link></header>
-    <section className="my-event-section"><header><span>MY REGISTRATIONS</span><h2>내 신청</h2></header>{registrations.length ? <div className="my-event-list">{registrations.map((item) => item.event && <Link href={`/events/${item.event.slug}`} key={item.id}><time>{new Date(item.event.starts_at).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</time><div><strong>{item.event.name}</strong><span>{item.event.host} · {item.event.location}{item.user_id ? "" : " · 이메일로 신청"}</span></div><em data-status={item.status}>{statusLabel[item.status]}</em><b>→</b></Link>)}</div> : <div className="my-event-empty"><strong>아직 신청한 행사가 없어요.</strong><span>관심 있는 행사에 Featable로 바로 신청해보세요.</span><Link href="/events">행사 찾기 →</Link></div>}</section>
-    <section className="my-event-section"><header><span>HOSTING</span><h2>내가 운영하는 행사</h2></header>{operatedEvents.length ? <div className="my-event-list">{operatedEvents.map((event) => <Link href={`/my/events/${event.slug}`} key={event.id}><time>{new Date(event.starts_at).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</time><div><strong>{event.name}</strong><span>{event.operatorRole} · {event.registration_mode === "internal" ? "Featable 신청자 관리" : "외부 신청 행사"}</span></div><em>운영하기</em><b>→</b></Link>)}</div> : <div className="my-event-empty"><strong>아직 운영 중인 행사가 없어요.</strong><span>행사를 등록하거나 공동 주최 초대를 수락하면 이곳에 표시됩니다.</span><Link href="/my/partner/register?type=event">행사 등록하기 →</Link></div>}</section>
+    <section className="my-event-section"><header><span>MY REGISTRATIONS</span><h2>내 신청</h2></header>{registrations.length ? <div className="my-event-list">{registrations.map((item) => item.event && <Link href={`/events/${item.event.slug}`} key={item.id}><time>{formatMonthDayKst(item.event.starts_at)}</time><div><strong>{item.event.name}</strong><span>{item.event.host} · {item.event.location}{item.user_id ? "" : " · 이메일로 신청"}</span></div><em data-status={item.status}>{statusLabel[item.status]}</em><b>→</b></Link>)}</div> : <div className="my-event-empty"><strong>아직 신청한 행사가 없어요.</strong><span>관심 있는 행사에 Featable로 바로 신청해보세요.</span><Link href="/events">행사 찾기 →</Link></div>}</section>
+    <section className="my-event-section"><header><span>HOSTING</span><h2>내가 운영하는 행사</h2></header>{operatedEvents.length ? <div className="my-event-list">{operatedEvents.map((event) => <Link href={`/my/events/${event.slug}`} key={event.id}><time>{formatMonthDayKst(event.starts_at)}</time><div><strong>{event.name}</strong><span>{event.operatorRole} · {event.registration_mode === "internal" ? "Featable 신청자 관리" : "외부 신청 행사"}</span></div><em>운영하기</em><b>→</b></Link>)}</div> : <div className="my-event-empty"><strong>아직 운영 중인 행사가 없어요.</strong><span>행사를 등록하거나 공동 주최 초대를 수락하면 이곳에 표시됩니다.</span><Link href="/my/partner/register?type=event">행사 등록하기 →</Link></div>}</section>
   </div></main></>;
 }

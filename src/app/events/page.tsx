@@ -3,6 +3,7 @@ import { Footer, Header } from "@/components/site-shell";
 import { EntityCard } from "@/components/cards/entity-card";
 import { getEvents, getPartners } from "@/lib/data";
 import { createPageMetadata } from "@/lib/site";
+import { formatMonthDayKst } from "@/lib/datetime";
 
 export const metadata = createPageMetadata({
   title: "창업 행사와 밋업",
@@ -22,7 +23,7 @@ export default async function EventsPage() {
       media={event.coverUrl}
       mediaAlt={event.name}
       ratio={1.45}
-      metaLead={<span className="entity-card-meta-lead">{new Date(event.startsAt).toLocaleDateString("ko-KR", { month: "short", day: "numeric" })}</span>}
+      metaLead={<span className="entity-card-meta-lead">{formatMonthDayKst(event.startsAt)}</span>}
       metaBadge={<span className={`badge${event.registrationMode === "internal" ? " badge-orange" : ""}`}>{event.registrationMode === "internal" ? "FEATABLE 신청" : "외부 신청"}</span>}
       title={event.name}
       description={`${event.host} · ${event.location}`}

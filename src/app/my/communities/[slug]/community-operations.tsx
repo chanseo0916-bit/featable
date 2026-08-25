@@ -16,6 +16,7 @@ import {
   unlinkCommunityBrand,
   unlinkCommunityEvent,
 } from "./actions";
+import { formatDateKst } from "@/lib/datetime";
 
 export interface CommunityFounderOption {
   id: string;
@@ -129,7 +130,7 @@ export function CommunityOperations({ slug, isOwner, canManageMembers, founders,
           <option value="">행사 선택</option>
           {eventCandidates.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
         </AddRow>
-        <div className="community-operation-list">{events.length ? events.map((item) => <article key={item.id}><img src={item.coverUrl} alt="" /><div><strong>{item.name}</strong><span>{new Date(item.startsAt).toLocaleDateString("ko-KR")}</span></div><button disabled={pending} onClick={() => run(() => unlinkCommunityEvent(slug, item.id), "행사 연결을 해제했습니다.")}>해제</button></article>) : <EmptyRow text="아직 연결된 행사가 없습니다." />}</div>
+        <div className="community-operation-list">{events.length ? events.map((item) => <article key={item.id}><img src={item.coverUrl} alt="" /><div><strong>{item.name}</strong><span>{formatDateKst(item.startsAt)}</span></div><button disabled={pending} onClick={() => run(() => unlinkCommunityEvent(slug, item.id), "행사 연결을 해제했습니다.")}>해제</button></article>) : <EmptyRow text="아직 연결된 행사가 없습니다." />}</div>
       </OperationPanel>
 
       <OperationPanel number="04" label="MANAGERS" title="공동 운영자" description="대표 운영자는 Featable 계정을 운영팀에 추가할 수 있습니다.">

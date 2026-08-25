@@ -19,10 +19,9 @@ import { bypassImageOptimization } from "@/lib/images";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { EventRegistrationCard } from "./registration-card";
+import { formatEventDateTimeKst } from "@/lib/datetime";
 
-function formatEventDate(value: string) {
-  return new Date(value).toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit" });
-}
+const formatEventDate = formatEventDateTimeKst;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

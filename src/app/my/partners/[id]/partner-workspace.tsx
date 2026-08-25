@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { cancelPartnerInvitation, invitePartnerMember, linkPartnerCommunity, removePartnerMember, unlinkPartnerCommunity, updatePartnerMemberRole, type PartnerMemberRole } from "./workspace-actions";
+import { formatDateKst } from "@/lib/datetime";
 
 interface CommunityItem { id: string; slug: string; name: string; logoUrl: string; intro: string; }
 interface MemberItem { userId: string; name: string; email: string; role: PartnerMemberRole; }
@@ -41,7 +42,7 @@ export function PartnerWorkspace({ partnerId, isOwner, canManage, communities, c
         {isOwner && <div className="partner-member-invite"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="team@company.com" /><select value={role} onChange={(event) => setRole(event.target.value as PartnerMemberRole)}><option value="manager">관리자</option><option value="editor">편집자</option><option value="viewer">뷰어</option></select><button disabled={pending || !email.trim()} onClick={() => run(() => invitePartnerMember(partnerId, email, role), () => setEmail(""))}>팀원 초대</button></div>}
         {inviteUrl && <div className="partner-invite-link"><input value={inviteUrl} readOnly /><button onClick={() => navigator.clipboard.writeText(inviteUrl)}>링크 복사</button></div>}
         <div className="partner-member-list">{members.map((item) => <div key={item.userId}><i>{item.name.slice(0, 1)}</i><span><strong>{item.name}</strong><small>{item.email}</small></span>{isOwner ? <select value={item.role} disabled={pending} onChange={(event) => run(() => updatePartnerMemberRole(partnerId, item.userId, event.target.value as PartnerMemberRole))}><option value="manager">관리자</option><option value="editor">편집자</option><option value="viewer">뷰어</option></select> : <em>{item.role}</em>}{isOwner && <button disabled={pending} onClick={() => run(() => removePartnerMember(partnerId, item.userId))}>삭제</button>}</div>)}</div>
-        {isOwner && invitations.length > 0 && <div className="partner-pending-invites"><strong>대기 중인 초대</strong>{invitations.map((item) => <div key={item.id}><span>{item.email}<small>{item.role} · {new Date(item.expiresAt).toLocaleDateString("ko-KR")}까지</small></span><button disabled={pending} onClick={() => run(() => cancelPartnerInvitation(partnerId, item.id))}>취소</button></div>)}</div>}
+        {isOwner && invitations.length > 0 && <div className="partner-pending-invites"><strong>대기 중인 초대</strong>{invitations.map((item) => <div key={item.id}><span>{item.email}<small>{item.role} · {formatDateKst(item.expiresAt)}까지</small></span><button disabled={pending} onClick={() => run(() => cancelPartnerInvitation(partnerId, item.id))}>취소</button></div>)}</div>}
       </article>
     </div>
   </section>;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Community, EventItem, SupportProgram } from "@/lib/types";
 import { DashNav } from "./dash-nav";
+import { formatMonthDayKst } from "@/lib/datetime";
 
 interface PartnerSavedItem {
   type: string;
@@ -23,7 +24,7 @@ interface OpportunityItem {
   href: string;
 }
 
-const dateLabel = (value: string) => new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(value));
+const dateLabel = formatMonthDayKst;
 const PARTNER_REFERENCE_TIME = Date.now();
 
 const ddayLabel = (value: string) => {

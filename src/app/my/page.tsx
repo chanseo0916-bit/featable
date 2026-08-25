@@ -16,6 +16,7 @@ import type { BrandMemberRole } from "./team-actions";
 import { TeamProfileCard } from "@/components/team-profile-card";
 import { PartnerDashboard } from "./partner-dashboard";
 import { StudioWelcomeGuide } from "./studio-welcome-guide";
+import { formatDateTimeKst } from "@/lib/datetime";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
@@ -347,7 +348,7 @@ export default async function MyPage() {
     (row) => typeof row.payload === "object" && (row.payload.name?.trim() || row.payload.tagline?.trim()),
   );
   const fmtDraftDate = (iso: string) =>
-    new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+    formatDateTimeKst(iso);
 
   let analyticsSeries: AnalyticsDay[] = [];
   if (products.length) {
