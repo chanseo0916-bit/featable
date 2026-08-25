@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminPageHeader, formatAdminDate } from "../../admin-ui";
 import { getBoardAdminAccess } from "../access";
-import { BalanceGameEditForm, BalanceGameForm } from "./balance-controls";
+import { getKstDateString } from "@/lib/board-balance-automation";
+import { BalanceAutomationControls, BalanceGameEditForm, BalanceGameForm } from "./balance-controls";
 import type { BalanceGameInput, BalanceGameStatus } from "./actions";
 
 export const metadata: Metadata = { title: "밸런스 게임 관리" };
@@ -68,13 +69,19 @@ export default async function AdminBoardBalancePage() {
     return <main className="admin-main shell admin-balance-page"><AdminPageHeader eyebrow="COMMUNITY" title="밸런스 게임" description="게시판 참여를 돕는 오늘의 질문을 관리합니다." /><section className="admin-list-panel admin-balance-error"><strong>관리자 권한을 확인할 수 없습니다.</strong><p>{access.error}</p></section></main>;
   }
 
-  const { data, error } = await access.admin.from("board_balance_games").select("id,game_date,question,option_a,option_b,option_a_reasons,option_b_reasons,status,discussion_post_id,created_at,updated_at").order("game_date", { ascending: false }).limit(30);
+  const today = getKstDateString();
+  const [{ data, error }, { data: todayData, error: todayError }] = await Promise.all([
+    access.admin.from("board_balance_games").select("id,game_date,question,option_a,option_b,option_a_reasons,option_b_reasons,status,discussion_post_id,created_at,updated_at").order("game_date", { ascending: false }).limit(30),
+    access.admin.from("board_balance_games").select("id,status").eq("game_date", today).maybeSingle(),
+  ]);
   if (error) {
     console.error("[admin/board/balance] Failed to load games.", error);
     return <main className="admin-main shell admin-balance-page"><AdminPageHeader eyebrow="COMMUNITY" title="밸런스 게임" description="게시판 참여를 돕는 오늘의 질문을 관리합니다." /><section className="admin-list-panel admin-balance-error"><strong>밸런스 게임 테이블을 준비해야 합니다.</strong><p>배포 전 데이터베이스 마이그레이션을 적용한 뒤 다시 확인해 주세요.</p></section></main>;
   }
+  if (todayError) console.error("[admin/board/balance] Failed to load today's game.", todayError);
 
   const games = (data ?? []).map(normalizeGame).filter((game): game is BalanceGameRow => Boolean(game));
+  const todayStatus = todayData ? normalizeStatus(todayData.status) : null;
   const gameIds = games.map((game) => game.id);
   const postIds = games.flatMap((game) => game.discussion_post_id ? [game.discussion_post_id] : []);
   const [votesResult, postsResult] = await Promise.all([
@@ -98,9 +105,20 @@ export default async function AdminBoardBalancePage() {
   return (
     <main className="admin-main shell admin-balance-page">
       <AdminPageHeader eyebrow="COMMUNITY" title="밸런스 게임" description="가볍게 투표하고 이야기하게 만드는 오늘의 질문을 관리합니다." publicHref="/balance" />
+      <section className="admin-list-panel admin-balance-automation-panel">
+        <div className="admin-balance-section-head">
+          <div>
+            <p>DAILY AUTOMATION</p>
+            <h2>매일 00:00 새 질문</h2>
+            <span>한국시간 자정에 Founder용 질문이 자동으로 바뀝니다. 같은 날짜에 직접 예약한 게임이 있으면 수동 설정이 우선됩니다.</span>
+          </div>
+          <span className="admin-balance-kst-badge">KST {today}</span>
+        </div>
+        <BalanceAutomationControls status={todayStatus} />
+      </section>
       <section className="admin-list-panel admin-balance-create-panel">
         <div className="admin-balance-section-head"><div><p>DAILY ENGAGEMENT</p><h2>새 밸런스 게임 등록</h2><span>하루에 하나의 질문을 등록하고 연결 토론을 함께 엽니다.</span></div></div>
-        <BalanceGameForm mode="create" />
+        <BalanceGameForm mode="create" defaultGameDate={today} />
       </section>
       <section className="admin-list-panel admin-balance-list-panel">
         <div className="admin-balance-section-head"><div><p>RECENT GAMES</p><h2>최근 밸런스 게임 <span>{games.length}</span></h2><span>투표 수와 선택 비율을 확인할 수 있습니다.</span></div></div>

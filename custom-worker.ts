@@ -17,9 +17,16 @@ const worker = {
   },
   async scheduled(event: ScheduledEvent, env: FeatableWorkerEnv, ctx: WorkerContext) {
     if (!env.SYNC_CRON_SECRET) throw new Error("SYNC_CRON_SECRET is missing.");
-    const paths = event.cron === "0 */6 * * *"
-      ? ["/api/cron/bizinfo", "/api/cron/interview-emails", "/api/cron/board-images"]
-      : ["/api/cron/interview-emails"];
+    let paths: string[];
+    if (event.cron === "0 */6 * * *") {
+      paths = ["/api/cron/bizinfo", "/api/cron/interview-emails", "/api/cron/board-images"];
+    } else if (event.cron === "55 14 * * *") {
+      paths = ["/api/cron/board-balance?target=tomorrow"];
+    } else if (event.cron === "0 15 * * *") {
+      paths = ["/api/cron/board-balance"];
+    } else {
+      paths = ["/api/cron/board-balance", "/api/cron/interview-emails"];
+    }
     for (const path of paths) {
       const request = new Request(`https://featable.kr${path}`, {
         method: "POST",

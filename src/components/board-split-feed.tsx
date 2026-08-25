@@ -95,7 +95,9 @@ export function BoardSplitFeed({
         </Link>
       </nav>
 
-      {best && balanceGame && <BoardBalanceGame game={balanceGame} compact />}
+      {best && balanceGame && (
+        <BoardBalanceGame game={balanceGame} compact key={balanceGame.id} />
+      )}
 
       {!best && (
         <nav className={styles.categoryTabs} aria-label="게시판 카테고리">

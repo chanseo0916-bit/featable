@@ -37,7 +37,7 @@ export default async function BalancePage() {
 
       {game ? (
         <div className="balance-game-wrap">
-          <BoardBalanceGame game={game} />
+          <BoardBalanceGame game={game} key={game.id} />
         </div>
       ) : (
         <section className="balance-empty" aria-live="polite">

@@ -1,0 +1,25 @@
+.countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  white-space: nowrap;
+}
+
+.label {
+  color: var(--fg-muted);
+  font-size: var(--fs-t1);
+  font-weight: 500;
+}
+
+.time {
+  color: var(--accent);
+  font-size: var(--fs-t1);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}

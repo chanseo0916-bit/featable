@@ -153,7 +153,7 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
             ))}
           </nav>
 
-          {balanceGame && <BoardBalanceGame game={balanceGame} />}
+          {balanceGame && <BoardBalanceGame game={balanceGame} key={balanceGame.id} />}
 
           <form className="board-search-form" action="/board" method="get" role="search">
             {best ? (

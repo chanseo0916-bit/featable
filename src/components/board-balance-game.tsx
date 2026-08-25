@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { BoardBalanceCountdown } from "@/components/board-balance-countdown";
 import type {
   BoardBalanceChoice,
   BoardBalanceGame as BoardBalanceGameData,
@@ -159,7 +160,7 @@ export function BoardBalanceGame({
     >
       <div className={styles.heading}>
         <p>오늘의 밸런스</p>
-        {hasResult && <span>{counts.total.toLocaleString("ko-KR")}명 참여</span>}
+        <BoardBalanceCountdown />
       </div>
 
       <h2 id={`board-balance-${game.id}`}>{game.question}</h2>
@@ -176,9 +177,7 @@ export function BoardBalanceGame({
           >
             <span className={styles.choiceTopline}>
               <span className={styles.choiceLabel}>A</span>
-              {hasResult ? (
-                <strong>{percentages.a}%</strong>
-              ) : choice === "a" ? (
+              {choice === "a" ? (
                 <span className={styles.selectedChoiceBadge}>
                   <svg aria-hidden="true" viewBox="0 0 20 20">
                     <path d="m5 10 3 3 7-7" />
@@ -188,14 +187,6 @@ export function BoardBalanceGame({
               ) : null}
             </span>
             <span className={styles.choiceText}>{game.optionA}</span>
-            {hasResult && (
-              <progress
-                className={styles.progress}
-                max="100"
-                value={percentages.a}
-                aria-label={`${game.optionA} ${percentages.a}%`}
-              />
-            )}
             {pendingChoice === "a" && <span className={styles.pending}>투표 중...</span>}
           </button>
 
@@ -208,9 +199,7 @@ export function BoardBalanceGame({
           >
             <span className={styles.choiceTopline}>
               <span className={styles.choiceLabel}>B</span>
-              {hasResult ? (
-                <strong>{percentages.b}%</strong>
-              ) : choice === "b" ? (
+              {choice === "b" ? (
                 <span className={styles.selectedChoiceBadge}>
                   <svg aria-hidden="true" viewBox="0 0 20 20">
                     <path d="m5 10 3 3 7-7" />
@@ -220,14 +209,6 @@ export function BoardBalanceGame({
               ) : null}
             </span>
             <span className={styles.choiceText}>{game.optionB}</span>
-            {hasResult && (
-              <progress
-                className={styles.progress}
-                max="100"
-                value={percentages.b}
-                aria-label={`${game.optionB} ${percentages.b}%`}
-              />
-            )}
             {pendingChoice === "b" && <span className={styles.pending}>투표 중...</span>}
           </button>
         </div>
@@ -244,32 +225,53 @@ export function BoardBalanceGame({
         </div>
       )}
 
-      {hasVote && !game.viewerAuthenticated && (
+      {hasVote && (
         <div className={styles.resultGate} aria-live="polite">
-          <div className={styles.lockedResultPreview} aria-hidden="true">
+          <div className={styles.lockedResultPreview} aria-hidden={!hasResult}>
             <div className={styles.lockedResultTopline}>
               <span>실시간 투표 결과</span>
+              {hasResult && <strong>{counts.total.toLocaleString("ko-KR")}명 참여</strong>}
             </div>
-            <div className={styles.lockedResultRows}>
+            <div className={styles.lockedResultRows} data-locked={!hasResult}>
               <div className={styles.lockedResultRow}>
                 <b>A</b>
-                <span><i /></span>
-                <em>••%</em>
+                {hasResult ? (
+                  <progress
+                    className={styles.resultBar}
+                    max="100"
+                    value={percentages.a}
+                    aria-label={`${game.optionA} ${percentages.a}%`}
+                  />
+                ) : (
+                  <span><i /></span>
+                )}
+                <em>{hasResult ? `${percentages.a}%` : "••%"}</em>
               </div>
               <div className={styles.lockedResultRow}>
                 <b>B</b>
-                <span><i /></span>
-                <em>••%</em>
+                {hasResult ? (
+                  <progress
+                    className={styles.resultBar}
+                    max="100"
+                    value={percentages.b}
+                    aria-label={`${game.optionB} ${percentages.b}%`}
+                  />
+                ) : (
+                  <span><i /></span>
+                )}
+                <em>{hasResult ? `${percentages.b}%` : "••%"}</em>
               </div>
             </div>
           </div>
 
-          <Link href="/login?next=%2Fbalance">
-            내 선택 결과 확인하기
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="m9 5 7 7-7 7" />
-            </svg>
-          </Link>
+          {!game.viewerAuthenticated && (
+            <Link href="/login?next=%2Fbalance">
+              내 선택 결과 확인하기
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m9 5 7 7-7 7" />
+              </svg>
+            </Link>
+          )}
         </div>
       )}
 

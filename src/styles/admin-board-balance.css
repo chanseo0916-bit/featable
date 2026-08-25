@@ -1,11 +1,22 @@
 .admin-balance-page { container-type: inline-size; }
 .admin-balance-create-panel, .admin-balance-list-panel { display: grid; gap: 24px; }
 .admin-balance-list-panel { margin-top: 18px; }
+.admin-balance-automation-panel { display: grid; gap: 18px; margin-bottom: 18px; }
 .admin-balance-section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .admin-balance-section-head p { margin: 0 0 8px; color: var(--accent); font-size: var(--fs-t1); font-weight: 700; letter-spacing: .08em; }
 .admin-balance-section-head h2 { margin: 0; color: var(--fg-strong); font-size: var(--fs-t5); font-weight: 700; letter-spacing: -.03em; }
 .admin-balance-section-head h2 span { margin-left: 6px; color: var(--fg-subtle); font-size: var(--fs-t2); font-weight: 500; }
 .admin-balance-section-head > div > span { display: block; margin-top: 8px; color: var(--fg-muted); font-size: var(--fs-t2); line-height: 1.5; }
+.admin-balance-kst-badge { flex: 0 0 auto; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-xl); color: var(--fg-muted); font-size: var(--fs-t1); font-weight: 700; }
+.admin-balance-automation-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding-top: 18px; border-top: 1px solid var(--border); }
+.admin-balance-automation-status { display: grid; gap: 4px; }
+.admin-balance-automation-label { color: var(--fg-subtle); font-size: var(--fs-t1); font-weight: 700; }
+.admin-balance-automation-status strong { color: var(--fg-strong); font-size: var(--fs-t4); font-weight: 700; }
+.admin-balance-automation-status > span:last-child { color: var(--fg-muted); font-size: var(--fs-t1); line-height: 1.5; }
+.admin-balance-automation-button { min-height: 44px; padding: 0 16px; border: 1px solid var(--accent); border-radius: var(--radius-md); background: var(--accent); color: var(--surface); cursor: pointer; font: inherit; font-size: var(--fs-t2); font-weight: 700; }
+.admin-balance-automation-button:hover { background: var(--carrot-700); }
+.admin-balance-automation-button:disabled { cursor: not-allowed; opacity: .55; }
+.admin-balance-automation-controls .admin-balance-notice { grid-column: 1 / -1; }
 .admin-balance-form { display: grid; gap: 18px; }
 .admin-balance-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .admin-balance-form label { display: grid; gap: 7px; }
@@ -56,6 +67,8 @@
 .admin-balance-error { display: grid; gap: 8px; }
 .admin-balance-error strong { color: var(--fg-strong); font-size: var(--fs-t4); }
 @container (max-width: 700px) {
+  .admin-balance-automation-controls { grid-template-columns: 1fr; align-items: stretch; }
+  .admin-balance-automation-button { width: 100%; }
   .admin-balance-form-grid, .admin-balance-edit[open] .admin-balance-form-grid { grid-template-columns: 1fr; }
   .admin-balance-form-wide { grid-column: auto; }
   .admin-balance-votes { grid-template-columns: repeat(2, minmax(0, 1fr)); }

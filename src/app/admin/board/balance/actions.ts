@@ -1,6 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import {
+  ensureDailyBoardBalanceGame,
+  getKstDateString,
+} from "@/lib/board-balance-automation";
 import { getBoardAdminAccess } from "../access";
 
 const UUID_PATTERN =
@@ -140,6 +144,29 @@ export async function createBalanceGame(input: unknown): Promise<BalanceGameActi
 
   revalidateBalanceGame();
   return { ok: true, message: "밸런스 게임이 등록되었습니다." };
+}
+
+/**
+ * Fills today's KST slot only when it is empty. The automation helper performs
+ * the same unique-date check as the midnight cron, so this is safe to retry.
+ */
+export async function ensureTodayBalanceGame(): Promise<BalanceGameActionResult> {
+  const access = await getBoardAdminAccess();
+  if (!access.ok) return { ok: false, error: access.error };
+
+  try {
+    const result = await ensureDailyBoardBalanceGame(getKstDateString(), access.userId);
+    revalidateBalanceGame();
+    return {
+      ok: true,
+      message: result.status === "created"
+        ? "오늘 밸런스 게임을 자동으로 등록했습니다."
+        : "오늘 밸런스 게임이 이미 있어 그대로 유지했습니다.",
+    };
+  } catch (error) {
+    console.error("[admin/board/balance] Failed to ensure today's balance game.", error);
+    return { ok: false, error: "오늘 밸런스 게임을 준비하지 못했습니다. 잠시 후 다시 시도해 주세요." };
+  }
 }
 
 export async function updateBalanceGame(id: unknown, input: unknown): Promise<BalanceGameActionResult> {

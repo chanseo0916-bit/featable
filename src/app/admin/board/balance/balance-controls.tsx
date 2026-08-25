@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createBalanceGame, updateBalanceGame, type BalanceGameInput, type BalanceGameStatus } from "./actions";
+import { createBalanceGame, ensureTodayBalanceGame, updateBalanceGame, type BalanceGameInput, type BalanceGameStatus } from "./actions";
 
 type BalanceGameFormProps = {
   mode: "create" | "edit";
   id?: string;
   initial?: BalanceGameInput;
+  defaultGameDate?: string;
   contentLocked?: boolean;
 };
 
@@ -17,15 +18,17 @@ function todayInKorea() {
   return `${values.get("year") ?? ""}-${values.get("month") ?? ""}-${values.get("day") ?? ""}`;
 }
 
-const EMPTY_FORM: BalanceGameInput = {
-  gameDate: todayInKorea(),
-  question: "",
-  optionA: "",
-  optionB: "",
-  optionAReasons: [""],
-  optionBReasons: [""],
-  status: "draft",
-};
+function emptyForm(gameDate: string): BalanceGameInput {
+  return {
+    gameDate,
+    question: "",
+    optionA: "",
+    optionB: "",
+    optionAReasons: [""],
+    optionBReasons: [""],
+    status: "draft",
+  };
+}
 
 const STATUS_OPTIONS: { value: BalanceGameStatus; label: string }[] = [
   { value: "draft", label: "초안" },
@@ -37,10 +40,13 @@ export function BalanceGameForm({
   mode,
   id,
   initial,
+  defaultGameDate,
   contentLocked = false,
 }: BalanceGameFormProps) {
   const router = useRouter();
-  const [form, setForm] = useState<BalanceGameInput>(initial ?? EMPTY_FORM);
+  const [form, setForm] = useState<BalanceGameInput>(
+    initial ?? emptyForm(defaultGameDate ?? todayInKorea()),
+  );
   const [pending, startTransition] = useTransition();
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -62,7 +68,7 @@ export function BalanceGameForm({
         return;
       }
       setNotice({ type: "success", text: result.message });
-      if (mode === "create") setForm({ ...EMPTY_FORM, gameDate: form.gameDate });
+      if (mode === "create") setForm(emptyForm(form.gameDate));
       router.refresh();
     });
   }
@@ -142,5 +148,51 @@ export function BalanceGameEditForm({
       <summary>내용 및 상태 수정</summary>
       <BalanceGameForm mode="edit" id={id} initial={initial} contentLocked={contentLocked} />
     </details>
+  );
+}
+
+const AUTOMATION_STATUS_COPY: Record<BalanceGameStatus, { title: string; detail: string }> = {
+  published: {
+    title: "공개 게임 준비됨",
+    detail: "직접 예약한 게임이 자동 생성보다 우선합니다.",
+  },
+  draft: {
+    title: "초안이 예약됨",
+    detail: "자동화는 덮어쓰지 않아요. 아래 목록에서 공개 상태로 바꿔주세요.",
+  },
+  archived: {
+    title: "보관 게임이 예약됨",
+    detail: "오늘은 공개되지 않아요. 아래 목록에서 상태를 수정해주세요.",
+  },
+};
+
+export function BalanceAutomationControls({ status }: { status: BalanceGameStatus | null }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const hasGame = status !== null;
+  const statusCopy = status ? AUTOMATION_STATUS_COPY[status] : null;
+
+  function ensureToday() {
+    startTransition(async () => {
+      setNotice(null);
+      const result = await ensureTodayBalanceGame();
+      setNotice({ type: result.ok ? "success" : "error", text: result.ok ? result.message : result.error });
+      if (result.ok) router.refresh();
+    });
+  }
+
+  return (
+    <div className="admin-balance-automation-controls">
+      <div className="admin-balance-automation-status">
+        <span className="admin-balance-automation-label">오늘 KST 슬롯</span>
+        <strong>{statusCopy?.title ?? "아직 비어 있음"}</strong>
+        <span>{statusCopy?.detail ?? "자정 자동 생성 전, 지금 바로 채울 수 있습니다."}</span>
+      </div>
+      <button className="admin-balance-automation-button" type="button" onClick={ensureToday} disabled={pending || hasGame}>
+        {pending ? "준비 중…" : hasGame ? "오늘 슬롯 예약됨" : "오늘 게임 자동 생성"}
+      </button>
+      {notice && <p className={`admin-balance-notice ${notice.type}`} role="status">{notice.text}</p>}
+    </div>
   );
 }
