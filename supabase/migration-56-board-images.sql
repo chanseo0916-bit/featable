@@ -12,9 +12,10 @@
 begin;
 
 -- --------------------------------------------------------------------------
--- Public board image bucket. Direct anon/authenticated writes are blocked by
--- restrictive storage policies below. The service-role upload route bypasses
--- RLS and remains the only writer.
+-- Public board image bucket. Public buckets are readable through the Storage
+-- API without a SELECT policy. No anon/authenticated write policy is created
+-- for this bucket; the service-role upload route bypasses Storage RLS and is
+-- the only writer. Do not ALTER Supabase-owned storage.objects here.
 -- --------------------------------------------------------------------------
 
 insert into storage.buckets (
@@ -35,44 +36,6 @@ on conflict (id) do update set
   public = excluded.public,
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
-
-alter table storage.objects enable row level security;
-
-drop policy if exists "board_images_public_read" on storage.objects;
-create policy "board_images_public_read"
-  on storage.objects
-  for select
-  to anon, authenticated
-  using (bucket_id = 'board-images');
-
--- PostgreSQL RLS policies are permissive by default. These restrictive
--- policies make a future broad storage INSERT/UPDATE/DELETE policy unable to
--- open this bucket to the browser while preserving the existing images bucket
--- upload policy used elsewhere in Featable.
-drop policy if exists "board_images_block_direct_insert" on storage.objects;
-create policy "board_images_block_direct_insert"
-  on storage.objects
-  as restrictive
-  for insert
-  to anon, authenticated
-  with check (bucket_id <> 'board-images');
-
-drop policy if exists "board_images_block_direct_update" on storage.objects;
-create policy "board_images_block_direct_update"
-  on storage.objects
-  as restrictive
-  for update
-  to anon, authenticated
-  using (bucket_id <> 'board-images')
-  with check (bucket_id <> 'board-images');
-
-drop policy if exists "board_images_block_direct_delete" on storage.objects;
-create policy "board_images_block_direct_delete"
-  on storage.objects
-  as restrictive
-  for delete
-  to anon, authenticated
-  using (bucket_id <> 'board-images');
 
 -- --------------------------------------------------------------------------
 -- Attachment rows. A pending row has no post_id. The service upload route
