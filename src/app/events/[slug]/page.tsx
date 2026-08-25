@@ -17,6 +17,7 @@ import { LikeCount } from "@/components/like-count";
 import { ViewTracker } from "@/components/view-tracker";
 import { bypassImageOptimization } from "@/lib/images";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { EventRegistrationCard } from "./registration-card";
 
 function formatEventDate(value: string) {
@@ -49,10 +50,29 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
     ])
     : [{ data: null }, { data: null }];
 
-  const [eventSaveCount, organizer] = await Promise.all([
+  const admin = createAdminClient();
+  const { data: cohostRows } = admin && event.id
+    ? await admin.from("event_cohosts").select("user_id").eq("event_id", event.id).eq("status", "accepted").order("created_at", { ascending: true })
+    : { data: [] };
+  const cohostUserIds = (cohostRows ?? []).map((row) => row.user_id).filter((userId) => userId !== event.submittedBy);
+  const [eventSaveCount, organizer, cohostFounders, cohostProfiles] = await Promise.all([
     getLikeCount("event", event.slug),
     event.submittedBy ? getFounderByUserId(event.submittedBy) : null,
+    Promise.all(cohostUserIds.map((userId) => getFounderByUserId(userId))),
+    admin && cohostUserIds.length
+      ? admin.from("profiles").select("id,full_name").in("id", cohostUserIds).then(({ data }) => data ?? [])
+      : Promise.resolve([]),
   ]);
+  const cohostNames = new Map(cohostProfiles.map((profile) => [profile.id, profile.full_name]));
+  const cohosts = cohostUserIds.map((userId, index) => ({
+    userId,
+    founder: cohostFounders[index],
+    name: cohostFounders[index]?.name || cohostNames.get(userId) || "Featable 공동 주최자",
+  }));
+  const publicOrganizers = [
+    ...(organizer ? [{ name: organizer.name, url: `/founders/${organizer.slug}`, image: organizer.avatarUrl }] : []),
+    ...cohosts.map((cohost) => ({ name: cohost.name, url: cohost.founder ? `/founders/${cohost.founder.slug}` : undefined, image: cohost.founder?.avatarUrl })),
+  ];
   const eventPath = `/events/${event.slug}`;
   const eventJsonLd: SeoSchema = {
     "@type": "Event",
@@ -72,13 +92,13 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
     organizer: {
       "@type": "Organization",
       name: event.host,
-      ...(organizer ? {
-        member: {
+      ...(publicOrganizers.length ? {
+        member: publicOrganizers.map((member) => ({
           "@type": "Person",
-          name: organizer.name,
-          url: absoluteUrl(`/founders/${organizer.slug}`),
-          image: absoluteUrl(organizer.avatarUrl),
-        },
+          name: member.name,
+          ...(member.url ? { url: absoluteUrl(member.url) } : {}),
+          ...(member.image ? { image: absoluteUrl(member.image) } : {}),
+        })),
       } : {}),
     },
   };
@@ -104,20 +124,21 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
           <img src={event.coverUrl} alt={`${event.name} 포스터`} />
           <EventRegistrationCard eventId={event.id} slug={event.slug} host={event.host} mode={event.registrationMode ?? "external"} applyUrl={event.applyUrl} capacity={event.capacity} approvalMode={event.approvalMode ?? "instant"} closed={event.registrationClosed ?? false} isPaid={event.isPaid} paymentAccount={event.paymentAccount} paymentNotice={event.paymentNotice} user={user ? { name: profile?.full_name?.trim() || user.user_metadata?.full_name || "Featable 멤버", email: user.email ?? "" } : undefined} registration={registration ? { status: registration.status as "verification_pending" | "pending" | "confirmed" | "waitlisted" | "rejected" | "cancelled" } : undefined} />
           <section className="event-host-card">
-            <span>주최자</span>
-            <div className="event-host-profile">
-              {organizer ? (
-                <Image src={organizer.avatarUrl} alt={`${organizer.name} 프로필 사진`} width={56} height={56} unoptimized={bypassImageOptimization(organizer.avatarUrl)} />
-              ) : (
-                <i aria-hidden>{event.host.trim().slice(0, 1) || "F"}</i>
-              )}
-              <div>
-                <strong>{event.host}</strong>
-                {organizer && <small>{organizer.name}{organizer.role ? ` · ${organizer.role}` : ""}</small>}
+            <span>주최 팀</span>
+            <strong className="event-host-organization">{event.host}</strong>
+            <div className="event-host-list">
+              <div className="event-host-profile">
+                {organizer ? <Image src={organizer.avatarUrl} alt={`${organizer.name} 프로필 사진`} width={56} height={56} unoptimized={bypassImageOptimization(organizer.avatarUrl)} /> : <i aria-hidden>{event.host.trim().slice(0, 1) || "F"}</i>}
+                <div><strong>{organizer?.name || event.host}</strong><small>대표 주최{organizer?.role ? ` · ${organizer.role}` : ""}</small></div>
+                {organizer && <Link href={`/founders/${organizer.slug}`} aria-label={`${organizer.name} 프로필 보기`}>→</Link>}
               </div>
+              {cohosts.map((cohost) => <div className="event-host-profile" key={cohost.userId}>
+                {cohost.founder ? <Image src={cohost.founder.avatarUrl} alt={`${cohost.name} 프로필 사진`} width={56} height={56} unoptimized={bypassImageOptimization(cohost.founder.avatarUrl)} /> : <i aria-hidden>{cohost.name.slice(0, 1)}</i>}
+                <div><strong>{cohost.name}</strong><small>공동 주최{cohost.founder?.role ? ` · ${cohost.founder.role}` : ""}</small></div>
+                {cohost.founder && <Link href={`/founders/${cohost.founder.slug}`} aria-label={`${cohost.name} 프로필 보기`}>→</Link>}
+              </div>)}
             </div>
-            <p>{organizer?.bio || organizer?.headline || (event.audience ? `${event.audience}를 위한 행사를 만들고 있습니다.` : "참가자에게 좋은 만남을 만드는 주최자입니다.")}</p>
-            {organizer && <Link href={`/founders/${organizer.slug}`}>주최자 프로필 보기 <span aria-hidden>→</span></Link>}
+            <p>{organizer?.bio || organizer?.headline || (event.audience ? `${event.audience}를 위한 행사를 만들고 있습니다.` : "참가자에게 좋은 만남을 만드는 주최 팀입니다.")}</p>
           </section>
         </aside>
         <article className="event-experience-main">

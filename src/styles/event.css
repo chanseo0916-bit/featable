@@ -429,8 +429,12 @@
 
 .event-host-card > span { color: var(--fg-muted); font-size: 12px; }
 
+.event-host-organization { font-size: 17px; line-height: 1.35; }
 
-.event-host-profile { display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 12px; }
+.event-host-list { display: grid; gap: 10px; }
+
+
+.event-host-profile { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 12px; }
 
 
 .event-host-profile > img, .event-host-profile > i { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
@@ -446,6 +450,10 @@
 
 
 .event-host-profile small { color: var(--fg-muted); font-size: 11px; line-height: 1.4; }
+
+.event-host-profile > a { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid #e1e4e6; border-radius: 50%; color: var(--fg-strong); font-size: 14px; transition: border-color .2s ease, transform .2s ease; }
+
+.event-host-profile > a:hover { border-color: var(--accent); transform: translateX(2px); }
 
 
 .event-host-card p { margin: 0; color: var(--fg-muted); font-size: 12px; line-height: 1.6; }
