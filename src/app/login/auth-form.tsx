@@ -21,6 +21,7 @@ export function AuthForm() {
     searchParams.get("mode") === "signup" ? "signup" : "login",
   );
   const next = searchParams.get("next") ?? "/";
+  const unlocksBalanceResult = next === "/balance" || next.startsWith("/balance?");
   const urlError = searchParams.get("error");
   const [loginState, loginAction, loginPending] = useActionState(login, initialState);
   const [signupState, signupAction, signupPending] = useActionState(signup, initialState);
@@ -33,6 +34,18 @@ export function AuthForm() {
   };
   const state = mode === "login" ? loginState : signupState;
   const pending = mode === "login" ? loginPending : signupPending;
+  const heading = unlocksBalanceResult
+    ? mode === "login"
+      ? "방금 투표한 결과가 기다리고 있어요"
+      : "가입하고 투표 결과를 확인하세요"
+    : mode === "login"
+      ? "다시 만나서 반가워요"
+      : "어떤 사람인지 알려주세요";
+  const description = unlocksBalanceResult
+    ? "로그인하면 내 표는 그대로 유지되고, 실시간 결과와 선택 이유가 바로 열려요."
+    : mode === "login"
+      ? "계속해서 새로운 제품과 Founder를 만나보세요."
+      : "가입에 필요한 최소 정보만 받아요. 브랜드 정보는 나중에 등록할 수 있습니다.";
 
   async function signInWithGoogle() {
     setGoogleError(null);
@@ -56,9 +69,9 @@ export function AuthForm() {
       </div>
 
       <div className="mb-6">
-        <p className="text-xs font-extrabold tracking-[0.14em] text-accent">{mode === "login" ? "로그인" : "회원가입"}</p>
-        <h1 className="mt-2 text-[28px] font-black tracking-[-0.045em]">{mode === "login" ? "다시 만나서 반가워요" : "어떤 사람인지 알려주세요"}</h1>
-        <p className="mt-2 text-sm leading-6 text-muted">{mode === "login" ? "계속해서 새로운 제품과 Founder를 만나보세요." : "가입에 필요한 최소 정보만 받아요. 브랜드 정보는 나중에 등록할 수 있습니다."}</p>
+        <p className="text-xs font-extrabold tracking-[0.14em] text-accent">{unlocksBalanceResult ? "투표 결과 공개" : mode === "login" ? "로그인" : "회원가입"}</p>
+        <h1 className="mt-2 text-[28px] font-black tracking-[-0.045em]">{heading}</h1>
+        <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
       </div>
 
       <button type="button" onClick={signInWithGoogle} className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white py-3.5 text-sm font-extrabold transition hover:border-[#aaa] hover:bg-[#fafafa]">
@@ -68,7 +81,7 @@ export function AuthForm() {
           <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
           <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
         </svg>
-        Google로 {mode === "login" ? "로그인" : "시작하기"}
+        Google로 {unlocksBalanceResult ? "결과 보기" : mode === "login" ? "로그인" : "시작하기"}
       </button>
 
       {(googleError || urlError) && <p role="alert" className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-xs text-red-600">{googleError ?? "인증에 실패했습니다. 다시 시도해주세요."}</p>}
@@ -114,7 +127,7 @@ export function AuthForm() {
 
         {state.error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-600">{state.error}</p>}
         {state.message && <p role="status" className="rounded-xl bg-accent-soft px-4 py-3 text-xs font-semibold text-accent">{state.message}</p>}
-        <button type="submit" disabled={pending} className="w-full rounded-xl bg-accent py-4 text-sm font-extrabold text-white transition hover:bg-accent-hover disabled:opacity-50">{pending ? "처리 중…" : mode === "login" ? "로그인" : "Featable 가입하기"}</button>
+        <button type="submit" disabled={pending} className="w-full rounded-xl bg-accent py-4 text-sm font-extrabold text-white transition hover:bg-accent-hover disabled:opacity-50">{pending ? "처리 중…" : unlocksBalanceResult ? mode === "login" ? "로그인하고 결과 보기" : "가입하고 결과 보기" : mode === "login" ? "로그인" : "Featable 가입하기"}</button>
       </form>
     </div>
   );

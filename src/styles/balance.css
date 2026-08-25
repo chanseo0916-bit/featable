@@ -1,0 +1,231 @@
+.balance-page {
+  width: min(100%, 640px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 20px 48px;
+  background: var(--background);
+  color: var(--fg-default);
+}
+
+.balance-page-header {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--gray-300);
+}
+
+.balance-logo {
+  width: 128px;
+  display: block;
+  line-height: 0;
+}
+
+.balance-logo img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.balance-share-control {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-share-button {
+  min-height: 40px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  background: var(--background);
+  color: var(--fg-default);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.balance-share-button:hover {
+  background: var(--surface);
+}
+
+.balance-share-button:focus-visible,
+.balance-page-footer a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  outline-offset: 2px;
+}
+
+.balance-share-button svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.balance-share-status {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max-content;
+  max-width: 240px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--fg-muted);
+  font-size: var(--fs-t1);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.balance-intro {
+  padding: 48px 4px 28px;
+}
+
+.balance-eyebrow,
+.balance-empty-label {
+  margin: 0;
+  color: var(--accent);
+  font-size: var(--fs-t1);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.balance-intro h1 {
+  margin: 10px 0 12px;
+  color: var(--fg-strong);
+  font-size: var(--fs-t9);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -.03em;
+}
+
+.balance-intro > p:last-child {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: var(--fs-t3);
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.balance-game-wrap {
+  margin: 0;
+}
+
+.balance-game-wrap > section {
+  margin-top: 0;
+  background: var(--surface);
+}
+
+.balance-empty {
+  padding: 40px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  text-align: center;
+}
+
+.balance-empty h2 {
+  margin: 12px 0 8px;
+  color: var(--fg-strong);
+  font-size: var(--fs-t6);
+  font-weight: 700;
+  letter-spacing: -.03em;
+}
+
+.balance-empty > p:last-child {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: var(--fs-t2);
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.balance-guide {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-block: 1px solid var(--gray-300);
+}
+
+.balance-guide > div {
+  padding: 18px 12px;
+}
+
+.balance-guide > div + div {
+  border-left: 1px solid var(--gray-300);
+}
+
+.balance-guide strong {
+  color: var(--fg-strong);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+}
+
+.balance-guide p {
+  margin: 6px 0 0;
+  color: var(--fg-subtle);
+  font-size: var(--fs-t1);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.balance-page-footer {
+  padding: 28px 4px 0;
+  text-align: center;
+}
+
+.balance-page-footer a {
+  color: var(--accent);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+}
+
+.balance-page-footer a span {
+  margin-left: 4px;
+}
+
+@media (min-width: 641px) {
+  .balance-page {
+    min-height: calc(100dvh - 1px);
+    border-inline: 1px solid var(--gray-300);
+  }
+}
+
+@media (max-width: 420px) {
+  .balance-page {
+    padding-inline: 16px;
+  }
+
+  .balance-page-header {
+    min-height: 64px;
+  }
+
+  .balance-logo {
+    width: 116px;
+  }
+
+  .balance-intro {
+    padding-top: 38px;
+  }
+
+  .balance-intro h1 {
+    font-size: var(--fs-t8);
+  }
+
+  .balance-guide > div {
+    padding-inline: 8px;
+  }
+}

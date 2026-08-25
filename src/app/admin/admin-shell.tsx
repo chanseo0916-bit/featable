@@ -15,7 +15,8 @@ const NAV_GROUPS: { label: string; items: { href: string; label: string; icon: I
     { href: "/admin/brands", label: "브랜드", icon: "brand" },
     { href: "/admin/products", label: "프로덕트", icon: "product" },
     { href: "/admin/stories", label: "스토리", icon: "story" },
-    { href: "/admin/board", label: "게시글", icon: "board" },
+    { href: "/admin/board", label: "게시글", icon: "board", exact: true },
+    { href: "/admin/board/balance", label: "밸런스 게임", icon: "board" },
   ] },
   { label: "큐레이션", items: [
     { href: "/admin/inquiries", label: "파트너 문의", icon: "partner" },

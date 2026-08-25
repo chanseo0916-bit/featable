@@ -1,0 +1,64 @@
+.admin-balance-page { container-type: inline-size; }
+.admin-balance-create-panel, .admin-balance-list-panel { display: grid; gap: 24px; }
+.admin-balance-list-panel { margin-top: 18px; }
+.admin-balance-section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.admin-balance-section-head p { margin: 0 0 8px; color: var(--accent); font-size: var(--fs-t1); font-weight: 700; letter-spacing: .08em; }
+.admin-balance-section-head h2 { margin: 0; color: var(--fg-strong); font-size: var(--fs-t5); font-weight: 700; letter-spacing: -.03em; }
+.admin-balance-section-head h2 span { margin-left: 6px; color: var(--fg-subtle); font-size: var(--fs-t2); font-weight: 500; }
+.admin-balance-section-head > div > span { display: block; margin-top: 8px; color: var(--fg-muted); font-size: var(--fs-t2); line-height: 1.5; }
+.admin-balance-form { display: grid; gap: 18px; }
+.admin-balance-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.admin-balance-form label { display: grid; gap: 7px; }
+.admin-balance-form label > span { color: var(--fg-muted); font-size: var(--fs-t1); font-weight: 700; }
+.admin-balance-form input, .admin-balance-form select, .admin-balance-form textarea { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--fg-default); font: inherit; font-size: var(--fs-t2); }
+.admin-balance-form textarea { min-height: 112px; padding-top: 10px; padding-bottom: 10px; resize: vertical; line-height: 1.5; }
+.admin-balance-form input:focus, .admin-balance-form select:focus, .admin-balance-form textarea:focus { outline: 2px solid color-mix(in srgb, var(--accent) 22%, transparent); border-color: var(--accent); }
+.admin-balance-form label > small { color: var(--fg-subtle); font-size: var(--fs-t1); font-weight: 400; line-height: 1.4; }
+.admin-balance-form-wide { grid-column: span 2; }
+.admin-balance-submit { width: fit-content; min-height: 44px; padding: 0 18px; border: 1px solid var(--accent); border-radius: var(--radius-md); background: var(--accent); color: var(--surface); cursor: pointer; font: inherit; font-size: var(--fs-t2); font-weight: 700; }
+.admin-balance-submit:hover { background: var(--carrot-700); }
+.admin-balance-submit:disabled { cursor: wait; opacity: .55; }
+.admin-balance-form input:disabled, .admin-balance-form textarea:disabled { cursor: not-allowed; opacity: .7; }
+.admin-balance-lock-notice { margin: 0; color: var(--fg-muted); font-size: var(--fs-t1); font-weight: 500; line-height: 1.5; }
+.admin-balance-notice { margin: 0; padding: 11px 13px; border-radius: var(--radius-md); font-size: var(--fs-t1); line-height: 1.5; }
+.admin-balance-notice.success { background: var(--success-bg); color: var(--success); }
+.admin-balance-notice.error { background: var(--error-bg); color: var(--error); }
+.admin-balance-list { display: grid; gap: 14px; }
+.admin-balance-item { padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.admin-balance-item-head, .admin-balance-item-foot, .admin-balance-item-head > div, .admin-balance-votes > div { display: flex; align-items: center; }
+.admin-balance-item-head, .admin-balance-item-foot { justify-content: space-between; gap: 14px; }
+.admin-balance-item-head > div { flex-wrap: wrap; gap: 7px; }
+.admin-balance-date, .admin-balance-item-head time, .admin-balance-unlinked { color: var(--fg-muted); font-size: var(--fs-t1); }
+.admin-balance-item-head time { color: var(--fg-subtle); }
+.admin-balance-status { padding: 4px 8px; border-radius: var(--radius-xs); font-size: var(--fs-t1); font-weight: 700; }
+.admin-balance-status.draft { background: var(--gray-200); color: var(--fg-muted); }
+.admin-balance-status.published { background: var(--success-bg); color: var(--success); }
+.admin-balance-status.archived { background: var(--gray-300); color: var(--fg-subtle); }
+.admin-balance-item h3 { margin: 16px 0 0; color: var(--fg-strong); font-size: var(--fs-t5); font-weight: 700; line-height: 1.4; letter-spacing: -.03em; }
+.admin-balance-options { margin-top: 12px; display: grid; gap: 6px; color: var(--fg-default); font-size: var(--fs-t2); line-height: 1.5; }
+.admin-balance-reasons { margin-top: 12px; display: grid; gap: 8px; }
+.admin-balance-reasons > div { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.admin-balance-reasons span { min-width: 44px; color: var(--fg-muted); font-size: var(--fs-t1); font-weight: 700; }
+.admin-balance-reasons b { padding: 4px 8px; border-radius: var(--radius-xl); background: var(--gray-100); color: var(--fg-default); font-size: var(--fs-t1); font-weight: 500; }
+.admin-balance-votes { margin-top: 18px; padding-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto; gap: 12px; border-top: 1px solid var(--border); }
+.admin-balance-votes > div { justify-content: space-between; gap: 12px; color: var(--fg-muted); font-size: var(--fs-t1); }
+.admin-balance-votes strong { color: var(--fg-default); font-weight: 700; }
+.admin-balance-votes b { color: var(--accent); font-weight: 700; }
+.admin-balance-vote-total { color: var(--fg-subtle) !important; white-space: nowrap; }
+.admin-balance-item-foot { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+.admin-balance-item-foot > a { color: var(--accent); font-size: var(--fs-t1); font-weight: 700; }
+.admin-balance-edit { min-width: 0; }
+.admin-balance-edit summary { color: var(--fg-default); cursor: pointer; font-size: var(--fs-t1); font-weight: 700; }
+.admin-balance-edit[open] { width: 100%; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.admin-balance-edit[open] .admin-balance-form { margin-top: 16px; }
+.admin-balance-edit[open] .admin-balance-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.admin-balance-empty, .admin-balance-error p { margin: 0; color: var(--fg-muted); font-size: var(--fs-t2); line-height: 1.6; }
+.admin-balance-error { display: grid; gap: 8px; }
+.admin-balance-error strong { color: var(--fg-strong); font-size: var(--fs-t4); }
+@container (max-width: 700px) {
+  .admin-balance-form-grid, .admin-balance-edit[open] .admin-balance-form-grid { grid-template-columns: 1fr; }
+  .admin-balance-form-wide { grid-column: auto; }
+  .admin-balance-votes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-balance-vote-total { grid-column: span 2; }
+  .admin-balance-item-foot { align-items: flex-start; flex-direction: column; }
+}

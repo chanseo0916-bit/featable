@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BoardBalanceGame } from "@/components/board-balance-game";
 import { Header } from "@/components/site-shell";
 import {
   BOARD_CATEGORIES,
@@ -11,6 +12,7 @@ import {
   normalizeBoardSearch,
   type BoardCategory,
 } from "@/lib/board";
+import { getCurrentBoardBalanceGame } from "@/lib/board-balance";
 import { createPageMetadata } from "@/lib/site";
 import "@/styles/board.css";
 
@@ -84,13 +86,17 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
   const notice = firstParam(params.notice) === "post-deleted"
     ? "게시글을 삭제했습니다."
     : undefined;
-  const result = await getBoardPostsPage({
-    category: activeCategory,
-    unanswered,
-    best,
-    search,
-    page: requestedPage,
-  });
+  const shouldShowBalanceGame = !activeCategory && !unanswered && !search;
+  const [result, balanceGame] = await Promise.all([
+    getBoardPostsPage({
+      category: activeCategory,
+      unanswered,
+      best,
+      search,
+      page: requestedPage,
+    }),
+    shouldShowBalanceGame ? getCurrentBoardBalanceGame() : Promise.resolve(null),
+  ]);
   if (result.totalPages > 0 && requestedPage > result.totalPages) {
     redirect(boardHref({
       category: activeCategory,
@@ -146,6 +152,8 @@ export default async function BoardPage({ searchParams }: BoardPageProps) {
               </Link>
             ))}
           </nav>
+
+          {balanceGame && <BoardBalanceGame game={balanceGame} />}
 
           <form className="board-search-form" action="/board" method="get" role="search">
             {best ? (

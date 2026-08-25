@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BoardBalanceGame } from "@/components/board-balance-game";
 import {
   BOARD_BEST_LIKE_THRESHOLD,
   BOARD_CATEGORIES,
@@ -6,6 +7,7 @@ import {
   type BoardCategory,
   type BoardPostSummary,
 } from "@/lib/board";
+import type { BoardBalanceGame as BoardBalanceGameData } from "@/lib/board-balance-types";
 import styles from "@/components/board-split-panel.module.css";
 
 function fullBoardHref({
@@ -61,10 +63,12 @@ export function BoardSplitFeed({
   posts,
   best,
   activeCategory,
+  balanceGame,
 }: {
   posts: BoardPostSummary[];
   best: boolean;
   activeCategory?: BoardCategory;
+  balanceGame: BoardBalanceGameData | null;
 }) {
   const fullBoardUrl = fullBoardHref({ best, category: activeCategory });
 
@@ -90,6 +94,8 @@ export function BoardSplitFeed({
           최신
         </Link>
       </nav>
+
+      {best && balanceGame && <BoardBalanceGame game={balanceGame} compact />}
 
       {!best && (
         <nav className={styles.categoryTabs} aria-label="게시판 카테고리">

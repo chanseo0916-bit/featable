@@ -1,9 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  BOARD_VIEWER_COOKIE,
+  BOARD_VIEWER_COOKIE_MAX_AGE,
+} from "@/lib/board-viewer";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const VIEWER_COOKIE = "featable_board_viewer";
 
 type BoardViewBody = {
   postId?: unknown;
@@ -13,16 +16,15 @@ function validUuid(value: unknown): value is string {
   return typeof value === "string" && UUID_PATTERN.test(value.trim());
 }
 
-function responseWithViewerCookie(viewerKey: string, shouldSetCookie: boolean) {
+function responseWithViewerCookie(viewerKey: string) {
   const response = new NextResponse(null, { status: 204 });
-  if (shouldSetCookie) {
-    response.cookies.set(VIEWER_COOKIE, viewerKey, {
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-  }
+  response.cookies.set(BOARD_VIEWER_COOKIE, viewerKey, {
+    httpOnly: true,
+    maxAge: BOARD_VIEWER_COOKIE_MAX_AGE,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
   return response;
 }
 
@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid post id" }, { status: 400 });
   }
 
-  const existingViewerKey = request.cookies.get(VIEWER_COOKIE)?.value;
+  const existingViewerKey = request.cookies.get(BOARD_VIEWER_COOKIE)?.value;
   const hasValidViewerKey = validUuid(existingViewerKey);
   const viewerKey = hasValidViewerKey ? existingViewerKey : crypto.randomUUID();
   const admin = createAdminClient();
@@ -57,5 +59,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "board views are not ready" }, { status: 503 });
   }
 
-  return responseWithViewerCookie(viewerKey, !hasValidViewerKey);
+  return responseWithViewerCookie(viewerKey);
 }

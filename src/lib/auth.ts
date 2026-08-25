@@ -8,7 +8,13 @@ export function isMemberType(value: string): value is MemberType {
 
 /** 인증 이후 이동은 같은 사이트의 절대 경로만 허용한다. */
 export function safeNextPath(value: string | null | undefined, fallback = "/"): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+  if (
+    !value
+    || !value.startsWith("/")
+    || value.startsWith("//")
+    || value.includes("\\")
+    || /[\u0000-\u001f\u007f]/.test(value)
+  ) return fallback;
   return value;
 }
 
