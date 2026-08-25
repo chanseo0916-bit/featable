@@ -10,6 +10,7 @@
 @import "../styles/support.css";
 @import "../styles/community.css";
 @import "../styles/my.css";
+@import "../styles/stories.css";
 
 :root {
   --background: #ffffff;
@@ -1318,7 +1319,10 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .home-opportunity-copy > strong { max-width: 100%; font-size: 22px; }
   .home-opportunity-copy > small { display: none; }
   .home-opportunity-control { top: 14px; right: 14px; bottom: auto; }
-  .product-rail-actions a { display: none; }
+  .product-discovery-rail > header { gap: 10px; }
+  .product-rail-actions { gap: 4px; }
+  .product-rail-actions a { margin-right: 2px; font-size: 11px; }
+  .product-rail-actions button { width: 30px; height: 30px; }
   .product-square-card { flex-basis: 76vw; }
 }
 .legal-page { padding-bottom: 90px; }
