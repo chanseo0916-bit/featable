@@ -429,7 +429,7 @@
 
 .event-host-card > span { color: var(--fg-muted); font-size: 12px; }
 
-.event-host-organization { font-size: 17px; line-height: 1.35; }
+.event-host-organization { font-size: 18px; line-height: 1.35; }
 
 .event-host-list { display: grid; gap: 10px; }
 

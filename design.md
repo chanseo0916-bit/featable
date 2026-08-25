@@ -1,6 +1,11 @@
 # Featable 디자인 시스템
 
-기준: **SEED Design(당근)** — seed-design.io. 토스의 면 기반 카드와 절제된 모션을 보조 참고로 사용한다.
+기준: **SEED Design(당근)** 을 색상·타이포·radius 토큰의 소스로, **TDS (Toss Design System)** 를 상호작용 컴포넌트와 상태·반응 UX 원칙의 소스로 병행한다.
+
+- SEED: https://seed-design.io/components
+- TDS: https://developers-apps-in-toss.toss.im/design/components
+
+**자산 사용 제한:** 위 참조는 디자인 원칙·패턴·토큰 스케일 학습용이다. TDS Figma UI Kit, 아이콘, 이미지, 폰트, 로고, 컴포넌트 코드(`@toss/*`)는 직접 복제·이식하지 않는다. 해당 자산은 앱인토스 목적 외 사용이 제한되며, 예외적으로 코드 패키지(MIT)를 쓰더라도 저작권·LICENSE 고지와 토스 브랜드 자산 분리를 준수해야 한다.
 
 ## 원칙
 
@@ -8,6 +13,15 @@
 2. 카드는 `EntityCard`(image/row/text) 3레이아웃으로만 만든다.
 3. hover 이펙트 없음 — 그림자·zoom·border 변화 전부 없음 (2026-08-24 사용자 확정).
 4. 커머스 요소(가격 노출, 판매 문구)를 발견 플로우에 넣지 않는다.
+
+## 상호작용 원칙 (TDS)
+
+TDS는 반복되는 사용 패턴을 명시적 변형(component variant)로 패턴화하고, 간격·계층·크기·시각 디테일을 정련하며, 모든 사용자의 가독성·인지·접근성을 보호하도록 요구한다. Featable에 적용하는 축약 규칙:
+
+- 발생하는 액션은 Primary/Secondary만 사용하고, 파괴적 액션만 Danger로 한정한다.
+- FAB(떠 있는 주요 액션)는 화면당 1개, Bottom Sheet는 하단 시트 계열(등록/선택), Toast/Snackbar는 짧은 상태 안내로만 쓴다.
+- 선택지가 3개 이상이면 라디오·세그먼트 대신 리스트 선택지(Bottom Sheet)를 우선한다.
+- 카드 내부 버튼은 라벨 없이 아이콘+힌트로, 별도 동작이 필요하면 아이콘 버튼에 툴팁을 달아야 한다.
 
 ## 색상 토큰 (globals.css :root)
 
