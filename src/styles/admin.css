@@ -549,10 +549,10 @@
 .dash-settings-inner > header { padding: 18px 2px 28px; border-bottom: 1px solid #dfe2e5; }
 
 
-.dash-settings-inner > header h1 { margin: 9px 0 0; font-size: var(--fs-t10); letter-spacing: -.04em; }
+.dash-settings-inner > header h1 { margin: 9px 0 0; font-size: 32px; letter-spacing: -.03em; }
 
 
-.dash-settings-inner > header p { margin: 8px 0 0; color: var(--fg-muted); font-size: var(--fs-t1); }
+.dash-settings-inner > header p { margin: 8px 0 0; color: var(--fg-muted); font-size: 12px; }
 
 
 .dash-settings-card { margin-top: 18px; padding: 24px; display: grid; grid-template-columns: 240px 1fr; gap: 28px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }

@@ -38,8 +38,9 @@ const PROFILE_ROLES = [
 const CUSTOM_ROLE = "__custom__";
 
 /* SEED Field 스펙: 라벨 13px/700 위, 입력 44px 아래. 간격은 섹션 단위로 묶는다 */
-const input = "profile-field-input w-full";
-const label = "profile-field-label block";
+const input =
+  "w-full rounded-lg border border-border bg-white px-4 h-11 text-base text-fg-strong outline-none transition-colors placeholder:text-fg-subtle focus:border-accent focus:ring-2 focus:ring-accent-soft";
+const label = "block mb-2 text-[13px] font-bold text-fg-default";
 
 export function ProfileEditor({
   initial,
@@ -117,18 +118,18 @@ export function ProfileEditor({
       {setupMode && <div className="simple-registration-heading profile-setup-heading"><span>STEP 1 · PROFILE</span><h1>인터뷰에 표시될 내 정보</h1><p>이름, 역할, 사진을 확인해주세요. 프로필을 저장하면 STEP 2 인터뷰 작성 화면으로 자동 이동합니다.</p></div>}
       <div className="grid gap-10 lg:grid-cols-[1fr_300px]">
         <div>
-          {!setupMode && <div className="profile-editor-summary flex flex-wrap items-center justify-between gap-4">
+          {!setupMode && <div className="flex flex-wrap items-center justify-between gap-4 pb-7 border-b border-border">
             <div className="flex items-center gap-4">
               {form.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={form.avatarUrl} alt="" className="h-14 w-14 rounded-full border border-border object-cover" />
               ) : (
-                <div className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-lg font-bold text-accent">
+                <div className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-lg font-black text-accent">
                   {form.name?.slice(0, 1) || "F"}
                 </div>
               )}
               <div>
-                <h2 className="text-lg font-bold">{form.name || "내 프로필"}</h2>
+                <h2 className="text-lg font-bold">{form.name || "팀 프로필"}</h2>
                 <p className="text-[13px] text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
               </div>
             </div>
@@ -148,11 +149,18 @@ export function ProfileEditor({
             </div>
           </div>}
 
+          {!setupMode && !open && (
+            <p className="mt-6 text-[13px] leading-relaxed text-muted">
+              대표자는 브랜드 팀의 첫 번째 멤버로 표시됩니다. &lsquo;프로필 편집&rsquo;을 누르면
+              팀 카드와 Founder 페이지에 쓰이는 정보를 함께 수정할 수 있습니다.
+            </p>
+          )}
+
           {open && (
         <div className={setupMode ? "profile-setup-fields" : "mt-8"}>
 
           {/* ── 기본 정보 ── */}
-          {!setupMode && <p className="mb-5 text-[13px] font-bold text-fg-muted">기본 정보</p>}
+          {!setupMode && <p className="mb-5 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">기본 정보</p>}
           <div className="founder-avatar-picker-wrap">
             <span className={label}>프로필 이미지</span>
             <div className="founder-avatar-picker">
@@ -203,7 +211,7 @@ export function ProfileEditor({
           </label>
 
           {/* ── SNS / 링크 ── */}
-          {!setupMode && <p className="mb-5 mt-8 text-[13px] font-bold text-fg-muted">링크</p>}
+          {!setupMode && <p className="mb-5 mt-8 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">링크</p>}
           <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
             <label className={label}>인스타그램
               <input className={`${input} mt-2`} value={form.instagram} placeholder="@handle 또는 링크"
@@ -243,7 +251,7 @@ export function ProfileEditor({
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
         <aside className="self-start lg:sticky lg:top-6">
-          <p className="mb-3 text-[13px] font-bold text-fg-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 카드"}</p>
+          <p className="mb-3 text-[13px] font-bold text-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 팀 카드"}</p>
           <div className="pointer-events-none">
             <TeamProfileCard
               name={form.name || "이름을 입력하세요"}
@@ -251,13 +259,13 @@ export function ProfileEditor({
               headline={form.headline || "한 줄 소개가 여기에 표시됩니다"}
               avatarUrl={form.avatarUrl ?? ""}
               bio={form.bio || "브랜드에서 맡은 역할과 만드는 사람으로서의 이야기를 소개합니다."}
-              label="파운더"
+              label={setupMode ? "PROFILE" : "OWNER"}
               founderNumber={initial.founderNumber}
               actionLabel="프로필"
             />
           </div>
-          <p className="profile-card-note mt-3 leading-relaxed">
-            {setupMode ? "저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다." : "브랜드 페이지의 팀 섹션에 대표 카드로 표시돼요."}
+          <p className="mt-3 text-xs leading-relaxed text-muted">
+            {setupMode ? "저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다." : "브랜드의 TEAM PROFILE에서 대표자 카드로 노출됩니다."}
           </p>
         </aside>
       </div>
