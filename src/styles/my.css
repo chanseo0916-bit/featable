@@ -1276,3 +1276,171 @@
     border-left: 1px solid var(--background);
   }
 }
+
+/* my event cards */
+.my-events-page .my-event-section {
+  margin-bottom: 40px;
+}
+
+.my-events-page .my-event-section > header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.my-events-page .my-event-section > header span {
+  color: var(--accent);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.my-events-page .my-event-section > header h2 {
+  font-size: var(--fs-t5);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.my-events-page .my-event-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.my-events-page .my-event-status {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-t1);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.my-events-page .my-event-status.is-confirmed {
+  background: var(--success);
+  color: var(--background);
+}
+
+.my-events-page .my-event-status.is-pending {
+  background: var(--accent);
+  color: var(--background);
+}
+
+.my-events-page .my-event-status.is-waitlisted {
+  background: var(--gray-200);
+  color: var(--fg-default);
+}
+
+.my-events-page .my-event-status.is-rejected,
+.my-events-page .my-event-status.is-cancelled {
+  background: var(--error);
+  color: var(--background);
+}
+
+.my-events-page .my-event-status.is-host,
+.my-events-page .my-event-status.is-cohost,
+.my-events-page .my-event-status.is-operator {
+  background: color-mix(in srgb, var(--gray-1000) 82%, transparent);
+  color: var(--background);
+}
+
+@media (max-width: 900px) {
+  .my-events-page .my-event-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .my-events-page .my-event-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* my events heading + empty */
+.my-events-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 26px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.my-events-heading p {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.my-events-heading h1 {
+  margin: 0;
+  font-size: var(--fs-t8);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+}
+
+.my-events-heading span {
+  display: block;
+  margin-top: 8px;
+  color: var(--fg-muted);
+  font-size: var(--fs-t3);
+}
+
+.my-events-heading > a {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  color: var(--fg-default);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.my-event-empty {
+  padding: 48px 24px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.my-event-empty strong {
+  font-size: var(--fs-t3);
+  font-weight: 700;
+}
+
+.my-event-empty span {
+  color: var(--fg-muted);
+  font-size: var(--fs-t2);
+}
+
+.my-event-empty a {
+  margin-top: 8px;
+  height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-md);
+  background: var(--fg-strong);
+  color: var(--background);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .my-events-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
