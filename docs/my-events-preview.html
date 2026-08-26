@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 행사 · Featable</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--background:#fff;--surface:#f7f8f9;--foreground:#1a1c20;
+--gray-100:#f7f8f9;--gray-200:#f3f4f5;--gray-300:#eeeff1;--gray-400:#dcdee3;
+--gray-600:#b0b3ba;--gray-700:#868b94;--gray-900:#2e3138;--gray-1000:#1a1c20;
+--carrot-100:#fff2ec;--carrot-600:#ff6b35;--carrot-700:#e55a2b;
+--accent:var(--carrot-600);--accent-hover:var(--carrot-700);--accent-soft:var(--carrot-100);
+--border:var(--gray-400);
+--fg-strong:var(--gray-1000);--fg-default:var(--gray-900);--fg-muted:var(--gray-700);--fg-subtle:var(--gray-600);
+--success:#079171;--success-bg:#d9f6e9;--error:#ca1d13;--error-bg:#fde7e7;
+--fs-t1:12px;--fs-t2:13px;--fs-t3:14px;--fs-t4:16px;--fs-t5:18px;--fs-t6:20px;--fs-t7:22px;--fs-t8:24px;
+--radius-xs:4px;--radius-sm:6px;--radius-md:8px;--radius-lg:12px;--radius-xl:16px;
+}
+body{font-family:'Pretendard',sans-serif;color:var(--fg-strong);background:var(--background);line-height:1.5}
+a{text-decoration:none;color:inherit}
+.shell{max-width:1080px;margin:0 auto;padding:0 24px}
+.publish-console-nav{height:60px;border-top:3px solid var(--accent);background:var(--gray-1000);color:var(--background)}
+.publish-console-nav .shell{height:100%;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:8px;color:var(--background);font-weight:700;font-size:var(--fs-t3)}
+.brand span{padding:3px 7px;border-radius:var(--radius-xs);background:var(--accent);color:var(--background);font-size:var(--fs-t1);font-weight:700}
+.publish-console-nav nav{height:100%;display:flex;align-items:stretch;gap:2px;margin-left:4px}
+.publish-console-nav nav a{position:relative;display:flex;align-items:center;padding:0 10px;color:var(--gray-600);font-size:var(--fs-t3);font-weight:700;white-space:nowrap}
+.publish-console-nav nav a.active{color:var(--background)}
+.publish-console-nav nav a.active::after{content:"";position:absolute;right:10px;bottom:0;left:10px;height:3px;border-radius:var(--radius-xs) var(--radius-xs) 0 0;background:var(--accent)}
+.dash-exit-link{color:var(--gray-600);font-size:var(--fs-t2);font-weight:700;margin-left:auto}
+.dash-page{min-height:calc(100dvh - 60px);padding:36px 0 80px;background:var(--surface)}
+.my-events-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:32px}
+.my-events-heading p{color:var(--accent);font-size:var(--fs-t2);font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.my-events-heading h1{font-size:var(--fs-t8);font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.my-events-heading span{display:block;margin-top:8px;color:var(--fg-muted);font-size:var(--fs-t3)}
+.my-events-heading>a{flex-shrink:0;height:38px;padding:0 16px;display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--background);color:var(--fg-default);font-size:var(--fs-t2);font-weight:700;white-space:nowrap}
+.my-event-section{margin-bottom:36px}
+.my-event-section>header{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+.my-event-section>header span{color:var(--accent);font-size:var(--fs-t2);font-weight:700;letter-spacing:-.01em}
+.my-event-section>header h2{font-size:var(--fs-t5);font-weight:700;letter-spacing:-.02em}
+.my-event-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.my-event-card{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--background);transition:border-color .15s}
+.my-event-card:hover{border-color:var(--accent)}
+.my-event-card .poster{position:relative;aspect-ratio:1.45;overflow:hidden;background:var(--gray-200)}
+.my-event-card .poster img{width:100%;height:100%;object-fit:cover}
+.my-event-card .poster .status-badge{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:var(--radius-sm);font-size:var(--fs-t1);font-weight:700;backdrop-filter:blur(4px)}
+.my-event-card .poster .status-badge[data-status="confirmed"]{background:var(--success-bg);color:var(--success)}
+.my-event-card .poster .status-badge[data-status="pending"]{background:var(--accent-soft);color:var(--accent)}
+.my-event-card .poster .status-badge[data-status="waitlisted"]{background:var(--gray-200);color:var(--fg-muted)}
+.my-event-card .poster .status-badge[data-status="rejected"]{background:var(--error-bg);color:var(--error)}
+.my-event-card .poster .status-badge[data-role]{background:color-mix(in srgb,var(--gray-1000) 80%,transparent);color:var(--background)}
+.my-event-card .card-body{padding:14px 16px 16px}
+.my-event-card .card-date{color:var(--accent);font-size:var(--fs-t2);font-weight:700;margin-bottom:6px}
+.my-event-card h3{font-size:var(--fs-t4);font-weight:700;line-height:1.35;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.my-event-card .card-meta{color:var(--fg-muted);font-size:var(--fs-t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.my-event-card .card-action{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-300)}
+.my-event-card .card-action span{color:var(--fg-muted);font-size:var(--fs-t2);font-weight:700}
+.my-event-card .card-action b{color:var(--fg-subtle);font-size:var(--fs-t3)}
+.my-event-empty{padding:48px 24px;display:grid;place-items:center;gap:8px;border:1px dashed var(--border);border-radius:var(--radius-lg);text-align:center}
+.my-event-empty strong{font-size:var(--fs-t3);font-weight:700}
+.my-event-empty span{color:var(--fg-muted);font-size:var(--fs-t2)}
+.my-event-empty a{margin-top:8px;height:36px;padding:0 14px;display:inline-flex;align-items:center;border-radius:var(--radius-md);background:var(--fg-strong);color:var(--background);font-size:var(--fs-t2);font-weight:700}
+@media(max-width:900px){.my-event-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.my-events-heading{flex-direction:column;align-items:flex-start}.my-event-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="publish-console-nav">
+  <div class="shell">
+    <div class="brand">Featable <span>STUDIO</span></div>
+    <nav>
+      <a href="#">홈</a>
+      <a href="#" class="active">내 행사</a>
+      <a href="#">내 커뮤니티</a>
+      <a href="#">내 파트너</a>
+      <a href="#">내 채용</a>
+      <a href="#">내 프로필 카드</a>
+      <a href="#">계정 설정</a>
+    </nav>
+    <a class="dash-exit-link" href="#">Featable 홈 ↗</a>
+  </div>
+</div>
+<main class="dash-page">
+  <div class="shell">
+    <header class="my-events-heading">
+      <div>
+        <p>MY EVENTS</p>
+        <h1>내 행사</h1>
+        <span>신청한 행사와 내가 등록한 행사를 한곳에서 관리하세요.</span>
+      </div>
+      <a href="#">행사 둘러보기 →</a>
+    </header>
+
+    <section class="my-event-section">
+      <header><span>MY REGISTRATIONS</span><h2>내 신청</h2></header>
+      <div class="my-event-grid">
+        <a class="my-event-card" href="#">
+          <div class="poster">
+            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=290&fit=crop" alt="">
+            <span class="status-badge" data-status="confirmed">신청 완료</span>
+          </div>
+          <div class="card-body">
+            <div class="card-date">8월 30일</div>
+            <h3>2026 초기 창업가 밋업 vol.3</h3>
+            <div class="card-meta">Youth Founders Club · 서울 성수동</div>
+            <div class="card-action"><span>상세 보기</span><b>→</b></div>
+          </div>
+        </a>
+        <a class="my-event-card" href="#">
+          <div class="poster">
+            <img src="https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=400&h=290&fit=crop" alt="">
+            <span class="status-badge" data-status="pending">승인 대기</span>
+          </div>
+          <div class="card-body">
+            <div class="card-date">9월 5일</div>
+            <h3>AI SaaS 데모데이</h3>
+            <div class="card-meta">Featable · 온라인</div>
+            <div class="card-action"><span>상세 보기</span><b>→</b></div>
+          </div>
+        </a>
+        <a class="my-event-card" href="#">
+          <div class="poster">
+            <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=290&fit=crop" alt="">
+            <span class="status-badge" data-status="waitlisted">대기 신청</span>
+          </div>
+          <div class="card-body">
+            <div class="card-date">9월 12일</div>
+            <h3>로컬 비즈니스 네트워킹 나이트</h3>
+            <div class="card-meta">성수 로컬 · 서울 성수동</div>
+            <div class="card-action"><span>상세 보기</span><b>→</b></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="my-event-section">
+      <header><span>HOSTING</span><h2>내가 운영하는 행사</h2></header>
+      <div class="my-event-grid">
+        <a class="my-event-card" href="#">
+          <div class="poster">
+            <img src="https://images.unsplash.com/photo-1559223607-a43c990c692c?w=400&h=290&fit=crop" alt="">
+            <span class="status-badge" data-role="host">대표 주최</span>
+          </div>
+          <div class="card-body">
+            <div class="card-date">8월 28일</div>
+            <h3>청년 창업가 커뮤니티 오프닝</h3>
+            <div class="card-meta">Featable 신청자 관리</div>
+            <div class="card-action"><span>운영하기</span><b>→</b></div>
+          </div>
+        </a>
+        <a class="my-event-card" href="#">
+          <div class="poster">
+            <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=400&h=290&fit=crop" alt="">
+            <span class="status-badge" data-role="cohost">공동 주최</span>
+          </div>
+          <div class="card-body">
+            <div class="card-date">10월 15일</div>
+            <h3>Featable x Wadiz 스타트업 페어</h3>
+            <div class="card-meta">외부 신청 행사</div>
+            <div class="card-action"><span>운영하기</span><b>→</b></div>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
