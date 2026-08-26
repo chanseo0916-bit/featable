@@ -570,7 +570,9 @@
 .dash-settings-card > div:first-child small { color: var(--fg-muted); font-size: 12px; }
 
 
-.dash-profile-panel.standalone { margin-top: 18px; padding: 20px; }
+.dash-profile-panel.standalone { margin-top: 18px; padding: 28px; }
+.dash-profile-editor { padding: 0; }
+.dash-profile-editor .grid { gap: 32px; }
 
 
 .dash-profile-panel.standalone > section { margin-top: 0; }
