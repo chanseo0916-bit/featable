@@ -8,11 +8,33 @@ export async function sendEventOrganizerApplicationEmail(input: { eventId: strin
   if (!admin) return;
   const { data: event } = await admin.from("events").select("name,slug,submitted_by").eq("id", input.eventId).maybeSingle();
   if (!event) return;
-  const [{ data: owner }, { data: cohosts }] = await Promise.all([
-    admin.from("profiles").select("email").eq("id", event.submitted_by).maybeSingle(),
-    admin.from("event_cohosts").select("email").eq("event_id", input.eventId).eq("status", "accepted"),
-  ]);
-  const recipients = [...new Set([owner?.email, ...(cohosts ?? []).map((cohost) => cohost.email)].filter((email): email is string => Boolean(email)))];
+  const ownerResponse = await admin.from("profiles").select("email,notification_email").eq("id", event.submitted_by).maybeSingle();
+  let owner = ownerResponse.data;
+  const ownerError = ownerResponse.error;
+  if (ownerError && ownerError.message.includes("notification_email")) {
+    const fallback = await admin.from("profiles").select("email").eq("id", event.submitted_by).maybeSingle();
+    owner = fallback.data ? { ...fallback.data, notification_email: null } : null;
+  }
+  const { data: cohosts } = await admin.from("event_cohosts").select("user_id,email").eq("event_id", input.eventId).eq("status", "accepted");
+  const cohostUserIds = (cohosts ?? []).map((cohost) => cohost.user_id);
+  let cohostProfiles: { id: string; email: string | null; notification_email: string | null }[] = [];
+  if (cohostUserIds.length) {
+    const preferred = await admin.from("profiles").select("id,email,notification_email").in("id", cohostUserIds);
+    if (preferred.error && preferred.error.message.includes("notification_email")) {
+      const fallback = await admin.from("profiles").select("id,email").in("id", cohostUserIds);
+      cohostProfiles = (fallback.data ?? []).map((profile) => ({ ...profile, notification_email: null }));
+    } else {
+      cohostProfiles = preferred.data ?? [];
+    }
+  }
+  const cohostProfileMap = new Map(cohostProfiles.map((profile) => [profile.id, profile]));
+  const recipients = [...new Set([
+    owner?.notification_email || owner?.email,
+    ...(cohosts ?? []).map((cohost) => {
+      const profile = cohostProfileMap.get(cohost.user_id);
+      return profile?.notification_email || profile?.email || cohost.email;
+    }),
+  ].filter((email): email is string => Boolean(email)))];
   if (!recipients.length) return;
   const href = `${SITE_URL}/my/events/${encodeURIComponent(event.slug)}`;
   const paymentCopy = input.isPaid ? " 유료 행사라 입금 확인 후 승인해주세요." : "";

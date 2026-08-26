@@ -15,6 +15,7 @@ create type content_status as enum ('draft', 'published', 'hidden');
 create table profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text,
+  notification_email text,
   role text not null default 'user' check (role in ('user', 'mentor', 'community_manager', 'admin')),
   full_name text,
   member_type text check (member_type in ('founder', 'team', 'explorer', 'partner')),
@@ -1074,7 +1075,7 @@ create policy "activity_admin_select" on user_activity_events for select using (
 create policy "interview_campaign_admin_select" on interview_email_campaigns for select using (is_admin());
 create policy "interview_delivery_admin_select" on interview_email_deliveries for select using (is_admin());
 revoke update on table profiles from authenticated;
-grant update (full_name, member_type, terms_agreed_at, privacy_agreed_at, marketing_agreed_at, onboarding_completed_at) on table profiles to authenticated;
+grant update (full_name, member_type, notification_email, terms_agreed_at, privacy_agreed_at, marketing_agreed_at, onboarding_completed_at) on table profiles to authenticated;
 
 -- founders: 공개 읽기, 본인 쓰기
 create policy "founders_select_all" on founders for select using (true);

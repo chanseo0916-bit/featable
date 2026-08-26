@@ -931,3 +931,11 @@
 
 
 .dash-row-actions { flex-wrap: wrap; }
+
+.notification-email-preference { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+
+.notification-email-preference input { min-width: 0; height: 44px; padding: 0 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--gray-100); color: var(--fg-default); font-size: var(--fs-t2); font-weight: 400; }
+
+.notification-email-preference input:focus { border-color: var(--accent); outline: 2px solid color-mix(in srgb, var(--accent) 18%, transparent); outline-offset: 1px; }
+
+.notification-email-preference > small { grid-column: 1 / -1; color: var(--fg-muted); font-size: var(--fs-t1); }
