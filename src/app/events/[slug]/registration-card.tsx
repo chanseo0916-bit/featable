@@ -7,7 +7,7 @@ import { cancelEventRegistration, registerForEvent, type EventRegistrationState 
 type RegistrationStatus = NonNullable<EventRegistrationState["status"]>;
 
 const STATUS_COPY: Record<RegistrationStatus, { label: string; description: string }> = {
-  verification_pending: { label: "이메일 확인 대기", description: "받은 메일에서 확인 버튼을 누르면 신청이 완료됩니다." },
+  verification_pending: { label: "신청 처리 중", description: "신청 정보를 처리하고 있어요. 잠시 후 다시 확인해주세요." },
   pending: { label: "승인 대기", description: "주최자가 신청을 확인하고 있어요." },
   confirmed: { label: "신청 완료", description: "참가 신청이 확정됐어요." },
   waitlisted: { label: "대기 신청", description: "자리가 생기면 순서대로 확정됩니다." },
@@ -61,7 +61,7 @@ export function EventRegistrationCard({
 
   if (currentStatus === "verification_pending") {
     const copy = STATUS_COPY.verification_pending;
-    return <aside className="event-registration-panel status" data-status="verification_pending"><span>메일 확인</span><h2>{copy.label}</h2><p>{copy.description}<br />메일이 보이지 않으면 스팸함도 확인해주세요.</p></aside>;
+    return <aside className="event-registration-panel status" data-status="verification_pending"><span>신청 접수</span><h2>{copy.label}</h2><p>{copy.description}</p></aside>;
   }
 
   if (currentStatus && currentStatus !== "cancelled" && currentStatus !== "rejected") {
@@ -78,7 +78,7 @@ export function EventRegistrationCard({
     <label><span>주최자에게 남길 말 <small>선택</small></span><textarea name="note" maxLength={500} placeholder="참여 목적이나 궁금한 점을 적어주세요." /></label>
     <label className="event-registration-consent"><input name="consented" type="checkbox" required /><span>신청 처리를 위해 이름·이메일·메모를 <strong>{host}</strong>에 제공하는 것에 동의합니다. <Link href="/privacy" target="_blank">개인정보 처리방침</Link></span></label>
     {state.error && <p className="event-registration-error" role="alert">{state.error}</p>}
-    <button className="button" type="submit" disabled={pending}>{pending ? "신청 중…" : user ? "Featable에서 신청하기" : "이메일 확인하고 신청하기"}</button>
+    <button className="button" type="submit" disabled={pending}>{pending ? "신청 중…" : user ? "Featable에서 신청하기" : "신청하기"}</button>
     {!user && <small className="event-registration-login">Featable 회원인가요? <Link href={`/login?next=${encodeURIComponent(`/events/${slug}`)}`}>로그인하면 신청 내역을 한곳에서 볼 수 있어요.</Link></small>}
   </form></aside>;
 }

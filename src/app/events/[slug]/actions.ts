@@ -2,7 +2,7 @@
 
 import { createHash, randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { sendGuestVerificationEmail, sendRegistrationStatusEmail, type RegistrationEmailStatus } from "@/lib/email/event-registration";
+import { sendRegistrationStatusEmail, type RegistrationEmailStatus } from "@/lib/email/event-registration";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { sendEventOrganizerApplicationEmail } from "@/lib/email/event-organizer";
@@ -61,24 +61,48 @@ export async function registerForEvent(
       input_token_hash: tokenHash,
     });
     if (error) return { error: registrationError(error.message) };
-    const result = Array.isArray(data) ? data[0] : data;
-    if (result?.should_send_email) {
-      const { data: event } = await admin.from("events").select("name,slug").eq("id", eventId).maybeSingle();
-      if (!event) return { error: "행사 정보를 확인하지 못했습니다." };
-      const delivery = await sendGuestVerificationEmail({
-        registrationId: result.registration_id,
-        email,
-        name,
-        eventName: event.name,
-        slug: event.slug,
-        token,
+    let result = Array.isArray(data) ? data[0] : data;
+    if (!result?.registration_id) return { error: "신청 상태를 확인하지 못했습니다." };
+
+    // Keep the deployment safe before migration 64 is applied. The legacy RPC
+    // creates a verification_pending row, so finalize it in this same request.
+    if (result.registration_status === "verification_pending") {
+      const { data: verified, error: verificationError } = await admin.rpc("verify_guest_event_registration", {
+        input_token_hash: tokenHash,
       });
-      if (!delivery.ok) {
-        await admin.from("event_registrations").update({ verification_requested_at: null }).eq("id", result.registration_id).eq("status", "verification_pending");
-        return { error: "확인 메일을 보내지 못했습니다. Resend 설정을 확인한 뒤 다시 시도해주세요." };
+      if (verificationError) return { error: registrationError(verificationError.message) };
+      const verifiedResult = Array.isArray(verified) ? verified[0] : verified;
+      result = { ...result, ...verifiedResult, should_send_email: true };
+    }
+
+    const status = result.registration_status as EventRegistrationState["status"] | undefined;
+    if (!status || status === "verification_pending") return { error: "신청 상태를 확정하지 못했습니다." };
+
+    if (result.should_send_email) {
+      const { data: event } = await admin.from("events").select("name,slug,is_paid").eq("id", eventId).maybeSingle();
+      if (event) {
+        await Promise.all([
+          sendRegistrationStatusEmail({
+            registrationId: result.registration_id,
+            email,
+            name,
+            eventName: event.name,
+            slug: event.slug,
+            status: status as RegistrationEmailStatus,
+          }),
+          sendEventOrganizerApplicationEmail({
+            eventId,
+            registrationId: result.registration_id,
+            applicantName: name,
+            applicantEmail: email,
+            status,
+            isPaid: Boolean(event.is_paid),
+          }),
+        ]);
       }
     }
-    return { ok: true, status: "verification_pending" };
+    revalidatePath(`/events/${slug}`);
+    return { ok: true, status };
   }
 
   const { data, error } = await supabase.rpc("register_for_event", {
