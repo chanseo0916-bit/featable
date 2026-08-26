@@ -350,6 +350,7 @@ interface FeatureRow {
   body: StoryBlock[] | null;
   published_at: string | null;
   view_count: number | null;
+  is_featured: boolean;
   seo_title: string | null;
   seo_description: string | null;
   primary_keyword: string | null;
@@ -512,7 +513,7 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
 
   try {
     const supabase = createClient(url!, key!);
-    const baseColumns = "slug,title,cover_url,kind,excerpt,body,published_at,view_count,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,updated_at,brand:brands(slug),founder:founders(slug)";
+    const baseColumns = "slug,title,cover_url,kind,excerpt,body,published_at,view_count,is_featured,seo_title,seo_description,primary_keyword,secondary_keywords,og_image_url,is_indexable,updated_at,brand:brands(slug),founder:founders(slug)";
     let { data, error }: { data: unknown; error: { message?: string } | null } = await supabase
       .from("features")
       .select(`${baseColumns},hook_intro,hook_label`)
@@ -544,6 +545,7 @@ export const getFeatures = cache(async (): Promise<Feature[]> => {
       founderSlug: feature.founder?.slug,
       publishedAt: feature.published_at ?? new Date(0).toISOString(),
       viewCount: feature.view_count ?? 0,
+      isFeatured: feature.is_featured,
       seoTitle: feature.seo_title ?? undefined,
       seoDescription: feature.seo_description ?? undefined,
       primaryKeyword: feature.primary_keyword ?? undefined,

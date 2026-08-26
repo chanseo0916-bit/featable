@@ -36,7 +36,7 @@ export function FounderInterviewRail({ items }: { items: FounderInterviewRailIte
   return (
     <section className="product-discovery-rail founder-interview-rail" aria-labelledby="founder-interview-title">
       <header>
-        <div><h2 id="founder-interview-title">이번 주 인터뷰</h2></div>
+        <div><h2 id="founder-interview-title">이번 주 인기 인터뷰</h2></div>
         <div className="product-rail-actions">
           <Link href="/stories">전체보기</Link>
           <button type="button" onClick={() => scroll(-1)} aria-label="이전 창업가">←</button>

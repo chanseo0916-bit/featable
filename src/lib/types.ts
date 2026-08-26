@@ -127,6 +127,7 @@ export interface Feature {
   founderSlug?: string;
   publishedAt: string; // ISO
   viewCount?: number;
+  isFeatured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
   primaryKeyword?: string;
