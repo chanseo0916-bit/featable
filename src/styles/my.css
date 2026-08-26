@@ -1279,7 +1279,7 @@
 
 /* my event cards */
 .my-events-page .my-event-section {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 }
 
 .my-events-page .my-event-section > header {
@@ -1297,6 +1297,7 @@
 }
 
 .my-events-page .my-event-section > header h2 {
+  margin: 0;
   font-size: var(--fs-t5);
   font-weight: 700;
   letter-spacing: -.02em;
@@ -1356,91 +1357,55 @@
   }
 }
 
-/* my events heading + empty */
-.my-events-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 26px;
-  margin-bottom: 32px;
-  border-bottom: 1px solid var(--border);
-}
-
-.my-events-heading p {
-  margin: 0 0 6px;
-  color: var(--accent);
-  font-size: var(--fs-t2);
-  font-weight: 700;
-  letter-spacing: -.01em;
-}
-
-.my-events-heading h1 {
-  margin: 0;
-  font-size: var(--fs-t8);
-  font-weight: 700;
-  letter-spacing: -.03em;
-  line-height: 1.1;
-}
-
-.my-events-heading span {
-  display: block;
-  margin-top: 8px;
-  color: var(--fg-muted);
-  font-size: var(--fs-t3);
-}
-
-.my-events-heading > a {
-  flex-shrink: 0;
-  height: 38px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--background);
-  color: var(--fg-default);
-  font-size: var(--fs-t2);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.my-event-empty {
-  padding: 48px 24px;
+.my-events-page .managed-community-empty.my-event-empty {
+  min-height: 330px;
+  padding: 50px;
   display: grid;
   place-items: center;
+  align-content: center;
   gap: 8px;
   border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+  background: var(--background);
   text-align: center;
 }
 
-.my-event-empty strong {
-  font-size: var(--fs-t3);
+.my-events-page .managed-community-empty.my-event-empty > span {
+  color: var(--accent);
+  font-size: var(--fs-t1);
   font-weight: 700;
+  letter-spacing: .1em;
 }
 
-.my-event-empty span {
+.my-events-page .managed-community-empty.my-event-empty h2 {
+  margin: 4px 0 0;
+  color: var(--fg-strong);
+  font-size: var(--fs-t6);
+  font-weight: 700;
+  letter-spacing: -.03em;
+}
+
+.my-events-page .managed-community-empty.my-event-empty p {
+  max-width: 450px;
+  margin: 0;
   color: var(--fg-muted);
   font-size: var(--fs-t2);
+  line-height: 1.65;
 }
 
-.my-event-empty a {
-  margin-top: 8px;
-  height: 36px;
-  padding: 0 14px;
-  display: inline-flex;
-  align-items: center;
+.my-events-page .managed-community-empty.my-event-empty a {
+  margin-top: 14px;
+  padding: 12px 17px;
   border-radius: var(--radius-md);
-  background: var(--fg-strong);
+  background: var(--accent);
   color: var(--background);
   font-size: var(--fs-t2);
   font-weight: 700;
 }
 
-@media (max-width: 640px) {
-  .my-events-heading {
-    flex-direction: column;
-    align-items: flex-start;
+@media (max-width: 760px) {
+  .my-events-page .managed-community-empty.my-event-empty {
+    min-height: 280px;
+    padding: 30px 20px;
   }
 }

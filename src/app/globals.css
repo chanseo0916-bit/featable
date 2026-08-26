@@ -1526,34 +1526,17 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .event-apply-layout > .event-registration-panel { padding: 25px 20px; }
   .event-gallery-editor { grid-template-columns: repeat(3, 1fr); }
 }
-.my-events-heading, .event-attendees-heading { padding: 42px 0 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid #dfe2e5; }
-.my-events-heading p, .event-attendees-heading p { margin: 0; color: var(--muted); font-size: 13px; font-weight: 500; letter-spacing: -0.005em; }
-.my-events-heading h1, .event-attendees-heading h1 { margin: 8px 0; font-size: 40px; letter-spacing: -.03em; }
-.my-events-heading span, .event-attendees-heading span { color: var(--fg-muted); font-size: 12px; }
-.my-events-heading > a, .event-attendees-heading > a { font-size: 12px; font-weight: 700; }
-.my-event-section { margin-top: 24px; padding: 25px; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; }
-.my-event-section > header span { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -0.005em; }
-.my-event-section > header h2 { margin: 7px 0 18px; font-size: 22px; }
-.my-event-list { display: grid; }
-.my-event-list > a { min-height: 76px; padding: 13px 4px; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto 20px; align-items: center; gap: 14px; border-top: 1px solid #eceeef; }
-.my-event-list time { color: var(--accent); font-size: 12px; font-weight: 700; }
-.my-event-list div { display: grid; gap: 5px; }
-.my-event-list strong { font-size: 14px; }
-.my-event-list div span { color: var(--fg-muted); font-size: 12px; }
-.my-event-list em { padding: 6px 9px; border-radius: 999px; background: #f0f2f3; color: var(--fg-default); font-size: 12px; font-style: normal; font-weight: 700; }
-.my-event-list em[data-status="confirmed"] { background: #e9f7ee; color: #247747; }
-.my-event-list em[data-status="pending"], .my-event-list em[data-status="waitlisted"] { background: #fff3df; color: #9e5b06; }
-.my-event-empty { padding: 36px 10px; display: grid; justify-items: start; gap: 8px; color: var(--fg-muted); }
-.my-event-empty strong { color: var(--fg-strong); font-size: 16px; }
-.my-event-empty a { margin-top: 8px; color: var(--accent); font-size: 12px; font-weight: 700; }
+.event-attendees-heading { padding: 42px 0 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid #dfe2e5; }
+.event-attendees-heading p { margin: 0; color: var(--muted); font-size: 13px; font-weight: 500; letter-spacing: -0.005em; }
+.event-attendees-heading h1 { margin: 8px 0; font-size: 40px; letter-spacing: -.03em; }
+.event-attendees-heading span { color: var(--fg-muted); font-size: 12px; }
+.event-attendees-heading > a { font-size: 12px; font-weight: 700; }
 @media (max-width: 700px) {
   .detail-page .info-panel { align-items: stretch; flex-direction: column; gap: 16px; }
   .event-registration-panel { margin: 22px 0 50px; padding: 22px 18px; }
   .event-registration-panel .button { width: 100%; min-width: 0; }
   .event-registration-method > div { grid-template-columns: 1fr; }
-  .my-events-heading, .event-attendees-heading { align-items: flex-start; flex-direction: column; }
-  .my-event-list > a { grid-template-columns: 52px minmax(0, 1fr) auto; }
-  .my-event-list > a > b { display: none; }
+  .event-attendees-heading { align-items: flex-start; flex-direction: column; }
   .event-attendee-list > header { gap: 8px; flex-direction: column; }
   .event-attendee-list > article { grid-template-columns: 24px minmax(0, 1fr) auto; align-items: start; }
   .event-attendee-list article time { display: none; }
