@@ -974,3 +974,53 @@
 
 
 .partner-heading { margin: 0 0 15px; color: var(--fg-muted); font-size: 13px; font-weight: 700; letter-spacing: -.02em; }
+
+/* partner register — responsive */
+@media (max-width: 1240px) {
+  .partner-register-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .partner-register-workspace .event-live-preview {
+    position: static;
+    max-width: 640px;
+  }
+}
+
+@media (max-width: 900px) {
+  .partner-register-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .partner-register-side {
+    position: static;
+  }
+
+  .partner-register-types {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .partner-register-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .partner-register-grid {
+    gap: 14px;
+  }
+
+  .partner-register-grid label.wide {
+    grid-column: auto;
+  }
+
+  .partner-register-form-shell > header,
+  .partner-register-form-shell > footer {
+    padding-inline: 18px;
+  }
+
+  .partner-register-side nav {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
