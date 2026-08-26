@@ -1410,3 +1410,113 @@
     padding: 30px 20px;
   }
 }
+
+.profile-settings-inner > header {
+  padding-bottom: 24px;
+  border-bottom: 0;
+}
+
+.profile-settings-inner > header p {
+  max-width: 620px;
+  font-size: var(--fs-t3);
+  line-height: 1.6;
+}
+
+.profile-settings-inner > .dash-profile-panel.standalone {
+  margin-top: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.profile-settings-inner > .dash-profile-panel.standalone > section {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.profile-editor-summary {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-editor-summary > div:first-child p {
+  color: var(--fg-muted);
+  font-size: var(--fs-t2);
+}
+
+.profile-editor-summary > div:last-child {
+  gap: 16px;
+}
+
+.profile-editor-summary > div:last-child button {
+  transition: background-color 160ms ease;
+}
+
+.profile-editor-summary > div:last-child button:hover {
+  background: var(--surface);
+}
+
+.profile-field-label {
+  margin-bottom: 8px;
+  color: var(--fg-default);
+  font-size: var(--fs-t2);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.profile-field-input {
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  padding: 0 16px;
+  color: var(--fg-strong);
+  font-size: var(--fs-t3);
+  font-weight: 400;
+  outline: none;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.profile-field-input::placeholder {
+  color: var(--fg-subtle);
+}
+
+.profile-field-input:focus {
+  border-color: var(--accent);
+  background: var(--background);
+}
+
+textarea.profile-field-input {
+  min-height: 112px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.profile-card-note {
+  color: var(--fg-muted);
+  font-size: var(--fs-t2);
+}
+
+@media (max-width: 760px) {
+  .profile-settings-inner > header {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .profile-settings-inner > .dash-profile-panel.standalone {
+    margin-top: 20px;
+  }
+
+  .profile-editor-summary {
+    align-items: flex-start;
+  }
+
+  .profile-editor-summary > div:last-child {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
