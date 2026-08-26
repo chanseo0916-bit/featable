@@ -601,6 +601,24 @@
   background: var(--chart-color);
 }
 
+.analytics-chart.is-dense .analytics-bars {
+  gap: 1px;
+}
+
+.analytics-chart.is-dense .analytics-bars i {
+  min-width: 0;
+  border-radius: 0;
+}
+
+.analytics-chart.is-hourly .analytics-bars {
+  gap: 2px;
+}
+
+.analytics-chart.is-hourly .analytics-bars i {
+  min-width: 1px;
+  border-radius: 0;
+}
+
 .analytics-chart > span {
   height: 100%;
   display: grid;

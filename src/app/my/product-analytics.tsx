@@ -4,6 +4,15 @@ import { useMemo, useState } from "react";
 
 export interface AnalyticsDay {
   date: string;
+  label: string;
+  views: number;
+  clicks: number;
+  likes: number;
+}
+
+export interface AnalyticsHour {
+  key: string;
+  label: string;
   views: number;
   clicks: number;
   likes: number;
@@ -26,20 +35,27 @@ const METRICS = [
 type RangeKey = (typeof RANGES)[number]["key"];
 type MetricKey = (typeof METRICS)[number]["key"];
 
-export function ProductAnalytics({ series }: { readonly series: readonly AnalyticsDay[] }) {
+export function ProductAnalytics({ series, todaySeries }: {
+  readonly series: readonly AnalyticsDay[];
+  readonly todaySeries: readonly AnalyticsHour[];
+}) {
   const [range, setRange] = useState<RangeKey>("30d");
   const [metric, setMetric] = useState<MetricKey>("views");
+  const isToday = range === "today";
   const days = RANGES.find((item) => item.key === range)?.days ?? 30;
   const windowSeries = useMemo(() => series.slice(-days), [days, series]);
+  const activeSeries = isToday ? todaySeries : windowSeries;
+
   const totals = useMemo(() => ({
-    views: windowSeries.reduce((sum, day) => sum + day.views, 0),
-    clicks: windowSeries.reduce((sum, day) => sum + day.clicks, 0),
-    likes: windowSeries.reduce((sum, day) => sum + day.likes, 0),
-  }), [windowSeries]);
-  const values = windowSeries.map((day) => day[metric]);
+    views: activeSeries.reduce((sum, point) => sum + point.views, 0),
+    clicks: activeSeries.reduce((sum, point) => sum + point.clicks, 0),
+    likes: activeSeries.reduce((sum, point) => sum + point.likes, 0),
+  }), [activeSeries]);
+  const values = activeSeries.map((point) => point[metric]);
   const maxValue = Math.max(1, ...values);
   const metricLabel = METRICS.find((item) => item.key === metric)?.label ?? "조회수";
   const rangeLabel = RANGES.find((item) => item.key === range)?.label ?? "30일";
+  const isDense = activeSeries.length > 44;
 
   return <section className="dash-section dash-panel dash-analytics">
     <div className="dash-panel-head"><h2>프로덕트 성과</h2><small>전체 프로덕트 집계</small></div>
@@ -50,12 +66,12 @@ export function ProductAnalytics({ series }: { readonly series: readonly Analyti
       <div className="analytics-ministats" role="group" aria-label="분석 지표">
         {METRICS.map((item) => <button key={item.key} type="button" aria-pressed={metric === item.key} className={`analytics-metric metric-${item.key}${metric === item.key ? " active" : ""}`} onClick={() => setMetric(item.key)}><b>{totals[item.key].toLocaleString("ko-KR")}</b><span>{item.label}</span></button>)}
       </div>
-      <div className={`analytics-chart metric-${metric}`}>
-        {values.some((value) => value > 0) ? <div className="analytics-bars" role="img" aria-label={`${rangeLabel}간 ${metricLabel} 막대 그래프`}>
-          {windowSeries.map((day, index) => <i key={day.date} className={index === windowSeries.length - 1 ? "hot" : ""} style={{ height: day[metric] === 0 ? "0%" : `${Math.max(6, Math.round((day[metric] / maxValue) * 100))}%` }} />)}
+      <div className={`analytics-chart metric-${metric}${isToday ? " is-hourly" : ""}${isDense ? " is-dense" : ""}`}>
+        {values.some((value) => value > 0) ? <div className="analytics-bars" role="img" aria-label={`${rangeLabel} ${metricLabel} 그래프`}>
+          {activeSeries.map((point, index) => <i key={point.label} className={index === activeSeries.length - 1 ? "hot" : ""} style={{ height: point[metric] === 0 ? "0%" : `${Math.max(6, Math.round((point[metric] / maxValue) * 100))}%` }} />)}
         </div> : <span>아직 집계된 데이터가 없어요.</span>}
       </div>
-      <div className="analytics-chart-range"><span>{windowSeries[0]?.date ?? ""}</span><span>{windowSeries.at(-1)?.date ?? ""}</span></div>
+      <div className="analytics-chart-range"><span>{activeSeries[0]?.label ?? ""}</span><span>{activeSeries.at(-1)?.label ?? ""}</span></div>
     </div>
   </section>;
 }

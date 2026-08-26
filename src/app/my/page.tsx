@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isMemberType, type MemberType } from "@/lib/auth";
 import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { AnalyticsDay } from "./product-analytics";
+import type { AnalyticsDay, AnalyticsHour } from "./product-analytics";
 import { PartnerDashboard } from "./partner-dashboard";
 import { StudioWelcomeGuide } from "./studio-welcome-guide";
 import {
@@ -45,7 +45,8 @@ function buildAnalyticsSeries(
     const d = new Date(today);
     d.setUTCDate(d.getUTCDate() - i);
     const key = d.toISOString().slice(0, 10);
-    map.set(key, { date: key, views: 0, clicks: 0, likes: 0 });
+    const [, month, day] = key.split("-");
+    map.set(key, { date: key, label: `${Number(month)}/${Number(day)}`, views: 0, clicks: 0, likes: 0 });
   }
   for (const e of events) {
     const bucket = map.get(e.created_at.slice(0, 10));
@@ -55,6 +56,42 @@ function buildAnalyticsSeries(
   }
   for (const l of likeRows) {
     const bucket = map.get(l.created_at.slice(0, 10));
+    if (bucket) bucket.likes++;
+  }
+  return [...map.values()];
+}
+
+function kstHourKey(value: string): { date: string; hour: number } | null {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const shifted = new Date(date.getTime() + 9 * 3_600_000);
+  return { date: shifted.toISOString().slice(0, 10), hour: shifted.getUTCHours() };
+}
+
+function buildTodayHourlySeries(
+  events: { event_type: string; created_at: string }[],
+  likeRows: { created_at: string }[],
+): AnalyticsHour[] {
+  const todayKey = new Date(Date.now() + 9 * 3_600_000).toISOString().slice(0, 10);
+  const map = new Map<string, AnalyticsHour>();
+  for (let hour = 0; hour < 24; hour++) {
+    const key = `${todayKey}:${String(hour).padStart(2, "0")}`;
+    map.set(key, { key, label: `${String(hour).padStart(2, "0")}시`, views: 0, clicks: 0, likes: 0 });
+  }
+  const bump = (event: { event_type: string; created_at: string }, bucket: AnalyticsHour) => {
+    if (event.event_type === "view") bucket.views++;
+    else if (event.event_type === "click") bucket.clicks++;
+  };
+  for (const e of events) {
+    const parsed = kstHourKey(e.created_at);
+    if (!parsed || parsed.date !== todayKey) continue;
+    const bucket = map.get(`${parsed.date}:${String(parsed.hour).padStart(2, "0")}`);
+    if (bucket) bump(e, bucket);
+  }
+  for (const l of likeRows) {
+    const parsed = kstHourKey(l.created_at);
+    if (!parsed || parsed.date !== todayKey) continue;
+    const bucket = map.get(`${parsed.date}:${String(parsed.hour).padStart(2, "0")}`);
     if (bucket) bucket.likes++;
   }
   return [...map.values()];
@@ -193,6 +230,7 @@ export default async function MyPage() {
     (row) => typeof row.payload === "object" && (row.payload.name?.trim() || row.payload.tagline?.trim()),
   );
   let analyticsSeries: AnalyticsDay[] = [];
+  let todayHourlySeries: AnalyticsHour[] = [];
   if (products.length) {
     const ninetyDaysAgo = ninetyDaysAgoIso();
     const productIds = products.map((product) => product.id);
@@ -219,6 +257,7 @@ export default async function MyPage() {
     }
 
     analyticsSeries = buildAnalyticsSeries(eventRows ?? [], likeRows);
+    todayHourlySeries = buildTodayHourlySeries(eventRows ?? [], likeRows);
   }
 
   return <FounderDashboard
@@ -232,5 +271,6 @@ export default async function MyPage() {
     pendingInvites={pendingTeamInvites}
     writingDrafts={writingDrafts}
     analyticsSeries={analyticsSeries}
+    todaySeries={todayHourlySeries}
   />;
 }

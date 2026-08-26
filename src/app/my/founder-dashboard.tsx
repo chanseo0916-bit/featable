@@ -4,7 +4,7 @@ import { BrandStatusButton } from "./brand-status-button";
 import { DashNav } from "./dash-nav";
 import { DeleteBrandButton } from "./delete-button";
 import { DraftDeleteButton } from "./draft-delete-button";
-import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
+import { ProductAnalytics, type AnalyticsDay, type AnalyticsHour } from "./product-analytics";
 import { StudioWelcomeGuide } from "./studio-welcome-guide";
 import { PendingInviteControl } from "./team-management-controls";
 import { TeamInviteButton } from "./team-invite-button";
@@ -85,6 +85,7 @@ interface FounderDashboardProps {
   readonly pendingInvites: readonly DashboardInvite[];
   readonly writingDrafts: readonly DashboardDraft[];
   readonly analyticsSeries: readonly AnalyticsDay[];
+  readonly todaySeries: readonly AnalyticsHour[];
 }
 
 const QUICK_LINKS = [
@@ -101,7 +102,7 @@ function QuickIcon({ name }: { readonly name: (typeof QUICK_LINKS)[number]["icon
   return <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>;
 }
 
-export function FounderDashboard({ userId, founder, brands, products, stories, storyLikes, teamMembers, pendingInvites, writingDrafts, analyticsSeries }: FounderDashboardProps) {
+export function FounderDashboard({ userId, founder, brands, products, stories, storyLikes, teamMembers, pendingInvites, writingDrafts, analyticsSeries, todaySeries }: FounderDashboardProps) {
   const publishedProducts = products.filter((product) => product.status === "published");
   const draftProducts = products.filter((product) => product.status !== "published");
   const draftBrands = brands.filter((brand) => brand.status !== "published");
@@ -145,7 +146,7 @@ export function FounderDashboard({ userId, founder, brands, products, stories, s
 
         <div className="dash-cols">
           <div className="dash-main">
-            {brands.length > 0 && <ProductAnalytics series={analyticsSeries} />}
+            {brands.length > 0 && <ProductAnalytics series={analyticsSeries} todaySeries={todaySeries} />}
 
             {stories.length > 0 && <section className="dash-section dash-panel">
               <div className="dash-panel-head"><strong>내 인터뷰</strong><small>{stories.length}개</small></div>
