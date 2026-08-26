@@ -126,7 +126,7 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
 
   return <div className="partner-register-layout">
     <aside className="partner-register-side">
-      <div><span>MY SUBMISSIONS</span><h2>등록 현황</h2><p>초안부터 승인까지 한곳에서 확인하세요.</p></div>
+      <div><h2>등록 현황</h2><p>초안부터 승인까지 한곳에서 확인하세요.</p></div>
       <button type="button" onClick={() => chooseType("event")}>＋ 새 제안 작성</button>
       <nav>
         {submissions.map((item) => <a className={item.id === id ? "active" : ""} href={`/my/partner/register?edit=${item.id}`} key={item.id}>
@@ -140,7 +140,7 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
 
     <div className="partner-register-workspace">
     <section className="partner-register-form-shell">
-      <header><div><span>PARTNER PUBLISHING</span><h1>{id ? "등록 정보 수정" : "새 기회 등록"}</h1><p>필요한 정보만 입력하면 Featable 운영진이 검수 후 공개합니다.</p></div>{selected && <em data-status={selected.status}>{STATUS_LABEL[selected.status]}</em>}</header>
+      <header><div><h1>{id ? "등록 정보 수정" : "새 기회 등록"}</h1><p>필요한 정보만 입력하면 Featable 운영진이 검수 후 공개합니다.</p></div>{selected && <em data-status={selected.status}>{STATUS_LABEL[selected.status]}</em>}</header>
 
       {!id && !eventOnly && <div className="partner-register-types">{TYPES.map((entry) => <button className={type === entry.value ? "active" : ""} type="button" onClick={() => chooseType(entry.value)} key={entry.value}><strong>{entry.label}</strong><span>{entry.description}</span></button>)}</div>}
 

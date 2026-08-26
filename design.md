@@ -13,6 +13,8 @@
 2. 카드는 `EntityCard`(image/row/text) 3레이아웃으로만 만든다.
 3. hover 이펙트 없음 — 그림자·zoom·border 변화 전부 없음 (2026-08-24 사용자 확정).
 4. 커머스 요소(가격 노출, 판매 문구)를 발견 플로우에 넣지 않는다.
+5. 영어 대문자 오버라벨(eyebrow/MY SUBMISSIONS·PARTNER PUBLISHING·SELF-SERVE 등) 금지.
+   불필요한 섹션 라벨·설명 문구는 제거하고, 남기려면 한국어 짧은 서브타이틀만 사용.
 
 ## 상호작용 원칙 (TDS)
 
