@@ -162,11 +162,14 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const fallbackBriefs = [
     { title: `${brand?.name ?? "새로운 팀"}이 해결하는 문제`, body: brand?.problem ?? feature.excerpt },
     { title: "지금 주목해야 하는 이유", body: feature.excerpt },
-    { title: "만든 사람의 관점", body: founder?.headline ?? "제품 뒤에 있는 사람의 이야기를 확인해보세요." },
+    {
+      title: isInterview && founder ? "만든 사람의 관점" : "Featable의 관점",
+      body: isInterview && founder ? founder.headline : "창업가와 빌더에게 필요한 핵심 내용을 Featable 편집팀이 정리했습니다.",
+    },
   ];
   const summaryBriefs = fallbackBriefs.map((fallback, index) => briefItems[index] ?? fallback);
   const articleSubjects: SeoSchema[] = [
-    ...(founder
+    ...(isInterview && founder
       ? [{
           "@type": "Person",
           "@id": entityId(`/founders/${founder.slug}`, "person"),
@@ -224,12 +227,10 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           <div className="feature-brief-hero">
             <div className="feature-brief-copy">
               <div className="feature-brief-brand">
-                {(brand?.logoUrl || founder?.avatarUrl) && <img src={brand?.logoUrl ?? founder?.avatarUrl} alt="" />}
-                <div><span>Featable에서</span>{brand
-                  ? <Link href={`/brands/${brand.slug}`}>{brand.name}</Link>
-                  : founder
-                    ? <Link href={`/founders/${founder.slug}`}>{founder.name}</Link>
-                    : <strong>FEATABLE</strong>}</div>
+                <img src={isInterview && founder ? founder.avatarUrl : "/icon.png"} alt="" />
+                <div><span>{isInterview ? "Featable 인터뷰" : "발행"}</span>{isInterview && founder
+                  ? <Link href={`/founders/${founder.slug}`}>{founder.name}</Link>
+                  : <Link href="/">FEATABLE 편집팀</Link>}</div>
               </div>
               <p className="feature-brief-kicker">{kindLabel[feature.kind]}</p>
               <h1>{feature.title}</h1>
@@ -259,7 +260,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           </div>
         </section>
 
-        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">스토리</a>{founder && <a href="#founder">Founder</a>}{product && <a href="#product">프로덕트</a>}<a href="#likes">좋아요</a></div></nav>
+        <nav className="feature-content-tabs"><div className="shell"><a className="active" href="#story">스토리</a>{isInterview && founder && <a href="#founder">Founder</a>}{product && <a href="#product">프로덕트</a>}<a href="#likes">좋아요</a></div></nav>
 
         <section id="story" className="shell feature-story-layout">
           <article className="feature-long-article">
@@ -291,7 +292,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             })}
 
             {brand && <section className="feature-editorial-section"><span>시작한 이유</span><h3>어떤 문제에서<br />이 브랜드가 시작됐을까?</h3><p>{brand.problem ?? brand.description}</p><blockquote>“{brand.tagline}”</blockquote></section>}
-            {founder && <section id="founder" className="feature-founder-quote"><img src={founder.avatarUrl} alt={founder.name} /><div><span>창업가</span><h3>{founder.name}</h3><blockquote>“{founder.headline}”</blockquote><p>{founder.bio}</p></div></section>}
+            {isInterview && founder && <section id="founder" className="feature-founder-quote"><img src={founder.avatarUrl} alt={founder.name} /><div><span>창업가</span><h3>{founder.name}</h3><blockquote>“{founder.headline}”</blockquote><p>{founder.bio}</p></div></section>}
             {product && <section id="product" className="feature-related-product"><p>함께 볼 프로덕트</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
             {relatedArticles.length > 0 && <section className="feature-related-articles">
               <p>이 인터뷰와 이어지는 글</p>
