@@ -61,7 +61,7 @@ export default async function MyCommunitiesPage() {
             <footer><Link href={`/my/communities/${community.slug}`}>정보 수정</Link><Link href={`/communities/${community.slug}`} target="_blank">공개 페이지 ↗</Link></footer>
           </article>)}
         </section> : <section className="managed-community-empty">
-          <h2>아직 관리 중인 커뮤니티가 없어요.</h2><p>승인된 커뮤니티를 등록하면 이곳에서 로고와 소개, 링크를 계속 수정할 수 있어요.</p><Link href="/partners/apply">커뮤니티 등록 문의하기 →</Link>
+          <h2>아직 관리 중인 커뮤니티가 없어요.</h2><p>승인된 커뮤니티를 등록하면 공개 정보를 여기에서 관리할 수 있어요.</p><Link href="/partners/apply">커뮤니티 등록 문의하기 →</Link>
         </section>}
       </div>
     </main>
