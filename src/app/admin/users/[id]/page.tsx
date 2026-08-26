@@ -30,7 +30,7 @@ interface CommentRow { id: string; body: string; created_at: string }
 interface RegistrationRow { status: string; applied_at: string; event: { slug: string; name: string } | null }
 interface SubmissionRow { id: string; submission_type: string; status: string; title: string; submitted_at: string | null }
 
-const dateTime = (value: string) => new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" }).format(new Date(value));
+const dateTime = (value: string) => new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul", hour12: false }).format(new Date(value));
 const savedTypeLabel: Record<string, string> = { product: "프로덕트", feature: "스토리", event: "행사", support: "지원사업" };
 const submissionTypeLabel: Record<string, string> = { event: "행사", support: "지원사업", community: "커뮤니티" };
 const registrationLabel: Record<string, string> = {

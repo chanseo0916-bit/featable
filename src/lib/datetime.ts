@@ -15,11 +15,11 @@ const monthDay = new Intl.DateTimeFormat("ko-KR", {
   timeZone: KST, month: "short", day: "numeric",
 });
 const dateTime = new Intl.DateTimeFormat("ko-KR", {
-  timeZone: KST, month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+  timeZone: KST, month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false,
 });
 const eventDateTime = new Intl.DateTimeFormat("ko-KR", {
   timeZone: KST, year: "numeric", month: "long", day: "numeric",
-  weekday: "short", hour: "2-digit", minute: "2-digit",
+  weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false,
 });
 
 function parse(value: string): Date | null {

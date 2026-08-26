@@ -73,7 +73,7 @@ export async function notifySlackNewSignup(input: { userId: string; name: string
       { type: "mrkdwn", text: `*이메일*\n${email}` },
       { type: "mrkdwn", text: `*마케팅 수신*\n${input.marketingAccepted ? "동의" : "미동의"}` },
     ] },
-    { type: "context", elements: [{ type: "mrkdwn", text: `가입 완료 · ${new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul" }).format(new Date())}` }] },
+    { type: "context", elements: [{ type: "mrkdwn", text: `가입 완료 · ${new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short", hour12: false, timeZone: "Asia/Seoul" }).format(new Date())}` }] },
   ]);
   if (!delivery.ok) await admin.from("profiles").update({ signup_notified_at: null }).eq("id", input.userId).eq("signup_notified_at", claimedAt);
   return delivery;
