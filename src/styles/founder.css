@@ -184,25 +184,25 @@
 .founder-avatar-picker { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 9px; }
 
 
-.founder-avatar-picker button { min-width: 0; padding: 5px 5px 8px; display: grid; gap: 6px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); color: var(--fg-muted); cursor: pointer; font-size: var(--fs-t2); transition: background .16s, border-color .16s; }
+.founder-avatar-picker button { min-width: 0; padding: 5px 5px 8px; display: grid; gap: 6px; border: 1px solid #e0e2e5; border-radius: 12px; background: #fff; color: var(--fg-muted); cursor: pointer; font-size: 12px; transition: border-color .16s, box-shadow .16s, transform .16s; }
 
 
-.founder-avatar-picker button:hover { background: var(--surface); }
+.founder-avatar-picker button:hover { border-color: #aaaeb4; transform: translateY(-1px); }
 
 
-.founder-avatar-picker button.active { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.founder-avatar-picker button.active { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); font-weight: 700; }
 
 
-.founder-avatar-picker img { width: 100%; aspect-ratio: 1; display: block; border-radius: var(--radius-md); object-fit: cover; }
+.founder-avatar-picker img { width: 100%; aspect-ratio: 1; display: block; border-radius: 8px; object-fit: cover; }
 
 
-.founder-photo-option { margin-top: 11px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; border-radius: var(--radius-md); background: var(--surface); }
+.founder-photo-option { margin-top: 11px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: #f6f7f8; }
 
 
-.founder-photo-option > span { color: var(--fg-muted); font-size: var(--fs-t2); }
+.founder-photo-option > span { color: var(--fg-muted); font-size: 12px; }
 
 
-.founder-photo-option label { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--background); color: var(--fg-default); cursor: pointer; font-size: var(--fs-t2); font-weight: 700; }
+.founder-photo-option label { padding: 7px 10px; border: 1px solid #d9dde1; border-radius: 6px; background: #fff; color: var(--fg-default); cursor: pointer; font-size: 12px; font-weight: 700; }
 
 
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }

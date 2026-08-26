@@ -114,8 +114,8 @@ export function ProfileEditor({
   }
 
   return (
-    <section className={setupMode ? "simple-registration-card profile-setup-card" : "dash-profile-editor"}>
-      {setupMode && <div className="simple-registration-heading profile-setup-heading"><h1>인터뷰에 표시될 내 정보</h1><p>이름, 역할, 사진을 확인해주세요. 저장하면 인터뷰 작성 화면으로 이동합니다.</p></div>}
+    <section className={setupMode ? "simple-registration-card profile-setup-card" : "rounded-2xl border border-border bg-white p-8"}>
+      {setupMode && <div className="simple-registration-heading profile-setup-heading"><span>STEP 1 · PROFILE</span><h1>인터뷰에 표시될 내 정보</h1><p>이름, 역할, 사진을 확인해주세요. 프로필을 저장하면 STEP 2 인터뷰 작성 화면으로 자동 이동합니다.</p></div>}
       <div className="grid gap-10 lg:grid-cols-[1fr_300px]">
         <div>
           {!setupMode && <div className="flex flex-wrap items-center justify-between gap-4 pb-7 border-b border-border">
@@ -135,14 +135,14 @@ export function ProfileEditor({
             </div>
             <div className="flex flex-wrap items-center gap-3">
               {slug && (
-              <Link href={`/founders/${slug}`} className="whitespace-nowrap text-[13px] font-bold text-accent">
-                공개 프로필 보기 →
-              </Link>
+                <Link href={`/founders/${slug}`} className="whitespace-nowrap text-[13px] font-bold text-accent hover:underline">
+                  공개 프로필 보기 →
+                </Link>
               )}
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="button button-secondary button-xsmall whitespace-nowrap"
+                className="whitespace-nowrap rounded-lg border border-border px-4 py-2 text-[13px] font-bold transition-colors hover:border-accent hover:text-accent"
               >
                 {open ? "접기" : "프로필 편집"}
               </button>
@@ -232,7 +232,7 @@ export function ProfileEditor({
           </div>
 
           {notice && (
-              <p className={`mt-5 rounded-lg px-4 py-3 text-sm ${notice.ok ? "bg-accent-soft text-accent" : "bg-[var(--error-bg)] text-[var(--error)]"}`}>
+            <p className={`mt-5 rounded-lg px-4 py-3 text-sm ${notice.ok ? "bg-accent-soft text-accent" : "bg-red-50 text-red-600"}`}>
               {notice.text}
             </p>
           )}
