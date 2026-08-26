@@ -1,50 +1,34 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { DeleteBrandButton } from "./delete-button";
-import { BrandStatusButton } from "./brand-status-button";
 import { isMemberType, type MemberType } from "@/lib/auth";
 import { getCatalog, getCommunities, getEvents, getFeatures, getSupportPrograms } from "@/lib/data";
-import { TeamInviteButton } from "./team-invite-button";
-import { DraftDeleteButton } from "./draft-delete-button";
-import { DashNav } from "./dash-nav";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ProductAnalytics, type AnalyticsDay } from "./product-analytics";
-import { PendingInviteControl, TeamMemberControls } from "./team-management-controls";
-import type { BrandMemberRole } from "./team-actions";
-import { TeamProfileCard } from "@/components/team-profile-card";
+import type { AnalyticsDay } from "./product-analytics";
 import { PartnerDashboard } from "./partner-dashboard";
 import { StudioWelcomeGuide } from "./studio-welcome-guide";
-import { formatDateTimeKst } from "@/lib/datetime";
+import {
+  FounderDashboard,
+  type DashboardBrand,
+  type DashboardDraft,
+  type DashboardInvite,
+  type DashboardProduct,
+  type DashboardStory,
+  type DashboardTeamMember,
+} from "./founder-dashboard";
+import {
+  MemberDashboard,
+  type SavedCollectionItem,
+  type TeamBrand,
+  type TeamHubBrand,
+} from "./member-dashboard";
 
 export const metadata: Metadata = { title: "워크스페이스 · FEATABLE" };
 
-interface MyBrand {
-  id: string;
-  slug: string;
-  name: string;
-  logo_url: string | null;
-  tagline: string;
-  category: string;
-  status: "draft" | "published" | "hidden";
-  updated_at: string;
-}
-
-interface MyProduct { id: string; brand_id: string; slug: string; name: string; hero_url: string | null; view_count: number; status: string; }
-interface MyStory {
-  id: string;
-  slug: string;
-  title: string;
-  kind: string;
-  cover_url: string | null;
-  view_count: number | null;
-  status: string;
-  published_at: string | null;
-  hook_label: string | null;
-}
-
-interface ProductDraftRow { draft_key: string; payload: { name?: string; tagline?: string; brandId?: string }; updated_at: string; }
+type MyBrand = DashboardBrand;
+type MyProduct = DashboardProduct;
+type MyStory = DashboardStory;
+type ProductDraftRow = DashboardDraft;
 
 function ninetyDaysAgoIso(): string {
   return new Date(Date.now() - 90 * 86_400_000).toISOString();
@@ -75,138 +59,8 @@ function buildAnalyticsSeries(
   }
   return [...map.values()];
 }
-interface SavedCollectionItem { type: string; slug: string; title: string; meta: string; href: string; }
-interface TeamBrand { id: string; slug: string; name: string; tagline: string; logoUrl: string | null; role: string; }
-interface OwnedTeamMember { brand_id: string; user_id: string; display_name: string | null; title: string; bio: string | null; avatar_url: string | null; is_public: boolean; member_role: BrandMemberRole; sort_order: number; }
-interface TeamHubBrand { brand: TeamBrand; owner: { slug: string; name: string; headline: string; bio: string | null; avatar_url: string | null } | null; members: OwnedTeamMember[]; }
-interface PendingTeamInvite { id: string; brand_id: string; email: string; member_role: BrandMemberRole; expires_at: string; }
-
-const roleDashboard = {
-  team: {
-    eyebrow: "TEAM WORKSPACE",
-    label: "팀 멤버",
-    title: "팀의 다음 작업을 이어가세요.",
-    description: "참여 중인 브랜드와 공동 작업을 한곳에서 확인하는 공간입니다.",
-    primary: { href: "/brands", label: "브랜드 둘러보기" },
-    emptyTitle: "아직 연결된 팀이 없어요.",
-    emptyCopy: "팀 초대를 받으면 참여 중인 브랜드와 작성 중인 콘텐츠가 여기에 표시됩니다.",
-    cards: [
-      { href: "/stories", kicker: "REFERENCE", title: "잘 만든 피처 살펴보기", copy: "다른 팀의 스토리와 구성 방식을 참고해보세요." },
-      { href: "/events", kicker: "NETWORK", title: "팀과 함께할 행사 찾기", copy: "데모데이와 네트워킹 일정을 확인하세요." },
-      { href: "/support", kicker: "OPPORTUNITY", title: "지원사업 확인하기", copy: "지금 지원할 수 있는 프로그램을 모아봅니다." },
-    ],
-  },
-  explorer: {
-    eyebrow: "DISCOVERY HOME",
-    label: "예비 창업가",
-    title: "다음 시작을 발견해보세요.",
-    description: "먼저 시작한 사람과 제품, 지금 참여할 수 있는 기회를 모았습니다.",
-    primary: { href: "/stories", label: "추천 피처 보기" },
-    emptyTitle: "관심 있는 Founder를 찾아보세요.",
-    emptyCopy: "저장과 팔로우 기능이 연결되면 나만의 발견 목록이 이곳에 쌓입니다.",
-    cards: [
-      { href: "/founders", kicker: "PEOPLE", title: "Founder 만나기", copy: "제품보다 먼저, 만드는 사람의 이야기를 발견하세요." },
-      { href: "/products", kicker: "PRODUCT", title: "새 프로덕트 보기", copy: "막 나온 제품과 서비스를 빠르게 살펴보세요." },
-      { href: "/events", kicker: "EVENT", title: "이번 주 행사 찾기", copy: "직접 만나고 연결될 수 있는 자리를 확인하세요." },
-    ],
-  },
-  partner: {
-    eyebrow: "PARTNER CENTER",
-    label: "파트너",
-    title: "좋은 기회를 더 멀리 연결하세요.",
-    description: "행사와 지원사업, 커뮤니티를 Founder에게 소개하는 파트너 공간입니다.",
-    primary: { href: "/events", label: "행사 페이지 보기" },
-    emptyTitle: "파트너 등록 도구를 준비하고 있어요.",
-    emptyCopy: "곧 행사·지원사업을 직접 등록하고 성과를 확인할 수 있습니다.",
-    cards: [
-      { href: "/events", kicker: "EVENT", title: "행사 큐레이션", copy: "현재 공개된 행사와 운영 방식을 살펴보세요." },
-      { href: "/support", kicker: "PROGRAM", title: "지원사업 모아보기", copy: "Founder에게 필요한 지원 기회를 확인하세요." },
-      { href: "/communities", kicker: "COMMUNITY", title: "커뮤니티 연결하기", copy: "함께 성장하는 창업 커뮤니티를 만나보세요." },
-    ],
-  },
-} satisfies Record<Exclude<MemberType, "founder">, {
-  eyebrow: string;
-  label: string;
-  title: string;
-  description: string;
-  primary: { href: string; label: string };
-  emptyTitle: string;
-  emptyCopy: string;
-  cards: { href: string; kicker: string; title: string; copy: string }[];
-}>;
-
-function MemberDashboard({ memberType, name, email, savedItems, teamBrands, teamHub = [], myUserId }: { memberType: Exclude<MemberType, "founder">; name: string; email: string; savedItems: SavedCollectionItem[]; teamBrands: TeamBrand[]; teamHub?: TeamHubBrand[]; myUserId: string }) {
-  const role = roleDashboard[memberType];
-  const stateTitle = teamBrands.length
-    ? `${teamBrands.length}개 브랜드의 팀으로 참여 중이에요.`
-    : savedItems.length
-      ? `${savedItems.length}개의 항목을 저장했어요.`
-      : role.emptyTitle;
-  const stateCopy = teamBrands.length
-    ? "초대받은 브랜드의 콘텐츠를 함께 편집할 수 있습니다."
-    : savedItems.length
-      ? "관심 있는 콘텐츠를 다시 확인하고 다음 행동으로 이어가세요."
-      : role.emptyCopy;
-
-  return <>
-    <StudioWelcomeGuide userId={myUserId} memberType={memberType} />
-    <DashNav />
-    <main className="dash-page dash">
-      <div className="shell dash-shell">
-        <header className="dash-hero">
-          <div><p>{role.eyebrow}</p><span>{role.label}</span><h1>{name}님,<br />{role.title}</h1><small>{role.description}</small></div>
-          <Link href={role.primary.href}>{role.primary.label}<b>→</b></Link>
-        </header>
-        <section className="dash-state-row">
-          <div className="dash-avatar">{name.slice(0, 1) || "F"}</div>
-          <div><span>MY ROLE · {role.label}</span><strong>{stateTitle}</strong><p>{stateCopy}</p></div>
-          <small>{email}</small>
-        </section>
-        {teamHub.length > 0 && <section className="ig-founder-preview dash-team-hub">
-          <div className="dash-panel-title">
-            <strong>TEAM PROFILE</strong>
-            <span>참여 중인 브랜드의 팀과 공개 프로필입니다.</span>
-          </div>
-          <div className="dash-team-brand-list">{teamHub.map(({ brand, owner, members }) => <article className="dash-team-brand" key={brand.id}>
-            <header>
-              <div className="dash-team-brand-logo">{brand.logoUrl ? <img src={brand.logoUrl} alt="" /> : <span>{brand.name.slice(0, 1)}</span>}</div>
-              <div><small>BRAND TEAM</small><h3>{brand.name}</h3><p>대표 포함 {members.length + (owner ? 1 : 0)}명 · 내 역할 {brand.role === "editor" ? "EDITOR" : "VIEWER"}</p></div>
-              <Link className="dash-team-hub-edit-link" href={`/my/team/${brand.id}`}>내 팀 카드 편집 →</Link>
-            </header>
-            <div className="dash-team-member-list dash-team-card-grid">
-              {owner && <div className="dash-team-admin-card owner">
-                <TeamProfileCard name={owner.name} title={owner.headline || "Founder"} avatarUrl={owner.avatar_url} bio={owner.bio} label="OWNER" meta={brand.name} href={`/founders/${owner.slug}`} actionLabel="프로필" />
-              </div>}
-              {members.map((member) => <div className="dash-team-admin-card" key={member.user_id}>
-                <TeamProfileCard name={member.display_name || "팀 멤버"} title={member.title || "팀 멤버"} avatarUrl={member.avatar_url} bio={member.bio} label={member.member_role === "editor" ? "EDITOR" : "VIEWER"} meta={brand.name} muted={!member.is_public} />
-                {member.user_id === myUserId && <div className="team-owner-card-action"><span>내 카드</span><Link href={`/my/team/${brand.id}`}>내 카드 편집 →</Link></div>}
-              </div>)}
-            </div>
-            <footer><Link href={`/brands/${brand.slug}`} target="_blank">공개 팀 페이지 보기 →</Link></footer>
-          </article>)}</div>
-        </section>}
-        <section className="dash-cta-card">
-          <div>
-            <strong>만드는 사람이기도 한가요?</strong>
-            <p>역할을 바꾸지 않아도 바로 올릴 수 있어요. 인터뷰는 사진 한 장과 질문 답변이면 충분합니다.</p>
-          </div>
-          <div className="dash-cta-row">
-            <Link className="button" href="/submit/interview">내 인터뷰 쓰기 →</Link>
-            <Link href="/my/brand/new">브랜드 등록하기</Link>
-          </div>
-        </section>
-        <section className="dash-links">
-          <div className="dash-panel-title"><strong>{role.label}에게 필요한 메뉴</strong><span>선택한 역할을 기준으로 구성했어요.</span></div>
-          <div>{role.cards.map((card, index) => <Link href={card.href} key={card.href}><i>0{index + 1}</i><span>{card.kicker}</span><strong>{card.title}</strong><p>{card.copy}</p><b>바로가기 →</b></Link>)}</div>
-        </section>
-        <section className="dash-collection">
-          <div className="dash-panel-title"><strong>내 저장 목록</strong><span>프로덕트·피처·행사·지원사업을 한곳에 모았어요.</span></div>
-          {savedItems.length ? <div>{savedItems.map((item) => <Link href={item.href} key={`${item.type}-${item.slug}`}><span>{item.type}</span><strong>{item.title}</strong><small>{item.meta}</small><b>→</b></Link>)}</div> : <p>상세 페이지의 ♡ 저장 버튼을 누르면 여기에 표시됩니다.</p>}
-        </section>
-      </div>
-    </main>
-  </>;
-}
+type OwnedTeamMember = DashboardTeamMember;
+type PendingTeamInvite = DashboardInvite;
 
 export default async function MyPage() {
   const supabase = await createClient();
@@ -329,15 +183,6 @@ export default async function MyPage() {
     }
   }
 
-  const publishedCount = brands.filter((brand) => brand.status === "published").length;
-  const storyViews = myStories.reduce((sum, story) => sum + (story.view_count ?? 0), 0);
-  const totalViews = products.reduce((sum, product) => sum + (product.view_count ?? 0), 0) + storyViews;
-
-  // 임시저장: ① 비공개(draft) 상태로 저장된 프로덕트 ② 아직 등록 전인 작성 중 서버 초안
-  const publishedProducts = products.filter((product) => product.status === "published");
-  const draftProducts = products.filter((product) => product.status !== "published");
-  // 공개하지 않으면 아무에게도 보이지 않으므로 대시보드 맨 위에서 알린다
-  const draftBrands = brands.filter((brand) => brand.status !== "published");
   const { data: draftRows } = await supabase
     .from("submission_drafts")
     .select("draft_key,payload,updated_at")
@@ -347,9 +192,6 @@ export default async function MyPage() {
   const writingDrafts = ((draftRows ?? []) as ProductDraftRow[]).filter(
     (row) => typeof row.payload === "object" && (row.payload.name?.trim() || row.payload.tagline?.trim()),
   );
-  const fmtDraftDate = (iso: string) =>
-    formatDateTimeKst(iso);
-
   let analyticsSeries: AnalyticsDay[] = [];
   if (products.length) {
     const ninetyDaysAgo = ninetyDaysAgoIso();
@@ -379,262 +221,16 @@ export default async function MyPage() {
     analyticsSeries = buildAnalyticsSeries(eventRows ?? [], likeRows);
   }
 
-  return <>
-    <StudioWelcomeGuide userId={user.id} memberType="founder" />
-    <DashNav founder />
-
-    <main className="dash-page">
-      <div className="shell dash-shell">
-
-        {/* ── 프로필 헤더 + 통계 스트립 ── */}
-        <section className="dash-hero-card">
-          <div className="dash-profile-head">
-            <div className="dash-profile-avatar">{founder?.avatar_url ? <img src={founder.avatar_url} alt="" /> : <span>{(founder?.name || "F").slice(0, 1)}</span>}</div>
-            <div className="dash-profile-main">
-              <h1>{founder?.name ?? "Founder"} {founder && <span className="dash-check" title="Featable Founder">✓</span>}</h1>
-              <p className="dash-profile-role">{[founder?.role_title, brands[0]?.name].filter(Boolean).join(" · ") || "브랜드와 프로덕트를 한 곳에서 관리하세요."}</p>
-              <div className="dash-profile-top" style={{ marginTop: 10 }}>
-                <Link className="dash-btn-secondary" href="/my/profile">프로필 편집</Link>
-                <Link className="dash-btn-primary" href={brands.length ? "/submit/product" : "/my/brand/new"}>{brands.length ? "＋ 프로덕트 등록" : "＋ 기업 정보 등록"}</Link>
-              </div>
-            </div>
-          </div>
-          <div className="dash-stat-strip">
-            <div><b>{brands.length}</b><span>브랜드</span></div>
-            <div><b>{products.length}</b><span>프로덕트</span></div>
-            <div className="accent"><b>{totalViews.toLocaleString("ko-KR")}</b><span>누적 조회</span></div>
-            <div><b>{publishedCount}</b><span>공개 중</span></div>
-          </div>
-        </section>
-
-        {(draftBrands.length > 0 || draftProducts.length > 0) && <section className="dash-unpublished-alert">
-          <div>
-            <strong>아직 공개되지 않은 항목이 {draftBrands.length + draftProducts.length}개 있어요.</strong>
-            <p>비공개 상태에서는 다른 사람에게 보이지 않습니다. 공개해야 발견될 수 있어요.</p>
-          </div>
-          <div className="dash-unpublished-links">
-            {draftBrands.map((brand) => <span className="dash-unpublished-item" key={brand.id}><b>{brand.name}</b><BrandStatusButton brandId={brand.id} published={false} /></span>)}
-            {draftProducts.map((product) => <Link className="dash-unpublished-item" href={`/my/product/${product.slug}`} key={product.id}><b>{product.name}</b><em>공개하러 가기 →</em></Link>)}
-          </div>
-        </section>}
-
-        {brands.length === 0 && <section id="brands" className="dash-first-start">
-          <div className="dash-first-copy">
-            <span>START HERE</span>
-            <h2>가장 쉬운 시작은 내 이야기예요.</h2>
-            <p>인터뷰는 기업 정보 없이도 올릴 수 있어요. 사진 한 장과 질문 답변이면 홈과 검색에 바로 노출됩니다. 기업 정보는 나중에 등록해도 됩니다.</p>
-            <Link href="/submit/interview">내 인터뷰 쓰기<b>→</b></Link>
-            <Link className="dash-first-alt" href="/my/brand/new">기업 정보부터 등록하기</Link>
-          </div>
-          <ol>
-            <li><i>1</i><div><strong>인터뷰로 먼저 발견되기</strong><span>기업 정보 없이, 사진 한 장과 답변이면 끝나요.</span></div></li>
-            <li><i>2</i><div><strong>기업 정보 등록</strong><span>회사명, 로고, 한 줄 소개만 입력해요.</span></div></li>
-            <li><i>3</i><div><strong>프로덕트와 상세페이지</strong><span>내 기업 아래 제품을 쌓아 올려요.</span></div></li>
-          </ol>
-        </section>}
-
-        {brands.length > 0 && <ProductAnalytics series={analyticsSeries} />}
-
-        <div className="dash-cols">
-          <div className="dash-main">
-
-            {myStories.length > 0 && <section className="dash-story-section dash-panel">
-              <div className="dash-panel-head"><strong>내 인터뷰</strong></div>
-              <div className="dash-story-list">
-                {myStories.map((story) => (
-                  <article key={story.id}>
-                    {story.cover_url && <img src={story.cover_url} alt="" />}
-                    <div>
-                      <strong>{story.hook_label ?? story.title}</strong>
-                      <span>{story.title}</span>
-                      <em>{story.status === "published" ? "공개 중" : "비공개"}</em>
-                    </div>
-                    <div className="dash-story-metrics">
-                      <b>{(story.view_count ?? 0).toLocaleString("ko-KR")}</b><small>조회</small>
-                      <b>{(storyLikes[story.slug] ?? 0).toLocaleString("ko-KR")}</b><small>좋아요</small>
-                    </div>
-                    <div className="dash-row-actions"><Link href={`/submit/interview?edit=${encodeURIComponent(story.slug)}`}>수정</Link><Link href={`/stories/${story.slug}`}>보기 →</Link></div>
-                  </article>
-                ))}
-              </div>
-            </section>}
-
-            {publishedProducts.length > 0 && <section id="products" className="dash-media-section dash-panel">
-              <div className="dash-panel-head">
-                <strong>내 프로덕트 <small style={{ marginLeft: 6 }}>{publishedProducts.length}개 · 공개 중</small></strong>
-                <Link className="dash-btn-primary" href="/submit/product">＋ 새 프로덕트 등록</Link>
-              </div>
-              <div className="dash-rows">
-                {publishedProducts.map((product) => {
-                  const brand = brands.find((item) => item.id === product.brand_id);
-                  return (
-                    <div className="dash-row-item" key={product.id}>
-                      {product.hero_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={product.hero_url} alt="" className="dash-row-thumb" />
-                      ) : (
-                        <div className="dash-row-thumb is-initial">{product.name.slice(0, 1)}</div>
-                      )}
-                      <div className="dash-row-info">
-                        <strong>{product.name} <span className="badge-live">공개 중</span></strong>
-                        <small>{brand?.name ?? "브랜드"} · 조회 {(product.view_count ?? 0).toLocaleString("ko-KR")}</small>
-                      </div>
-                      <div className="dash-row-views"><b>{(product.view_count ?? 0).toLocaleString("ko-KR")}</b><span>조회수</span></div>
-                      <a className="dash-btn-secondary" href={`/my/product/${product.slug}`}>수정</a>
-                      <a className="dash-btn-ghost" href={`/products/${product.slug}`} target="_blank">공개 페이지</a>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>}
-
-            {(draftProducts.length > 0 || writingDrafts.length > 0) && <section className="dash-media-section dash-panel">
-              <div className="dash-panel-head">
-                <div>
-                  <strong>임시저장 <small style={{ marginLeft: 6, color: "var(--accent)", fontWeight: 700 }}>{draftProducts.length + writingDrafts.length}개</small></strong>
-                  <small style={{ display: "block", marginTop: 3, color: "var(--gray-500)" }}>작성을 완료하지 않은 프로덕트예요</small>
-                </div>
-              </div>
-              <div className="dash-rows">
-                {draftProducts.map((product) => {
-                  const brand = brands.find((item) => item.id === product.brand_id);
-                  return (
-                    <div key={product.id} className="dash-row-item is-draft">
-                      {product.hero_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={product.hero_url} alt="" className="dash-row-thumb" />
-                      ) : (
-                        <div className="dash-row-thumb is-initial is-dashed">{product.name.slice(0, 1)}</div>
-                      )}
-                      <div className="dash-row-info">
-                        <strong>{product.name} <span className="badge-draft">비공개 저장됨</span></strong>
-                        <small>{brand?.name ?? "브랜드"} · 공개하면 홈 피드에 노출됩니다</small>
-                      </div>
-                      <Link href={`/my/product/${product.slug}`} className="dash-btn-secondary">이어서 수정</Link>
-                      <DraftDeleteButton kind="product" id={product.id} name={product.name} />
-                    </div>
-                  );
-                })}
-                {writingDrafts.map((draft) => {
-                  const brand = brands.find((item) => item.id === draft.payload.brandId);
-                  const resumeHref = brand ? `/submit/product?brand=${brand.id}` : "/submit/product";
-                  return (
-                    <div key={draft.draft_key} className="dash-row-item is-draft">
-                      <div className="dash-row-thumb is-initial is-dashed">✎</div>
-                      <div className="dash-row-info">
-                        <strong>{draft.payload.name?.trim() || "제목 없는 프로덕트"} <span className="badge-draft">작성 중</span></strong>
-                        <small>{brand?.name ?? "브랜드"} · 마지막 저장 {fmtDraftDate(draft.updated_at)}</small>
-                        <div className="draft-progress"><i style={{ width: "60%" }} /></div>
-                      </div>
-                      <Link href={resumeHref} className="dash-btn-primary">이어서 작성</Link>
-                      <DraftDeleteButton kind="draft" id={draft.draft_key} name={draft.payload.name?.trim() || "제목 없는 프로덕트"} />
-                    </div>
-                  );
-                })}
-              </div>
-            </section>}
-
-          </div>
-
-          <aside className="side-stack">
-
-            {brands.length > 0 && <section id="brands" className="dash-panel">
-              <div className="dash-panel-head"><strong>내 브랜드</strong></div>
-              <div className="dash-rows">
-                {brands.map((brand) => {
-                  const brandProducts = products.filter((item) => item.brand_id === brand.id);
-                  const brandViews = brandProducts.reduce((sum, item) => sum + (item.view_count ?? 0), 0);
-                  return (
-                    <div key={brand.id} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      {brand.logo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={brand.logo_url} alt="" className="dash-row-thumb" style={{ borderRadius: "var(--radius-pill)", width: 44, height: 44 }} />
-                      ) : (
-                        <div className="dash-row-thumb is-initial" style={{ borderRadius: "var(--radius-pill)", width: 44, height: 44, background: "linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 75%, white))", color: "#fff" }}>{brand.name.slice(0, 1)}</div>
-                      )}
-                      <div className="dash-row-info">
-                        <strong>{brand.name} {brand.status === "published" ? <span className="badge-live">공개</span> : <span className="badge-draft">비공개</span>}</strong>
-                        <small>{brand.category || "브랜드"} · 프로덕트 {brandProducts.length}개 · 조회 {brandViews.toLocaleString("ko-KR")}</small>
-                      </div>
-                    </div>
-                  );
-                })}
-                {brands.map((brand) => (
-                  <div key={`actions-${brand.id}`} style={{ display: "flex", gap: 8, padding: "4px 10px 8px" }}>
-                    <Link href={`/my/edit/${brand.slug}`} className="dash-btn-ghost" style={{ flex: 1, textAlign: "center" }}>수정</Link>
-                    <Link href={`/brands/${brand.slug}`} target="_blank" className="dash-btn-ghost" style={{ flex: 1, textAlign: "center" }}>미리보기</Link>
-                    <DeleteBrandButton brandId={brand.id} brandName={brand.name} />
-                  </div>
-                ))}
-              </div>
-            </section>}
-
-            {ownedTeamMembers.length > 0 && <section className="dash-panel">
-              <div className="dash-panel-head"><strong>브랜드 팀</strong></div>
-              <div className="dash-rows">
-                {ownedTeamMembers.map((member) => (
-                  <div key={member.user_id} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    {member.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={member.avatar_url} alt="" className="dash-row-thumb" style={{ borderRadius: "var(--radius-pill)", width: 44, height: 44 }} />
-                    ) : (
-                      <div className="dash-row-thumb is-initial" style={{ borderRadius: "var(--radius-pill)", width: 44, height: 44 }}>{(member.display_name || "팀").slice(0, 1)}</div>
-                    )}
-                    <div className="dash-row-info">
-                      <strong>{member.display_name || "팀 멤버"}</strong>
-                      <small>{member.title || "팀 멤버"}{member.is_public ? "" : " · 비공개"}</small>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>}
-            {pendingTeamInvites.length > 0 && <section className="dash-panel">
-              <div className="dash-panel-head"><strong>초대 대기 {pendingTeamInvites.length}</strong></div>
-              <div className="dash-rows">
-                {pendingTeamInvites.map((invitation) => <div key={invitation.id} className="dash-row-item" style={{ padding: "12px 10px" }}><div className="dash-row-info"><strong>{invitation.email}</strong><small>{invitation.member_role === "editor" ? "편집 가능" : "보기만"}</small></div><PendingInviteControl invitationId={invitation.id} /></div>)}
-              </div>
-            </section>}
-
-            <section className="dash-panel dash-quick">
-              <a href="/submit/interview">
-                <span className="q-ico"><svg className="ico" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
-                <span><b>인터뷰 등록</b><small>만드는 이야기로 발견되세요</small></span>
-                <span className="arr">›</span>
-              </a>
-              <a href="/submit/event">
-                <span className="q-ico"><svg className="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-                <span><b>행사 등록</b><small>팝업·모임을 열고 모집하세요</small></span>
-                <span className="arr">›</span>
-              </a>
-              <a href="/submit/community">
-                <span className="q-ico"><svg className="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                <span><b>커뮤니티 만들기</b><small>함께 만드는 창업가 네트워크</small></span>
-                <span className="arr">›</span>
-              </a>
-              <a href="/my/partner/register">
-                <span className="q-ico"><svg className="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg></span>
-                <span><b>파트너 등록</b><small>지원사업·혜택을 알려주세요</small></span>
-                <span className="arr">›</span>
-              </a>
-              <a href="/my/jobs/new">
-                <span className="q-ico"><svg className="ico" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
-                <span><b>채용 올리기</b><small>팀원을 찾는 가장 빠른 방법</small></span>
-                <span className="arr">›</span>
-              </a>
-            </section>
-
-          </aside>
-        </div>
-
-        <section className="cta-band">
-          <div>
-            <h3>다음 발견을 준비하세요</h3>
-            <p>새 프로덕트나 인터뷰를 등록하고 더 많은 사람을 만나보세요.</p>
-          </div>
-          <Link className="dash-btn-primary" href="/submit/interview" style={{ height: 44, padding: "0 22px" }}>＋ 인터뷰 등록</Link>
-        </section>
-
-      </div>
-    </main>
-  </>;
+  return <FounderDashboard
+    userId={user.id}
+    founder={founder ? { name: founder.name, roleTitle: founder.role_title, avatarUrl: founder.avatar_url } : null}
+    brands={brands}
+    products={products}
+    stories={myStories}
+    storyLikes={storyLikes}
+    teamMembers={ownedTeamMembers}
+    pendingInvites={pendingTeamInvites}
+    writingDrafts={writingDrafts}
+    analyticsSeries={analyticsSeries}
+  />;
 }
