@@ -200,13 +200,14 @@ export default async function MyPage() {
     }
   }
 
-  // 내가 올린 글(인터뷰 포함) — 창업가가 자기 성과를 보러 돌아올 수 있게 한다
+  // founder_id는 글의 대상 인물일 수도 있으므로, 스튜디오에는 본인 인터뷰만 노출한다.
   let myStories: MyStory[] = [];
   let storyLikes: Record<string, number> = {};
   if (founder) {
     const { data: storyRows } = await supabase
       .from("features")
       .select("id,slug,title,kind,cover_url,view_count,status,published_at,hook_label")
+      .eq("kind", "interview")
       .or(`founder_id.eq.${founder.id},created_by.eq.${user.id}`)
       .order("published_at", { ascending: false });
     myStories = (storyRows ?? []) as MyStory[];

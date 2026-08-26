@@ -54,6 +54,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
   const founder = catalog.founders.find((item) => item.slug === feature.founderSlug);
   const brand = catalog.brands.find((item) => item.slug === feature.brandSlug);
   const product = catalog.products.find((item) => item.brandSlug === feature.brandSlug);
+  const isInterview = feature.kind === "interview";
   const discoveryCount = feature.viewCount ?? 0;
   const likeCount = await getLikeCount("feature", feature.slug);
   // 같은 주제를 다룬 창업가 인터뷰를 이어 붙인다. 검색으로 들어온 글에서 사람으로 넘어갈 길을 만든다.
@@ -190,7 +191,9 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
     datePublished: feature.publishedAt,
     ...(feature.updatedAt ? { dateModified: feature.updatedAt } : {}),
     keywords: [feature.primaryKeyword, ...(feature.secondaryKeywords ?? [])].filter(Boolean),
-    author: founder ? { "@type": "Person", "@id": entityId(`/founders/${founder.slug}`, "person"), name: founder.name } : { "@type": "Organization", "@id": entityId("/", "organization"), name: "Featable" },
+    author: isInterview && founder
+      ? { "@type": "Person", "@id": entityId(`/founders/${founder.slug}`, "person"), name: founder.name }
+      : { "@type": "Organization", "@id": entityId("/", "organization"), name: "Featable" },
     ...(articleSubjects.length > 0 ? { about: articleSubjects } : {}),
     publisher: {
       "@type": "Organization",
@@ -263,7 +266,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <header>
               <p>{kindLabel[feature.kind]}</p>
               <h2>{feature.title}</h2>
-              {founder
+              {isInterview && founder
                 ? <div className="feature-byline">
                     <img src={founder.avatarUrl} alt="" />
                     <span>
@@ -272,7 +275,11 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
                     </span>
                     <time dateTime={feature.publishedAt}>{formatDateKst(feature.publishedAt)}</time>
                   </div>
-                : <span>{formatDateKst(feature.publishedAt)} · FEATABLE</span>}
+                : <div className="feature-byline">
+                    <img src="/icon.png" alt="Featable 로고" />
+                    <span><Link href="/"><b>FEATABLE</b></Link><em>편집팀</em></span>
+                    <time dateTime={feature.publishedAt}>{formatDateKst(feature.publishedAt)}</time>
+                  </div>}
             </header>
             <p className="feature-lead">{feature.excerpt}</p>
             <img className="feature-article-cover" src={feature.coverUrl} alt="" />
@@ -310,7 +317,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             </section>}
           </article>
 
-          <aside className="feature-article-aside"><div><p>발행</p><strong>{brand?.name ?? "FEATABLE"}</strong><span>창업가 {founder?.name ?? ""}</span></div><div><p>조회수</p><strong>{discoveryCount.toLocaleString()}</strong><span>회</span></div><div><p>하트</p><LikeCount itemType="feature" slug={feature.slug} initialCount={likeCount} /><span>좋아요</span></div><div className="feature-aside-actions"><SaveButton itemType="feature" slug={feature.slug} labelMode="like" /><ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} /></div></aside>
+          <aside className="feature-article-aside"><div><p>발행</p><strong>FEATABLE</strong><span>{isInterview && founder ? `인터뷰 · ${founder.name}` : kindLabel[feature.kind]}</span></div><div><p>조회수</p><strong>{discoveryCount.toLocaleString()}</strong><span>회</span></div><div><p>하트</p><LikeCount itemType="feature" slug={feature.slug} initialCount={likeCount} /><span>좋아요</span></div><div className="feature-aside-actions"><SaveButton itemType="feature" slug={feature.slug} labelMode="like" /><ShareButton title={feature.title} text={feature.excerpt} url={absoluteUrl(storyPath)} /></div></aside>
         </section>
 
         <Comments type="feature" slug={feature.slug} />
