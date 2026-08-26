@@ -129,7 +129,7 @@ export function ProfileEditor({
                 </div>
               )}
               <div>
-                <h2 className="text-lg font-bold">{form.name || "팀 프로필"}</h2>
+                <h2 className="text-lg font-bold">{form.name || "내 프로필"}</h2>
                 <p className="text-[13px] text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
               </div>
             </div>
@@ -160,7 +160,7 @@ export function ProfileEditor({
         <div className={setupMode ? "profile-setup-fields" : "mt-8"}>
 
           {/* ── 기본 정보 ── */}
-          {!setupMode && <p className="mb-5 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">기본 정보</p>}
+          {!setupMode && <p className="mb-5 text-[13px] font-bold text-fg-muted">기본 정보</p>}
           <div className="founder-avatar-picker-wrap">
             <span className={label}>프로필 이미지</span>
             <div className="founder-avatar-picker">
@@ -211,7 +211,7 @@ export function ProfileEditor({
           </label>
 
           {/* ── SNS / 링크 ── */}
-          {!setupMode && <p className="mb-5 mt-8 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">링크</p>}
+          {!setupMode && <p className="mb-5 mt-8 text-[13px] font-bold text-fg-muted">링크</p>}
           <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
             <label className={label}>인스타그램
               <input className={`${input} mt-2`} value={form.instagram} placeholder="@handle 또는 링크"
@@ -251,7 +251,7 @@ export function ProfileEditor({
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
         <aside className="self-start lg:sticky lg:top-6">
-          <p className="mb-3 text-[13px] font-bold text-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 팀 카드"}</p>
+          <p className="mb-3 text-[13px] font-bold text-fg-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 카드"}</p>
           <div className="pointer-events-none">
             <TeamProfileCard
               name={form.name || "이름을 입력하세요"}
@@ -259,13 +259,13 @@ export function ProfileEditor({
               headline={form.headline || "한 줄 소개가 여기에 표시됩니다"}
               avatarUrl={form.avatarUrl ?? ""}
               bio={form.bio || "브랜드에서 맡은 역할과 만드는 사람으로서의 이야기를 소개합니다."}
-              label={setupMode ? "PROFILE" : "OWNER"}
+              label="파운더"
               founderNumber={initial.founderNumber}
               actionLabel="프로필"
             />
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted">
-            {setupMode ? "저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다." : "브랜드의 TEAM PROFILE에서 대표자 카드로 노출됩니다."}
+            {setupMode ? "저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다." : "브랜드 페이지의 팀 섹션에 대표 카드로 표시돼요."}
           </p>
         </aside>
       </div>
