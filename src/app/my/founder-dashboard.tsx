@@ -89,10 +89,10 @@ interface FounderDashboardProps {
 }
 
 const QUICK_LINKS = [
-  { href: "/submit/event", title: "행사 등록", copy: "팝업·모임을 열고 모집하세요", icon: "calendar" },
-  { href: "/submit/community", title: "커뮤니티 만들기", copy: "함께 만드는 창업가 네트워크", icon: "people" },
-  { href: "/my/partner/register", title: "파트너 등록", copy: "지원사업·혜택을 알려주세요", icon: "plus" },
-  { href: "/my/jobs/new", title: "채용 올리기", copy: "팀원을 찾는 가장 빠른 방법", icon: "briefcase" },
+  { href: "/my/partner/register?type=event", title: "행사 등록", copy: "행사를 만들고 참가자를 모집하세요", icon: "calendar" },
+  { href: "/my/communities", title: "커뮤니티 운영", copy: "등록 문의부터 멤버 관리까지", icon: "people" },
+  { href: "/partners/apply", title: "파트너 문의", copy: "광고·제휴 협업을 제안하세요", icon: "plus" },
+  { href: "/my/jobs", title: "채용 관리", copy: "조직의 채용 공고를 등록하세요", icon: "briefcase" },
 ] as const;
 
 function QuickIcon({ name }: { readonly name: (typeof QUICK_LINKS)[number]["icon"] }) {
