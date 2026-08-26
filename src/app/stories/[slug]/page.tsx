@@ -78,26 +78,36 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           .filter((entry) => entry.hits > 0)
           .sort((a, b) => b.hits - a.hits)[0]?.item ?? null;
       })();
-  // 인터뷰에서 같은 주제 아티클로 내려보낸다. 트래픽이 있는 쪽에서 없는 쪽으로 길을 낸다.
+  // 인터뷰에서 같은 주제 아티클로 내려보낸다. 트래픽이 인터뷰에만 있으니 거기서 길을 낸다.
+  //
+  // 인터뷰의 primary_keyword는 검색어가 아니라 인터뷰 이름("프루티오 김동현 인터뷰")이라
+  // 키워드 교집합으로는 거의 붙지 않는다. 그래서 아티클의 대표 키워드를 낱말로 쪼개
+  // 인터뷰 본문에 전부 등장하는지를 본다. 낱말이 하나뿐인 키워드는 너무 헐겁게 걸려 제외한다.
   const relatedArticles = feature.kind !== "interview"
     ? []
     : (() => {
-        const keywords = new Set(
-          [feature.primaryKeyword, ...(feature.secondaryKeywords ?? [])]
-            .filter(Boolean)
-            .map((word) => String(word).replace(/\s+/g, "")),
-        );
-        if (keywords.size === 0) return [];
+        const haystack = [
+          feature.title,
+          feature.hookLabel ?? "",
+          feature.excerpt,
+          ...feature.body.map((block) => {
+            if (block.type === "features") return block.items.map((item) => `${item.title} ${item.body}`).join(" ");
+            if (block.type === "text") return `${block.heading ?? ""} ${block.body}`;
+            return "";
+          }),
+        ].join(" ");
+
         return allFeatures
-          .filter((item) => item.kind !== "interview" && item.slug !== feature.slug)
+          .filter((item) => item.kind !== "interview" && item.primaryKeyword)
           .map((item) => {
-            const theirs = [item.primaryKeyword, ...(item.secondaryKeywords ?? [])]
-              .filter(Boolean)
-              .map((word) => String(word).replace(/\s+/g, ""));
-            return { item, hits: theirs.filter((word) => keywords.has(word)).length };
+            const words = String(item.primaryKeyword).split(/\s+/).filter((word) => word.length >= 2);
+            if (words.length < 2) return { item, score: 0 };
+            const matched = words.every((word) => haystack.includes(word));
+            // 구체적인 키워드일수록 먼저 보여준다
+            return { item, score: matched ? words.join("").length : 0 };
           })
-          .filter((entry) => entry.hits > 0)
-          .sort((a, b) => b.hits - a.hits)
+          .filter((entry) => entry.score > 0)
+          .sort((a, b) => b.score - a.score)
           .slice(0, 3)
           .map((entry) => entry.item);
       })();
