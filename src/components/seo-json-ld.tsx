@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { SITE_NAME_DISPLAY, SITE_URL } from "@/lib/site";
+import { SITE_NAME_DISPLAY, SITE_SOCIAL_IMAGE, SITE_URL } from "@/lib/site";
 
 export type SeoSchema = Record<string, unknown>;
 
@@ -32,7 +32,8 @@ export function createDetailMetadata({
   indexable?: boolean;
 }): Metadata {
   const url = absoluteUrl(path);
-  const imageUrl = image ? absoluteUrl(image) : undefined;
+  // 표지가 없으면 og:image를 비우지 말고 사이트 기본 카드로 떨어뜨린다
+  const imageUrl = image ? absoluteUrl(image) : SITE_SOCIAL_IMAGE;
 
   return {
     title,
@@ -46,7 +47,7 @@ export function createDetailMetadata({
       url,
       title,
       description,
-      ...(imageUrl ? { images: [{ url: imageUrl, alt: title }] } : {}),
+      images: [{ url: imageUrl, alt: title }],
       ...(type === "article" && publishedTime ? { publishedTime } : {}),
       ...(type === "article" && modifiedTime ? { modifiedTime } : {}),
     },
@@ -54,7 +55,7 @@ export function createDetailMetadata({
       card: "summary_large_image",
       title,
       description,
-      ...(imageUrl ? { images: [imageUrl] } : {}),
+      images: [imageUrl],
     },
   };
 }

@@ -18,6 +18,7 @@ import {
 } from "@/components/seo-json-ld";
 import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
 import { formatDateKst } from "@/lib/datetime";
+import { shareableImage } from "@/lib/images";
 
 const kindLabel = {
   interview: "인터뷰",
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: seoTitle(feature.seoTitle, feature.title),
     description: conciseSeoDescription(feature.seoDescription || feature.excerpt),
     path: `/stories/${feature.slug}`,
-    image: feature.ogImageUrl ?? feature.coverUrl,
+    image: shareableImage(feature.ogImageUrl, feature.coverUrl),
     type: "article",
     publishedTime: feature.publishedAt,
     modifiedTime: feature.updatedAt,
@@ -62,7 +63,7 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
         const keywords = new Set(
           [feature.primaryKeyword, ...(feature.secondaryKeywords ?? [])]
             .filter(Boolean)
-            .map((word) => String(word).replace(/s+/g, "")),
+            .map((word) => String(word).replace(/\s+/g, "")),
         );
         if (keywords.size === 0) return null;
         return allFeatures
@@ -70,12 +71,35 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
           .map((item) => {
             const theirs = [item.primaryKeyword, ...(item.secondaryKeywords ?? [])]
               .filter(Boolean)
-              .map((word) => String(word).replace(/s+/g, ""));
+              .map((word) => String(word).replace(/\s+/g, ""));
             const hits = theirs.filter((word) => keywords.has(word)).length;
             return { item, hits };
           })
           .filter((entry) => entry.hits > 0)
           .sort((a, b) => b.hits - a.hits)[0]?.item ?? null;
+      })();
+  // 인터뷰에서 같은 주제 아티클로 내려보낸다. 트래픽이 있는 쪽에서 없는 쪽으로 길을 낸다.
+  const relatedArticles = feature.kind !== "interview"
+    ? []
+    : (() => {
+        const keywords = new Set(
+          [feature.primaryKeyword, ...(feature.secondaryKeywords ?? [])]
+            .filter(Boolean)
+            .map((word) => String(word).replace(/\s+/g, "")),
+        );
+        if (keywords.size === 0) return [];
+        return allFeatures
+          .filter((item) => item.kind !== "interview" && item.slug !== feature.slug)
+          .map((item) => {
+            const theirs = [item.primaryKeyword, ...(item.secondaryKeywords ?? [])]
+              .filter(Boolean)
+              .map((word) => String(word).replace(/\s+/g, ""));
+            return { item, hits: theirs.filter((word) => keywords.has(word)).length };
+          })
+          .filter((entry) => entry.hits > 0)
+          .sort((a, b) => b.hits - a.hits)
+          .slice(0, 3)
+          .map((entry) => entry.item);
       })();
   const storyPath = `/stories/${feature.slug}`;
   const articleBody = feature.body.length > 0
@@ -226,7 +250,20 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
 
         <section id="story" className="shell feature-story-layout">
           <article className="feature-long-article">
-            <header><p>{kindLabel[feature.kind]}</p><h2>{feature.title}</h2><span>{formatDateKst(feature.publishedAt)} · FEATABLE</span></header>
+            <header>
+              <p>{kindLabel[feature.kind]}</p>
+              <h2>{feature.title}</h2>
+              {founder
+                ? <div className="feature-byline">
+                    <img src={founder.avatarUrl} alt="" />
+                    <span>
+                      <Link href={`/founders/${founder.slug}`}><b>{founder.name}</b></Link>
+                      {founder.role && <em>{founder.role}</em>}
+                    </span>
+                    <time dateTime={feature.publishedAt}>{formatDateKst(feature.publishedAt)}</time>
+                  </div>
+                : <span>{formatDateKst(feature.publishedAt)} · FEATABLE</span>}
+            </header>
             <p className="feature-lead">{feature.excerpt}</p>
             <img className="feature-article-cover" src={feature.coverUrl} alt="" />
 
@@ -239,6 +276,16 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             {brand && <section className="feature-editorial-section"><span>시작한 이유</span><h3>어떤 문제에서<br />이 브랜드가 시작됐을까?</h3><p>{brand.problem ?? brand.description}</p><blockquote>“{brand.tagline}”</blockquote></section>}
             {founder && <section id="founder" className="feature-founder-quote"><img src={founder.avatarUrl} alt={founder.name} /><div><span>창업가</span><h3>{founder.name}</h3><blockquote>“{founder.headline}”</blockquote><p>{founder.bio}</p></div></section>}
             {product && <section id="product" className="feature-related-product"><p>함께 볼 프로덕트</p><Link href={`/products/${product.slug}`}><img src={product.heroUrl} alt="" /><div><Badge>{product.category}</Badge><h3>{product.name}</h3><span>{product.tagline}</span><strong>제품 자세히 보기 →</strong></div></Link></section>}
+            {relatedArticles.length > 0 && <section className="feature-related-articles">
+              <p>이 인터뷰와 이어지는 글</p>
+              <div>
+                {relatedArticles.map((article) => <Link href={`/stories/${article.slug}`} key={article.slug}>
+                  <span>{article.primaryKeyword ?? "아티클"}</span>
+                  <strong>{article.title}</strong>
+                  <small>{article.excerpt}</small>
+                </Link>)}
+              </div>
+            </section>}
             {relatedInterview && <section className="feature-related-interview">
               <p>이 주제를 실제로 해낸 창업가</p>
               <Link href={`/stories/${relatedInterview.slug}`}>
