@@ -243,8 +243,8 @@ export function ProfileEditor({
         </div>
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
-        <aside className="self-start lg:sticky lg:top-6">
-          {setupMode && <p className="mb-3 text-[13px] font-bold text-muted">내 프로필 카드 미리보기</p>}
+        <aside className="flex flex-col gap-3 self-start lg:sticky lg:top-6">
+          {setupMode && <p className="text-[13px] font-bold text-muted">내 프로필 카드 미리보기</p>}
           <div className="pointer-events-none">
             <TeamProfileCard
               name={form.name || "이름을 입력하세요"}
@@ -257,7 +257,7 @@ export function ProfileEditor({
               actionLabel="프로필"
             />
           </div>
-          {setupMode && <p className="mt-3 text-xs leading-relaxed text-muted">저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다.</p>}
+          {setupMode && <p className="text-xs leading-relaxed text-muted">저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다.</p>}
         </aside>
       </div>
     </section>
