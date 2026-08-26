@@ -40,7 +40,7 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    color: var(--fg-subtle);
+    color: var(--fg-muted);
     font-size: var(--fs-t1);
     font-weight: 500;
     letter-spacing: -0.01em;

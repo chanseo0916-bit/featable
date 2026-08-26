@@ -139,11 +139,13 @@ export function FounderDashboard({ userId, founder, brands, products, stories, s
           </div>
         </section>}
 
-        {brands.length === 0 ? <section className="dash-first-start">
-          <div className="dash-first-copy"><span>처음 시작하기</span><h2>가장 쉬운 시작은 내 이야기예요.</h2><p>인터뷰는 기업 정보 없이도 올릴 수 있어요. 기업 정보는 나중에 등록해도 됩니다.</p><Link href="/submit/interview">인터뷰 쓰기 →</Link><Link className="dash-first-alt" href="/my/brand/new">기업 정보 등록하기</Link></div>
-        </section> : <div className="dash-cols">
+        {brands.length === 0 && <section className="dash-first-start">
+          <div className="dash-first-copy"><span>처음 시작하기</span><h2>가장 쉬운 시작은 내 이야기예요.</h2><p>인터뷰는 기업 정보 없이도 올릴 수 있어요.<span>기업 등록은 나중에 해도 됩니다.</span></p><Link href="/submit/interview">인터뷰 쓰기 →</Link><Link className="dash-first-alt" href="/my/brand/new">기업 정보 등록하기</Link></div>
+        </section>}
+
+        <div className="dash-cols">
           <div className="dash-main">
-            <ProductAnalytics series={analyticsSeries} />
+            {brands.length > 0 && <ProductAnalytics series={analyticsSeries} />}
 
             {stories.length > 0 && <section className="dash-section dash-panel">
               <div className="dash-panel-head"><strong>내 인터뷰</strong><small>{stories.length}개</small></div>
@@ -155,7 +157,7 @@ export function FounderDashboard({ userId, founder, brands, products, stories, s
               </article>)}</div>
             </section>}
 
-            <section id="products" className="dash-section dash-panel">
+            {brands.length > 0 && <section id="products" className="dash-section dash-panel">
               <div className="dash-panel-head"><strong>내 프로덕트 <small>{publishedProducts.length}개 · 공개 중</small></strong><Link className="dash-btn-primary" href="/submit/product">새 프로덕트 등록</Link></div>
               {publishedProducts.length > 0 ? <div className="dash-rows">{publishedProducts.map((product) => {
                 const brand = brands.find((item) => item.id === product.brand_id);
@@ -166,7 +168,7 @@ export function FounderDashboard({ userId, founder, brands, products, stories, s
                   <Link className="dash-btn-ghost" href={`/products/${product.slug}`} target="_blank">공개 페이지</Link><Link className="dash-btn-secondary" href={`/my/product/${product.slug}`}>수정</Link>
                 </article>;
               })}</div> : <p className="dash-empty-note">등록된 프로덕트가 없어요.</p>}
-            </section>
+            </section>}
 
             {(draftProducts.length > 0 || writingDrafts.length > 0) && <section className="dash-section dash-panel">
               <div className="dash-panel-head"><div><strong>임시저장 <small>{draftProducts.length + writingDrafts.length}개</small></strong><p>작성을 완료하지 않은 프로덕트예요.</p></div></div>
@@ -180,10 +182,10 @@ export function FounderDashboard({ userId, founder, brands, products, stories, s
           </div>
 
           <aside className="side-stack">
-            <section id="brands" className="dash-panel"><div className="dash-panel-head"><strong>내 브랜드</strong></div><div className="dash-rows">{brands.map((brand) => {
+            {brands.length > 0 && <section id="brands" className="dash-panel"><div className="dash-panel-head"><strong>내 브랜드</strong></div><div className="dash-rows">{brands.map((brand) => {
               const brandProducts = products.filter((item) => item.brand_id === brand.id);
               return <div className="dash-brand-block" key={brand.id}><div className="dash-brand-summary">{brand.logo_url ? <Image src={brand.logo_url} alt="" width={44} height={44} unoptimized className="dash-row-thumb" /> : <div className="dash-row-thumb is-initial">{brand.name.slice(0, 1)}</div>}<div className="dash-row-info"><strong>{brand.name}<span className={brand.status === "published" ? "badge-live" : "badge-draft"}>{brand.status === "published" ? "공개" : "비공개"}</span></strong><small>{brand.category || "브랜드"} · 프로덕트 {brandProducts.length}개</small></div></div><div className="dash-brand-actions"><Link className="dash-btn-ghost" href={`/my/edit/${brand.slug}`}>수정</Link><Link className="dash-btn-ghost" href={`/brands/${brand.slug}`} target="_blank">미리보기</Link><TeamInviteButton brandId={brand.id} brandName={brand.name} /><DeleteBrandButton brandId={brand.id} brandName={brand.name} /></div></div>;
-            })}</div></section>
+            })}</div></section>}
 
             {teamMembers.length > 0 && mainBrand && <section className="dash-panel"><div className="dash-panel-head"><strong>브랜드 팀</strong><Link href={`/my/team/${mainBrand.id}`}>관리 →</Link></div><div className="dash-rows">{teamMembers.map((member) => <div className="dash-team-member" key={member.user_id}>{member.avatar_url ? <Image src={member.avatar_url} alt="" width={44} height={44} unoptimized className="dash-row-thumb" /> : <div className="dash-row-thumb is-initial">{(member.display_name || "팀").slice(0, 1)}</div>}<div className="dash-row-info"><strong>{member.display_name || "팀 멤버"}</strong><small>{member.title || "팀 멤버"}{member.is_public ? "" : " · 비공개"}</small></div></div>)}</div></section>}
 
@@ -191,7 +193,7 @@ export function FounderDashboard({ userId, founder, brands, products, stories, s
 
             <nav className="dash-panel dash-quick" aria-label="빠른 등록 메뉴">{QUICK_LINKS.map((item) => <Link href={item.href} key={item.href}><span className="q-ico"><QuickIcon name={item.icon} /></span><span><b>{item.title}</b><small>{item.copy}</small></span><span className="arr" aria-hidden="true">›</span></Link>)}</nav>
           </aside>
-        </div>}
+        </div>
       </div>
     </main>
   </>;

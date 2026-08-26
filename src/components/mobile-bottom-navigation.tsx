@@ -41,7 +41,7 @@ const navigationItems: NavigationItem[] = [
 function shouldHide(pathname: string) {
   if (["/admin", "/auth", "/balance", "/invite", "/login", "/onboarding", "/submit"].some((route) => pathname === route || pathname.startsWith(`${route}/`))) return true;
   if (pathname === "/board/write") return true;
-  if (pathname === "/my" || pathname.startsWith("/my/")) return true;
+  if (pathname.startsWith("/my/")) return true;
   if (pathname.startsWith("/products/") || pathname.startsWith("/stories/")) return true;
   if (/^\/events\/[^/]+\/(apply|verify)$/.test(pathname)) return true;
   return pathname === "/partners/apply";

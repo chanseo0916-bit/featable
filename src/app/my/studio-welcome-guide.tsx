@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { MemberType } from "@/lib/auth";
 
 const guideByRole: Record<MemberType, {
@@ -60,6 +60,9 @@ const guideByRole: Record<MemberType, {
 export function StudioWelcomeGuide({ userId, memberType }: { userId: string; memberType: MemberType }) {
   const storageKey = `featable:studio-guide:v1:${userId}`;
   const guide = guideByRole[memberType];
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   // Read the browser-only preference through the external-store API so the
   // server can render a stable closed snapshot without an effect setState.
@@ -99,20 +102,58 @@ export function StudioWelcomeGuide({ userId, memberType }: { userId: string; mem
 
   useEffect(() => {
     if (!open) return;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    const inertedElements: HTMLElement[] = [];
+    let activeLayer: HTMLElement | null = backdropRef.current;
+    while (activeLayer && activeLayer !== document.body) {
+      const parent = activeLayer.parentElement;
+      if (!parent) break;
+      for (const sibling of parent.children) {
+        if (sibling !== activeLayer && sibling instanceof HTMLElement && !sibling.inert) {
+          sibling.inert = true;
+          inertedElements.push(sibling);
+        }
+      }
+      activeLayer = parent;
+    }
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])");
+      if (!focusableElements?.length) return;
+      const first = focusableElements.item(0);
+      const last = focusableElements.item(focusableElements.length - 1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      document.body.style.overflow = previousOverflow;
+      for (const element of inertedElements) element.inert = false;
+      previouslyFocused?.focus();
+    };
   }, [close, open]);
 
   if (!open) return null;
 
-  return <div className="studio-guide-backdrop" role="presentation">
-    <section className="studio-guide" role="dialog" aria-modal="true" aria-labelledby="studio-guide-title">
+  return <div ref={backdropRef} className="studio-guide-backdrop" role="presentation">
+    <section ref={dialogRef} className="studio-guide" role="dialog" aria-modal="true" aria-labelledby="studio-guide-title">
       <header>
         <div><span>{guide.label}</span><h2 id="studio-guide-title">Featable Studio에 오신 걸 환영해요.</h2></div>
-        <button type="button" onClick={close} aria-label="스튜디오 안내 닫기">×</button>
+        <button ref={closeButtonRef} type="button" onClick={close} aria-label="스튜디오 안내 닫기">×</button>
       </header>
       <div className="studio-guide-intro">
         <strong>{guide.title}</strong>
