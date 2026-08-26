@@ -1,0 +1,37 @@
+[
+  {
+    "slug": "freqz-now-founder-interview",
+    "primaryKeyword": "웹 포토부스 창업",
+    "secondaryKeywords": ["포토부스 창업", "1인 개발자 창업기", "글로벌 서비스 운영 후기", "FREQZ NOW"],
+    "seoTitle": "웹 포토부스 창업, 1인 빌더 FREQZ NOW 인터뷰",
+    "seoDescription": "웹 포토부스 창업으로 올해 누적 사용자 8만 명을 모은 1인 빌더가 전하는 창업 배경과 힘들었던 순간, 앞으로의 비전을 담은 인터뷰입니다."
+  },
+  {
+    "slug": "inheart-cookie-min-hyeju-interview",
+    "primaryKeyword": "디저트 브랜드 창업",
+    "secondaryKeywords": ["답례 디저트 브랜드", "연습생 출신 창업", "1인 브랜드 창업", "인하트쿠키"],
+    "seoTitle": "디저트 브랜드 창업, 연습생 출신 민혜주 인터뷰",
+    "seoDescription": "10년간의 아이돌 연습생 생활을 마치고 디저트 브랜드 창업에 나선 인하트쿠키 민혜주가 전하는 창업 배경과 힘들었던 순간, 앞으로의 목표를 담은 인터뷰입니다."
+  },
+  {
+    "slug": "sunday-fondu-kim-hanul-interview",
+    "primaryKeyword": "발레웨어 브랜드 창업",
+    "secondaryKeywords": ["취미 브랜드 창업", "발레복 브랜드", "마케터 부업 브랜드", "선데이퐁듀"],
+    "seoTitle": "발레웨어 브랜드 창업, 선데이퐁듀 김한울 인터뷰",
+    "seoDescription": "취미발레 10년차 마케터가 발레웨어 브랜드 창업에 나선 이야기. 선데이퐁듀 김한울이 전하는 창업 배경과 힘들었던 순간, 앞으로의 목표를 담은 인터뷰입니다."
+  },
+  {
+    "slug": "nexev-kim-doyoung-interview",
+    "primaryKeyword": "의료 AI 창업",
+    "secondaryKeywords": ["의대생 창업", "헬스케어 스타트업", "해외 대학생 창업", "Nexev"],
+    "seoTitle": "의료 AI 창업, 호주 의대생 김도영 인터뷰",
+    "seoDescription": "호주 의과대학에 재학하며 투석 환자를 위한 의료 AI 창업에 나선 Nexev 김도영이 전하는 창업 배경과 힘들었던 순간, 제품 비전을 담은 인터뷰입니다."
+  },
+  {
+    "slug": "member-interview",
+    "primaryKeyword": "20대 창업 도전기",
+    "secondaryKeywords": ["창업 실패담", "AI 콘텐츠 마케터", "10대 창업 경험", "스타트업 취업 후기"],
+    "seoTitle": "20대 창업 도전기, AI 마케터 천지원 인터뷰",
+    "seoDescription": "19살부터 여러 사업에 도전하며 20대 창업 도전기를 써온 천지원의 이야기. 지금은 AI를 활용하는 콘텐츠 마케터로 일하며 다음 창업을 준비하고 있습니다."
+  }
+]
