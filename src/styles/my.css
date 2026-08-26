@@ -1378,18 +1378,18 @@
 }
 
 .my-events-page .managed-community-empty.my-event-empty h2 {
-  margin: 4px 0 0;
+  margin: 12px 0 8px;
   color: var(--fg-strong);
-  font-size: var(--fs-t6);
+  font-size: var(--fs-t8);
   font-weight: 700;
-  letter-spacing: -.03em;
+  letter-spacing: -.045em;
 }
 
 .my-events-page .managed-community-empty.my-event-empty p {
   max-width: 450px;
   margin: 0;
   color: var(--fg-muted);
-  font-size: var(--fs-t2);
+  font-size: var(--fs-t4);
   line-height: 1.65;
 }
 
@@ -1399,7 +1399,7 @@
   border-radius: var(--radius-md);
   background: var(--accent);
   color: var(--background);
-  font-size: var(--fs-t2);
+  font-size: var(--fs-t3);
   font-weight: 700;
 }
 
