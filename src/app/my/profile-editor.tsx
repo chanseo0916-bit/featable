@@ -114,7 +114,7 @@ export function ProfileEditor({
   }
 
   return (
-    <section className={setupMode ? "simple-registration-card profile-setup-card" : "rounded-2xl border border-border bg-white p-8"}>
+    <section className={setupMode ? "simple-registration-card profile-setup-card" : ""}>
       {setupMode && <div className="simple-registration-heading profile-setup-heading"><span>STEP 1 · PROFILE</span><h1>인터뷰에 표시될 내 정보</h1><p>이름, 역할, 사진을 확인해주세요. 프로필을 저장하면 STEP 2 인터뷰 작성 화면으로 자동 이동합니다.</p></div>}
       <div className="grid gap-10 lg:grid-cols-[1fr_300px]">
         <div>
@@ -133,7 +133,7 @@ export function ProfileEditor({
                 <p className="text-[13px] text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col items-start gap-3 sm:items-end">
               {slug && (
                 <Link href={`/founders/${slug}`} className="whitespace-nowrap text-[13px] font-bold text-accent hover:underline">
                   공개 프로필 보기 →
@@ -148,13 +148,6 @@ export function ProfileEditor({
               </button>
             </div>
           </div>}
-
-          {!setupMode && !open && (
-            <p className="mt-6 text-[13px] leading-relaxed text-muted">
-              대표자는 브랜드 팀의 첫 번째 멤버로 표시됩니다. &lsquo;프로필 편집&rsquo;을 누르면
-              팀 카드와 Founder 페이지에 쓰이는 정보를 함께 수정할 수 있습니다.
-            </p>
-          )}
 
           {open && (
         <div className={setupMode ? "profile-setup-fields" : "mt-8"}>
@@ -251,7 +244,7 @@ export function ProfileEditor({
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
         <aside className="self-start lg:sticky lg:top-6">
-          <p className="mb-3 text-[13px] font-bold text-muted">{setupMode ? "내 프로필 카드 미리보기" : "대표자 팀 카드"}</p>
+          {setupMode && <p className="mb-3 text-[13px] font-bold text-muted">내 프로필 카드 미리보기</p>}
           <div className="pointer-events-none">
             <TeamProfileCard
               name={form.name || "이름을 입력하세요"}
@@ -264,9 +257,7 @@ export function ProfileEditor({
               actionLabel="프로필"
             />
           </div>
-          <p className="mt-3 text-xs leading-relaxed text-muted">
-            {setupMode ? "저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다." : "브랜드의 TEAM PROFILE에서 대표자 카드로 노출됩니다."}
-          </p>
+          {setupMode && <p className="mt-3 text-xs leading-relaxed text-muted">저장하면 나만의 공개 프로필 카드로 사용할 수 있습니다.</p>}
         </aside>
       </div>
     </section>
