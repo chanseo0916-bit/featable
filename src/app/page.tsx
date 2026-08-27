@@ -36,11 +36,15 @@ export default async function Home() {
   }));
   const interviewItems: FounderInterviewRailItem[] = features
     .filter((feature) => feature.kind === "interview")
-    .sort((a, b) =>
-      Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured))
-      || (b.viewCount ?? 0) - (a.viewCount ?? 0)
-      || (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""),
-    )
+    .sort((a, b) => {
+      const curatedOrder = Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
+      if (curatedOrder !== 0) return curatedOrder;
+      if (a.isFeatured && b.isFeatured) {
+        return (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "");
+      }
+      return (b.viewCount ?? 0) - (a.viewCount ?? 0)
+        || (b.publishedAt ?? "").localeCompare(a.publishedAt ?? "");
+    })
     .slice(0, 6)
     .map((feature) => {
       const founder = founders.find((item) => item.slug === feature.founderSlug);
