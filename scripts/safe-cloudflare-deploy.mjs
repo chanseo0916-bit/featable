@@ -29,6 +29,17 @@ const serverSecretNames = [
   "SYNC_CRON_SECRET",
 ];
 
+function verifyUiContracts(...args) {
+  const result = spawnSync(process.execPath, [resolve(root, "scripts", "verify-ui-contracts.mjs"), ...args], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (result.error) throw result.error;
+  if (result.status !== 0) process.exit(result.status ?? 1);
+}
+
+verifyUiContracts();
+
 if (existsSync(backupEnv) && !existsSync(localEnv)) renameSync(backupEnv, localEnv);
 if (existsSync(backupEnv)) throw new Error("Stale .env.local.deploy-backup exists; inspect it before deploying.");
 
@@ -71,6 +82,7 @@ for (const command of ["build", "deploy"]) {
     if (result.status !== 0) process.exitCode = result.status ?? 1;
     if (result.status !== 0) break;
     if (command === "build") {
+      verifyUiContracts("--built");
       const compiledEnvPath = resolve(root, ".open-next", "cloudflare", "next-env.mjs");
       const compiledEnv = readFileSync(compiledEnvPath, "utf8");
       const leaked = serverSecretNames.filter((name) => new RegExp(`"${name}"\\s*:\\s*"[^"]+"`).test(compiledEnv));

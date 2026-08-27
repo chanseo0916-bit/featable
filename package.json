@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run check:ui",
     "build": "next build",
+    "postbuild": "npm run check:ui:bundle",
     "start": "next start",
     "lint": "eslint",
+    "check:ui": "node scripts/verify-ui-contracts.mjs",
+    "check:ui:bundle": "node scripts/verify-ui-contracts.mjs --built",
     "deploy": "node scripts/safe-cloudflare-deploy.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
   },
