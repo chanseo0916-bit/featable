@@ -502,6 +502,70 @@
 .event-bottom-cta .button { margin-top: 12px; }
 
 
+/* 행사 상세: 핵심 정보와 신청 영역을 첫 화면에서 함께 보여준다. */
+.event-detail-layout.event-experience {
+  padding-top: 48px;
+  padding-bottom: 96px;
+  display: grid;
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+  grid-template-areas:
+    "sidebar summary"
+    "sidebar content";
+  column-gap: 56px;
+  row-gap: 0;
+  align-items: start;
+}
+
+.event-detail-summary { grid-area: summary; min-width: 0; padding-top: 4px; }
+
+.event-detail-sidebar { grid-area: sidebar; min-width: 0; position: static; }
+
+.event-detail-content { grid-area: content; min-width: 0; }
+
+.event-detail-sidebar > .event-detail-poster {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  display: block;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.event-detail-layout .event-detail-summary > h1 {
+  max-width: 760px;
+  margin: 24px 0 14px;
+  font-size: var(--fs-t12);
+  line-height: 1.15;
+  letter-spacing: -.03em;
+}
+
+.event-detail-layout .event-detail-summary > .event-experience-lede {
+  font-size: var(--fs-t5);
+}
+
+@media (max-width: 780px) {
+  .event-detail-layout.event-experience {
+    padding-top: 24px;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "summary"
+      "sidebar"
+      "content";
+    gap: 32px;
+  }
+
+  .event-detail-layout .event-detail-summary > h1,
+  .event-detail-layout .event-detail-summary > .event-experience-lede {
+    max-width: 100%;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .event-detail-layout .event-detail-summary > h1 { font-size: var(--fs-t10); }
+  .event-detail-sidebar { position: static; }
+}
+
+
 
 .event-apply-page { min-height: 100vh; background: #f6f6f5; }
 

@@ -118,9 +118,16 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
       <JsonLd data={jsonLd} />
       <ViewTracker slug={event.slug} type="event" />
       <Header />
-      <main className="event-experience shell">
-        <aside className="event-experience-sidebar">
-          <img src={event.coverUrl} alt={`${event.name} 포스터`} />
+      <main className="event-experience event-detail-layout shell">
+        <section className="event-experience-main event-detail-summary">
+          <div className="event-experience-badges"><Badge tone="orange">{event.category}</Badge><span>{event.fee ?? "무료"}</span>{event.capacity && <span>정원 {event.capacity.toLocaleString("ko-KR")}명</span>}</div>
+          <h1>{event.name}</h1>
+          <p className="event-experience-lede">{event.audience || `${event.host}가 만드는 창업가를 위한 만남입니다.`}</p>
+          <div className="event-fact-grid"><div><span>일시</span><strong>{formatEventDate(event.startsAt)}</strong>{event.endsAt && <small>~ {formatEventDate(event.endsAt)}</small>}</div><div><span>장소</span><strong>{event.isOnline ? "온라인" : event.location}</strong></div><div><span>신청 마감</span><strong>{event.deadline ? formatEventDate(event.deadline) : "행사 시작 전까지"}</strong></div><SaveButton itemType="event" slug={event.slug} /></div>
+          <p className="event-stat-row"><span>조회 {(event.viewCount ?? 0).toLocaleString("ko-KR")}</span><span>저장 <LikeCount itemType="event" slug={event.slug} initialCount={eventSaveCount} /></span></p>
+        </section>
+        <aside className="event-experience-sidebar event-detail-sidebar">
+          <img className="event-detail-poster" src={event.coverUrl} alt={`${event.name} 포스터`} />
           <EventRegistrationCard eventId={event.id} slug={event.slug} host={event.host} mode={event.registrationMode ?? "external"} applyUrl={event.applyUrl} capacity={event.capacity} approvalMode={event.approvalMode ?? "instant"} closed={event.registrationClosed ?? false} isPaid={event.isPaid} paymentAccount={event.paymentAccount} paymentNotice={event.paymentNotice} user={user ? { name: profile?.full_name?.trim() || user.user_metadata?.full_name || "Featable 멤버", email: user.email ?? "" } : undefined} registration={registration ? { status: registration.status as "verification_pending" | "pending" | "confirmed" | "waitlisted" | "rejected" | "cancelled" } : undefined} />
           <section className="event-host-card">
             <span>주최 팀</span>
@@ -140,12 +147,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             <p>{organizer?.bio || organizer?.headline || (event.audience ? `${event.audience}를 위한 행사를 만들고 있습니다.` : "참가자에게 좋은 만남을 만드는 주최 팀입니다.")}</p>
           </section>
         </aside>
-        <article className="event-experience-main">
-          <div className="event-experience-badges"><Badge tone="orange">{event.category}</Badge><span>{event.fee ?? "무료"}</span>{event.capacity && <span>정원 {event.capacity.toLocaleString("ko-KR")}명</span>}</div>
-          <h1>{event.name}</h1>
-          <p className="event-experience-lede">{event.audience || `${event.host}가 만드는 창업가를 위한 만남입니다.`}</p>
-          <div className="event-fact-grid"><div><span>일시</span><strong>{formatEventDate(event.startsAt)}</strong>{event.endsAt && <small>~ {formatEventDate(event.endsAt)}</small>}</div><div><span>장소</span><strong>{event.isOnline ? "온라인" : event.location}</strong></div><div><span>신청 마감</span><strong>{event.deadline ? formatEventDate(event.deadline) : "행사 시작 전까지"}</strong></div><SaveButton itemType="event" slug={event.slug} /></div>
-          <p className="event-stat-row"><span>조회 {(event.viewCount ?? 0).toLocaleString("ko-KR")}</span><span>저장 <LikeCount itemType="event" slug={event.slug} initialCount={eventSaveCount} /></span></p>
+        <article className="event-experience-main event-detail-content">
           <section className="event-content-section"><span>행사 소개</span><h2>이런 자리예요</h2><p>{event.description || `${event.host}가 ${event.audience || "새로운 연결을 원하는 분들"}을 위해 준비한 행사입니다. 자세한 내용은 주최자 안내를 확인해주세요.`}</p></section>
           {!!event.program?.length && <section className="event-content-section"><span>프로그램</span><h2>일정</h2><div className="event-program-list">{event.program.map((item, index) => <div key={`${item.time}-${index}`}><time>{item.time || "순서"}</time><strong>{item.title}</strong><span>{item.speaker}</span></div>)}</div></section>}
           {!!event.galleryUrls?.length && <section className="event-content-section"><span>사진</span><h2>행사 미리보기</h2><div className="event-gallery-grid">{event.galleryUrls.map((url, index) => <img src={url} alt={`${event.name} 상세 이미지 ${index + 1}`} key={url} />)}</div></section>}
