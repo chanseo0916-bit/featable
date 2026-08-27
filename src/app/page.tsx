@@ -11,11 +11,13 @@ import { formatMonthDayKst } from "@/lib/datetime";
 
 const dateLabel = formatMonthDayKst;
 const dday = (date: string) => Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000));
+const isSupportProgramOpen = (closeAt: string) => new Date(`${closeAt}T23:59:59+09:00`).getTime() >= Date.now();
 const isWithinLastWeek = (date?: string) => Boolean(date && new Date(date).getTime() >= Date.now() - 7 * 86_400_000);
 
 export default async function Home() {
   const { brands, products, founders } = await getCatalog();
   const [events, supportPrograms, features, partners] = await Promise.all([getEvents(), getSupportPrograms(), getFeatures(), getPartners()]);
+  const openSupportPrograms = supportPrograms.filter((program) => isSupportProgramOpen(program.closeAt));
   const featuredProducts = products.filter((product) => product.isFeatured);
   const editorPickProducts = featuredProducts.length > 0
     ? featuredProducts.slice(0, 6)
@@ -60,7 +62,7 @@ export default async function Home() {
       };
     });
   const opportunitySlides: HomeOpportunitySlide[] = [
-    ...[...supportPrograms]
+    ...[...openSupportPrograms]
       .sort((a, b) => a.closeAt.localeCompare(b.closeAt))
       .slice(0, 2)
       .map((program) => ({
@@ -155,12 +157,12 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="shell section opportunity-section">
+        {openSupportPrograms.length > 0 && <section className="shell section opportunity-section">
           <SectionHeader title="마감 임박 지원사업" href="/support" />
           <div className="opportunity-card-grid">
-            {[...supportPrograms].sort((a, b) => a.closeAt.localeCompare(b.closeAt)).slice(0, 4).map((program) => <Link className="opportunity-card" href={`/support/${program.slug}`} key={program.slug}><div><span className="opportunity-type">지원사업</span><strong>D-{dday(program.closeAt)}</strong></div><h3>{program.name}</h3><p>{program.agency}</p><span>{program.target} · {program.region}</span></Link>)}
+            {[...openSupportPrograms].sort((a, b) => a.closeAt.localeCompare(b.closeAt)).slice(0, 4).map((program) => <Link className="opportunity-card" href={`/support/${program.slug}`} key={program.slug}><div><span className="opportunity-type">지원사업</span><strong>D-{dday(program.closeAt)}</strong></div><h3>{program.name}</h3><p>{program.agency}</p><span>{program.target} · {program.region}</span></Link>)}
           </div>
-        </section>
+        </section>}
 
         <section className="shell section opportunity-section">
           <SectionHeader title="다가오는 행사" href="/events" />

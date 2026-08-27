@@ -11,11 +11,6 @@ export interface ProfileEditorInitial extends ProfileInput {
   slug?: string;
 }
 
-const AVATAR_PRESETS = Array.from({ length: 6 }, (_, index) => ({
-  value: `/avatars/founder-${String(index + 1).padStart(2, "0")}.svg`,
-  label: `캐릭터 ${index + 1}`,
-}));
-
 const PROFILE_ROLES = [
   "대표 / CEO",
   "공동창업자",
@@ -124,10 +119,13 @@ export function ProfileEditor({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={form.avatarUrl} alt="" className="h-14 w-14 rounded-full border border-border object-cover" />
               ) : (
-                <div className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-lg font-black text-accent">
-                  {form.name?.slice(0, 1) || "F"}
-                </div>
-              )}
+                              <div className="grid h-14 w-14 place-items-center rounded-full bg-accent-soft text-accent">
+                                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                  <circle cx="12" cy="8" r="3.5" />
+                                  <path d="M5 20c.7-4.2 3-6.5 7-6.5s6.3 2.3 7 6.5" />
+                                </svg>
+                              </div>
+                            )}
               <div>
                 <h2 className="text-lg font-bold">{form.name || "팀 프로필"}</h2>
                 <p className="text-[13px] text-muted">{form.headline || "한 줄 소개를 등록해보세요"}</p>
@@ -154,25 +152,36 @@ export function ProfileEditor({
 
           {/* ── 기본 정보 ── */}
           {!setupMode && <p className="mb-5 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">기본 정보</p>}
-          <div className="founder-avatar-picker-wrap">
-            <span className={label}>프로필 이미지</span>
-            <div className="founder-avatar-picker">
-              {AVATAR_PRESETS.map((avatar) => (
-                <button className={form.avatarUrl === avatar.value ? "active" : ""} type="button" aria-label={avatar.label} aria-pressed={form.avatarUrl === avatar.value} key={avatar.value} onClick={() => set({ avatarUrl: avatar.value })}>
-                  <img src={avatar.value} alt="" />
-                  <span>{form.avatarUrl === avatar.value ? "선택됨" : avatar.label}</span>
-                </button>
-              ))}
-            </div>
-            <div className="founder-photo-option">
-              <span>캐릭터 대신 내 사진을 사용하고 싶다면</span>
-              <label>
-                {uploading ? "업로드 중…" : "사진 업로드"}
-                <input type="file" accept="image/*" className="hidden" disabled={uploading}
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
-              </label>
-            </div>
-          </div>
+          <div className="profile-avatar-wrap">
+                      <span className={label}>프로필 이미지</span>
+                      <div className="profile-avatar-row">
+                        <label className="profile-avatar-upload" title={form.avatarUrl ? "프로필 사진 변경" : "프로필 사진 업로드"}>
+                          {form.avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={form.avatarUrl} alt="" className="profile-avatar-photo" />
+                          ) : (
+                            <svg className="profile-avatar-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <circle cx="12" cy="8" r="3.5" />
+                              <path d="M5 20c.7-4.2 3-6.5 7-6.5s6.3 2.3 7 6.5" />
+                            </svg>
+                          )}
+                          <span className="profile-avatar-plus" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                          </span>
+                          <input type="file" accept="image/*" className="hidden" disabled={uploading}
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
+                        </label>
+                        <div className="profile-avatar-meta">
+                          <strong>{uploading ? "업로드 중…" : form.avatarUrl ? "프로필 사진" : "기본 프로필"}</strong>
+                          <p>사진 위에 마우스를 올리고 <i>+</i>를 눌러 업로드하세요.</p>
+                          {form.avatarUrl && (
+                            <button type="button" className="profile-avatar-remove" onClick={() => set({ avatarUrl: "" })}>
+                              기본 이미지로 되돌리기
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
           <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
             <label className={label}>이름 *
