@@ -12,12 +12,12 @@ export function bypassImageOptimization(src: string) {
 }
 
 /**
- * 표지가 없는 글에는 placeholder()가 picsum.photos 랜덤 사진을 만들어 넣는다.
- * 목록 썸네일로는 무해하지만 og:image로 나가면 글과 무관한 사진이 공유되고,
- * 대량 생성 콘텐츠처럼 보인다. 공유용 이미지에서는 걸러낸다.
+ * 예전 데이터에 남아 있는 picsum.photos placeholder를 식별한다.
+ * 목록에서는 빈 이미지 폴백을 사용하고, 공유용 이미지에서는 외부 placeholder를 걸러낸다.
  */
 export function isGeneratedPlaceholder(src: string | undefined | null): boolean {
   if (!src) return true;
+  if (src === "/image-fallback.svg") return true;
   try {
     return new URL(src).hostname === "picsum.photos";
   } catch {

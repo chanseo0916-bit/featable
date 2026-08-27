@@ -1,6 +1,11 @@
 import type { Brand, Community, EventItem, Feature, Founder, Job, Partner, Product, SupportProgram } from "@/lib/types";
 
-const image = (slug: string, width = 1200, height = 800) => `https://picsum.photos/seed/${slug}/${width}/${height}`;
+// 목데이터의 이미지 슬롯은 랜덤 외부 이미지 대신 공통 아이콘을 사용한다.
+const image = (_slug: string, _width = 1200, _height = 800): string => {
+  void _width;
+  void _height;
+  return "/image-fallback.svg";
+};
 
 export const founders: Founder[] = [
   { slug: "minseo-kim", name: "김민서", avatarUrl: "/avatars/founder-01.svg", headline: "매일 쓰고 싶은 업무 도구를 만듭니다.", bio: "제품을 통해 일하는 사람들의 작은 불편을 해결합니다.", brandSlugs: ["caramel-lab"] },

@@ -29,4 +29,21 @@ export function SectionHeader({ eyebrow, title, href = "#" }: { eyebrow?: string
 
 export function Badge({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "orange" | "dark" }) { return <span className={`badge badge-${tone}`}>{children}</span>; }
 
-export function ImageCard({ src, alt, className = "" }: { src: string; alt: string; className?: string }) { return <div className={`image-card ${className}`}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 25vw" unoptimized={bypassImageOptimization(src)} /></div>; }
+export function ImageCard({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
+  // src가 비어 있으면(이미지 없음) 랜덤 이미지를 넣지 않고 이미지 아이콘을 보여준다.
+  if (!src) {
+    return (
+      <div className={`image-card image-card--empty ${className}`} role="img" aria-label={alt}>
+        <svg className="image-card-placeholder-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.5" />
+          <path d="M5 20c.7-4.2 3-6.5 7-6.5s6.3 2.3 7 6.5" />
+        </svg>
+      </div>
+    );
+  }
+  return (
+    <div className={`image-card ${className}`}>
+      <Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 25vw" unoptimized={bypassImageOptimization(src)} />
+    </div>
+  );
+}

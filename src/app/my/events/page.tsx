@@ -15,8 +15,11 @@ interface MyRegistrationRow {
   event: { slug: string; name: string; starts_at: string; location: string; host: string; cover_url: string | null; category: string | null } | null;
 }
 
-const placeholder = (seed: string, w = 1200, h = 800) =>
-  `https://picsum.photos/seed/${seed}/${w}/${h}`;
+const placeholder = (_seed: string, _w = 1200, _h = 800): string => {
+  void _w;
+  void _h;
+  return "/image-fallback.svg";
+};
 
 const statusLabel = { pending: "승인 대기", confirmed: "신청 완료", waitlisted: "대기 신청", rejected: "승인되지 않음", cancelled: "취소" };
 const REGISTRATION_COLUMNS = "id,status,applied_at,user_id,event:events(slug,name,starts_at,location,host,cover_url,category)";

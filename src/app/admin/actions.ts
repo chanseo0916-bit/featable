@@ -358,7 +358,7 @@ export async function createPartner(input: PartnerInput): Promise<{ error?: stri
 
   const { error } = await supabase.from("partners").insert({
     name: input.name.trim(),
-    logo_url: input.logoUrl.trim() || `https://picsum.photos/seed/partner-${slugify(input.name) || randomSuffix()}/160/160`,
+    logo_url: input.logoUrl.trim() || "/image-fallback.svg",
     href: input.href.trim(),
     intro: input.intro.trim(),
     field: input.field?.trim() || null,

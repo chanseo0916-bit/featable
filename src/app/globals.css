@@ -213,6 +213,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .product-card, .event-card, .story-card { min-width: 0; }
 .image-card { position: relative; aspect-ratio: 1.16; overflow: hidden; background: #f2f2f2; }
 .image-card img { display: block; width: 100%; aspect-ratio: 1.16; object-fit: cover; transition: transform .4s; }
+.image-card--empty { display: grid; place-items: center; background: linear-gradient(135deg, var(--gray-200), var(--gray-300)); }
+.image-card-placeholder-icon { width: 32px; height: 32px; fill: none; stroke: var(--fg-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .card-body { padding-top: 15px; }
 .card-meta { display: flex; align-items: center; justify-content: space-between; min-height: 20px; color: var(--fg-muted); font-size: 12px; }
 .card-body h3 { margin: 11px 0 6px; font-size: 18px; letter-spacing: -.03em; }

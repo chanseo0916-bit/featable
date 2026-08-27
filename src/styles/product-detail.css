@@ -618,6 +618,8 @@
 
 .commerce-card .product-brand-line img { width: 18px; height: 18px; border-radius: 4px; object-fit: cover; }
 
+.commerce-card .product-brand-line .brand-line-fallback { width: 18px; height: 18px; display: grid; place-items: center; background: var(--gray-300); color: var(--fg-muted); border-radius: var(--radius-xs); font-size: var(--fs-t1); font-weight: 700; }
+
 
 .commerce-card .product-brand-line em { margin-left: auto; font-style: normal; font-weight: 500; color: var(--fg-subtle); font-size: 12px; }
 
@@ -635,6 +637,8 @@
 
 
 .commerce-card .product-meta-row .avatar.tiny { width: 20px; height: 20px; }
+
+.commerce-card .product-meta-row .avatar-fallback { width: 100%; height: 100%; display: grid; place-items: center; background: var(--gray-300); color: var(--fg-muted); border-radius: 50%; font-size: var(--fs-t1); font-weight: 700; }
 
 
 .commerce-card .product-meta-row > strong { font-size: 14px; letter-spacing: -.01em; color: var(--foreground); }

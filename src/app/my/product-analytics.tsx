@@ -67,8 +67,20 @@ export function ProductAnalytics({ series, todaySeries }: {
         {METRICS.map((item) => <button key={item.key} type="button" aria-pressed={metric === item.key} className={`analytics-metric metric-${item.key}${metric === item.key ? " active" : ""}`} onClick={() => setMetric(item.key)}><b>{totals[item.key].toLocaleString("ko-KR")}</b><span>{item.label}</span></button>)}
       </div>
       <div className={`analytics-chart metric-${metric}${isToday ? " is-hourly" : ""}${isDense ? " is-dense" : ""}`}>
-        {values.some((value) => value > 0) ? <div className="analytics-bars" role="img" aria-label={`${rangeLabel} ${metricLabel} 그래프`}>
-          {activeSeries.map((point, index) => <i key={point.label} className={index === activeSeries.length - 1 ? "hot" : ""} style={{ height: point[metric] === 0 ? "0%" : `${Math.max(6, Math.round((point[metric] / maxValue) * 100))}%` }} />)}
+        {activeSeries.length > 0 ? <div className="analytics-bars" role="group" aria-label={`${rangeLabel} ${metricLabel} 그래프`}>
+          {activeSeries.map((point, index) => {
+            const value = point[metric];
+            const tooltip = `${point.label} · ${value.toLocaleString("ko-KR")} ${metricLabel}`;
+            return <span
+              key={"key" in point ? point.key : point.date}
+              className={index === activeSeries.length - 1 ? "hot" : ""}
+              role="img"
+              tabIndex={0}
+              aria-label={tooltip}
+              data-tooltip={tooltip}
+              style={{ height: value === 0 ? "var(--radius-xs)" : `${Math.max(6, Math.round((value / maxValue) * 100))}%` }}
+            />;
+          })}
         </div> : <span>아직 집계된 데이터가 없어요.</span>}
       </div>
       <div className="analytics-chart-range"><span>{activeSeries[0]?.label ?? ""}</span><span>{activeSeries.at(-1)?.label ?? ""}</span></div>

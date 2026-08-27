@@ -39,8 +39,12 @@ export interface Catalog {
   founders: Founder[];
 }
 
-const placeholder = (seed: string, w = 1200, h = 800) =>
-  `https://picsum.photos/seed/${seed}/${w}/${h}`;
+// 이미지가 비어 있을 때 외부 placeholder 서비스(picsum 등) 대신 공통 아이콘을 사용한다.
+const placeholder = (_seed: string, _w = 1200, _h = 800): string => {
+  void _w;
+  void _h;
+  return "/image-fallback.svg";
+};
 
 type PublicDataError = {
   code?: string;
