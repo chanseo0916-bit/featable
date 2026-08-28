@@ -275,6 +275,61 @@
   color: var(--accent);
 }
 
+/* 프로필 에디터 패널 섹션 그룹 */
+.profile-editor-open {
+  display: block;
+}
+
+.profile-sec + .profile-sec {
+  margin-top: 30px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.profile-sec-head h3 {
+  margin: 0;
+  color: var(--fg-strong);
+  font-size: var(--fs-t4);
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.profile-sec-head p {
+  margin: 4px 0 0;
+  color: var(--fg-muted);
+  font-size: var(--fs-t1);
+}
+
+.profile-sec-head p i {
+  font-style: normal;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.profile-avatar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.profile-avatar-upload.is-empty {
+  border: 1.5px dashed color-mix(in srgb, var(--accent) 50%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 60%, #fff);
+}
+
+.profile-save-bar {
+  margin-top: 30px;
+  padding-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+}
+
+.profile-save-bar .button {
+  margin-top: 0;
+}
+
 
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 

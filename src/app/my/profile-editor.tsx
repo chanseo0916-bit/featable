@@ -148,14 +148,16 @@ export function ProfileEditor({
           </div>}
 
           {open && (
-        <div className={setupMode ? "profile-setup-fields" : "mt-8"}>
+                  <div className={setupMode ? "profile-setup-fields" : "profile-editor-open mt-8"}>
 
-          {/* ── 기본 정보 ── */}
-          {!setupMode && <p className="mb-5 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">기본 정보</p>}
-          <div className="profile-avatar-wrap">
-                      <span className={label}>프로필 이미지</span>
-                      <div className="profile-avatar-row">
-                        <label className="profile-avatar-upload" title={form.avatarUrl ? "프로필 사진 변경" : "프로필 사진 업로드"}>
+                    {/* ▍프로필 사진 */}
+                    <section className="profile-sec">
+                      <div className="profile-sec-head">
+                        <h3>프로필 사진</h3>
+                        <p>기본 아이콘을 그대로 쓰거나, 마우스를 올리고 <i>+</i>를 눌러 사진으로 바꿔보세요.</p>
+                      </div>
+                      <div className="profile-avatar-wrap">
+                        <label className={`profile-avatar-upload${form.avatarUrl ? "" : " is-empty"}`} title={form.avatarUrl ? "프로필 사진 변경" : "프로필 사진 업로드"}>
                           {form.avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={form.avatarUrl} alt="" className="profile-avatar-photo" />
@@ -172,8 +174,8 @@ export function ProfileEditor({
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
                         </label>
                         <div className="profile-avatar-meta">
-                          <strong>{uploading ? "업로드 중…" : form.avatarUrl ? "프로필 사진" : "기본 프로필"}</strong>
-                          <p>사진 위에 마우스를 올리고 <i>+</i>를 눌러 업로드하세요.</p>
+                          <strong>{uploading ? "업로드 중…" : form.avatarUrl ? "프로필 사진" : "기본 프로필 아이콘"}</strong>
+                          <p>사진 위에 마우스를 올리면 <i>+</i>가 나타나요.</p>
                           {form.avatarUrl && (
                             <button type="button" className="profile-avatar-remove" onClick={() => set({ avatarUrl: "" })}>
                               기본 이미지로 되돌리기
@@ -181,74 +183,90 @@ export function ProfileEditor({
                           )}
                         </div>
                       </div>
+                    </section>
+
+                    {/* ▍기본 정보 */}
+                    <section className="profile-sec">
+                      <div className="profile-sec-head">
+                        <h3>기본 정보</h3>
+                        <p>이름과 역할은 카드와 인터뷰에서 가장 먼저 보여요.</p>
+                      </div>
+                      <div className="mt-5 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
+                        <label className={label}>이름 *
+                          <input className={`${input} mt-2`} value={form.name} onChange={(e) => set({ name: e.target.value })} />
+                        </label>
+                        <label className={label}>역할 *
+                          <select className={`${input} mt-2`} value={roleOption} onChange={(e) => {
+                            const value = e.target.value;
+                            setRoleOption(value);
+                            set({ role: value === CUSTOM_ROLE ? "" : value });
+                          }}>
+                            <option value="">역할을 선택해주세요</option>
+                            {PROFILE_ROLES.map((role) => <option value={role} key={role}>{role}</option>)}
+                            <option value={CUSTOM_ROLE}>기타 · 직접 입력</option>
+                          </select>
+                        </label>
+                      </div>
+                      {roleOption === CUSTOM_ROLE && <input className={`${input} mt-3`} value={form.role} maxLength={40} autoFocus placeholder="나의 역할을 직접 입력해주세요" onChange={(e) => set({ role: e.target.value })} />}
+
+                      <label className={`${label} mt-5 block`}>한 줄 소개
+                        <input className={`${input} mt-2`} value={form.headline} placeholder="기록을 사랑하는 개발자"
+                          onChange={(e) => set({ headline: e.target.value })} />
+                      </label>
+
+                      <label className={`${label} mt-5 block`}>이야기
+                        <textarea className={`${input} mt-2 min-h-28 py-3`} value={form.bio}
+                          placeholder="왜 창업했는지, 어떤 여정을 지나왔는지"
+                          onChange={(e) => set({ bio: e.target.value })} />
+                      </label>
+                    </section>
+
+                    {/* ▍링크 */}
+                    {!setupMode && (
+                      <section className="profile-sec">
+                        <div className="profile-sec-head">
+                          <h3>링크</h3>
+                          <p>선택 사항이에요. 방문할 곳을 최대 4개까지 연결할 수 있어요.</p>
+                        </div>
+                        <div className="mt-5 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
+                          <label className={label}>인스타그램
+                            <input className={`${input} mt-2`} value={form.instagram} placeholder="@handle 또는 링크"
+                              onChange={(e) => set({ instagram: e.target.value })} />
+                          </label>
+                          <label className={label}>X (트위터)
+                            <input className={`${input} mt-2`} value={form.x} placeholder="@handle 또는 링크"
+                              onChange={(e) => set({ x: e.target.value })} />
+                          </label>
+                          <label className={label}>링크드인
+                            <input className={`${input} mt-2`} value={form.linkedin} placeholder="프로필 링크"
+                              onChange={(e) => set({ linkedin: e.target.value })} />
+                          </label>
+                          <label className={label}>개인 사이트
+                            <input className={`${input} mt-2`} value={form.website} placeholder="https://"
+                              onChange={(e) => set({ website: e.target.value })} />
+                          </label>
+                        </div>
+                      </section>
+                    )}
+
+                    {notice && (
+                      <p className={`mt-6 rounded-lg px-4 py-3 text-sm ${notice.ok ? "bg-accent-soft text-accent" : "bg-red-50 text-red-600"}`}>
+                        {notice.text}
+                      </p>
+                    )}
+
+                    <div className="profile-save-bar">
+                      <button
+                        type="button"
+                        onClick={save}
+                        disabled={saving}
+                        className="button button-small w-full sm:w-auto"
+                      >
+                        {saving ? "저장 중…" : setupMode ? "저장하고 인터뷰 작성하기 →" : "프로필 저장"}
+                      </button>
                     </div>
-
-          <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
-            <label className={label}>이름 *
-              <input className={`${input} mt-2`} value={form.name} onChange={(e) => set({ name: e.target.value })} />
-            </label>
-            <label className={label}>역할 *
-              <select className={`${input} mt-2`} value={roleOption} onChange={(e) => {
-                const value = e.target.value;
-                setRoleOption(value);
-                set({ role: value === CUSTOM_ROLE ? "" : value });
-              }}>
-                <option value="">역할을 선택해주세요</option>
-                {PROFILE_ROLES.map((role) => <option value={role} key={role}>{role}</option>)}
-                <option value={CUSTOM_ROLE}>기타 · 직접 입력</option>
-              </select>
-            </label>
-          </div>
-          {roleOption === CUSTOM_ROLE && <input className={`${input} mt-3`} value={form.role} maxLength={40} autoFocus placeholder="나의 역할을 직접 입력해주세요" onChange={(e) => set({ role: e.target.value })} />}
-
-          <label className={`${label} mt-5 block`}>한 줄 소개
-            <input className={`${input} mt-2`} value={form.headline} placeholder="기록을 사랑하는 개발자"
-              onChange={(e) => set({ headline: e.target.value })} />
-          </label>
-
-          <label className={`${label} mt-5 block`}>이야기
-            <textarea className={`${input} mt-2 min-h-28 py-3`} value={form.bio}
-              placeholder="왜 창업했는지, 어떤 여정을 지나왔는지"
-              onChange={(e) => set({ bio: e.target.value })} />
-          </label>
-
-          {/* ── SNS / 링크 ── */}
-          {!setupMode && <p className="mb-5 mt-8 text-[13px] font-bold uppercase tracking-wide text-fg-subtle">링크</p>}
-          <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
-            <label className={label}>인스타그램
-              <input className={`${input} mt-2`} value={form.instagram} placeholder="@handle 또는 링크"
-                onChange={(e) => set({ instagram: e.target.value })} />
-            </label>
-            <label className={label}>X (트위터)
-              <input className={`${input} mt-2`} value={form.x} placeholder="@handle 또는 링크"
-                onChange={(e) => set({ x: e.target.value })} />
-            </label>
-            <label className={label}>링크드인
-              <input className={`${input} mt-2`} value={form.linkedin} placeholder="프로필 링크"
-                onChange={(e) => set({ linkedin: e.target.value })} />
-            </label>
-            <label className={label}>개인 사이트
-              <input className={`${input} mt-2`} value={form.website} placeholder="https://"
-                onChange={(e) => set({ website: e.target.value })} />
-            </label>
-          </div>
-
-          {notice && (
-            <p className={`mt-5 rounded-lg px-4 py-3 text-sm ${notice.ok ? "bg-accent-soft text-accent" : "bg-red-50 text-red-600"}`}>
-              {notice.text}
-            </p>
-          )}
-
-          <button
-            type="button"
-            onClick={save}
-            disabled={saving}
-            className="button button-small mt-6 w-full sm:w-auto"
-          >
-            {saving ? "저장 중…" : setupMode ? "저장하고 인터뷰 작성하기 →" : "프로필 저장"}
-          </button>
-        </div>
-          )}
+                  </div>
+                    )}
         </div>
 
         {/* 오른쪽: 항상 보이는 공개 카드 (편집 중에는 실시간 갱신) */}
