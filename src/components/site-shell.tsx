@@ -27,7 +27,15 @@ export function SectionHeader({ eyebrow, title, href = "#" }: { eyebrow?: string
   return <div className="section-header"> <div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h2>{title}</h2></div>{href != null && <Link href={href}>전체보기 <span>→</span></Link>}</div>;
 }
 
-export function Badge({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "orange" | "dark" }) { return <span className={`badge badge-${tone}`}>{children}</span>; }
+export function Badge({ children, tone = "default" }: { children: React.ReactNode; tone?: "default" | "orange" | "dark" }) {
+  const cls =
+    tone === "orange"
+      ? "badge badge-tone-brand badge-variant-weak badge-size-medium"
+      : tone === "dark"
+        ? "badge badge-tone-neutral badge-variant-solid badge-size-medium"
+        : "badge badge-tone-neutral badge-variant-weak badge-size-medium";
+  return <span className={cls}>{children}</span>;
+}
 
 export function ImageCard({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   // src가 비어 있으면(이미지 없음) 랜덤 이미지를 넣지 않고 이미지 아이콘을 보여준다.

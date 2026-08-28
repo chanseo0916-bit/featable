@@ -24,7 +24,7 @@ export default async function EventsPage() {
       mediaAlt={event.name}
       ratio={1.45}
       metaLead={<span className="entity-card-meta-lead">{formatMonthDayKst(event.startsAt)}</span>}
-      metaBadge={<span className={`badge${event.registrationMode === "internal" ? " badge-orange" : ""}`}>{event.registrationMode === "internal" ? "FEATABLE 신청" : "외부 신청"}</span>}
+      metaBadge={<span className={`badge badge-tone-${event.registrationMode === "internal" ? "brand" : "neutral"} badge-variant-weak badge-size-medium`}>{event.registrationMode === "internal" ? "FEATABLE 신청" : "외부 신청"}</span>}
       title={event.name}
       description={`${event.host} · ${event.location}`}
     />

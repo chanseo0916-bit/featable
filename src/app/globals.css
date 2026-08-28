@@ -78,6 +78,8 @@
   --warning-bg: #fff7de;   /* yellow-100 */
   --error: #ca1d13;        /* red-800 */
   --error-bg: #fde7e7;     /* red-200 */
+  --info: #0b6bc0;         /* blue-700 */
+  --info-bg: #e4effc;      /* blue-100 */
 }
 @theme inline {
   --color-background: var(--background);
@@ -299,6 +301,35 @@ summary::-webkit-details-marker { display: none; }
     bottom: 16px;
   }
 }
+
+/* SEED Badge — 상태/카테고리 표시 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+.badge-size-medium { padding: 4px 8px; font-size: var(--fs-t1); }
+.badge-size-large { padding: 5px 10px; font-size: var(--fs-t2); }
+
+/* tone별 색상 프리셋 */
+.badge-tone-neutral { --badge-fg: var(--fg-strong); --badge-bg: var(--gray-200); --badge-border: var(--gray-400); }
+.badge-tone-brand { --badge-fg: var(--accent); --badge-bg: var(--accent-soft); --badge-border: var(--accent); }
+.badge-tone-informative { --badge-fg: var(--info); --badge-bg: var(--info-bg); --badge-border: var(--info); }
+.badge-tone-positive { --badge-fg: var(--success); --badge-bg: var(--success-bg); --badge-border: var(--success); }
+.badge-tone-warning { --badge-fg: var(--warning); --badge-bg: var(--warning-bg); --badge-border: var(--warning); }
+.badge-tone-critical { --badge-fg: var(--error); --badge-bg: var(--error-bg); --badge-border: var(--error); }
+
+/* variant */
+.badge-variant-weak { background: var(--badge-bg); color: var(--badge-fg); }
+.badge-variant-outline { background: transparent; color: var(--badge-fg); border: 1px solid var(--badge-border); }
+.badge-variant-solid { background: var(--badge-fg); color: #fff; border: 1px solid transparent; }
+
 .hero { min-height: 510px; display: flex; align-items: center; justify-content: space-between; padding-top: 58px; padding-bottom: 58px; }
 .eyebrow { color: var(--muted); font-size: 13px; letter-spacing: -0.005em; font-weight: 500; margin: 0 0 12px; }
 h1, h2, h3, p { margin-top: 0; }
@@ -317,8 +348,6 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
 .section-header > a { color: var(--muted); font-size: 13px; padding-bottom: 4px; }
 .section-header > a:hover, .text-link { color: var(--accent); }
 .feature-hero .image-card, .feature-hero img { height: 100%; width: 100%; }
-.badge { display: inline-flex; padding: 5px 8px; border-radius: 6px; background: #f2f3f5; color: var(--fg-default); font-size: 12px; line-height: 1; font-weight: 500; letter-spacing: -0.005em; }
-.badge-orange { color: var(--accent); background: #fff; }
 .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .product-card, .event-card, .story-card { min-width: 0; }
 .image-card { position: relative; aspect-ratio: 1.16; overflow: hidden; background: #f2f2f2; }

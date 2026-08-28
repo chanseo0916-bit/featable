@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge } from "@/components/badge";
 
 export interface TeamProfileCardProps {
   name: string;
@@ -37,12 +38,12 @@ function CardContent({ name, title, headline, avatarUrl, bio, label = "팀", met
       <div className="team-card-facts">
         <span><b>{meta || "Featable"}</b><small>소속</small></span>
         <span><b>{title}</b><small>역할</small></span>
-        <span><b className={muted ? "muted" : "active"}>{muted ? "비공개" : "공개"}</b><small>상태</small></span>
+        <span><Badge tone={muted ? "neutral" : "positive"}>{muted ? "비공개" : "공개"}</Badge><small>상태</small></span>
       </div>
       <div className="founder-spot-foot team-card-foot">
         {href
           ? <><em className="founder-spot-cta">{actionLabel || "프로필 보기"}</em><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg></i></>
-          : <span className={muted ? "team-card-state muted" : "team-card-state"}>{muted ? "비공개 프로필" : "공개 프로필"}</span>}
+          : <Badge tone={muted ? "neutral" : "positive"} size="large">{muted ? "비공개 프로필" : "공개 프로필"}</Badge>}
       </div>
     </div>
   </>;
