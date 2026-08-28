@@ -1360,6 +1360,122 @@
   gap: 20px;
 }
 
+.my-events-page .my-operated-event {
+  position: relative;
+  min-width: 0;
+}
+
+.my-events-page .my-operated-event:has(.my-event-card-menu[open]) {
+  z-index: 20;
+}
+
+.my-events-page .my-event-card-menu {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: 12px;
+}
+
+.my-events-page .my-event-card-menu > summary {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  color: var(--fg-default);
+  cursor: pointer;
+  list-style: none;
+}
+
+.my-events-page .my-event-card-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.my-events-page .my-event-card-menu > summary svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.my-events-page .my-event-card-menu > summary:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.my-events-page .my-event-card-menu-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 224px;
+  padding: 6px;
+  display: grid;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--gray-1000) 14%, transparent);
+}
+
+.my-events-page .my-event-card-menu-popover > a,
+.my-events-page .my-event-card-menu-popover > button {
+  min-height: 44px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-default);
+  font-size: var(--fs-t3);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.my-events-page .my-event-card-menu-popover > a:hover,
+.my-events-page .my-event-card-menu-popover > button:hover {
+  background: var(--gray-200);
+}
+
+.my-events-page .my-event-card-menu-popover > button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.my-events-page .my-event-card-menu-popover svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.my-events-page .my-event-card-menu-popover > hr {
+  width: 100%;
+  height: 1px;
+  margin: 4px 0;
+  border: 0;
+  background: var(--border);
+}
+
+.my-events-page .my-event-card-menu-popover > .is-danger {
+  color: var(--error);
+}
+
+.my-events-page .my-event-card-menu-popover > p {
+  margin: 4px 8px;
+  color: var(--error);
+  font-size: var(--fs-t1);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
 .my-events-page .my-event-status {
   padding: 5px 10px;
   border-radius: var(--radius-sm);

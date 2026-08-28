@@ -75,10 +75,15 @@ export async function updateEventPresentation(input: {
 
   const admin = createAdminClient();
   if (!admin) return { ok: false, error: "관리 도구를 준비하지 못했습니다." };
-  const { data: event } = await admin.from("events").select("id,submitted_by").eq("id", input.eventId).maybeSingle();
+  const { data: event } = await admin.from("events").select("id,submitted_by,apply_url").eq("id", input.eventId).maybeSingle();
   const { data: cohost } = await admin.from("event_cohosts").select("id").eq("event_id", input.eventId).eq("user_id", user.id).eq("status", "accepted").maybeSingle();
   if (!event || (event.submitted_by !== user.id && !cohost)) return { ok: false, error: "이 행사를 관리할 권한이 없습니다." };
-  const { data: updated, error } = await admin.from("events").update({ name, host, description: input.description.trim().slice(0, 10000), starts_at: startsAt.toISOString(), ends_at: endsAt?.toISOString() ?? null, location: input.location.trim().slice(0, 200), is_online: input.isOnline, category: input.category.trim().slice(0, 60) || "기타", capacity, registration_mode: input.registrationMode, apply_url: input.registrationMode === "external" ? input.applyUrl.trim() : null, cover_url: coverUrl || null, gallery_urls: galleryUrls, registration_fields: registrationFields, is_paid: input.isPaid, payment_account: input.isPaid ? input.paymentAccount.trim().slice(0, 200) : null, payment_notice: input.isPaid ? input.paymentNotice.trim().slice(0, 500) || "입금 확인 후 주최자가 신청을 승인합니다." : null, approval_mode: input.isPaid ? "manual" : input.approvalMode === "manual" ? "manual" : "instant" }).eq("id", input.eventId).select("id").maybeSingle();
+  const applyUrl = input.registrationMode === "external"
+    ? input.applyUrl.trim()
+    : input.registrationMode === "closed"
+      ? event.apply_url
+      : null;
+  const { data: updated, error } = await admin.from("events").update({ name, host, description: input.description.trim().slice(0, 10000), starts_at: startsAt.toISOString(), ends_at: endsAt?.toISOString() ?? null, location: input.location.trim().slice(0, 200), is_online: input.isOnline, category: input.category.trim().slice(0, 60) || "기타", capacity, registration_mode: input.registrationMode, apply_url: applyUrl, cover_url: coverUrl || null, gallery_urls: galleryUrls, registration_fields: registrationFields, is_paid: input.isPaid, payment_account: input.isPaid ? input.paymentAccount.trim().slice(0, 200) : null, payment_notice: input.isPaid ? input.paymentNotice.trim().slice(0, 500) || "입금 확인 후 주최자가 신청을 승인합니다." : null, approval_mode: input.isPaid ? "manual" : input.approvalMode === "manual" ? "manual" : "instant" }).eq("id", input.eventId).select("id").maybeSingle();
   if (error || !updated) return { ok: false, error: "행사 설정을 저장하지 못했습니다. SQL 적용 여부를 확인해주세요." };
   revalidatePath(`/events/${input.slug}`);
   revalidatePath(`/events/${input.slug}/apply`);
@@ -86,6 +91,54 @@ export async function updateEventPresentation(input: {
   revalidatePath("/events");
   revalidatePath("/");
   return { ok: true };
+}
+
+export async function setEventRegistrationOpen(input: {
+  eventId: string;
+  slug: string;
+  open: boolean;
+}): Promise<{ ok: true; registrationMode: "internal" | "external" | "closed" } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+
+  const admin = createAdminClient();
+  if (!admin) return { ok: false, error: "관리 도구를 준비하지 못했습니다." };
+
+  const { data: event } = await admin
+    .from("events")
+    .select("id,slug,submitted_by,registration_mode,apply_url")
+    .eq("id", input.eventId)
+    .eq("slug", input.slug)
+    .maybeSingle();
+  if (!event) return { ok: false, error: "행사를 찾지 못했습니다." };
+
+  const { data: cohost } = event.submitted_by === user.id
+    ? { data: { id: "owner" } }
+    : await admin.from("event_cohosts").select("id").eq("event_id", event.id).eq("user_id", user.id).eq("status", "accepted").maybeSingle();
+  if (!cohost) return { ok: false, error: "이 행사를 관리할 권한이 없습니다." };
+
+  const currentMode = event.registration_mode as "internal" | "external" | "closed";
+  const nextMode: "internal" | "external" | "closed" = input.open
+    ? currentMode === "closed" ? (event.apply_url ? "external" : "internal") : currentMode
+    : "closed";
+  if (nextMode !== currentMode) {
+    const { data: updated, error } = await admin
+      .from("events")
+      .update({ registration_mode: nextMode })
+      .eq("id", event.id)
+      .eq("registration_mode", currentMode)
+      .select("id")
+      .maybeSingle();
+    if (error || !updated) return { ok: false, error: "신청 상태를 변경하지 못했습니다. 새로고침 후 다시 시도해주세요." };
+  }
+
+  revalidatePath(`/events/${event.slug}`);
+  revalidatePath(`/events/${event.slug}/apply`);
+  revalidatePath(`/my/events/${event.slug}`);
+  revalidatePath("/my/events");
+  revalidatePath("/events");
+  return { ok: true, registrationMode: nextMode };
 }
 
 export async function deleteOwnedEvent(input: {
