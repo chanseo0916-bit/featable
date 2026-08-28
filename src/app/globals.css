@@ -87,8 +87,11 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
+  --color-surface: var(--surface);
   --color-fg-strong: var(--fg-strong);
   --color-fg-default: var(--fg-default);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
 }
 body {
   background: var(--surface);

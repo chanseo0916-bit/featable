@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TeamProfileCard } from "@/components/team-profile-card";
+import { SeedSelect } from "@/components/seed-select";
 import { updateFounderProfile, type ProfileInput } from "./actions";
 
 export interface ProfileEditorInitial extends ProfileInput {
@@ -192,15 +193,16 @@ export function ProfileEditor({
                                             </div>
                                             <div className="seed-field">
                                               <label className={label} htmlFor="profile-role">역할 *</label>
-                                              <select id="profile-role" className={input} value={roleOption} onChange={(e) => {
-                                                const value = e.target.value;
-                                                setRoleOption(value);
-                                                set({ role: value === CUSTOM_ROLE ? "" : value });
-                                              }}>
-                                                <option value="">역할을 선택해주세요</option>
-                                                {PROFILE_ROLES.map((role) => <option value={role} key={role}>{role}</option>)}
-                                                <option value={CUSTOM_ROLE}>기타 · 직접 입력</option>
-                                              </select>
+                                              <SeedSelect
+                                                id="profile-role"
+                                                value={roleOption}
+                                                onChange={(v) => { setRoleOption(v); set({ role: v === CUSTOM_ROLE ? "" : v }); }}
+                                                placeholder="역할을 선택해주세요"
+                                                options={[
+                                                  ...PROFILE_ROLES.map((r) => ({ value: r, label: r })),
+                                                  { value: CUSTOM_ROLE, label: "기타 · 직접 입력" },
+                                                ]}
+                                              />
                                               <p className="field-helper">자신을 가장 잘 표현하는 역할을 골라주세요.</p>
                                             </div>
                                           </div>
