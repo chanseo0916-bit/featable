@@ -9,6 +9,7 @@ import { EventCohostManager } from "./cohost-manager";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { EventAnnouncementComposer } from "./announcement-composer";
 import type { AnnouncementRecipientFilter } from "./announcement-actions";
+import { EventManagementLayout } from "./event-management-layout";
 import { formatEventDateTimeKst } from "@/lib/datetime";
 
 interface RegistrationRow {
@@ -59,17 +60,25 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
 
   return <><DashNav active="events" /><main className="dash-page event-attendees-page"><div className="shell dash-shell">
     <header className="event-attendees-heading"><div><h1>{event.name}</h1><span>{formatEventDateTimeKst(event.starts_at)} · 확정 {activeCount}{event.capacity ? ` / ${event.capacity}명` : "명"}</span></div><Link href={`/events/${event.slug}`} target="_blank">공개 페이지 ↗</Link></header>
-    <div className="event-stats">
-      <div className="event-stat"><i className="event-stat-dot positive" /><b>{activeCount}</b><span>확정</span></div>
-      <div className="event-stat"><i className="event-stat-dot warning" /><b>{registrations.filter((r) => r.status === "pending").length}</b><span>승인 대기</span></div>
-      <div className="event-stat"><i className="event-stat-dot informative" /><b>{registrations.filter((r) => r.status === "waitlisted").length}</b><span>대기자</span></div>
-    </div>
-    <section className="event-attendee-card">
-      <header className="event-attendee-card-head"><h2>신청자 <b>{registrations.length}명</b></h2></header>
-      <EventAttendeeList registrations={registrations} eventSlug={event.slug} />
-    </section>
-    <EventAnnouncementComposer eventId={event.id} eventSlug={event.slug} eventName={event.name} counts={announcementCounts} history={announcementHistory} />
-    <EventSettingsEditor eventId={event.id} slug={event.slug} name={event.name} host={event.host} description={event.description} startsAt={event.starts_at} endsAt={event.ends_at} location={event.location} isOnline={event.is_online} category={event.category} capacity={event.capacity} registrationMode={event.registration_mode} applyUrl={event.apply_url ?? ""} approvalMode={event.approval_mode} coverUrl={event.cover_url ?? ""} galleryUrls={(event.gallery_urls ?? []) as string[]} registrationFields={(event.registration_fields ?? []) as RegistrationField[]} isPaid={Boolean(event.is_paid)} paymentAccount={event.payment_account ?? ""} paymentNotice={event.payment_notice ?? ""} canDelete={event.submitted_by === user.id} />
-    {event.submitted_by === user.id && <EventCohostManager eventId={event.id} slug={event.slug} initial={cohostRows as { id: string; email: string; role: string; status: "pending" | "accepted" | "declined"; profile?: { full_name?: string | null } | null }[]} />}
+    <EventManagementLayout
+      overview={<>
+        <div className="event-stats">
+          <div className="event-stat"><i className="event-stat-dot positive" /><b>{activeCount}</b><span>확정</span></div>
+          <div className="event-stat"><i className="event-stat-dot warning" /><b>{registrations.filter((r) => r.status === "pending").length}</b><span>승인 대기</span></div>
+          <div className="event-stat"><i className="event-stat-dot informative" /><b>{registrations.filter((r) => r.status === "waitlisted").length}</b><span>대기자</span></div>
+        </div>
+        <section className="event-attendee-card">
+          <header className="event-attendee-card-head"><h2>신청자 <b>{registrations.length}명</b></h2></header>
+          <EventAttendeeList registrations={registrations} eventSlug={event.slug} />
+        </section>
+      </>}
+      attendees={<section className="event-attendee-card">
+        <header className="event-attendee-card-head"><h2>신청자 <b>{registrations.length}명</b></h2></header>
+        <EventAttendeeList registrations={registrations} eventSlug={event.slug} />
+      </section>}
+      announcements={<EventAnnouncementComposer eventId={event.id} eventSlug={event.slug} eventName={event.name} counts={announcementCounts} history={announcementHistory} />}
+      settings={<EventSettingsEditor eventId={event.id} slug={event.slug} name={event.name} host={event.host} description={event.description} startsAt={event.starts_at} endsAt={event.ends_at} location={event.location} isOnline={event.is_online} category={event.category} capacity={event.capacity} registrationMode={event.registration_mode} applyUrl={event.apply_url ?? ""} approvalMode={event.approval_mode} coverUrl={event.cover_url ?? ""} galleryUrls={(event.gallery_urls ?? []) as string[]} registrationFields={(event.registration_fields ?? []) as RegistrationField[]} isPaid={Boolean(event.is_paid)} paymentAccount={event.payment_account ?? ""} paymentNotice={event.payment_notice ?? ""} canDelete={event.submitted_by === user.id} />}
+      cohosts={event.submitted_by === user.id ? <EventCohostManager eventId={event.id} slug={event.slug} initial={cohostRows as { id: string; email: string; role: string; status: "pending" | "accepted" | "declined"; profile?: { full_name?: string | null } | null }[]} /> : null}
+    />
   </div></main></>;
 }
