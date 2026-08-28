@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { sendEventAnnouncement, type AnnouncementRecipientFilter } from "./announcement-actions";
+import { SeedSelect } from "@/components/seed-select";
 
 type RecipientCounts = Record<AnnouncementRecipientFilter, number>;
 type AnnouncementHistory = {
@@ -23,6 +24,16 @@ const FILTER_LABELS: Record<AnnouncementRecipientFilter, string> = {
   waitlisted: "대기자",
 };
 
+const FILTER_TONES: Record<AnnouncementRecipientFilter, "neutral" | "positive" | "warning" | "informative"> = {
+  active: "informative",
+  confirmed: "positive",
+  pending: "warning",
+  waitlisted: "neutral",
+};
+
+const input =
+  "block w-full h-11 rounded-lg border border-border bg-white px-4 text-[15px] text-fg-strong placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft";
+
 export function EventAnnouncementComposer({ eventId, eventSlug, eventName, counts, history }: {
   eventId: string;
   eventSlug: string;
@@ -40,6 +51,11 @@ export function EventAnnouncementComposer({ eventId, eventSlug, eventName, count
   const recipientCount = counts[recipientFilter];
   const canPreview = subject.trim().length >= 5 && body.trim().length >= 10 && recipientCount > 0 && recipientCount <= 100;
   const bodyLength = useMemo(() => body.length.toLocaleString("ko-KR"), [body.length]);
+
+  const recipientOptions = (Object.keys(FILTER_LABELS) as AnnouncementRecipientFilter[]).map((filter) => ({
+    value: filter,
+    label: `${FILTER_LABELS[filter]} · ${counts[filter]}명`,
+  }));
 
   function changeDraft(update: () => void) {
     update();
@@ -74,11 +90,22 @@ export function EventAnnouncementComposer({ eventId, eventSlug, eventName, count
     </header>
     <div className="event-announcement-layout">
       <div className="event-announcement-form">
-        <label><span>수신 대상</span><select value={recipientFilter} onChange={(event) => changeDraft(() => setRecipientFilter(event.target.value as AnnouncementRecipientFilter))}>{(Object.keys(FILTER_LABELS) as AnnouncementRecipientFilter[]).map((filter) => <option value={filter} key={filter}>{FILTER_LABELS[filter]} · {counts[filter]}명</option>)}</select></label>
-        {recipientCount > 100 && <p className="event-announcement-limit">한 번에 최대 100명까지 발송할 수 있어요. 수신 대상을 나눠주세요.</p>}
-        <label><span>메일 제목</span><input value={subject} maxLength={80} onChange={(event) => changeDraft(() => setSubject(event.target.value))} placeholder="예: 행사 장소와 입장 시간을 안내드립니다" /><small>{subject.length}/80</small></label>
-        <label><span>공지 내용</span><textarea value={body} maxLength={4000} onChange={(event) => changeDraft(() => setBody(event.target.value))} placeholder={`안녕하세요. ${eventName} 운영팀입니다.\n\n행사 시작 10분 전까지 입장해주세요.`} /><small>{bodyLength}/4,000</small></label>
-        <p>선택한 대상의 이메일 주소는 화면에 노출하지 않으며, 수신자에게 개별 발송합니다.</p>
+        <div className="seed-field">
+          <label htmlFor="ann-recipient">수신 대상</label>
+          <SeedSelect id="ann-recipient" value={recipientFilter} onChange={(value) => changeDraft(() => setRecipientFilter(value as AnnouncementRecipientFilter))} options={recipientOptions} placeholder="수신 대상을 선택해주세요" />
+          <p className="field-helper">{recipientCount > 100 ? "한 번에 최대 100명까지 발송할 수 있어요. 수신 대상을 나눠주세요." : `선택한 대상 ${recipientCount}명에게 발송됩니다.`}</p>
+        </div>
+        <div className="seed-field">
+          <label htmlFor="ann-subject">메일 제목</label>
+          <input id="ann-subject" className={input} value={subject} maxLength={80} onChange={(event) => changeDraft(() => setSubject(event.target.value))} placeholder="예: 행사 장소와 입장 시간을 안내드립니다" />
+          <p className="field-helper">{subject.length}/80</p>
+        </div>
+        <div className="seed-field">
+          <label htmlFor="ann-body">공지 내용</label>
+          <textarea id="ann-body" className={`${input} min-h-28 h-auto resize-y py-3 leading-7`} value={body} maxLength={4000} onChange={(event) => changeDraft(() => setBody(event.target.value))} placeholder={`안녕하세요. ${eventName} 운영팀입니다.\n\n행사 시작 10분 전까지 입장해주세요.`} />
+          <p className="field-helper">{bodyLength}/4,000</p>
+        </div>
+        <p className="event-announcement-note">선택한 대상의 이메일 주소는 화면에 노출하지 않으며, 수신자에게 개별 발송합니다.</p>
         <button type="button" className="button-secondary button-small" disabled={!canPreview || pending} onClick={() => setPreview(true)}>발송 내용 확인</button>
       </div>
       <div className="event-announcement-preview" data-ready={preview}>
