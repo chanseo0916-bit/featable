@@ -133,14 +133,14 @@ export function ProfileEditor({
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
               {slug && (
-                <Link href={`/founders/${slug}`} className="whitespace-nowrap text-[13px] font-bold text-accent hover:underline">
+                <Link href={`/founders/${slug}`} className="button button-xsmall button-secondary whitespace-nowrap">
                   공개 프로필 보기 ↗
                 </Link>
               )}
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="whitespace-nowrap rounded-lg border border-border bg-white px-4 h-9 text-[13px] font-bold text-fg-default transition-colors hover:border-accent hover:text-accent"
+                className="button button-xsmall whitespace-nowrap"
               >
                 {open ? "접기" : "프로필 편집"}
               </button>
