@@ -30,15 +30,15 @@ const shortDate = (iso: string) => {
   return `${date.toLocaleDateString("ko-KR", { month: "long", day: "numeric" })} · ${date.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })}`;
 };
 
-// 신청 note는 `[메시지]\n\n추가 질문\n질문: 답변` 형식으로 저장됨 → 메시지/답변 분리
+// 신청 note는 `[메시지]\n\n추가 질문\n질문: 답변` 형식, 또는 답변만 있으면 `추가 질문\n질문: 답변`으로 시작 → 메시지/답변 분리
 function splitNote(note: string | null) {
   if (!note) return { message: "", answers: [] as { label: string; value: string }[] };
-  const marker = "\n추가 질문\n";
+  const marker = "추가 질문";
   const idx = note.indexOf(marker);
   if (idx === -1) return { message: note.trim(), answers: [] };
-  const message = note.slice(0, idx).trim();
-  const answers = note
-    .slice(idx + marker.length)
+  const message = note.slice(0, idx).replace(/[\s\n]+$/, "");
+  const after = note.slice(idx + marker.length).replace(/^\s*\n+/, "");
+  const answers = after
     .split("\n")
     .map((line) => {
       const sep = line.indexOf(": ");
