@@ -58,7 +58,7 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
   }));
 
   return <><DashNav active="events" /><main className="dash-page event-attendees-page"><div className="shell dash-shell">
-    <header className="event-attendees-heading"><div><p>EVENT GUESTS</p><h1>{event.name}</h1><span>{formatEventDateTimeKst(event.starts_at)} · 확정 {activeCount}{event.capacity ? ` / ${event.capacity}명` : "명"}</span></div><Link href={`/events/${event.slug}`} target="_blank">공개 페이지 ↗</Link></header>
+    <header className="event-attendees-heading"><div><h1>{event.name}</h1><span>{formatEventDateTimeKst(event.starts_at)} · 확정 {activeCount}{event.capacity ? ` / ${event.capacity}명` : "명"}</span></div><Link href={`/events/${event.slug}`} target="_blank">공개 페이지 ↗</Link></header>
     <div className="event-stats">
       <div className="event-stat"><i className="event-stat-dot positive" /><b>{activeCount}</b><span>확정</span></div>
       <div className="event-stat"><i className="event-stat-dot warning" /><b>{registrations.filter((r) => r.status === "pending").length}</b><span>승인 대기</span></div>
@@ -66,7 +66,7 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
     </div>
     <section className="event-attendee-card">
       <header className="event-attendee-card-head">
-        <div><span className="event-manage-eyebrow">ATTENDEES</span><h2>신청자 <b>{registrations.length}명</b></h2></div>
+        <div><h2>신청자 <b>{registrations.length}명</b></h2></div>
         <p>이름과 이메일은 행사 신청 관리 목적으로만 사용해주세요.</p>
       </header>
       <EventAttendeeList registrations={registrations} eventSlug={event.slug} />

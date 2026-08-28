@@ -85,7 +85,7 @@ export function EventAnnouncementComposer({ eventId, eventSlug, eventName, count
 
   return <section className="event-announcement-composer">
     <header>
-      <div><span>EMAIL NOTICE</span><h2>신청자 공지 메일</h2><p>행사 일정, 장소, 준비물처럼 신청자가 꼭 알아야 하는 운영 안내를 보내세요.</p></div>
+      <div><h2>신청자 공지 메일</h2><p>행사 일정, 장소, 준비물처럼 신청자가 꼭 알아야 하는 운영 안내를 보내세요.</p></div>
       <em>광고·홍보 메일 발송 금지</em>
     </header>
     <div className="event-announcement-layout">
