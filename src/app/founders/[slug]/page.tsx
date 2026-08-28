@@ -16,13 +16,42 @@ import {
   type SeoSchema,
 } from "@/components/seo-json-ld";
 
+/**
+ * 인터뷰 대표 키워드를 사람 검색어로 바꾼다. 인터뷰는 "포토부스 창업"을,
+ * 프로필은 "포토부스 창업가"를 노린다. 같은 키워드로 두 페이지가 붙으면
+ * 서로 순위를 깎아먹기 때문에 의도를 나눠 가진다.
+ */
+function founderKeyword(interviewKeyword: string): string {
+  const base = interviewKeyword.replace(/ *(후기|도전기|현실)$/, "").trim();
+  if (base.endsWith("창업")) return `${base}가`;
+  if (base.endsWith("스타트업")) return `${base.slice(0, -"스타트업".length).trim()} 창업가`;
+  return `${base.split(" ")[0]} 창업가`;
+}
+
+/** 이 창업가의 인터뷰에서 검색어를 가져온다. 인터뷰가 없으면 이름만 쓴다. */
+async function founderSeo(slug: string, name: string, headline: string, bio?: string) {
+  const features = await getFeatures();
+  const interview = features.find(
+    (feature) => feature.founderSlug === slug && feature.kind === "interview" && feature.primaryKeyword,
+  );
+  if (!interview?.primaryKeyword) {
+    return { title: name, description: bio?.slice(0, 160) ?? headline };
+  }
+  const keyword = founderKeyword(interview.primaryKeyword);
+  return {
+    title: `${name} · ${keyword}`,
+    description: `${keyword} ${name}. ${headline} 창업 과정과 인터뷰를 Featable에서 확인해보세요.`.slice(0, 155),
+  };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const founder = await getFounder(slug);
   if (!founder) return {};
+  const { title, description } = await founderSeo(founder.slug, founder.name, founder.headline, founder.bio);
   return createDetailMetadata({
-    title: founder.name,
-    description: founder.bio?.slice(0, 160) ?? founder.headline,
+    title,
+    description,
     path: `/founders/${founder.slug}`,
     image: founder.avatarUrl,
   });
