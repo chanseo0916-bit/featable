@@ -203,6 +203,14 @@ summary::-webkit-details-marker { display: none; }
 .button-soft:focus-visible {
   outline-color: color-mix(in srgb, var(--fg-default) 40%, white);
 }
+.button-danger,
+.button-danger:hover {
+  background: var(--error);
+  color: var(--gray-100);
+}
+.button-danger:focus-visible {
+  outline-color: color-mix(in srgb, var(--error) 40%, transparent);
+}
 .hero { min-height: 510px; display: flex; align-items: center; justify-content: space-between; padding-top: 58px; padding-bottom: 58px; }
 .eyebrow { color: var(--muted); font-size: 13px; letter-spacing: -0.005em; font-weight: 500; margin: 0 0 12px; }
 h1, h2, h3, p { margin-top: 0; }

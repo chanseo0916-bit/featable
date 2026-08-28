@@ -87,3 +87,46 @@ export async function updateEventPresentation(input: {
   revalidatePath("/");
   return { ok: true };
 }
+
+export async function deleteOwnedEvent(input: {
+  eventId: string;
+  slug: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요합니다." };
+
+  const admin = createAdminClient();
+  if (!admin) return { ok: false, error: "관리 도구를 준비하지 못했습니다." };
+
+  const { data: event, error: readError } = await admin
+    .from("events")
+    .select("id,slug,submitted_by")
+    .eq("id", input.eventId)
+    .eq("slug", input.slug)
+    .maybeSingle();
+  if (readError || !event) return { ok: false, error: "삭제할 행사를 찾지 못했습니다." };
+  if (event.submitted_by !== user.id) return { ok: false, error: "행사 소유자만 삭제할 수 있습니다." };
+
+  const { data: deleted, error: deleteError } = await admin
+    .from("events")
+    .delete()
+    .eq("id", event.id)
+    .eq("submitted_by", user.id)
+    .select("id")
+    .maybeSingle();
+  if (deleteError || !deleted) return { ok: false, error: "행사를 삭제하지 못했습니다." };
+
+  await Promise.all([
+    admin.from("saved_items").delete().eq("item_type", "event").eq("item_slug", event.slug),
+    admin.from("notifications").delete().eq("data->>event_id", event.id),
+    admin.from("notifications").delete().eq("data->>event_slug", event.slug),
+  ]);
+  revalidatePath(`/events/${event.slug}`);
+  revalidatePath(`/events/${event.slug}/apply`);
+  revalidatePath(`/my/events/${event.slug}`);
+  revalidatePath("/my/events");
+  revalidatePath("/events");
+  revalidatePath("/");
+  return { ok: true };
+}
