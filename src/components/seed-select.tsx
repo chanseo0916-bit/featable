@@ -20,6 +20,8 @@ export function SeedSelect({
   className = "",
   ariaLabel,
   disabled = false,
+  name,
+  required = false,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -29,6 +31,8 @@ export function SeedSelect({
   className?: string;
   ariaLabel?: string;
   disabled?: boolean;
+  name?: string;
+  required?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -92,6 +96,7 @@ export function SeedSelect({
 
   return (
     <div ref={rootRef} className={`relative ${className}`}>
+      {name && <input type="hidden" name={name} value={value} required={required} />}
       <button
         ref={triggerRef}
         type="button"
