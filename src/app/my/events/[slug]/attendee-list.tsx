@@ -75,39 +75,37 @@ export function EventAttendeeList({ registrations, eventSlug }: { registrations:
       </div>
 
       {filtered.length ? (
-        <div className="event-attendee-rows">
+        <div className="event-attendee-grid">
           {filtered.map((item, index) => {
             const { message, answers } = splitNote(item.note);
             return (
-              <article className="event-attendee-row" key={item.id}>
-                <i className="event-attendee-index">{String(index + 1).padStart(2, "0")}</i>
-                <div className="event-attendee-main">
-                  <div className="event-attendee-head">
+              <article className="event-attendee-card-item" key={item.id}>
+                <header className="event-attendee-card-head">
+                  <div className="event-attendee-card-id">
+                    <i className="event-attendee-index">{String(index + 1).padStart(2, "0")}</i>
                     <div className="event-attendee-identity">
                       <strong>{item.applicant_name}</strong>
                       <a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>
                     </div>
-                    <div className="event-attendee-meta">
-                      <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
-                      <Badge tone={REG_TONE[item.status]}>{statusLabel[item.status]}</Badge>
-                    </div>
                   </div>
-                  {(message || answers.length > 0) && (
-                    <div className="event-attendee-detail">
-                      {message && <p className="event-attendee-message">{message}</p>}
-                      {answers.length > 0 && (
-                        <div className="event-attendee-answers">
-                          {answers.map((answer) => (
-                            <span key={answer.label} className="event-attendee-answer"><b>{answer.label}</b>{answer.value}</span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {(item.status === "pending" || item.status === "waitlisted") && (
-                  <div className="event-attendee-actions"><RegistrationControls registrationId={item.id} eventSlug={eventSlug} /></div>
+                  <Badge tone={REG_TONE[item.status]}>{statusLabel[item.status]}</Badge>
+                </header>
+                {(message || answers.length > 0) && (
+                  <div className="event-attendee-detail">
+                    {message && <p className="event-attendee-message">{message}</p>}
+                    {answers.length > 0 && (
+                      <div className="event-attendee-answers">
+                        {answers.map((answer) => (
+                          <span key={answer.label} className="event-attendee-answer"><b>{answer.label}</b>{answer.value}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
+                <footer className="event-attendee-card-foot">
+                  <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
+                  {(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={eventSlug} />}
+                </footer>
               </article>
             );
           })}
