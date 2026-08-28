@@ -1204,8 +1204,8 @@
 .event-management-menu button:hover { background: var(--gray-100); }
 .event-management-menu button b { color: var(--fg-default); font-size: var(--fs-t2); font-weight: 700; }
 .event-management-menu button i { color: var(--fg-subtle); font-size: var(--fs-t1); font-style: normal; }
-.event-management-menu button.is-active { background: var(--gray-100); }
-.event-management-menu button.is-active b { color: var(--fg-strong); }
+.event-management-menu button.is-active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.event-management-menu button.is-active b { color: var(--accent); }
 .event-management-pane { min-width: 0; }
 .event-management-pane > .event-attendee-card { margin: 0; }
 @media (max-width: 820px) {
@@ -1220,17 +1220,21 @@
 
 /* === 행사 개요 대시보드 === */
 .event-overview { display: grid; gap: 16px; }
+.event-heading-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.event-heading-title h1 { min-width: 0; }
+.event-attendees-heading .event-heading-title .badge { margin-left: 0; color: var(--badge-fg); }
+.event-attendees-heading > div > span { display: block; margin: 8px 0 0; }
 .event-overview-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.event-overview-stat { display: grid; gap: 6px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); text-decoration: none; }
+.event-overview-stat { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 20px; border: 1px solid var(--border); border-top: 3px solid var(--gray-400); border-radius: var(--radius-lg); background: var(--background); }
 .event-overview-stat b { color: var(--fg-strong); font-size: var(--fs-t9); font-weight: 700; line-height: 1; }
-.event-overview-stat span { color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 500; }
-.event-overview-stat.is-positive b { color: var(--success); }
-.event-overview-stat.is-warning b { color: var(--warning); }
-.event-overview-stat.is-informative b { color: var(--info); }
-.event-overview-stat:hover { background: var(--gray-100); }
+.event-overview-stat.is-positive { border-top-color: var(--success); }
+.event-overview-stat.is-warning { border-top-color: var(--warning); }
+.event-overview-stat.is-informative { border-top-color: var(--info); }
 
-.event-overview-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
-.event-overview-card > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.event-overview-secondary { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 16px; }
+
+.event-overview-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); overflow: hidden; }
+.event-overview-card > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--background); }
 .event-overview-card > header span { color: var(--fg-strong); font-size: var(--fs-t3); font-weight: 700; }
 .event-overview-card > header a { color: var(--accent); font-size: var(--fs-t2); font-weight: 700; text-decoration: none; }
 .event-overview-card > header a:hover { text-decoration: underline; }
@@ -1247,14 +1251,9 @@
 .event-overview-recent > li > div { display: grid; gap: 2px; min-width: 0; flex: 1; }
 .event-overview-recent strong { color: var(--fg-strong); font-size: var(--fs-t2); font-weight: 700; }
 .event-overview-recent span { color: var(--fg-muted); font-size: var(--fs-t1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.event-overview-recent em { font-size: var(--fs-t1); font-style: normal; font-weight: 700; }
-.event-overview-recent em[data-status="confirmed"] { color: var(--success); }
-.event-overview-recent em[data-status="pending"] { color: var(--warning); }
-.event-overview-recent em[data-status="waitlisted"] { color: var(--info); }
-.event-overview-recent em[data-status="rejected"] { color: var(--error); }
-.event-overview-recent em[data-status="cancelled"] { color: var(--fg-muted); }
 .event-overview-empty { margin: 0; padding: 22px 18px; color: var(--fg-muted); font-size: var(--fs-t2); }
 
 .event-overview-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .event-overview-actions .button, .event-overview-actions .button-soft { flex: 1 1 auto; justify-content: center; }
+@media (max-width: 760px) { .event-overview-secondary { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .event-overview-stats { grid-template-columns: 1fr; } }
