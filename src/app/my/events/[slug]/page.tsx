@@ -10,6 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { EventAnnouncementComposer } from "./announcement-composer";
 import type { AnnouncementRecipientFilter } from "./announcement-actions";
 import { formatEventDateTimeKst } from "@/lib/datetime";
+import { Badge } from "@/components/badge";
 
 interface RegistrationRow {
   id: string;
@@ -21,6 +22,13 @@ interface RegistrationRow {
 }
 
 const statusLabel = { pending: "승인 대기", confirmed: "승인", waitlisted: "대기", rejected: "거절", cancelled: "취소" };
+
+const REG_TONE = { pending: "warning", confirmed: "positive", waitlisted: "informative", rejected: "critical", cancelled: "neutral" } as const;
+
+const shortDate = (iso: string) => {
+  const date = new Date(iso);
+  return `${date.toLocaleDateString("ko-KR", { month: "long", day: "numeric" })} · ${date.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })}`;
+};
 
 export default async function EventRegistrationsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -61,7 +69,31 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
 
   return <><DashNav active="events" /><main className="dash-page event-attendees-page"><div className="shell dash-shell">
     <header className="event-attendees-heading"><div><p>EVENT GUESTS</p><h1>{event.name}</h1><span>{formatEventDateTimeKst(event.starts_at)} · 확정 {activeCount}{event.capacity ? ` / ${event.capacity}명` : "명"}</span></div><Link href={`/events/${event.slug}`} target="_blank">공개 페이지 ↗</Link></header>
-    <section className="event-attendee-list"><header><strong>신청자 {registrations.length}명</strong><span>이름과 이메일은 행사 신청 관리 목적으로만 사용해주세요.</span></header>{registrations.length ? registrations.map((item, index) => <article key={item.id}><i>{String(index + 1).padStart(2, "0")}</i><div><strong>{item.applicant_name}</strong><a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>{item.note && <p>{item.note}</p>}</div><time>{new Date(item.applied_at).toLocaleString("ko-KR")}</time><em data-status={item.status}>{statusLabel[item.status]}</em>{(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={event.slug} />}</article>) : <div className="my-event-empty"><strong>아직 신청자가 없어요.</strong><span>신청자가 생기면 이곳에서 바로 확인할 수 있습니다.</span></div>}</section>
+    <section className="event-attendee-card">
+      <header className="event-attendee-card-head">
+        <div><span className="event-manage-eyebrow">ATTENDEES</span><h2>신청자 <b>{registrations.length}명</b></h2></div>
+        <p>이름과 이메일은 행사 신청 관리 목적으로만 사용해주세요.</p>
+      </header>
+      {registrations.length ? (
+        <div className="event-attendee-rows">
+          {registrations.map((item, index) => (
+            <article className="event-attendee-row" key={item.id}>
+              <i className="event-attendee-index">{String(index + 1).padStart(2, "0")}</i>
+              <div className="event-attendee-main">
+                <strong>{item.applicant_name}</strong>
+                <a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>
+                {item.note && <p>{item.note}</p>}
+              </div>
+              <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
+              <Badge tone={REG_TONE[item.status]}>{statusLabel[item.status]}</Badge>
+              {(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={event.slug} />}
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="my-event-empty"><strong>아직 신청자가 없어요.</strong><span>신청자가 생기면 이곳에서 바로 확인할 수 있습니다.</span></div>
+      )}
+    </section>
     <EventAnnouncementComposer eventId={event.id} eventSlug={event.slug} eventName={event.name} counts={announcementCounts} history={announcementHistory} />
     <EventSettingsEditor eventId={event.id} slug={event.slug} name={event.name} host={event.host} description={event.description} startsAt={event.starts_at} endsAt={event.ends_at} location={event.location} isOnline={event.is_online} category={event.category} capacity={event.capacity} registrationMode={event.registration_mode} applyUrl={event.apply_url ?? ""} approvalMode={event.approval_mode} coverUrl={event.cover_url ?? ""} galleryUrls={(event.gallery_urls ?? []) as string[]} registrationFields={(event.registration_fields ?? []) as RegistrationField[]} isPaid={Boolean(event.is_paid)} paymentAccount={event.payment_account ?? ""} paymentNotice={event.payment_notice ?? ""} canDelete={event.submitted_by === user.id} />
     {event.submitted_by === user.id && <EventCohostManager eventId={event.id} slug={event.slug} initial={cohostRows as { id: string; email: string; role: string; status: "pending" | "accepted" | "declined"; profile?: { full_name?: string | null } | null }[]} />}

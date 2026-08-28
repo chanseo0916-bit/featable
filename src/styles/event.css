@@ -125,10 +125,130 @@
 .event-registration-login a { color: var(--fg-default); text-decoration: underline; }
 
 
-.event-settings-editor { margin-top: 24px; padding: 28px; border: 1px solid #dfe2e5; border-radius: 16px; background: #fff; }
+/* 이벤트 운영(관리) 공통: 카드 + 신청자 리스트 */
+.event-manage-eyebrow {
+  color: var(--accent);
+  font-size: var(--fs-t1);
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+.event-attendee-card {
+  margin-top: 24px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--background);
+}
+
+.event-attendee-card-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.event-attendee-card-head h2 {
+  margin: 6px 0 0;
+  font-size: var(--fs-t6);
+  letter-spacing: -.01em;
+}
+
+.event-attendee-card-head h2 b { color: var(--accent); font-weight: 700; }
+.event-attendee-card-head p { margin: 0; color: var(--fg-muted); font-size: var(--fs-t1); }
+
+.event-attendee-rows {
+  margin-top: 6px;
+  display: grid;
+}
+
+.event-attendee-row {
+  min-height: 64px;
+  padding: 16px 4px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.event-attendee-rows article:first-child { border-top: 0; }
+
+.event-attendee-index {
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  color: var(--fg-muted);
+  font-style: normal;
+  font-size: var(--fs-t1);
+  font-weight: 700;
+}
+
+.event-attendee-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.event-attendee-main strong { color: var(--fg-strong); font-size: var(--fs-t3); font-weight: 700; }
+.event-attendee-main a { color: var(--fg-muted); font-size: var(--fs-t2); overflow-wrap: anywhere; }
+.event-attendee-main a:hover { color: var(--accent); }
+.event-attendee-main p {
+  margin: 6px 0 0;
+  color: var(--fg-muted);
+  font-size: var(--fs-t1);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.event-attendee-date {
+  flex: 0 0 auto;
+  color: var(--fg-subtle);
+  font-size: var(--fs-t1);
+  white-space: nowrap;
+}
+
+.event-registration-controls {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+}
+
+.event-registration-controls button {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--fg-default);
+  font: inherit;
+  font-size: var(--fs-t1);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.event-registration-controls button:hover { border-color: var(--fg-muted); }
+.event-registration-controls button:first-child { color: var(--success); }
+.event-registration-controls button:last-child { color: var(--error); }
+.event-registration-controls small { flex-basis: 100%; color: var(--error); font-size: var(--fs-t1); }
+
+@media (max-width: 700px) {
+  .event-attendee-card { padding: 20px; }
+  .event-attendee-card-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+}
 
 
-.event-settings-editor > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid #e8eaec; }
+.event-settings-editor { margin-top: 24px; padding: 28px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--background); }
+
+
+.event-settings-editor > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
 
 
 .event-settings-editor > header span { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
@@ -140,7 +260,7 @@
 .event-settings-editor > header p, .event-settings-block small { margin: 0; color: var(--fg-muted); font-size: 12px; line-height: 1.6; }
 
 
-.event-settings-block { padding: 24px 0; border-bottom: 1px solid #e8eaec; }
+.event-settings-block { padding: 24px 0; border-bottom: 1px solid var(--border); }
 
 
 .event-settings-block > div:first-child { display: grid; gap: 5px; margin-bottom: 16px; }
@@ -239,10 +359,10 @@
 .event-payment-notice span { font-size: 12px; line-height: 1.5; }
 
 
-.event-cohost-manager { margin-top: 24px; padding: 28px; border: 1px solid #dfe2e5; border-radius: 16px; background: #fff; }
+.event-cohost-manager { margin-top: 24px; padding: 28px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--background); }
 
 
-.event-cohost-manager > header { padding-bottom: 18px; border-bottom: 1px solid #e8eaec; }
+.event-cohost-manager > header { padding-bottom: 18px; border-bottom: 1px solid var(--border); }
 
 
 .event-cohost-manager > header span { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
