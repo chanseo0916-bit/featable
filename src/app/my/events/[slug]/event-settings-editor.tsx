@@ -167,7 +167,13 @@ export function EventSettingsEditor(props: EventSettingsProps) {
           <div><span>신청</span><b>{registrationMode === "internal" ? "Featable에서 신청" : registrationMode === "external" ? "외부 링크" : "신청 마감"}</b></div>
           <div><span>참가비</span><b>{isPaid ? "유료" : "무료"}</b></div>
         </div>
-        {props.canDelete && <EventDeleteButton eventId={eventId} slug={slug} name={name} />}
+        <div className="event-settings-danger">
+          <div>
+            <strong>행사 삭제</strong>
+            <p>신청자 데이터와 공지 내역도 함께 삭제되며 되돌릴 수 없습니다.</p>
+          </div>
+          {props.canDelete && <EventDeleteButton eventId={eventId} slug={slug} name={name} />}
+        </div>
       </div>}
 
       {message && <p className="event-settings-message">{message}</p>}

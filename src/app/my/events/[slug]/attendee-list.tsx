@@ -75,23 +75,29 @@ export function EventAttendeeList({ registrations, eventSlug }: { registrations:
       </div>
 
       {filtered.length ? (
-        <div className="event-attendee-grid">
+        <ul className="event-attendee-list">
+          <li className="event-attendee-list-head" aria-hidden="true">
+            <span>이름</span><span>이메일</span><span>신청일</span><span>상태</span><span></span>
+          </li>
           {filtered.map((item, index) => {
             const { message, answers } = splitNote(item.note);
+            const hasNote = Boolean(message) || answers.length > 0;
             return (
-              <article className="event-attendee-card-item" key={item.id}>
-                <header className="event-attendee-card-head">
-                  <div className="event-attendee-card-id">
-                    <i className="event-attendee-index">{String(index + 1).padStart(2, "0")}</i>
-                    <div className="event-attendee-identity">
-                      <strong>{item.applicant_name}</strong>
-                      <a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>
-                    </div>
+              <li className="event-attendee-row" key={item.id}>
+                <div className="event-attendee-row-main">
+                  <i className="event-attendee-index">{String(index + 1).padStart(2, "0")}</i>
+                  <div className="event-attendee-identity">
+                    <strong>{item.applicant_name}</strong>
                   </div>
+                  <a className="event-attendee-email" href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>
+                  <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
                   <Badge tone={REG_TONE[item.status]}>{statusLabel[item.status]}</Badge>
-                </header>
-                {(message || answers.length > 0) && (
-                  <div className="event-attendee-detail">
+                  <div className="event-attendee-row-actions">
+                    {(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={eventSlug} />}
+                  </div>
+                </div>
+                {hasNote && (
+                  <div className="event-attendee-row-note">
                     {message && <p className="event-attendee-message">{message}</p>}
                     {answers.length > 0 && (
                       <div className="event-attendee-answers">
@@ -102,14 +108,10 @@ export function EventAttendeeList({ registrations, eventSlug }: { registrations:
                     )}
                   </div>
                 )}
-                <footer className="event-attendee-card-foot">
-                  <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
-                  {(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={eventSlug} />}
-                </footer>
-              </article>
+              </li>
             );
           })}
-        </div>
+        </ul>
       ) : (
         <div className="my-event-empty"><strong>검색 결과가 없어요.</strong><span>다른 이름이나 이메일로 검색해보세요.</span></div>
       )}
