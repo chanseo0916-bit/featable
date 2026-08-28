@@ -166,7 +166,7 @@ summary::-webkit-details-marker { display: none; }
   position: relative;
   display: inline-flex; justify-content: center; align-items: center; gap: 6px;
   padding: 0 20px;
-  height: 54px;
+  height: 48px;
   border: 0;
   border-radius: 12px;
   background: var(--accent);
@@ -183,8 +183,8 @@ summary::-webkit-details-marker { display: none; }
   outline: 3px solid color-mix(in srgb, var(--accent) 40%, white);
   outline-offset: 2px;
 }
-.button-small { padding: 0 16px; height: 44px; font-size: 14px; }
-.button-xsmall { padding: 0 12px; height: 36px; font-size: 13px; }
+.button-small { padding: 0 16px; height: 40px; font-size: 14px; border-radius: 12px; }
+.button-xsmall { padding: 0 12px; height: 36px; font-size: 13px; border-radius: 8px; }
 .button-secondary {
   border: 1px solid #dfe2e5;
   background: #fff;
@@ -1666,11 +1666,11 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .event-apply-layout > .event-registration-panel { padding: 25px 20px; }
   .event-gallery-editor { grid-template-columns: repeat(3, 1fr); }
 }
-.event-attendees-heading { padding: 42px 0 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid #dfe2e5; }
-.event-attendees-heading p { margin: 0; color: var(--muted); font-size: 13px; font-weight: 500; letter-spacing: -0.005em; }
-.event-attendees-heading h1 { margin: 8px 0; font-size: 40px; letter-spacing: -.03em; }
-.event-attendees-heading span { color: var(--fg-muted); font-size: 12px; }
-.event-attendees-heading > a { font-size: 12px; font-weight: 700; }
+.event-attendees-heading { padding: 42px 0 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--border); }
+.event-attendees-heading h1 { margin: 8px 0; color: var(--fg-strong); font-size: var(--fs-t11); font-weight: 700; letter-spacing: -.03em; }
+.event-attendees-heading span { margin-left: 8px; color: var(--fg-muted); font-size: var(--fs-t2); }
+.event-attendees-heading > a { color: var(--fg-default); font-size: var(--fs-t2); font-weight: 700; }
+.event-attendees-heading > a:hover { color: var(--accent); }
 @media (max-width: 700px) {
   .detail-page .info-panel { align-items: stretch; flex-direction: column; gap: 16px; }
   .event-registration-panel { margin: 22px 0 50px; padding: 22px 18px; }
