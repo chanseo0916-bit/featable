@@ -19,11 +19,9 @@ const input =
   "block w-full h-11 rounded-lg border border-border bg-white px-4 text-[15px] text-fg-strong placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft";
 
 const STEPS = [
-  { id: 1, label: "행사 정보", hint: "이름과 일시, 장소" },
-  { id: 2, label: "신청 & 참가비", hint: "모집 방식, 유료 설정" },
-  { id: 3, label: "신청 폼", hint: "참가자 질문 항목" },
-  { id: 4, label: "이미지", hint: "포스터, 상세 이미지" },
-  { id: 5, label: "저장 & 삭제", hint: "변경사항 반영" },
+  { id: 1, label: "행사 정보", hint: "이름, 일시, 장소" },
+  { id: 2, label: "신청 & 참가비", hint: "모집 방식, 신청 폼, 유료 설정" },
+  { id: 3, label: "이미지 & 저장", hint: "포스터, 상세 이미지, 변경 반영" },
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
@@ -134,21 +132,16 @@ export function EventSettingsEditor(props: EventSettingsProps) {
             <div className="seed-field event-field-full"><label>입금 안내</label><textarea className={`${input} min-h-24 h-auto py-3 resize-y`} value={paymentNotice} onChange={(event) => setPaymentNotice(event.target.value)} placeholder="입금자명과 입금 기한을 안내해주세요." /></div>
           </>}
         </div>
+        <div className="event-settings-block-head" style={{ marginTop: 28 }}><h3>신청 폼</h3><p>이름·이메일·개인정보 동의는 기본으로 포함됩니다. 질문 항목만 추가하면 돼요.</p></div>
+        <div className="event-form-fields">{fields.map((field) => <article key={field.id}><div className="event-form-field-head"><input value={field.label} onChange={(event) => updateField(field.id, { label: event.target.value })} placeholder="질문 제목 (예: 회사명)" /><button type="button" onClick={() => removeField(field.id)}>삭제</button></div><div className="event-form-field-options"><select value={field.type} onChange={(event) => updateField(field.id, { type: event.target.value as RegistrationField["type"] })}><option value="text">짧은 답변</option><option value="textarea">긴 답변</option><option value="select">선택형</option></select><input value={field.placeholder ?? ""} onChange={(event) => updateField(field.id, { placeholder: event.target.value })} placeholder="입력 안내 문구 (선택)" /><label><input type="checkbox" checked={field.required} onChange={(event) => updateField(field.id, { required: event.target.checked })} /> 필수</label></div>{field.type === "select" && <input className="event-form-field-select-options" value={(field.options ?? []).join(", ")} onChange={(event) => updateField(field.id, { options: event.target.value.split(",").map((option) => option.trim()) })} placeholder="선택지: 예비창업자, 창업가, 투자자" />}</article>)}<button className="event-add-field" type="button" onClick={addField} disabled={fields.length >= 8}>＋ 질문 추가 {fields.length >= 8 && "(최대 8개)"}</button></div>
       </div>}
 
       {step === 3 && <div className="event-settings-block">
-        <div className="event-form-fields">{fields.map((field) => <article key={field.id}><div className="event-form-field-head"><input value={field.label} onChange={(event) => updateField(field.id, { label: event.target.value })} placeholder="질문 제목 (예: 회사명)" /><button type="button" onClick={() => removeField(field.id)}>삭제</button></div><div className="event-form-field-options"><select value={field.type} onChange={(event) => updateField(field.id, { type: event.target.value as RegistrationField["type"] })}><option value="text">짧은 답변</option><option value="textarea">긴 답변</option><option value="select">선택형</option></select><input value={field.placeholder ?? ""} onChange={(event) => updateField(field.id, { placeholder: event.target.value })} placeholder="입력 안내 문구 (선택)" /><label><input type="checkbox" checked={field.required} onChange={(event) => updateField(field.id, { required: event.target.checked })} /> 필수</label></div>{field.type === "select" && <input className="event-form-field-select-options" value={(field.options ?? []).join(", ")} onChange={(event) => updateField(field.id, { options: event.target.value.split(",").map((option) => option.trim()) })} placeholder="선택지: 예비창업자, 창업가, 투자자" />}</article>)}<button className="event-add-field" type="button" onClick={addField} disabled={fields.length >= 8}>＋ 질문 추가 {fields.length >= 8 && "(최대 8개)"}</button></div>
-        <p className="event-wizard-note">이름·이메일·개인정보 동의는 기본으로 포함됩니다. 질문 항목만 추가하면 돼요.</p>
-      </div>}
-
-      {step === 4 && <div className="event-settings-block">
         <div className="event-settings-block-head"><h3>대표 포스터</h3><p>행사 목록과 공개 페이지의 메인 표지로 사용돼요.</p></div>
         <label className="event-image-upload">{coverUrl ? <img src={coverUrl} alt="대표 포스터 미리보기" /> : <b>포스터 이미지 선택</b>}<small>{uploadingCover ? "업로드 중…" : "JPG, PNG, WEBP · 최대 15MB · 클릭해서 교체"}</small><input type="file" accept="image/*" disabled={pending || uploadingCover} onChange={uploadCover} /></label>
         <div className="event-settings-block-head" style={{ marginTop: 28 }}><h3>상세 이미지 순서</h3><p>첫 번째 이미지가 공개 페이지에서 가장 먼저 보여요.</p></div>
         {gallery.length ? <div className="event-settings-gallery">{gallery.map((url, index) => <figure key={url}><img src={url} alt={`상세 이미지 ${index + 1}`} /><figcaption><b>{String(index + 1).padStart(2, "0")}</b><button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0}>←</button><button type="button" onClick={() => moveImage(index, 1)} disabled={index === gallery.length - 1}>→</button></figcaption></figure>)}</div> : <p className="event-settings-empty">등록된 상세 이미지가 없습니다. 등록 도구에서 이미지를 먼저 추가해주세요.</p>}
-      </div>}
 
-      {step === 5 && <div className="event-settings-block">
         <div className="event-wizard-final">
           <div className="event-wizard-final-row"><span>행사명</span><b>{name || "입력 전"}</b></div>
           <div className="event-wizard-final-row"><span>일시</span><b>{startsAt ? formatKstDateTimeInput(startsAt) : "미정"} — {endsAt ? formatKstDateTimeInput(endsAt) : "미정"}</b></div>
