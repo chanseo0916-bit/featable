@@ -51,9 +51,40 @@ export default async function MyEventsPage() {
     ...(cohostEvents ?? []).map((event) => ({ ...event, operatorRole: "공동 주최", canDelete: false })),
   ].sort((a, b) => (b.starts_at ?? "").localeCompare(a.starts_at ?? ""));
 
+  // 대시보드 현황: 운영 중인 행사별 신청자 집계
+  const ownedIds = operatedEvents.map((event) => event.id).filter(Boolean);
+  const { data: regRows } = ownedIds.length
+    ? await supabase.from("event_registrations").select("event_id,status").in("event_id", ownedIds)
+    : { data: [] };
+  const regCounts = new Map<string, { confirmed: number; pending: number; waitlisted: number; total: number }>();
+  for (const row of (regRows ?? []) as { event_id: string; status: string }[]) {
+    const counts = regCounts.get(row.event_id) ?? { confirmed: 0, pending: 0, waitlisted: 0, total: 0 };
+    counts.total += 1;
+    if (row.status === "confirmed") counts.confirmed += 1;
+    else if (row.status === "pending") counts.pending += 1;
+    else if (row.status === "waitlisted") counts.waitlisted += 1;
+    regCounts.set(row.event_id, counts);
+  }
+  const statsFor = (id: string) => regCounts.get(id) ?? { confirmed: 0, pending: 0, waitlisted: 0, total: 0 };
+
   return <><DashNav active="events" /><main className="dash-page managed-community-page my-events-page"><div className="shell dash-shell">
-    <header className="managed-community-heading"><div><h1>내 행사</h1><p>신청한 행사와 내가 등록한 행사를 한곳에서 관리하세요.</p></div><Link href="/events">행사 둘러보기 ↗</Link></header>
+    <header className="managed-community-heading"><div><h1>내 행사</h1><p>신청한 행사와 운영 중인 행사의 현황을 한곳에서 확인하세요.</p></div><Link href="/my/partner/register?type=event" className="button">＋ 행사 개설하기</Link></header>
     <section className="my-event-section">{registrations.length ? <><header><h2>내 신청</h2></header><div className="my-event-grid">{registrations.map((item) => item.event && <EntityCard href={`/events/${item.event.slug}`} key={item.id} layout="image" media={item.event.cover_url || placeholder(`event-${item.event.slug}`)} mediaAlt={item.event.name} ratio={1.45} mediaOverlay={<span className={`my-event-status is-${item.status}`}>{statusLabel[item.status]}</span>} metaLead={<span className="entity-card-meta-lead">{formatMonthDayKst(item.event.starts_at)}</span>} metaBadge={item.event.category ? <span>{item.event.category}</span> : null} title={item.event.name} description={`${item.event.host} · ${item.event.location}${item.user_id ? "" : " · 이메일 신청"}`} />)}</div></> : <div className="managed-community-empty my-event-empty"><h2>아직 신청한 행사가 없어요.</h2><p>관심 있는 행사를 찾으면 신청 내역을 여기에서 확인할 수 있어요.</p><Link href="/events">행사 찾기 →</Link></div>}</section>
-    <section className="my-event-section">{operatedEvents.length ? <><header><h2>내가 운영하는 행사</h2></header><div className="my-event-grid">{operatedEvents.map((event) => <article className="my-operated-event" key={event.id}><EntityCard href={`/my/events/${event.slug}`} layout="image" media={event.cover_url || placeholder(`event-${event.slug}`)} mediaAlt={event.name} ratio={1.45} mediaOverlay={<span className={`my-event-status is-${event.operatorRole === "대표 주최" ? "host" : "cohost"}`}>{event.operatorRole}</span>} metaLead={<span className="entity-card-meta-lead">{formatMonthDayKst(event.starts_at)}</span>} metaBadge={event.registration_mode === "internal" ? <span>Featable 신청자 관리</span> : event.registration_mode === "closed" ? <span>신청 마감</span> : <span>외부 신청</span>} title={event.name} description={`${event.operatorRole} · ${event.host}`} /><EventCardMenu eventId={event.id} slug={event.slug} name={event.name} registrationMode={event.registration_mode as "internal" | "external" | "closed"} canDelete={event.canDelete} /></article>)}</div></> : <div className="managed-community-empty my-event-empty"><h2>아직 운영 중인 행사가 없어요.</h2><p>직접 등록하거나 공동 주최하는 행사가 여기에 표시돼요.</p><Link href="/my/partner/register?type=event">행사 등록하기 →</Link></div>}</section>
+    <section className="my-event-section">{operatedEvents.length ? <><header><h2>운영 중인 행사</h2></header><div className="my-event-grid">{operatedEvents.map((event) => {
+      const stats = statsFor(event.id);
+      const statusTone = event.registration_mode === "closed" ? "closed" : event.starts_at < new Date().toISOString() ? "ended" : "open";
+      return <article className="my-operated-event" key={event.id}>
+        <EntityCard href={`/my/events/${event.slug}`} layout="image" media={event.cover_url || placeholder(`event-${event.slug}`)} mediaAlt={event.name} ratio={1.45} mediaOverlay={<span className={`my-event-status is-${event.operatorRole === "대표 주최" ? "host" : "cohost"}`}>{event.operatorRole}</span>} metaLead={<span className="entity-card-meta-lead">{formatMonthDayKst(event.starts_at)}</span>} metaBadge={event.registration_mode === "internal" ? <span>Featable 신청자 관리</span> : event.registration_mode === "closed" ? <span>신청 마감</span> : <span>외부 신청</span>} title={event.name} description={`${event.operatorRole} · ${event.host}`} />
+        <div className="my-event-dashboard">
+          <div className="my-event-dashboard-stats">
+            <div><b>{stats.confirmed}</b><span>확정</span></div>
+            <div><b>{stats.pending}</b><span>승인 대기</span></div>
+            <div><b>{stats.waitlisted}</b><span>대기자</span></div>
+          </div>
+          <Link className={`my-event-dashboard-cta is-${statusTone}`} href={`/my/events/${event.slug}`}>{statusTone === "closed" ? "신청 마감 · 관리하기" : statusTone === "ended" ? "종료됨 · 결과 보기" : "신청자 관리하기"} →</Link>
+        </div>
+        <EventCardMenu eventId={event.id} slug={event.slug} name={event.name} registrationMode={event.registration_mode as "internal" | "external" | "closed"} canDelete={event.canDelete} />
+      </article>;
+    })}</div></> : <div className="managed-community-empty my-event-empty"><h2>아직 운영 중인 행사가 없어요.</h2><p>행사를 직접 등록하거나 공동 주최하면 현황을 여기에서 확인할 수 있어요.</p><Link href="/my/partner/register?type=event" className="button">＋ 행사 개설하기</Link></div>}</section>
   </div></main></>;
 }

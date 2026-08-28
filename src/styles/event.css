@@ -1216,3 +1216,15 @@
   .event-management-menu button i { display: none; }
   .event-management-menu-eyebrow { display: none; }
 }
+
+/* === 내 행사 대시보드 === */
+.my-event-dashboard { padding: 0 16px 16px; border-top: 1px solid var(--border); margin-top: -2px; }
+.my-event-dashboard-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 14px 0; }
+.my-event-dashboard-stats > div { display: grid; gap: 2px; }
+.my-event-dashboard-stats b { color: var(--fg-strong); font-size: var(--fs-t5); font-weight: 700; }
+.my-event-dashboard-stats span { color: var(--fg-muted); font-size: var(--fs-t1); }
+.my-event-dashboard-cta { display: inline-flex; align-items: center; width: 100%; justify-content: space-between; padding: 10px 12px; border-radius: var(--radius-md); background: var(--gray-100); color: var(--fg-default); font-size: var(--fs-t2); font-weight: 700; text-decoration: none; transition: background .12s ease; }
+.my-event-dashboard-cta:hover { background: var(--gray-200); }
+.my-event-dashboard-cta.is-closed { background: var(--gray-100); color: var(--fg-muted); }
+.my-event-dashboard-cta.is-ended { background: var(--gray-100); color: var(--fg-subtle); }
+.my-event-heading-actions { display: inline-flex; }
