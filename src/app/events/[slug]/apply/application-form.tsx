@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { registerForEvent, cancelEventRegistration, type EventRegistrationState } from "../actions";
 import { SeedSelect } from "@/components/seed-select";
 
@@ -21,6 +21,11 @@ const STATUS_COPY: Record<RegistrationStatus, { label: string; description: stri
 const input =
   "block w-full h-11 rounded-lg border border-border bg-white px-4 text-[15px] text-fg-strong placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft";
 
+const STEPS = [
+  { id: 1, label: "신청자 정보" },
+  { id: 2, label: "신청서 작성" },
+] as const;
+
 export function ApplicationForm({
   eventId, slug, host, capacity, approvalMode, isPaid, paymentAccount, paymentNotice,
   registrationFields, user, registration, closed,
@@ -37,10 +42,14 @@ export function ApplicationForm({
   const [state, action, pending] = useActionState(boundAction, {});
   const currentStatus = (state.status ?? registration?.status) as RegistrationStatus | undefined;
   const [selectValues, setSelectValues] = useState<Record<string, string>>({});
+  const [step, setStep] = useState<1 | 2>(1);
+  const [applicant, setApplicant] = useState<{ name: string; email: string }>({ name: user?.name ?? "", email: user?.email ?? "" });
+  const [step1Error, setStep1Error] = useState<string | null>(null);
+  const step1FormRef = useRef<HTMLFormElement>(null);
 
   if (closed) {
     return <section className="apply-card apply-closed">
-      <span className="apply-eyebrow">신청 마감</span>
+      <span className="apply-eyebrow apply-eyebrow-neutral">신청 마감</span>
       <h1>신청이 마감됐어요.</h1>
       <p>다른 행사를 둘러보고 새로운 만남을 찾아보세요.</p>
       <div className="apply-actions"><Link className="button button-secondary" href="/events">다른 행사 보기</Link><Link className="button-soft" href={`/events/${slug}`}>행사로 돌아가기</Link></div>
@@ -48,7 +57,7 @@ export function ApplicationForm({
   }
 
   if (currentStatus === "verification_pending") {
-    return <section className="apply-card" data-status="verification_pending"><span className="apply-eyebrow">신청 접수</span><h1>{STATUS_COPY.verification_pending.label}</h1><p>{STATUS_COPY.verification_pending.description}</p></section>;
+    return <section className="apply-card" data-status="verification_pending"><span className="apply-eyebrow apply-eyebrow-informative">신청 접수</span><h1>{STATUS_COPY.verification_pending.label}</h1><p>{STATUS_COPY.verification_pending.description}</p></section>;
   }
 
   if (currentStatus && currentStatus !== "cancelled" && currentStatus !== "rejected") {
@@ -75,22 +84,65 @@ export function ApplicationForm({
     </section>;
   }
 
+  function validateStep1() {
+    const form = step1FormRef.current;
+    if (!form) return false;
+    const name = (form.elements.namedItem("name") as HTMLInputElement)?.value.trim() ?? "";
+    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value.trim() ?? "";
+    if (name.length < 2) { setStep1Error("이름은 2자 이상 입력해주세요."); return false; }
+    if (!email || !email.includes("@") || email.length > 254) { setStep1Error("이메일을 확인해주세요."); return false; }
+    setApplicant({ name, email });
+    setStep1Error(null);
+    return true;
+  }
+
+  function goNext() {
+    if (validateStep1()) setStep(2);
+  }
+
   return <section className="apply-card">
     <span className="apply-eyebrow">Featable 신청</span>
     <h1>{user ? "신청 정보를 입력해주세요" : "신청할게요"}</h1>
     <p>주최자에게는 이름과 이메일, 신청서 답변만 전달돼요. 다른 사용자에게 공개되지 않습니다.</p>
 
-    <dl className="apply-summary">
-      <div><dt>호스트</dt><dd>{host}</dd></div>
-      {capacity && <div><dt>정원</dt><dd>{capacity.toLocaleString("ko-KR")}명</dd></div>}
-      <div><dt>승인</dt><dd>{isPaid ? "입금 확인 후 주최자 승인" : approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</dd></div>
-    </dl>
+    <ol className="apply-steps" role="list" aria-label="신청 단계">
+      {STEPS.map((s, index) => {
+        const status: "done" | "current" | "todo" = step > s.id ? "done" : step === s.id ? "current" : "todo";
+        return <li key={s.id} className={`apply-step apply-step-${status}`}>
+          <span className="apply-step-bullet">{status === "done" ? "✓" : s.id}</span>
+          <span className="apply-step-label">{s.label}</span>
+          {index < STEPS.length - 1 && <span className="apply-step-line" aria-hidden="true" />}
+        </li>;
+      })}
+    </ol>
 
-    <form action={action} className="apply-form">
+    {step === 1 ? <form ref={step1FormRef} className="apply-form" onSubmit={(event) => { event.preventDefault(); goNext(); }}>
+      <dl className="apply-summary">
+        <div><dt>호스트</dt><dd>{host}</dd></div>
+        {capacity && <div><dt>정원</dt><dd>{capacity.toLocaleString("ko-KR")}명</dd></div>}
+        <div><dt>승인</dt><dd>{isPaid ? "입금 확인 후 주최자 승인" : approvalMode === "manual" ? "주최자 승인 후 확정" : "신청 즉시 확정"}</dd></div>
+      </dl>
+
       <div className="apply-form-grid">
         <div className="seed-field"><label>이름</label><input className={input} name="name" defaultValue={user?.name ?? ""} minLength={2} maxLength={60} required placeholder="홍길동" /></div>
         <div className="seed-field"><label>이메일</label><input className={input} name="email" type="email" defaultValue={user?.email ?? ""} maxLength={254} required placeholder="you@example.com" /></div>
       </div>
+
+      {step1Error && <p className="apply-error" role="alert">{step1Error}</p>}
+
+      <div className="apply-actions">
+        <Link className="button-soft" href={`/events/${slug}`}>행사로 돌아가기</Link>
+        <button className="button" type="submit">다음</button>
+      </div>
+      {!user && <p className="apply-login-hint">Featable 회원이에요? <Link href={`/login?next=${encodeURIComponent(`/events/${slug}/apply`)}`}>로그인하면 신청 내역을 한곳에서 볼 수 있어요.</Link></p>}
+    </form> : <form action={action} className="apply-form">
+      <header className="apply-applicant-summary">
+        <div>
+          <b>신청자</b>
+          <span><strong>{applicant.name}</strong> · {applicant.email}</span>
+        </div>
+        <button type="button" className="apply-change" onClick={() => setStep(1)}>변경</button>
+      </header>
 
       {registrationFields.length > 0 && <section className="apply-form-section">
         <header><h2>추가 질문</h2><p>주최자가 추가로 확인하고 싶은 내용이 있어요.</p></header>
@@ -116,11 +168,13 @@ export function ApplicationForm({
 
       {state.error && <p className="apply-error" role="alert">{state.error}</p>}
 
+      <input type="hidden" name="name" value={applicant.name} />
+      <input type="hidden" name="email" value={applicant.email} />
+
       <div className="apply-actions">
-        <Link className="button-soft" href={`/events/${slug}`}>행사로 돌아가기</Link>
+        <button type="button" className="button-soft" onClick={() => setStep(1)}>이전</button>
         <button className="button" type="submit" disabled={pending}>{pending ? "신청 중…" : user ? "Featable에서 신청하기" : "신청하기"}</button>
       </div>
-      {!user && <p className="apply-login-hint">Featable 회원이에요? <Link href={`/login?next=${encodeURIComponent(`/events/${slug}/apply`)}`}>로그인하면 신청 내역을 한곳에서 볼 수 있어요.</Link></p>}
-    </form>
+    </form>}
   </section>;
 }

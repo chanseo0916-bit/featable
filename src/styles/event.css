@@ -1132,3 +1132,24 @@
 .apply-login-hint { margin: -4px 0 0; color: var(--fg-muted); font-size: var(--fs-t1); }
 .apply-login-hint a { color: var(--accent); font-weight: 700; }
 .apply-login-hint a:hover { text-decoration: underline; }
+
+/* === 신청 폼 wizard === */
+.apply-steps { display: flex; align-items: center; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.apply-step { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.apply-step-bullet { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--gray-200); color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 700; flex: 0 0 auto; }
+.apply-step-label { color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 500; white-space: nowrap; }
+.apply-step-line { width: 32px; height: 1px; background: var(--border); margin: 0 4px; }
+.apply-step-done .apply-step-bullet { background: var(--accent); color: #fff; }
+.apply-step-done .apply-step-label { color: var(--fg-strong); font-weight: 700; }
+.apply-step-done .apply-step-line { background: var(--accent); }
+.apply-step-current .apply-step-bullet { background: var(--accent-soft); color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.apply-step-current .apply-step-label { color: var(--fg-strong); font-weight: 700; }
+@media (max-width: 480px) { .apply-step-line { width: 16px; } }
+
+.apply-applicant-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.apply-applicant-summary > div { display: grid; gap: 4px; min-width: 0; }
+.apply-applicant-summary b { color: var(--fg-muted); font-size: var(--fs-t1); font-weight: 700; }
+.apply-applicant-summary span { color: var(--fg-strong); font-size: var(--fs-t2); }
+.apply-applicant-summary strong { font-weight: 700; }
+.apply-change { padding: 6px 12px; border-radius: var(--radius-sm); color: var(--accent); font-size: var(--fs-t1); font-weight: 700; background: transparent; cursor: pointer; }
+.apply-change:hover { background: var(--accent-soft); }
