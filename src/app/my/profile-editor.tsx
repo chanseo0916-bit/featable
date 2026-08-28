@@ -147,31 +147,6 @@ export function ProfileEditor({
             </div>
           </div>}
 
-          {!setupMode && !open && (
-            <div className="profile-summary">
-              <div className="profile-summary-row">
-                <span className="profile-summary-label">역할</span>
-                <span className="profile-summary-value">{form.role || "선택해주세요"}</span>
-              </div>
-              <div className="profile-summary-row">
-                <span className="profile-summary-label">한 줄 소개</span>
-                <span className="profile-summary-value">{form.headline || "아직 등록 전이에요"}</span>
-              </div>
-              <div className="profile-summary-row">
-                <span className="profile-summary-label">이야기</span>
-                <span className="profile-summary-value">{form.bio || "아직 등록 전이에요"}</span>
-              </div>
-              <div className="profile-summary-row">
-                <span className="profile-summary-label">링크</span>
-                <span className="profile-summary-value">
-                  {[form.instagram, form.x, form.linkedin, form.website].filter((v) => v && v.trim()).length > 0
-                    ? `${[form.instagram, form.x, form.linkedin, form.website].filter((v) => v && v.trim()).length}개 연결됨`
-                    : "아직 등록 전이에요"}
-                </span>
-              </div>
-            </div>
-          )}
-
           {open && (
                   <div className={setupMode ? "profile-setup-fields" : "profile-editor-open mt-8"}>
 

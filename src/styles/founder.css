@@ -369,45 +369,6 @@ legend.profile-sec-head {
   margin-top: 0;
 }
 
-/* 접힌 상태의 세로 프로필 요약 (모바일 설정 리스트처럼) */
-.profile-summary {
-  margin-top: 24px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--background);
-  overflow: hidden;
-}
-
-.profile-summary-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 18px;
-}
-
-.profile-summary-row + .profile-summary-row {
-  border-top: 1px solid var(--border);
-}
-
-.profile-summary-label {
-  flex: 0 0 auto;
-  color: var(--fg-muted);
-  font-size: var(--fs-t1);
-  font-weight: 500;
-}
-
-.profile-summary-value {
-  min-width: 0;
-  color: var(--fg-strong);
-  font-size: var(--fs-t2);
-  font-weight: 500;
-  text-align: right;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 
