@@ -62,7 +62,7 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
   return <><DashNav active="events" /><main className="dash-page event-attendees-page"><div className="shell dash-shell">
     <header className="event-attendees-heading"><div><h1>{event.name}</h1><span>{formatEventDateTimeKst(event.starts_at)} · 확정 {activeCount}{event.capacity ? ` / ${event.capacity}명` : "명"}</span></div><Link href={`/events/${event.slug}`} target="_blank">공개 페이지 ↗</Link></header>
     <EventManagementLayout
-      overview={<EventOverview name={event.name} startsAt={formatEventDateTimeKst(event.starts_at)} endsAt={event.ends_at ? formatEventDateTimeKst(event.ends_at) : null} location={event.location} host={event.host} category={event.category} capacity={event.capacity} confirmed={activeCount} pending={registrations.filter((r) => r.status === "pending").length} waitlisted={registrations.filter((r) => r.status === "waitlisted").length} registrations={registrations} slug={event.slug} />}
+      overview={<EventOverview startsAt={formatEventDateTimeKst(event.starts_at)} endsAt={event.ends_at ? formatEventDateTimeKst(event.ends_at) : null} location={event.location} host={event.host} category={event.category} capacity={event.capacity} confirmed={activeCount} pending={registrations.filter((r) => r.status === "pending").length} waitlisted={registrations.filter((r) => r.status === "waitlisted").length} registrations={registrations} slug={event.slug} />}
       attendees={<section className="event-attendee-card">
         <header className="event-attendee-card-head"><h2>신청자 <b>{registrations.length}명</b></h2></header>
         <EventAttendeeList registrations={registrations} eventSlug={event.slug} />

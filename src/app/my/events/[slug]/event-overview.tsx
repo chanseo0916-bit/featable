@@ -11,7 +11,6 @@ interface RecentRegistration {
 }
 
 export function EventOverview({
-  name,
   startsAt,
   endsAt,
   location,
@@ -24,7 +23,6 @@ export function EventOverview({
   registrations,
   slug,
 }: {
-  name: string;
   startsAt: string;
   endsAt: string | null;
   location: string;
