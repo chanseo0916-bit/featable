@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TeamProfileCard } from "@/components/team-profile-card";
 import { SeedSelect } from "@/components/seed-select";
+import { Snackbar } from "@/components/snackbar";
 import { updateFounderProfile, type ProfileInput } from "./actions";
 
 export interface ProfileEditorInitial extends ProfileInput {
@@ -256,11 +257,12 @@ export function ProfileEditor({
                                           </fieldset>
                                         )}
 
-                    {notice && (
-                      <p className={`mt-6 rounded-lg px-4 py-3 text-sm ${notice.ok ? "bg-accent-soft text-accent" : "bg-red-50 text-red-600"}`}>
-                        {notice.text}
-                      </p>
-                    )}
+                    <Snackbar
+                      open={!!notice}
+                      variant={notice?.ok ? "positive" : "critical"}
+                      message={notice?.text || ""}
+                      onClose={() => setNotice(null)}
+                    />
 
                     <div className="profile-save-bar">
                       <button
