@@ -82,20 +82,32 @@ export function EventAttendeeList({ registrations, eventSlug }: { registrations:
               <article className="event-attendee-row" key={item.id}>
                 <i className="event-attendee-index">{String(index + 1).padStart(2, "0")}</i>
                 <div className="event-attendee-main">
-                  <strong>{item.applicant_name}</strong>
-                  <a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>
-                  {message && <p>{message}</p>}
-                  {answers.length > 0 && (
-                    <div className="event-attendee-answers">
-                      {answers.map((answer) => (
-                        <span key={answer.label} className="event-attendee-answer"><b>{answer.label}</b>{answer.value}</span>
-                      ))}
+                  <div className="event-attendee-head">
+                    <div className="event-attendee-identity">
+                      <strong>{item.applicant_name}</strong>
+                      <a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>
+                    </div>
+                    <div className="event-attendee-meta">
+                      <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
+                      <Badge tone={REG_TONE[item.status]}>{statusLabel[item.status]}</Badge>
+                    </div>
+                  </div>
+                  {(message || answers.length > 0) && (
+                    <div className="event-attendee-detail">
+                      {message && <p className="event-attendee-message">{message}</p>}
+                      {answers.length > 0 && (
+                        <div className="event-attendee-answers">
+                          {answers.map((answer) => (
+                            <span key={answer.label} className="event-attendee-answer"><b>{answer.label}</b>{answer.value}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-                <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
-                <Badge tone={REG_TONE[item.status]}>{statusLabel[item.status]}</Badge>
-                {(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={eventSlug} />}
+                {(item.status === "pending" || item.status === "waitlisted") && (
+                  <div className="event-attendee-actions"><RegistrationControls registrationId={item.id} eventSlug={eventSlug} /></div>
+                )}
               </article>
             );
           })}

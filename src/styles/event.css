@@ -165,23 +165,23 @@
 }
 
 .event-attendee-row {
-  min-height: 64px;
-  padding: 16px 4px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px 14px;
+  padding: 18px 4px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-areas: "idx main actions";
+  gap: 10px 12px;
+  align-items: start;
   border-top: 1px solid var(--border);
 }
 
 .event-attendee-rows article:first-child { border-top: 0; }
 
 .event-attendee-index {
-  flex: 0 0 28px;
+  grid-area: idx;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--gray-200);
   color: var(--fg-muted);
@@ -191,18 +191,49 @@
 }
 
 .event-attendee-main {
-  flex: 1 1 auto;
+  grid-area: main;
+  min-width: 0;
+}
+
+.event-attendee-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.event-attendee-identity {
   min-width: 0;
   display: grid;
   gap: 2px;
 }
 
-.event-attendee-main strong { color: var(--fg-strong); font-size: var(--fs-t3); font-weight: 700; }
-.event-attendee-main a { color: var(--fg-muted); font-size: var(--fs-t2); overflow-wrap: anywhere; }
-.event-attendee-main a:hover { color: var(--accent); }
-.event-attendee-main p {
-  margin: 6px 0 0;
-  color: var(--fg-muted);
+.event-attendee-identity strong { color: var(--fg-strong); font-size: var(--fs-t4); font-weight: 700; line-height: 1.3; }
+.event-attendee-identity a { color: var(--fg-muted); font-size: var(--fs-t2); overflow-wrap: anywhere; }
+.event-attendee-identity a:hover { color: var(--accent); }
+
+.event-attendee-meta {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.event-attendee-date {
+  color: var(--fg-subtle);
+  font-size: var(--fs-t1);
+  white-space: nowrap;
+}
+
+.event-attendee-detail { margin-top: 8px; }
+
+.event-attendee-message {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 2px solid var(--accent);
+  background: var(--gray-100);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--fg-default);
   font-size: var(--fs-t1);
   line-height: 1.55;
   white-space: pre-line;
@@ -212,11 +243,14 @@
   overflow: hidden;
 }
 
-.event-attendee-date {
-  flex: 0 0 auto;
-  color: var(--fg-subtle);
-  font-size: var(--fs-t1);
-  white-space: nowrap;
+.event-attendee-actions {
+  grid-area: actions;
+  align-self: center;
+}
+
+@media (max-width: 640px) {
+  .event-attendee-row { grid-template-columns: 32px minmax(0, 1fr); grid-template-areas: "idx main" "idx actions"; }
+  .event-attendee-actions { justify-self: end; }
 }
 
 .event-registration-controls {
