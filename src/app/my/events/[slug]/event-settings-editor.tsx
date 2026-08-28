@@ -2,13 +2,7 @@
 
 import { useState, useTransition, type ChangeEvent } from "react";
 import { updateEventPresentation, type RegistrationField } from "./actions";
-
-function localDateTime(value: string | null) {
-  if (!value) return "";
-  const date = new Date(value);
-  const offset = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-}
+import { formatKstDateTimeInput } from "@/lib/datetime";
 
 type EventSettingsProps = {
   eventId: string; slug: string; name: string; host: string; description: string;
@@ -23,8 +17,8 @@ export function EventSettingsEditor(props: EventSettingsProps) {
   const [name, setName] = useState(props.name);
   const [host, setHost] = useState(props.host);
   const [description, setDescription] = useState(props.description);
-  const [startsAt, setStartsAt] = useState(localDateTime(props.startsAt));
-  const [endsAt, setEndsAt] = useState(localDateTime(props.endsAt));
+  const [startsAt, setStartsAt] = useState(formatKstDateTimeInput(props.startsAt));
+  const [endsAt, setEndsAt] = useState(formatKstDateTimeInput(props.endsAt));
   const [location, setLocation] = useState(props.location);
   const [isOnline, setIsOnline] = useState(props.isOnline);
   const [category, setCategory] = useState(props.category);

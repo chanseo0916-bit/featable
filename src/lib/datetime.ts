@@ -7,6 +7,8 @@
  */
 
 const KST = "Asia/Seoul";
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+const DATE_TIME_LOCAL_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
 
 const dateOnly = new Intl.DateTimeFormat("ko-KR", {
   timeZone: KST, year: "numeric", month: "short", day: "numeric",
@@ -25,6 +27,38 @@ const eventDateTime = new Intl.DateTimeFormat("ko-KR", {
 function parse(value: string): Date | null {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * datetime-local 값을 한국 현지 시각으로 해석합니다.
+ *
+ * datetime-local에는 타임존 정보가 없으므로 `new Date(value)`로 파싱하면
+ * 실행 환경(브라우저/KST 또는 Workers/UTC)에 따라 서로 다른 순간이 됩니다.
+ */
+export function parseKstDateTimeInput(value: string): Date | null {
+  const match = DATE_TIME_LOCAL_PATTERN.exec(value.trim());
+  if (!match) return null;
+
+  const [, year, month, day, hour, minute, second = "0"] = match;
+  const parts = [year, month, day, hour, minute, second].map(Number);
+  const [y, m, d, h, min, s] = parts;
+  const localTimestamp = Date.UTC(y, m - 1, d, h, min, s);
+  const localDate = new Date(localTimestamp);
+  const isValid = localDate.getUTCFullYear() === y
+    && localDate.getUTCMonth() === m - 1
+    && localDate.getUTCDate() === d
+    && localDate.getUTCHours() === h
+    && localDate.getUTCMinutes() === min
+    && localDate.getUTCSeconds() === s;
+
+  return isValid ? new Date(localTimestamp - KST_OFFSET_MS) : null;
+}
+
+/** 저장된 절대 시각을 한국 시간의 datetime-local 입력값으로 변환합니다. */
+export function formatKstDateTimeInput(value: string | null): string {
+  if (!value) return "";
+  const date = parse(value);
+  return date ? new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 16) : "";
 }
 
 /** "2026년 8월 26일" */

@@ -3,6 +3,7 @@
 import { useState, useTransition, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { deletePartnerSubmission, savePartnerSubmission, type PartnerSubmissionPayload, type PartnerSubmissionType } from "./actions";
+import { formatEventDateTimeKst, parseKstDateTimeInput } from "@/lib/datetime";
 
 export interface PartnerSubmissionRow {
   id: string;
@@ -230,12 +231,13 @@ export function PartnerSubmissionForm({ submissions, initialId, initialType = "e
 function EventLivePreview({ payload }: { payload: PartnerSubmissionPayload }) {
   const gallery = Array.isArray(payload.galleryUrls) ? payload.galleryUrls : [];
   const date = String(payload.startsAt || "");
+  const parsedDate = parseKstDateTimeInput(date);
   return <aside className="event-live-preview">
     <header><span>LIVE PREVIEW</span><strong>참가자에게 보이는 화면</strong></header>
     <div className="event-live-preview-screen">
       <div className="event-live-preview-poster">{payload.coverUrl ? <img src={String(payload.coverUrl)} alt="" /> : <span>포스터를 추가해주세요</span>}</div>
       <div className="event-live-preview-copy"><small>{String(payload.category || "EVENT")}</small><h2>{String(payload.name || "행사명을 입력해주세요")}</h2><p>{String(payload.description || "행사를 소개하면 이곳에서 참가자가 내용을 미리 확인할 수 있어요.")}</p>
-        <dl><div><dt>일시</dt><dd>{date ? new Date(date).toLocaleString("ko-KR") : "일시 미정"}</dd></div><div><dt>장소</dt><dd>{String(payload.location || (payload.isOnline ? "온라인" : "장소 미정"))}</dd></div><div><dt>주최</dt><dd>{String(payload.host || "주최 기관")}</dd></div></dl>
+        <dl><div><dt>일시</dt><dd>{parsedDate ? formatEventDateTimeKst(parsedDate.toISOString()) : "일시 미정"}</dd></div><div><dt>장소</dt><dd>{String(payload.location || (payload.isOnline ? "온라인" : "장소 미정"))}</dd></div><div><dt>주최</dt><dd>{String(payload.host || "주최 기관")}</dd></div></dl>
         <button type="button">신청하기 →</button>
       </div>
       {gallery.length > 0 && <div className="event-live-preview-gallery">{gallery.slice(0, 3).map((url) => <img src={url} alt="" key={url} />)}</div>}

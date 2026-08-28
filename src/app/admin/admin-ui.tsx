@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatDateKst, formatKstDateTimeInput } from "@/lib/datetime";
 
 export type PublishStatus = "draft" | "published" | "hidden";
 
@@ -19,14 +20,11 @@ export function AdminPageHeader({ eyebrow, title, description, publicHref }: {
 }
 
 export function formatAdminDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "short", day: "numeric" }).format(new Date(value));
+  return formatDateKst(value);
 }
 
 export function toAdminDateTimeInput(value: string) {
-  return new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", hour12: false,
-  }).format(new Date(value)).replace(" ", "T");
+  return formatKstDateTimeInput(value);
 }
 
 export const ADMIN_PAGE_SIZE = 12;

@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getEvents } from "@/lib/data";
 import { EventRegistrationCard } from "../registration-card";
+import { formatEventDateTimeKst } from "@/lib/datetime";
 
 export const metadata: Metadata = { title: "행사 신청", robots: { index: false, follow: false } };
 
@@ -25,7 +26,7 @@ export default async function EventApplyPage({ params }: { params: Promise<{ slu
   return <main className="event-apply-page">
     <header><Link href={`/events/${slug}`}>← 행사로 돌아가기</Link><div><span>신청하기</span><strong>{event.name}</strong></div><Link href="/">Featable</Link></header>
     <section className="event-apply-layout">
-      <aside><img src={event.coverUrl} alt="" /><span>{event.category}</span><h1>{event.name}</h1><dl><div><dt>일시</dt><dd>{new Date(event.startsAt).toLocaleString("ko-KR")}</dd></div><div><dt>장소</dt><dd>{event.location}</dd></div><div><dt>주최</dt><dd>{event.host}</dd></div></dl></aside>
+      <aside><img src={event.coverUrl} alt="" /><span>{event.category}</span><h1>{event.name}</h1><dl><div><dt>일시</dt><dd>{formatEventDateTimeKst(event.startsAt)}</dd></div><div><dt>장소</dt><dd>{event.location}</dd></div><div><dt>주최</dt><dd>{event.host}</dd></div></dl></aside>
       <EventRegistrationCard eventId={event.id} slug={event.slug} host={event.host} mode="internal" capacity={event.capacity} approvalMode={event.approvalMode ?? "instant"} closed={event.registrationClosed ?? false} isPaid={event.isPaid} paymentAccount={event.paymentAccount} paymentNotice={event.paymentNotice} registrationFields={event.registrationFields} user={user ? { name: profile?.full_name?.trim() || user.user_metadata?.full_name || "Featable 멤버", email: user.email ?? "" } : undefined} registration={registration ? { status: registration.status as "verification_pending" | "pending" | "confirmed" | "waitlisted" | "rejected" | "cancelled" } : undefined} formOnly />
     </section>
   </main>;

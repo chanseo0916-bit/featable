@@ -6,6 +6,7 @@ import { slugify, randomSuffix } from "@/lib/slug";
 import { conciseSeoDescription, seoTitle } from "@/lib/content-seo";
 import { syncBizinfoSupportPrograms as runBizinfoSync } from "@/lib/bizinfo-sync";
 import { queueInterviewCampaign } from "@/lib/interview-campaigns";
+import { parseKstDateTimeInput } from "@/lib/datetime";
 
 function revalidateCuration() {
   revalidatePath("/");
@@ -147,13 +148,14 @@ export async function updateAdminContent(
     changed = Boolean(result.data);
   } else if (table === "events") {
     const startsAt = clean(input.startsAt);
-    if (!startsAt || Number.isNaN(Date.parse(startsAt))) return { error: "행사 일시를 확인해주세요." };
+    const parsedStartsAt = parseKstDateTimeInput(startsAt);
+    if (!parsedStartsAt) return { error: "행사 일시를 확인해주세요." };
     const registrationMode = clean(input.registrationMode) === "internal" ? "internal" : "external";
     if (registrationMode === "external" && !isWebUrl(clean(input.applyUrl))) return { error: "외부 신청 URL을 확인해주세요." };
     const capacity = clean(input.capacity) ? Number(clean(input.capacity)) : null;
     if (capacity !== null && (!Number.isInteger(capacity) || capacity < 1)) return { error: "정원은 1명 이상으로 입력해주세요." };
     const result = await supabase.from("events").update({
-      name: clean(input.name), host: clean(input.host), starts_at: new Date(startsAt).toISOString(),
+      name: clean(input.name), host: clean(input.host), starts_at: parsedStartsAt.toISOString(),
       location: clean(input.location), is_online: Boolean(input.isOnline), fee: clean(input.fee) || null,
       category: clean(input.category) || "기타", audience: clean(input.audience) || null,
       apply_url: registrationMode === "internal" ? null : clean(input.applyUrl),
@@ -265,7 +267,8 @@ export async function createEvent(input: EventInput): Promise<{ error?: string }
   if (!input.name.trim() || !input.startsAt) {
     return { error: "행사명과 일시는 필수입니다." };
   }
-  if (Number.isNaN(Date.parse(input.startsAt))) return { error: "행사 일시를 확인해주세요." };
+  const startsAt = parseKstDateTimeInput(input.startsAt);
+  if (!startsAt) return { error: "행사 일시를 확인해주세요." };
   if (input.registrationMode === "external" && !isWebUrl(input.applyUrl?.trim() ?? "")) return { error: "외부 신청 URL을 확인해주세요." };
   const capacity = input.capacity?.trim() ? Number(input.capacity) : null;
   if (capacity !== null && (!Number.isInteger(capacity) || capacity < 1)) return { error: "정원은 1명 이상으로 입력해주세요." };
@@ -275,7 +278,7 @@ export async function createEvent(input: EventInput): Promise<{ error?: string }
     slug,
     name: input.name.trim(),
     host: input.host.trim(),
-    starts_at: new Date(input.startsAt).toISOString(),
+    starts_at: startsAt.toISOString(),
     location: input.location.trim() || (input.isOnline ? "온라인" : ""),
     is_online: input.isOnline,
     fee: input.fee?.trim() || null,

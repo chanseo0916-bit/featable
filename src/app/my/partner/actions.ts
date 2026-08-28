@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notifySlackPartnerSubmission } from "@/lib/slack";
 import { randomSuffix, slugify } from "@/lib/slug";
+import { parseKstDateTimeInput } from "@/lib/datetime";
 
 export type PartnerSubmissionType = "event" | "support" | "community";
 export type PartnerSubmissionPayload = Record<string, string | boolean | string[]>;
@@ -19,8 +20,7 @@ const clean = (value: unknown) => typeof value === "string" ? value.trim() : "";
 function parseDate(value: unknown) {
   const raw = clean(value);
   if (!raw) return null;
-  const timestamp = Date.parse(raw);
-  return Number.isNaN(timestamp) ? null : new Date(timestamp);
+  return parseKstDateTimeInput(raw);
 }
 function stableValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stableValue);
@@ -102,9 +102,6 @@ function validate(type: PartnerSubmissionType, payload: PartnerSubmissionPayload
     const dateError = validateEventDates(payload);
     if (dateError) return dateError;
     if (!clean(payload.host)) return "주최 기관을 입력해주세요.";
-    if (!clean(payload.startsAt) || Number.isNaN(Date.parse(clean(payload.startsAt)))) return "행사 일시를 확인해주세요.";
-    if (clean(payload.deadline) && Number.isNaN(Date.parse(clean(payload.deadline)))) return "신청 마감 일시를 확인해주세요.";
-    if (clean(payload.deadline) && new Date(clean(payload.deadline)).getTime() > new Date(clean(payload.startsAt)).getTime()) return "신청 마감은 행사 시작 전으로 설정해주세요.";
     if (payload.registrationMode !== "internal" && !isWebUrl(clean(payload.applyUrl))) return "신청 링크를 http:// 또는 https://로 입력해주세요.";
     if (payload.registrationMode === "internal" && clean(payload.capacity)) {
       const capacity = Number(clean(payload.capacity));

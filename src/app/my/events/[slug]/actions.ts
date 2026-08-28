@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { parseKstDateTimeInput } from "@/lib/datetime";
 
 export type RegistrationField = {
   id: string;
@@ -53,12 +54,13 @@ export async function updateEventPresentation(input: {
   if (input.isPaid && !input.paymentAccount.trim()) return { ok: false, error: "유료 행사에는 입금 계좌번호가 필요합니다." };
   const name = input.name.trim().slice(0, 120);
   const host = input.host.trim().slice(0, 120);
-  const startsAt = new Date(input.startsAt);
-  const endsAt = input.endsAt ? new Date(input.endsAt) : null;
+  const startsAt = parseKstDateTimeInput(input.startsAt);
+  const endsAt = input.endsAt ? parseKstDateTimeInput(input.endsAt) : null;
   const capacity = input.capacity.trim() ? Number(input.capacity) : null;
   if (!name || !host) return { ok: false, error: "행사명과 주최자명을 입력해주세요." };
-  if (Number.isNaN(startsAt.getTime())) return { ok: false, error: "행사 시작 일시를 확인해주세요." };
-  if (endsAt && (Number.isNaN(endsAt.getTime()) || endsAt < startsAt)) return { ok: false, error: "행사 종료 일시는 시작 이후여야 합니다." };
+  if (!startsAt) return { ok: false, error: "행사 시작 일시를 확인해주세요." };
+  if (input.endsAt && !endsAt) return { ok: false, error: "행사 종료 일시를 확인해주세요." };
+  if (endsAt && endsAt < startsAt) return { ok: false, error: "행사 종료 일시는 시작 이후여야 합니다." };
   if (capacity !== null && (!Number.isInteger(capacity) || capacity < 1)) return { ok: false, error: "정원은 1명 이상으로 입력해주세요." };
   if (!(["internal", "external", "closed"] as string[]).includes(input.registrationMode)) return { ok: false, error: "신청 방식을 확인해주세요." };
   if (input.registrationMode === "external") {
@@ -81,5 +83,7 @@ export async function updateEventPresentation(input: {
   revalidatePath(`/events/${input.slug}`);
   revalidatePath(`/events/${input.slug}/apply`);
   revalidatePath(`/my/events/${input.slug}`);
+  revalidatePath("/events");
+  revalidatePath("/");
   return { ok: true };
 }
