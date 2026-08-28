@@ -76,22 +76,22 @@ export function EventSettingsEditor(props: EventSettingsProps) {
     <header><div><h2>행사 정보와 신청 설정</h2><p>공동 주최자도 공개 정보, 신청 폼과 참가비 설정을 함께 수정할 수 있어요.</p></div><button className="button" type="button" onClick={save} disabled={pending || uploadingCover}>{pending ? "저장 중…" : "변경사항 저장"}</button></header>
 
     <div className="event-settings-block">
-      <header className="event-settings-block-head"><h3>행사 기본 정보</h3><p>공개 페이지에 바로 반영됩니다.</p></header>
+      <header className="event-settings-block-head"><h3>행사 기본 정보</h3></header>
       <div className="event-fields">
         <div className="seed-field event-field-half"><label>행사명</label><input className={input} value={name} onChange={(event) => setName(event.target.value)} placeholder="예: 브랜드 런칭 데이" /></div>
         <div className="seed-field event-field-half"><label>주최자·기관</label><input className={input} value={host} onChange={(event) => setHost(event.target.value)} placeholder="예: Featable, OO 스튜디오" /></div>
-        <div className="seed-field event-field-full"><label>카테고리</label><input className={input} value={category} onChange={(event) => setCategory(event.target.value)} placeholder="예: 패션, 푸드, SaaS" /></div>
+        <div className="seed-field event-field-half"><label>카테고리</label><input className={input} value={category} onChange={(event) => setCategory(event.target.value)} placeholder="예: 패션, 푸드, SaaS" /></div>
+        <div className="seed-field event-field-half"><label>정원</label><input className={input} type="number" min="1" value={capacity} onChange={(event) => setCapacity(event.target.value)} placeholder="비워두면 제한 없음" /></div>
         <div className="seed-field event-field-half"><label>시작 일시</label><input className={input} type="datetime-local" value={startsAt} onChange={(event) => setStartsAt(event.target.value)} /></div>
         <div className="seed-field event-field-half"><label>종료 일시</label><input className={input} type="datetime-local" value={endsAt} onChange={(event) => setEndsAt(event.target.value)} /></div>
         <div className="seed-field event-field-half"><label>{isOnline ? "온라인 참여 안내" : "행사 장소"}</label><input className={input} value={location} onChange={(event) => setLocation(event.target.value)} placeholder={isOnline ? "Zoom 링크, 접속 안내 등" : "서울 성동구 OO빌딩 3층"} /></div>
-        <div className="seed-field event-field-half"><label>정원</label><input className={input} type="number" min="1" value={capacity} onChange={(event) => setCapacity(event.target.value)} placeholder="비워두면 제한 없음" /></div>
-        <div className="seed-field event-field-full"><label className="event-field-checkbox"><input type="checkbox" checked={isOnline} onChange={(event) => setIsOnline(event.target.checked)} /> 온라인 행사입니다</label></div>
+        <div className="seed-field event-field-half"><label className="event-field-checkbox"><input type="checkbox" checked={isOnline} onChange={(event) => setIsOnline(event.target.checked)} /> 온라인 행사</label></div>
         <div className="seed-field event-field-full"><label>행사 소개</label><textarea className={`${input} min-h-32 h-auto py-3 leading-7 resize-y`} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="이런 분에게 추천해요, 무엇을 가져갈 수 있는지 알려주세요." /></div>
       </div>
     </div>
 
     <div className="event-settings-block">
-      <header className="event-settings-block-head"><h3>신청 방식</h3><p>Featable 신청 / 외부 링크 / 신청 마감 중 선택해요.</p></header>
+      <header className="event-settings-block-head"><h3>신청 방식</h3></header>
       <div className="event-fields">
         <div className="seed-field event-field-half"><label>신청 받기</label><SeedSelect value={registrationMode} onChange={setRegistrationMode} options={[{ value: "internal", label: "Featable에서 신청" }, { value: "external", label: "외부 링크로 신청" }, { value: "closed", label: "신청 마감" }]} /></div>
         {registrationMode === "internal" && <div className="seed-field event-field-half"><label>승인 방식</label><SeedSelect value={approvalMode} onChange={setApprovalMode} options={[{ value: "instant", label: "즉시 확정" }, { value: "manual", label: "주최자 승인" }]} disabled={isPaid} /></div>}
@@ -100,23 +100,24 @@ export function EventSettingsEditor(props: EventSettingsProps) {
     </div>
 
     <div className="event-settings-block">
-      <header className="event-settings-block-head"><h3>대표 포스터</h3><p>행사 목록과 공개 페이지의 메인 표지로 사용됩니다.</p></header>
+      <header className="event-settings-block-head"><h3>대표 포스터</h3><p>행사 목록과 공개 페이지의 메인 표지로 사용돼요.</p></header>
       <label className="event-image-upload">{coverUrl ? <img src={coverUrl} alt="대표 포스터 미리보기" /> : <b>포스터 이미지 선택</b>}<small>{uploadingCover ? "업로드 중…" : "JPG, PNG, WEBP · 최대 15MB · 클릭해서 교체"}</small><input type="file" accept="image/*" disabled={pending || uploadingCover} onChange={uploadCover} /></label>
     </div>
 
     <div className="event-settings-block">
-      <header className="event-settings-block-head"><h3>상세 이미지 순서</h3><p>첫 번째 이미지가 공개 페이지에서 가장 먼저 보여집니다.</p></header>
+      <header className="event-settings-block-head"><h3>상세 이미지 순서</h3><p>첫 번째 이미지가 공개 페이지에서 가장 먼저 보여요.</p></header>
       {gallery.length ? <div className="event-settings-gallery">{gallery.map((url, index) => <figure key={url}><img src={url} alt={`상세 이미지 ${index + 1}`} /><figcaption><b>{String(index + 1).padStart(2, "0")}</b><button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0}>←</button><button type="button" onClick={() => moveImage(index, 1)} disabled={index === gallery.length - 1}>→</button></figcaption></figure>)}</div> : <p className="event-settings-empty">등록된 상세 이미지가 없습니다. 등록 도구에서 이미지를 먼저 추가해주세요.</p>}
     </div>
 
     <div className="event-settings-block">
-      <header className="event-settings-block-head"><h3>참가 신청 폼</h3><p>이름·이메일·개인정보 동의는 기본으로 포함됩니다. 아래 질문을 추가로 받을 수 있어요.</p></header>
+      <header className="event-settings-block-head"><h3>참가 신청 폼</h3><p>이름·이메일·개인정보 동의는 기본으로 포함됩니다.</p></header>
       <div className="event-form-fields">{fields.map((field) => <article key={field.id}><div className="event-form-field-head"><input value={field.label} onChange={(event) => updateField(field.id, { label: event.target.value })} placeholder="질문 제목 (예: 회사명)" /><button type="button" onClick={() => removeField(field.id)}>삭제</button></div><div className="event-form-field-options"><select value={field.type} onChange={(event) => updateField(field.id, { type: event.target.value as RegistrationField["type"] })}><option value="text">짧은 답변</option><option value="textarea">긴 답변</option><option value="select">선택형</option></select><input value={field.placeholder ?? ""} onChange={(event) => updateField(field.id, { placeholder: event.target.value })} placeholder="입력 안내 문구 (선택)" /><label><input type="checkbox" checked={field.required} onChange={(event) => updateField(field.id, { required: event.target.checked })} /> 필수</label></div>{field.type === "select" && <input className="event-form-field-select-options" value={(field.options ?? []).join(", ")} onChange={(event) => updateField(field.id, { options: event.target.value.split(",").map((option) => option.trim()) })} placeholder="선택지: 예비창업자, 창업가, 투자자" />}</article>)}<button className="event-add-field" type="button" onClick={addField} disabled={fields.length >= 8}>＋ 질문 추가 {fields.length >= 8 && "(최대 8개)"}</button></div>
     </div>
 
     <div className="event-settings-block">
-      <header className="event-settings-block-head"><h3>참가비</h3><p>유료 행사로 설정하면 승인 방식이 자동으로 ‘주최자 승인 후 확정’으로 바뀝니다.</p></header>
-      <label className="event-field-checkbox"><input type="checkbox" checked={isPaid} onChange={(event) => setIsPaid(event.target.checked)} /> 유료 행사입니다</label>
+      <header className="event-settings-block-head"><h3>참가비</h3></header>
+      <label className="event-field-checkbox"><input type="checkbox" checked={isPaid} onChange={(event) => setIsPaid(event.target.checked)} /> 유료 행사</label>
+      {isPaid && <p className="event-payment-note">유료로 설정하면 승인 방식은 자동으로 ‘주최자 승인 후 확정’으로 바뀌어요.</p>}
       {isPaid && <div className="event-fields" style={{ marginTop: 16 }}>
         <div className="seed-field event-field-half"><label>입금 계좌</label><input className={input} value={paymentAccount} onChange={(event) => setPaymentAccount(event.target.value)} placeholder="은행명 000-0000-0000 (예금주)" required /></div>
         <div className="seed-field event-field-full"><label>입금 안내</label><textarea className={`${input} min-h-24 h-auto py-3 resize-y`} value={paymentNotice} onChange={(event) => setPaymentNotice(event.target.value)} placeholder="입금자명과 입금 기한을 안내해주세요." /></div>
@@ -124,7 +125,7 @@ export function EventSettingsEditor(props: EventSettingsProps) {
     </div>
 
     {props.canDelete && <div className="event-settings-block">
-      <header className="event-settings-block-head"><h3>행사 삭제</h3><p>행사와 신청자 데이터, 공지 내역이 모두 삭제되며 되돌릴 수 없습니다.</p></header>
+      <header className="event-settings-block-head"><h3>행사 삭제</h3><p>되돌릴 수 없어요.</p></header>
       <EventDeleteButton eventId={eventId} slug={slug} name={name} />
     </div>}
 

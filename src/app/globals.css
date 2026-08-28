@@ -1666,8 +1666,8 @@ h1 em, h2 em { color: var(--accent); font-style: normal; }
   .event-apply-layout > .event-registration-panel { padding: 25px 20px; }
   .event-gallery-editor { grid-template-columns: repeat(3, 1fr); }
 }
-.event-attendees-heading { padding: 42px 0 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--border); }
-.event-attendees-heading h1 { margin: 8px 0; color: var(--fg-strong); font-size: var(--fs-t11); font-weight: 700; letter-spacing: -.03em; }
+.event-attendees-heading { padding: 36px 0 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--border); }
+.event-attendees-heading h1 { margin: 6px 0; color: var(--fg-strong); font-size: var(--fs-t10); font-weight: 700; letter-spacing: -.02em; }
 .event-attendees-heading span { margin-left: 8px; color: var(--fg-muted); font-size: var(--fs-t2); }
 .event-attendees-heading > a { color: var(--fg-default); font-size: var(--fs-t2); font-weight: 700; }
 .event-attendees-heading > a:hover { color: var(--accent); }

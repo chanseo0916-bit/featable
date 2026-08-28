@@ -137,20 +137,21 @@
 
 .event-attendee-card-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding-bottom: 22px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--border);
 }
 
 .event-attendee-card-head h2 {
   margin: 0;
   color: var(--fg-strong);
-  font-size: var(--fs-t8);
+  font-size: var(--fs-t7);
   font-weight: 700;
   letter-spacing: -.01em;
 }
+.event-attendee-card-head p { display: none; }
 
 .event-attendee-card-head h2 b { color: var(--accent); font-weight: 700; }
 .event-attendee-card-head p { margin: 0; color: var(--fg-muted); font-size: var(--fs-t1); }
@@ -335,6 +336,8 @@
 
 .event-field-checkbox { display: inline-flex; align-items: center; gap: 10px; color: var(--fg-strong); font-size: var(--fs-t3); font-weight: 700; white-space: nowrap; cursor: pointer; }
 .event-field-checkbox input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+.event-payment-note { margin: 8px 0 0; color: var(--fg-muted); font-size: var(--fs-t1); }
 
 
 .event-settings-block > div:first-child { display: grid; gap: 5px; margin-bottom: 16px; }
@@ -934,7 +937,9 @@
 .event-announcement-composer > header p { margin: 0; color: var(--fg-muted); font-size: var(--fs-t2); line-height: 1.6; }
 
 
-.event-announcement-composer > header em { padding: 7px 10px; border-radius: var(--radius-md); background: var(--warning-bg); color: var(--warning); font-size: var(--fs-t1); font-style: normal; font-weight: 700; white-space: nowrap; }
+.event-announcement-composer > header em { display: none; }
+
+.event-announcement-composer > header p { margin: 6px 0 0; color: var(--fg-muted); font-size: var(--fs-t2); line-height: 1.6; }
 
 
 .event-announcement-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); }

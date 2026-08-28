@@ -66,8 +66,7 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
     </div>
     <section className="event-attendee-card">
       <header className="event-attendee-card-head">
-        <div><h2>신청자 <b>{registrations.length}명</b></h2></div>
-        <p>이름과 이메일은 행사 신청 관리 목적으로만 사용해주세요.</p>
+        <h2>신청자 <b>{registrations.length}명</b></h2>
       </header>
       <EventAttendeeList registrations={registrations} eventSlug={event.slug} />
     </section>
