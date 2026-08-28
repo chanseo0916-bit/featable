@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DashNav } from "../../dash-nav";
-import { RegistrationControls } from "../registration-controls";
+import { EventAttendeeList } from "./attendee-list";
 import { EventSettingsEditor } from "./event-settings-editor";
 import type { RegistrationField } from "./actions";
 import { EventCohostManager } from "./cohost-manager";
@@ -10,7 +10,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { EventAnnouncementComposer } from "./announcement-composer";
 import type { AnnouncementRecipientFilter } from "./announcement-actions";
 import { formatEventDateTimeKst } from "@/lib/datetime";
-import { Badge } from "@/components/badge";
 
 interface RegistrationRow {
   id: string;
@@ -19,34 +18,6 @@ interface RegistrationRow {
   applicant_email: string;
   note: string | null;
   applied_at: string;
-}
-
-const statusLabel = { pending: "승인 대기", confirmed: "승인", waitlisted: "대기", rejected: "거절", cancelled: "취소" };
-
-const REG_TONE = { pending: "warning", confirmed: "positive", waitlisted: "informative", rejected: "critical", cancelled: "neutral" } as const;
-
-const shortDate = (iso: string) => {
-  const date = new Date(iso);
-  return `${date.toLocaleDateString("ko-KR", { month: "long", day: "numeric" })} · ${date.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" })}`;
-};
-
-// 신청 note는 `[메시지]\n\n추가 질문\n질문: 답변` 형식, 또는 답변만 있으면 `추가 질문\n질문: 답변`으로 시작 → 메시지/답변 분리
-function splitNote(note: string | null) {
-  if (!note) return { message: "", answers: [] as { label: string; value: string }[] };
-  const marker = "추가 질문";
-  const idx = note.indexOf(marker);
-  if (idx === -1) return { message: note.trim(), answers: [] };
-  const message = note.slice(0, idx).replace(/[\s\n]+$/, "");
-  const after = note.slice(idx + marker.length).replace(/^\s*\n+/, "");
-  const answers = after
-    .split("\n")
-    .map((line) => {
-      const sep = line.indexOf(": ");
-      if (sep < 1) return null;
-      return { label: line.slice(0, sep).trim(), value: line.slice(sep + 2).trim() };
-    })
-    .filter((a): a is { label: string; value: string } => !!a && !!a.value);
-  return { message, answers };
 }
 
 export default async function EventRegistrationsPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -98,35 +69,7 @@ export default async function EventRegistrationsPage({ params }: { params: Promi
         <div><span className="event-manage-eyebrow">ATTENDEES</span><h2>신청자 <b>{registrations.length}명</b></h2></div>
         <p>이름과 이메일은 행사 신청 관리 목적으로만 사용해주세요.</p>
       </header>
-      {registrations.length ? (
-        <div className="event-attendee-rows">
-          {registrations.map((item, index) => {
-            const { message, answers } = splitNote(item.note);
-            return (
-              <article className="event-attendee-row" key={item.id}>
-                <i className="event-attendee-index">{String(index + 1).padStart(2, "0")}</i>
-                <div className="event-attendee-main">
-                  <strong>{item.applicant_name}</strong>
-                  <a href={`mailto:${item.applicant_email}`}>{item.applicant_email}</a>
-                  {message && <p>{message}</p>}
-                  {answers.length > 0 && (
-                    <div className="event-attendee-answers">
-                      {answers.map((answer) => (
-                        <span key={answer.label} className="event-attendee-answer"><b>{answer.label}</b>{answer.value}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <time className="event-attendee-date">{shortDate(item.applied_at)}</time>
-                <Badge tone={REG_TONE[item.status]}>{statusLabel[item.status]}</Badge>
-                {(item.status === "pending" || item.status === "waitlisted") && <RegistrationControls registrationId={item.id} eventSlug={event.slug} />}
-              </article>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="my-event-empty"><strong>아직 신청자가 없어요.</strong><span>신청자가 생기면 이곳에서 바로 확인할 수 있습니다.</span></div>
-      )}
+      <EventAttendeeList registrations={registrations} eventSlug={event.slug} />
     </section>
     <EventAnnouncementComposer eventId={event.id} eventSlug={event.slug} eventName={event.name} counts={announcementCounts} history={announcementHistory} />
     <EventSettingsEditor eventId={event.id} slug={event.slug} name={event.name} host={event.host} description={event.description} startsAt={event.starts_at} endsAt={event.ends_at} location={event.location} isOnline={event.is_online} category={event.category} capacity={event.capacity} registrationMode={event.registration_mode} applyUrl={event.apply_url ?? ""} approvalMode={event.approval_mode} coverUrl={event.cover_url ?? ""} galleryUrls={(event.gallery_urls ?? []) as string[]} registrationFields={(event.registration_fields ?? []) as RegistrationField[]} isPaid={Boolean(event.is_paid)} paymentAccount={event.payment_account ?? ""} paymentNotice={event.payment_notice ?? ""} canDelete={event.submitted_by === user.id} />

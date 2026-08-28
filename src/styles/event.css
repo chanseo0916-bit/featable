@@ -288,6 +288,30 @@
 .event-attendee-answer b { color: var(--fg-muted); font-weight: 500; }
 
 
+.event-attendee-toolbar { margin-top: 16px; display: flex; align-items: center; gap: 12px; }
+
+
+.event-attendee-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  transition: border-color .15s;
+}
+
+.event-attendee-search:focus-within { border-color: var(--accent); }
+.event-attendee-search svg { width: 18px; height: 18px; flex: 0 0 auto; color: var(--fg-subtle); }
+.event-attendee-search input { flex: 1 1 auto; min-width: 0; height: 100%; border: 0; background: transparent; outline: none; color: var(--fg-strong); font: inherit; font-size: var(--fs-t2); }
+.event-attendee-search input::placeholder { color: var(--fg-subtle); }
+.event-attendee-count { flex: 0 0 auto; color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 700; }
+
+
 .event-settings-editor { margin-top: 24px; padding: 28px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--background); }
 
 
