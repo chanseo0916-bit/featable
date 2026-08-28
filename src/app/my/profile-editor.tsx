@@ -67,7 +67,7 @@ export function ProfileEditor({
         : "",
   );
   const [slug, setSlug] = useState(initial.slug);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(setupMode);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
@@ -133,7 +133,7 @@ export function ProfileEditor({
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
               {slug && (
-                <Link href={`/founders/${slug}`} className="button button-xsmall button-secondary whitespace-nowrap">
+                <Link href={`/founders/${slug}`} className="button button-xsmall button-soft whitespace-nowrap">
                   공개 프로필 보기 ↗
                 </Link>
               )}
@@ -146,6 +146,31 @@ export function ProfileEditor({
               </button>
             </div>
           </div>}
+
+          {!setupMode && !open && (
+            <div className="profile-summary">
+              <div className="profile-summary-row">
+                <span className="profile-summary-label">역할</span>
+                <span className="profile-summary-value">{form.role || "선택해주세요"}</span>
+              </div>
+              <div className="profile-summary-row">
+                <span className="profile-summary-label">한 줄 소개</span>
+                <span className="profile-summary-value">{form.headline || "아직 등록 전이에요"}</span>
+              </div>
+              <div className="profile-summary-row">
+                <span className="profile-summary-label">이야기</span>
+                <span className="profile-summary-value">{form.bio || "아직 등록 전이에요"}</span>
+              </div>
+              <div className="profile-summary-row">
+                <span className="profile-summary-label">링크</span>
+                <span className="profile-summary-value">
+                  {[form.instagram, form.x, form.linkedin, form.website].filter((v) => v && v.trim()).length > 0
+                    ? `${[form.instagram, form.x, form.linkedin, form.website].filter((v) => v && v.trim()).length}개 연결됨`
+                    : "아직 등록 전이에요"}
+                </span>
+              </div>
+            </div>
+          )}
 
           {open && (
                   <div className={setupMode ? "profile-setup-fields" : "profile-editor-open mt-8"}>
