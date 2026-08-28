@@ -22,18 +22,17 @@ function CardContent({ name, title, headline, avatarUrl, bio, label = "팀", met
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {avatarUrl ? <img src={avatarUrl} alt={name} /> : <div className="founder-spot-placeholder" aria-hidden>{name.slice(0, 1) || "T"}</div>}
       <div className="founder-spot-fade" aria-hidden />
-      <span className="team-card-label">{label}</span>
       {href && <span className="team-card-corner-action" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg>
       </span>}
     </div>
     <div className="founder-spot-body team-card-body">
-      <h3>{name}<span className="founder-spot-verified" title="Featable Team" aria-label="인증된 팀 프로필">✓</span></h3>
-      <strong>{title}</strong>
-      <div className="team-card-chips" aria-label="프로필 분류">
-        <span>{label}</span>
-        {meta && <span>{meta}</span>}
+      <div className="team-card-head">
+        <h3>{name}<span className="founder-spot-verified" title="Featable Team" aria-label="인증된 팀 프로필">✓</span></h3>
+        <span className="team-card-label">{label}</span>
       </div>
+      <strong>{title}</strong>
+      {meta && <div className="team-card-chips" aria-label="프로필 분류"><span>{meta}</span></div>}
       {summary && <p>{summary}</p>}
       <div className="team-card-facts">
         <span><b>{meta || "Featable"}</b><small>소속</small></span>
