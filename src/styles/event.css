@@ -1193,3 +1193,17 @@
 .event-wizard-final-row:first-child { border-top: 0; }
 .event-wizard-final-row span { color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 500; }
 .event-wizard-final-row b { color: var(--fg-strong); font-size: var(--fs-t2); font-weight: 700; overflow-wrap: anywhere; }
+
+/* === 행사 관리 화면 분리 === */
+.event-management-tabs { margin-top: 24px; }
+.event-management-tablist { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); }
+.event-management-tablist button { min-height: 42px; padding: 0 18px; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 700; cursor: pointer; }
+.event-management-tablist button:hover { background: var(--gray-100); }
+.event-management-tablist button.is-active { background: var(--accent); color: #fff; }
+.event-management-panel { margin-top: 20px; }
+.event-management-panel > .event-announcement-composer,
+.event-management-panel > .event-settings-wizard { margin-top: 0; }
+@media (max-width: 520px) {
+  .event-management-tablist { overflow-x: auto; }
+  .event-management-tablist button { flex: 1 0 auto; padding: 0 14px; }
+}
