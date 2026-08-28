@@ -105,7 +105,7 @@ export function EventAnnouncementComposer({ eventId, eventSlug, eventName, count
           <p className="field-helper">{bodyLength}/4,000</p>
         </div>
         <p className="event-announcement-note">선택한 대상의 이메일 주소는 화면에 노출하지 않으며, 수신자에게 개별 발송합니다.</p>
-        <button type="button" className="button-secondary button-small" disabled={!canPreview || pending} onClick={() => setPreview(true)}>발송 내용 확인</button>
+        <button type="button" className="button-dark button-small" disabled={!canPreview || pending} onClick={() => setPreview(true)}>발송 내용 확인</button>
       </div>
       <div className="event-announcement-preview" data-ready={preview}>
         <span>메일 미리보기</span>
@@ -114,7 +114,7 @@ export function EventAnnouncementComposer({ eventId, eventSlug, eventName, count
           <h3>{subject.trim()}</h3>
           <p>{body.trim()}</p>
           <div><strong>{FILTER_LABELS[recipientFilter]}</strong><b>{recipientCount}명</b></div>
-          <button type="button" className="button button-small" disabled={pending} onClick={send}>{pending ? "발송 중…" : `${recipientCount}명에게 공지 보내기`}</button>
+          <button type="button" className="button-dark button-small" disabled={pending} onClick={send}>{pending ? "발송 중…" : `${recipientCount}명에게 공지 보내기`}</button>
         </> : <div className="event-announcement-preview-empty"><strong>아직 미리보기가 없어요.</strong><p>수신 대상과 내용을 작성한 뒤 발송 내용을 확인해주세요.</p></div>}
       </div>
     </div>

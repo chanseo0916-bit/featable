@@ -156,8 +156,7 @@
 .event-attendee-card-head h2 b { color: var(--accent); font-weight: 700; }
 .event-attendee-card-head p { margin: 0; color: var(--fg-muted); font-size: var(--fs-t1); }
 
-.event-attendee-grid { margin-top: 6px; display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 760px) { .event-attendee-grid { grid-template-columns: 1fr; } }
+.event-attendee-grid { margin-top: 6px; display: grid; gap: 12px; grid-template-columns: 1fr; }
 
 .event-attendee-card-item {
   display: flex;
@@ -1158,7 +1157,7 @@
 /* 행사 관리 5개 메뉴(좌측): event-management-layout */
 /* === 이벤터스 참고: 설정 3단계 가로 stepper === */
 .event-settings-editor > .event-settings-editor-head { padding-bottom: 0; border-bottom: 0; align-items: center; }
-.event-settings-steps { display: flex; align-items: center; margin: 24px 0 20px; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); list-style: none; }
+.event-settings-steps { display: flex; align-items: center; margin: 24px 0 20px; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); list-style: none; }
 .event-settings-step { display: flex; align-items: center; min-width: 0; flex: 1; }
 .event-settings-step > button { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--fg-muted); text-align: left; cursor: pointer; }
 .event-settings-step-bullet { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 50%; color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 500; }
@@ -1171,7 +1170,7 @@
 .event-settings-step-done .event-settings-step-bullet { border-color: var(--accent); background: var(--accent); color: var(--background); }
 .event-settings-step-done .event-settings-step-copy b { color: var(--fg-strong); font-weight: 700; }
 .event-settings-step-done .event-settings-step-line { background: var(--accent); }
-.event-settings-stage { padding: 28px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); }
+.event-settings-stage { padding: 0; background: transparent; }
 .event-settings-step-content > header { display: grid; gap: 5px; margin-bottom: 24px; }
 .event-settings-step-content > header h3 { margin: 0; color: var(--fg-strong); font-size: var(--fs-t6); font-weight: 700; letter-spacing: -.01em; }
 .event-settings-step-content > header p { margin: 0; color: var(--fg-muted); font-size: var(--fs-t2); }
@@ -1191,7 +1190,6 @@
   .event-settings-step { flex: 0 0 auto; }
   .event-settings-step-line { min-width: 16px; margin: 0 4px; }
   .event-settings-step-copy i { display: none; }
-  .event-settings-stage { padding: 20px 16px; }
 }
 
 /* === 행사 관리 좌측 메뉴 === */

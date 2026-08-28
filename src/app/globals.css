@@ -205,6 +205,18 @@ summary::-webkit-details-marker { display: none; }
 .button-soft:focus-visible {
   outline-color: color-mix(in srgb, var(--fg-default) 40%, white);
 }
+/* 어두운 톤 버튼 (gray-900) — 공지 메일 primary 등 */
+.button-dark {
+  background: var(--gray-900);
+  color: #fff;
+}
+.button-dark:hover {
+  background: var(--gray-1000);
+}
+.button-dark:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--gray-900) 40%, white);
+  outline-offset: 2px;
+}
 .button-danger,
 .button-danger:hover {
   background: var(--error);
