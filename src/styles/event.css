@@ -433,7 +433,7 @@
 .event-settings-message { margin: 18px 0 0; padding: 11px; border-radius: var(--radius-md); background: var(--gray-100); color: var(--fg-default); font-size: var(--fs-t1); }
 
 
-.event-payment-toggle { display: flex; align-items: center; gap: 8px; color: var(--fg-strong); font-size: 12px; font-weight: 700; }
+.event-payment-toggle { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; color: var(--fg-strong); font-size: var(--fs-t2); font-weight: 700; white-space: nowrap; }
 
 
 .event-payment-toggle input { width: 17px; height: 17px; accent-color: var(--accent); }

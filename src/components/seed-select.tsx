@@ -19,6 +19,7 @@ export function SeedSelect({
   id,
   className = "",
   ariaLabel,
+  disabled = false,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -27,6 +28,7 @@ export function SeedSelect({
   id?: string;
   className?: string;
   ariaLabel?: string;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -47,6 +49,7 @@ export function SeedSelect({
   }, []);
 
   function openMenu() {
+    if (disabled) return;
     const idx = options.findIndex((o) => o.value === value);
     setActiveIndex(idx >= 0 ? idx : 0);
     setOpen(true);
@@ -97,9 +100,11 @@ export function SeedSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={ariaLabel}
-        onClick={() => { if (open) setOpen(false); else openMenu(); }}
-        onKeyDown={onTriggerKeyDown}
-        className={`w-full flex h-11 items-center justify-between gap-2 rounded-lg border border-border bg-white px-4 text-base whitespace-nowrap outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft ${activeLabel ? "text-fg-strong" : "text-fg-subtle"}`}
+        disabled={disabled}
+        aria-disabled={disabled}
+        onClick={() => { if (disabled) return; if (open) setOpen(false); else openMenu(); }}
+        onKeyDown={(e) => { if (disabled) return; onTriggerKeyDown(e); }}
+        className={`w-full flex h-11 items-center justify-between gap-2 rounded-lg border border-border bg-white px-4 text-base whitespace-nowrap outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft ${activeLabel ? "text-fg-strong" : "text-fg-subtle"} ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
       >
         <span className="truncate">{activeLabel || placeholder}</span>
         <svg
