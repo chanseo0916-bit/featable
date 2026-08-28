@@ -64,7 +64,7 @@ export function EventOverview({
 
     <div className="event-overview-actions">
       <Link href={`/my/events/${slug}`} className="button">신청자 관리</Link>
-      <Link href={`/events/${slug}`} target="_blank" className="button-soft">공개 페이지 보기 ↗</Link>
+      <Link href={`/events/${slug}`} target="_blank" className="button button-soft">공개 페이지 보기 ↗</Link>
     </div>
   </div>;
 }

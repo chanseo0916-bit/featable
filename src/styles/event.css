@@ -1221,7 +1221,7 @@
 /* === 행사 개요 대시보드 === */
 .event-overview { display: grid; gap: 16px; }
 .event-overview-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.event-overview-stat { display: grid; gap: 6px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); text-decoration: none; }
+.event-overview-stat { display: grid; gap: 6px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); text-decoration: none; }
 .event-overview-stat b { color: var(--fg-strong); font-size: var(--fs-t9); font-weight: 700; line-height: 1; }
 .event-overview-stat span { color: var(--fg-muted); font-size: var(--fs-t2); font-weight: 500; }
 .event-overview-stat.is-positive b { color: var(--success); }
@@ -1229,7 +1229,7 @@
 .event-overview-stat.is-informative b { color: var(--info); }
 .event-overview-stat:hover { background: var(--gray-100); }
 
-.event-overview-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+.event-overview-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); overflow: hidden; }
 .event-overview-card > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
 .event-overview-card > header span { color: var(--fg-strong); font-size: var(--fs-t3); font-weight: 700; }
 .event-overview-card > header a { color: var(--accent); font-size: var(--fs-t2); font-weight: 700; text-decoration: none; }
