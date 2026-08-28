@@ -151,103 +151,108 @@ export function ProfileEditor({
                   <div className={setupMode ? "profile-setup-fields" : "profile-editor-open mt-8"}>
 
                     {/* ▍프로필 사진 */}
-                    <section className="profile-sec">
-                      <div className="profile-sec-head">
-                        <h3>프로필 사진</h3>
-                        <p>기본 아이콘을 그대로 쓰거나, 마우스를 올리고 <i>+</i>를 눌러 사진으로 바꿔보세요.</p>
-                      </div>
-                      <div className="profile-avatar-wrap">
-                        <label className={`profile-avatar-upload${form.avatarUrl ? "" : " is-empty"}`} title={form.avatarUrl ? "프로필 사진 변경" : "프로필 사진 업로드"}>
-                          {form.avatarUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={form.avatarUrl} alt="" className="profile-avatar-photo" />
-                          ) : (
-                            <svg className="profile-avatar-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                              <circle cx="12" cy="8" r="3.5" />
-                              <path d="M5 20c.7-4.2 3-6.5 7-6.5s6.3 2.3 7 6.5" />
-                            </svg>
-                          )}
-                          <span className="profile-avatar-plus" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                          </span>
-                          <input type="file" accept="image/*" className="hidden" disabled={uploading}
-                            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
-                        </label>
-                        <div className="profile-avatar-meta">
-                          <strong>{uploading ? "업로드 중…" : form.avatarUrl ? "프로필 사진" : "기본 프로필 아이콘"}</strong>
-                          <p>사진 위에 마우스를 올리면 <i>+</i>가 나타나요.</p>
-                          {form.avatarUrl && (
-                            <button type="button" className="profile-avatar-remove" onClick={() => set({ avatarUrl: "" })}>
-                              기본 이미지로 되돌리기
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </section>
+                                        <fieldset className="profile-sec">
+                                          <legend className="profile-sec-head"><h3>프로필 사진</h3></legend>
+                                          <div className="profile-avatar-wrap">
+                                            <label className={`profile-avatar-upload${form.avatarUrl ? "" : " is-empty"}`} title={form.avatarUrl ? "프로필 사진 변경" : "프로필 사진 업로드"}>
+                                              {form.avatarUrl ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img src={form.avatarUrl} alt="" className="profile-avatar-photo" />
+                                              ) : (
+                                                <svg className="profile-avatar-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                                  <circle cx="12" cy="8" r="3.5" />
+                                                  <path d="M5 20c.7-4.2 3-6.5 7-6.5s6.3 2.3 7 6.5" />
+                                                </svg>
+                                              )}
+                                              <span className="profile-avatar-plus" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                                              </span>
+                                              <input type="file" accept="image/*" className="hidden" disabled={uploading}
+                                                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); }} />
+                                            </label>
+                                            <div className="profile-avatar-meta">
+                                              <strong>{uploading ? "업로드 중…" : form.avatarUrl ? "프로필 사진" : "기본 프로필 아이콘"}</strong>
+                                              {form.avatarUrl && (
+                                                <button type="button" className="profile-avatar-remove" onClick={() => set({ avatarUrl: "" })}>
+                                                  기본 이미지로 되돌리기
+                                                </button>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <p className="field-helper">기본 아이콘을 그대로 쓰거나, 마우스를 올리고 <i>+</i>를 눌러 사진으로 바꿔보세요.</p>
+                                        </fieldset>
 
-                    {/* ▍기본 정보 */}
-                    <section className="profile-sec">
-                      <div className="profile-sec-head">
-                        <h3>기본 정보</h3>
-                        <p>이름과 역할은 카드와 인터뷰에서 가장 먼저 보여요.</p>
-                      </div>
-                      <div className="mt-5 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
-                        <label className={label}>이름 *
-                          <input className={`${input} mt-2`} value={form.name} onChange={(e) => set({ name: e.target.value })} />
-                        </label>
-                        <label className={label}>역할 *
-                          <select className={`${input} mt-2`} value={roleOption} onChange={(e) => {
-                            const value = e.target.value;
-                            setRoleOption(value);
-                            set({ role: value === CUSTOM_ROLE ? "" : value });
-                          }}>
-                            <option value="">역할을 선택해주세요</option>
-                            {PROFILE_ROLES.map((role) => <option value={role} key={role}>{role}</option>)}
-                            <option value={CUSTOM_ROLE}>기타 · 직접 입력</option>
-                          </select>
-                        </label>
-                      </div>
-                      {roleOption === CUSTOM_ROLE && <input className={`${input} mt-3`} value={form.role} maxLength={40} autoFocus placeholder="나의 역할을 직접 입력해주세요" onChange={(e) => set({ role: e.target.value })} />}
+                                        {/* ▍기본 정보 */}
+                                        <fieldset className="profile-sec">
+                                          <legend className="profile-sec-head"><h3>기본 정보</h3></legend>
+                                          <div className="mt-5 grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
+                                            <div className="seed-field">
+                                              <label className={label} htmlFor="profile-name">이름 *</label>
+                                              <input id="profile-name" className={input} value={form.name} onChange={(e) => set({ name: e.target.value })} />
+                                            </div>
+                                            <div className="seed-field">
+                                              <label className={label} htmlFor="profile-role">역할 *</label>
+                                              <select id="profile-role" className={input} value={roleOption} onChange={(e) => {
+                                                const value = e.target.value;
+                                                setRoleOption(value);
+                                                set({ role: value === CUSTOM_ROLE ? "" : value });
+                                              }}>
+                                                <option value="">역할을 선택해주세요</option>
+                                                {PROFILE_ROLES.map((role) => <option value={role} key={role}>{role}</option>)}
+                                                <option value={CUSTOM_ROLE}>기타 · 직접 입력</option>
+                                              </select>
+                                              <p className="field-helper">자신을 가장 잘 표현하는 역할을 골라주세요.</p>
+                                            </div>
+                                          </div>
+                                          {roleOption === CUSTOM_ROLE && (
+                                            <div className="seed-field mt-5">
+                                              <label className={label} htmlFor="profile-role-custom">역할 직접 입력</label>
+                                              <input id="profile-role-custom" className={input} value={form.role} maxLength={40} autoFocus placeholder="나의 역할을 직접 입력해주세요" onChange={(e) => set({ role: e.target.value })} />
+                                            </div>
+                                          )}
 
-                      <label className={`${label} mt-5 block`}>한 줄 소개
-                        <input className={`${input} mt-2`} value={form.headline} placeholder="기록을 사랑하는 개발자"
-                          onChange={(e) => set({ headline: e.target.value })} />
-                      </label>
+                                          <div className="seed-field mt-5">
+                                            <label className={label} htmlFor="profile-headline">한 줄 소개</label>
+                                            <input id="profile-headline" className={input} value={form.headline} placeholder="기록을 사랑하는 개발자"
+                                              onChange={(e) => set({ headline: e.target.value })} />
+                                          </div>
 
-                      <label className={`${label} mt-5 block`}>이야기
-                        <textarea className={`${input} mt-2 min-h-28 py-3`} value={form.bio}
-                          placeholder="왜 창업했는지, 어떤 여정을 지나왔는지"
-                          onChange={(e) => set({ bio: e.target.value })} />
-                      </label>
-                    </section>
+                                          <div className="seed-field mt-5">
+                                            <label className={label} htmlFor="profile-bio">이야기</label>
+                                            <textarea id="profile-bio" className={`${input} min-h-28 py-3`} value={form.bio}
+                                              placeholder="왜 창업했는지, 어떤 여정을 지나왔는지"
+                                              onChange={(e) => set({ bio: e.target.value })} />
+                                          </div>
+                                        </fieldset>
 
-                    {/* ▍링크 */}
-                    {!setupMode && (
-                      <section className="profile-sec">
-                        <div className="profile-sec-head">
-                          <h3>링크</h3>
-                          <p>선택 사항이에요. 방문할 곳을 최대 4개까지 연결할 수 있어요.</p>
-                        </div>
-                        <div className="mt-5 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
-                          <label className={label}>인스타그램
-                            <input className={`${input} mt-2`} value={form.instagram} placeholder="@handle 또는 링크"
-                              onChange={(e) => set({ instagram: e.target.value })} />
-                          </label>
-                          <label className={label}>X (트위터)
-                            <input className={`${input} mt-2`} value={form.x} placeholder="@handle 또는 링크"
-                              onChange={(e) => set({ x: e.target.value })} />
-                          </label>
-                          <label className={label}>링크드인
-                            <input className={`${input} mt-2`} value={form.linkedin} placeholder="프로필 링크"
-                              onChange={(e) => set({ linkedin: e.target.value })} />
-                          </label>
-                          <label className={label}>개인 사이트
-                            <input className={`${input} mt-2`} value={form.website} placeholder="https://"
-                              onChange={(e) => set({ website: e.target.value })} />
-                          </label>
-                        </div>
-                      </section>
-                    )}
+                                        {/* ▍링크 */}
+                                        {!setupMode && (
+                                          <fieldset className="profile-sec">
+                                            <legend className="profile-sec-head"><h3>링크</h3><p>선택 사항이에요. 방문할 곳을 최대 4개까지 연결할 수 있어요.</p></legend>
+                                            <div className="mt-5 grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
+                                              <div className="seed-field">
+                                                <label className={label} htmlFor="profile-instagram">인스타그램</label>
+                                                <input id="profile-instagram" className={input} value={form.instagram} placeholder="@handle 또는 링크"
+                                                  onChange={(e) => set({ instagram: e.target.value })} />
+                                              </div>
+                                              <div className="seed-field">
+                                                <label className={label} htmlFor="profile-x">X (트위터)</label>
+                                                <input id="profile-x" className={input} value={form.x} placeholder="@handle 또는 링크"
+                                                  onChange={(e) => set({ x: e.target.value })} />
+                                              </div>
+                                              <div className="seed-field">
+                                                <label className={label} htmlFor="profile-linkedin">링크드인</label>
+                                                <input id="profile-linkedin" className={input} value={form.linkedin} placeholder="프로필 링크"
+                                                  onChange={(e) => set({ linkedin: e.target.value })} />
+                                              </div>
+                                              <div className="seed-field">
+                                                <label className={label} htmlFor="profile-website">개인 사이트</label>
+                                                <input id="profile-website" className={input} value={form.website} placeholder="https://"
+                                                  onChange={(e) => set({ website: e.target.value })} />
+                                              </div>
+                                            </div>
+                                          </fieldset>
+                                        )}
 
                     {notice && (
                       <p className={`mt-6 rounded-lg px-4 py-3 text-sm ${notice.ok ? "bg-accent-soft text-accent" : "bg-red-50 text-red-600"}`}>
