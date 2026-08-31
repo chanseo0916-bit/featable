@@ -297,6 +297,13 @@
 
 .seo-fields-grid textarea { min-height: 88px; resize: vertical; }
 
+.interview-answer-hint {
+  color: var(--fg-subtle);
+  font-size: var(--fs-t1);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
 
 .simple-form-fields label > span small { margin-left: 4px; color: var(--fg-subtle); font-weight: 500; }
 

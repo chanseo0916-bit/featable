@@ -286,9 +286,9 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <img className="feature-article-cover" src={feature.coverUrl} alt="" />
 
             {articleBody.map((block, index) => {
-              if (block.type === "text") return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<p>{block.body}</p></section>;
+              if (block.type === "text") return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<p className="feature-article-copy">{block.body}</p></section>;
               if (block.type === "image") return <figure key={`${block.type}-${index}`}><img src={block.src} alt={block.alt} />{block.caption && <figcaption>{block.caption}</figcaption>}</figure>;
-              return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<ol className="feature-article-features">{block.items.map((item, itemIndex) => <li key={itemIndex}><strong>{item.title}</strong><p>{item.body}</p></li>)}</ol></section>;
+              return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<ol className="feature-article-features">{block.items.map((item, itemIndex) => <li key={itemIndex}><strong>{item.title}</strong><p className="feature-article-copy">{item.body}</p></li>)}</ol></section>;
             })}
 
             {brand && <section className="feature-editorial-section"><span>시작한 이유</span><h3>어떤 문제에서<br />이 브랜드가 시작됐을까?</h3><p>{brand.problem ?? brand.description}</p><blockquote>“{brand.tagline}”</blockquote></section>}

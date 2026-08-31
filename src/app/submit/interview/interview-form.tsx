@@ -121,6 +121,7 @@ export function InterviewForm({ brands, founderName, initial }: { brands: BrandC
                 placeholder={question.placeholder}
                 rows={4}
               />
+              <small className="interview-answer-hint">Enter로 나눈 문단은 공개 인터뷰에도 그대로 표시됩니다.</small>
             </label>
           ))}
         </div>
