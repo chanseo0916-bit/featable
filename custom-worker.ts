@@ -24,16 +24,28 @@ const worker = {
       paths = ["/api/cron/board-balance?target=tomorrow"];
     } else if (event.cron === "0 15 * * *") {
       paths = ["/api/cron/board-balance"];
+    } else if (event.cron === "*/15 * * * *") {
+      paths = [
+        "/api/cron/board-balance",
+        "/api/cron/interview-emails",
+        "/api/cron/board-posts",
+      ];
     } else {
       paths = ["/api/cron/board-balance", "/api/cron/interview-emails"];
     }
+    const failures: string[] = [];
     for (const path of paths) {
       const request = new Request(`https://featable.kr${path}`, {
         method: "POST",
         headers: { authorization: `Bearer ${env.SYNC_CRON_SECRET}`, "x-featable-cron": event.cron },
       });
       const response = await handler.fetch(request, env, ctx);
-      if (!response.ok) throw new Error(`${path} failed (${response.status}): ${await response.text()}`);
+      if (!response.ok) {
+        failures.push(`${path} failed (${response.status}): ${await response.text()}`);
+      }
+    }
+    if (failures.length > 0) {
+      throw new Error(failures.join("\n"));
     }
   },
 };

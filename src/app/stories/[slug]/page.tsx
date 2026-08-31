@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Fragment } from "react";
 import { Badge, Footer, Header } from "@/components/site-shell";
 import { Comments } from "@/components/comments";
 import { FeatureViewMetric } from "@/components/view-tracker";
@@ -29,6 +30,32 @@ const kindLabel = {
   "case-study": "팀 이야기",
   qna: "Q&A",
 } as const;
+
+const BODY_URL_PATTERN = /(https?:\/\/[^\s<]+)/g;
+const TRAILING_URL_PUNCTUATION = /[),.!?;:]+$/;
+
+function linkedBodyText(text: string) {
+  return text.split(BODY_URL_PATTERN).map((part, index) => {
+    if (!part.startsWith("http://") && !part.startsWith("https://")) return part;
+
+    const trailing = part.match(TRAILING_URL_PUNCTUATION)?.[0] ?? "";
+    const href = trailing ? part.slice(0, -trailing.length) : part;
+
+    try {
+      const url = new URL(href);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return part;
+    } catch {
+      return part;
+    }
+
+    return (
+      <Fragment key={`${href}-${index}`}>
+        <a href={href} target="_blank" rel="noopener noreferrer">{href}</a>
+        {trailing}
+      </Fragment>
+    );
+  });
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -286,9 +313,9 @@ export default async function StoryDetailPage({ params }: { params: Promise<{ sl
             <img className="feature-article-cover" src={feature.coverUrl} alt="" />
 
             {articleBody.map((block, index) => {
-              if (block.type === "text") return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<p className="feature-article-copy">{block.body}</p></section>;
+              if (block.type === "text") return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<p className="feature-article-copy">{linkedBodyText(block.body)}</p></section>;
               if (block.type === "image") return <figure key={`${block.type}-${index}`}><img src={block.src} alt={block.alt} />{block.caption && <figcaption>{block.caption}</figcaption>}</figure>;
-              return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<ol className="feature-article-features">{block.items.map((item, itemIndex) => <li key={itemIndex}><strong>{item.title}</strong><p className="feature-article-copy">{item.body}</p></li>)}</ol></section>;
+              return <section key={`${block.type}-${index}`}>{block.heading && <h3>{block.heading}</h3>}<ol className="feature-article-features">{block.items.map((item, itemIndex) => <li key={itemIndex}><strong>{item.title}</strong><p className="feature-article-copy">{linkedBodyText(item.body)}</p></li>)}</ol></section>;
             })}
 
             {brand && <section className="feature-editorial-section"><span>시작한 이유</span><h3>어떤 문제에서<br />이 브랜드가 시작됐을까?</h3><p>{brand.problem ?? brand.description}</p><blockquote>“{brand.tagline}”</blockquote></section>}
