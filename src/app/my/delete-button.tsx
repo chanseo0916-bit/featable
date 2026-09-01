@@ -33,7 +33,7 @@ export function DeleteBrandButton({
       <button
         onClick={handleDelete}
         disabled={pending}
-        className="text-xs font-semibold text-muted hover:text-red-500 disabled:opacity-50"
+        className="text-xs font-medium text-muted hover:text-red-500 disabled:opacity-50"
       >
         {pending ? "삭제 중…" : "삭제"}
       </button>

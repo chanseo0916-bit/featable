@@ -32,7 +32,7 @@ const FILTER_TONES: Record<AnnouncementRecipientFilter, "neutral" | "positive" |
 };
 
 const input =
-  "block w-full h-11 rounded-lg border border-border bg-white px-4 text-[15px] text-fg-strong placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft";
+  "block w-full h-11 rounded-lg border border-border bg-white px-4 text-[16px] text-fg-strong placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft";
 
 export function EventAnnouncementComposer({ eventId, eventSlug, eventName, counts, history }: {
   eventId: string;

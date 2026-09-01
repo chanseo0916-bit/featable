@@ -116,7 +116,7 @@ export function AuthForm() {
         )}
 
         {state.error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-600">{state.error}</p>}
-        {state.message && <p role="status" className="rounded-xl bg-accent-soft px-4 py-3 text-xs font-semibold text-accent">{state.message}</p>}
+        {state.message && <p role="status" className="rounded-xl bg-accent-soft px-4 py-3 text-xs font-medium text-accent">{state.message}</p>}
         <button type="submit" disabled={pending} className="w-full rounded-xl bg-accent py-4 text-sm font-bold text-white transition hover:bg-accent-hover disabled:opacity-50">{pending ? "처리 중…" : unlocksBalanceResult ? mode === "login" ? "로그인하고 결과 보기" : "가입하고 결과 보기" : mode === "login" ? "로그인" : "Featable 가입하기"}</button>
       </form>
     </div>

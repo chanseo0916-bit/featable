@@ -131,7 +131,7 @@ export function MentorNotes({ productSlug }: { productSlug: string }) {
 
   return (
     <section id="mentor" className="mx-auto max-w-2xl px-6 py-14">
-      <p className="mb-1 text-[11px] font-extrabold tracking-[0.13em] text-accent">
+      <p className="mb-1 text-[12px] font-bold tracking-[0.13em] text-accent">
         멘토 노트
       </p>
       <h2 className="mb-1 text-xl font-bold tracking-tight">

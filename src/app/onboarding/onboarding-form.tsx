@@ -67,7 +67,7 @@ export function OnboardingForm({ defaultName, next }: { defaultName: string; nex
 
       {state.error && <p className="rounded-xl bg-red-50 px-4 py-3 text-xs text-red-600">{state.error}</p>}
 
-      <button type="submit" disabled={pending} className="w-full rounded-xl bg-accent py-4 text-sm font-extrabold text-white transition hover:bg-accent-hover disabled:opacity-50">
+      <button type="submit" disabled={pending} className="w-full rounded-xl bg-accent py-4 text-sm font-bold text-white transition hover:bg-accent-hover disabled:opacity-50">
         {pending ? "저장 중…" : "Featable 시작하기"}
       </button>
     </form>

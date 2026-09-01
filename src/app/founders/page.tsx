@@ -23,13 +23,13 @@ export default async function FoundersPage() {
     <main className="shell listing-page">
       <div className="listing-heading">
         <div>
-          <p className="eyebrow">FOUNDERS</p>
+          <p className="eyebrow">창업가</p>
           <h1>창업가</h1>
           <p>제품 뒤에 있는 사람들을 만나보세요.</p>
         </div>
       </div>
       {ranked.length > 0
-        ? <div className="founder-spotlight-grid">{ranked.map((founder) => <FounderCard founder={founder} key={founder.slug} />)}</div>
+        ? <div className="founder-spotlight-grid founder-directory-grid">{ranked.map((founder) => <FounderCard founder={founder} key={founder.slug} />)}</div>
         : <div className="my-event-empty"><strong>아직 공개된 창업가가 없어요.</strong><span>가장 먼저 프로필을 만들어보세요.</span></div>}
       <p className="founders-list-note">{brands.length}개 브랜드를 만드는 {ranked.length}명의 창업가</p>
     </main>

@@ -22,7 +22,7 @@
   background: #fff;
   color: var(--fg-strong);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: -.01em;
   transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease;
 }

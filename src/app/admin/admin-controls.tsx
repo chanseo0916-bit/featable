@@ -44,7 +44,7 @@ export function RowControls({
         <button
           disabled={pending}
           onClick={() => run(() => setStatus(table, id, "hidden"))}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-muted hover:border-red-400 hover:text-red-500 disabled:opacity-50"
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted hover:border-red-400 hover:text-red-500 disabled:opacity-50"
         >
           숨김
         </button>
@@ -52,7 +52,7 @@ export function RowControls({
         <button
           disabled={pending}
           onClick={() => run(() => setStatus(table, id, "published"))}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-muted hover:border-accent hover:text-accent disabled:opacity-50"
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted hover:border-accent hover:text-accent disabled:opacity-50"
         >
           공개
         </button>

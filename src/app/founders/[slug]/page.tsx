@@ -134,7 +134,6 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
                   <div className="founder-spot-placeholder" aria-hidden>{founder.name.slice(0, 1)}</div>
                 )}
                 <div className="founder-spot-fade" aria-hidden />
-                <span className="founder-hero-id">No.{String(founderNumber).padStart(4, "0")}</span>
               </div>
               <div className="founder-spot-body">
                 <h3>
@@ -143,9 +142,6 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
                 </h3>
                 <strong className="founder-hero-role">{founder.role || "창업가"}</strong>
                 <p>{founder.headline}</p>
-                <div className="founder-spot-foot">
-                  <span className="founder-hero-status"><i /> 만드는 중</span>
-                </div>
               </div>
             </InteractiveProfileCard>
 

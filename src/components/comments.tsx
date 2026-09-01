@@ -143,7 +143,7 @@ export function Comments({
 
   return (
     <section className="mx-auto max-w-2xl px-6 py-14" id="comments">
-      <p className="mb-1 text-[12px] font-semibold tracking-tight text-accent">댓글</p>
+      <p className="mb-1 text-[12px] font-medium tracking-tight text-accent">댓글</p>
       <h2 className="mb-6 text-xl font-bold tracking-tight">
         댓글 <span className="text-sm font-normal text-muted">{rows.length}</span>
       </h2>
@@ -159,7 +159,7 @@ export function Comments({
         />
         {notice && <p className="mt-2 rounded-lg bg-red-50 px-4 py-2 text-xs text-red-600">{notice}</p>}
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-[11px] text-muted">{body.length}/1000</span>
+          <span className="text-[12px] text-muted">{body.length}/1000</span>
           <button
             type="button"
             onClick={submit}
@@ -183,7 +183,7 @@ export function Comments({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={row.avatar_url} alt="" className="h-9 w-9 rounded-full border border-border object-cover" />
               ) : (
-                <div className="grid h-9 w-9 flex-none place-items-center rounded-full bg-accent-soft text-xs font-black text-accent">
+                <div className="grid h-9 w-9 flex-none place-items-center rounded-full bg-accent-soft text-xs font-bold text-accent">
                   {row.display_name.slice(0, 1)}
                 </div>
               )}
@@ -197,7 +197,7 @@ export function Comments({
                     <button
                       type="button"
                       onClick={() => remove(row.id)}
-                      className="ml-3 text-[11px] text-muted hover:text-red-500"
+                      className="ml-3 text-[12px] text-muted hover:text-red-500"
                     >
                       삭제
                     </button>

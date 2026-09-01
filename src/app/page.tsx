@@ -7,6 +7,7 @@ import { FounderInterviewRail, type FounderInterviewRailItem } from "@/component
 import { FreshProductRail } from "@/components/fresh-product-rail";
 import { getCatalog, getEvents, getFeatures, getPartners, getSupportPrograms } from "@/lib/data";
 import { FounderCard } from "@/components/founder-card";
+import { Badge } from "@/components/badge";
 import { formatMonthDayKst } from "@/lib/datetime";
 
 const dateLabel = formatMonthDayKst;
@@ -131,7 +132,7 @@ export default async function Home() {
                 {freshProducts.slice(0, 10).map((product, index) => {
                   const brand = brands.find((item) => item.slug === product.brandSlug);
                   const founder = founders.find((item) => item.slug === product.founderSlug);
-                  return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card commerce-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="product-chip">{product.category}</span>{index < 2 && <span className="drop-label">NEW</span>}</div><div className="card-body"><div className="product-brand-line">{brand?.logoUrl ? <img src={brand.logoUrl} alt="" /> : <span className="brand-line-fallback" aria-hidden="true">{(brand?.name ?? "·").slice(0, 1)}</span>}<span>{brand?.name}</span><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="product-meta-row"><span className="person-line"><span className="avatar tiny">{founder?.avatarUrl ? <img src={founder.avatarUrl} alt="" /> : <span className="avatar-fallback" aria-hidden="true">{(founder?.name ?? "·").slice(0, 1)}</span>}</span>{founder?.name}</span>{product.price ? <strong>{product.price}</strong> : <strong className="meta-cta">피쳐 보기 →</strong>}</div></div></Link>;
+                  return <Link href={`/products/${product.slug}`} className="product-card fresh-product-card commerce-card" key={product.slug}><div className="product-image-wrap"><ImageCard src={product.heroUrl} alt={product.name} /><span className="media-chip is-soft is-bottom-left">{product.category}</span>{index < 2 && <span className="media-chip is-dark is-top-left">NEW</span>}</div><div className="card-body"><div className="product-brand-line">{brand?.logoUrl ? <img src={brand.logoUrl} alt="" /> : <span className="brand-line-fallback" aria-hidden="true">{(brand?.name ?? "·").slice(0, 1)}</span>}<span>{brand?.name}</span><em>조회 {(product.viewCount ?? 0).toLocaleString("ko-KR")}</em></div><h3>{product.name}</h3><p>{product.tagline}</p><div className="product-meta-row"><span className="person-line"><span className="avatar tiny">{founder?.avatarUrl ? <img src={founder.avatarUrl} alt="" /> : <span className="avatar-fallback" aria-hidden="true">{(founder?.name ?? "·").slice(0, 1)}</span>}</span>{founder?.name}</span>{product.price ? <strong>{product.price}</strong> : <strong className="meta-cta">피쳐 보기 →</strong>}</div></div></Link>;
                 })}
               </FreshProductRail>
             </div> : <ProductSquareRail items={productRailItems} />}
@@ -160,14 +161,14 @@ export default async function Home() {
         {openSupportPrograms.length > 0 && <section className="shell section opportunity-section">
           <SectionHeader title="마감 임박 지원사업" href="/support" />
           <div className="opportunity-card-grid">
-            {[...openSupportPrograms].sort((a, b) => a.closeAt.localeCompare(b.closeAt)).slice(0, 4).map((program) => <Link className="opportunity-card" href={`/support/${program.slug}`} key={program.slug}><div><span className="opportunity-type">지원사업</span><strong>D-{dday(program.closeAt)}</strong></div><h3>{program.name}</h3><p>{program.agency}</p><span>{program.target} · {program.region}</span></Link>)}
+            {[...openSupportPrograms].sort((a, b) => a.closeAt.localeCompare(b.closeAt)).slice(0, 4).map((program) => <Link className="opportunity-card" href={`/support/${program.slug}`} key={program.slug}><div><Badge tone="neutral" variant="weak">지원사업</Badge><strong>D-{dday(program.closeAt)}</strong></div><h3>{program.name}</h3><p>{program.agency}</p><span>{program.target} · {program.region}</span></Link>)}
           </div>
         </section>}
 
         <section className="shell section opportunity-section">
           <SectionHeader title="다가오는 행사" href="/events" />
           <div className="opportunity-card-grid">
-            {[...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt)).slice(0, 4).map((event) => <Link className="opportunity-card home-event-card" href={`/events/${event.slug}`} key={event.slug}><div className="home-event-poster"><ImageCard src={event.coverUrl} alt={event.name} /><span className="home-event-date">{dateLabel(event.startsAt)}</span></div><h3>{event.name}</h3><p>{event.host}</p><span>{event.location}{event.fee ? ` · ${event.fee}` : ""}</span></Link>)}
+            {[...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt)).slice(0, 4).map((event) => <Link className="opportunity-card home-event-card" href={`/events/${event.slug}`} key={event.slug}><div className="home-event-poster"><ImageCard src={event.coverUrl} alt={event.name} /><span className="media-chip is-dark is-top-left">{dateLabel(event.startsAt)}</span></div><h3>{event.name}</h3><p>{event.host}</p><span>{event.location}{event.fee ? ` · ${event.fee}` : ""}</span></Link>)}
           </div>
         </section>
 

@@ -54,7 +54,7 @@
 .admin-access-denied p { margin-bottom: 16px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
 
 
-.admin-access-denied h1 { margin-bottom: 8px; font-size: 26px; }
+.admin-access-denied h1 { margin-bottom: 8px; font-size: 28px; }
 
 
 .admin-access-denied span { color: var(--muted); font-size: 13px; }
@@ -96,7 +96,6 @@
 .admin-metric-card { position: relative; min-height: 185px; padding: 24px; overflow: hidden; border: 1px solid #dfe2e5; border-radius: 12px; background: #fff; transition: transform .2s, border-color .2s, box-shadow .2s; }
 
 
-.admin-metric-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 14px 35px rgba(30, 30, 30, .07); }
 
 
 .admin-metric-card > span { color: var(--fg-default); font-size: 12px; font-weight: 700; }
@@ -357,7 +356,6 @@
 .dash-overview-grid > a { min-height: 120px; padding: 18px; display: flex; flex-direction: column; border: 1px solid #e0e3e6; border-radius: 8px; background: #fff; transition: border-color .16s, box-shadow .16s, transform .16s; }
 
 
-.dash-overview-grid > a:hover { border-color: #bcc1c7; box-shadow: 0 7px 20px #1111110a; transform: translateY(-1px); }
 
 
 .dash-overview-grid > a > span { color: var(--fg-default); font-size: 12px; font-weight: 700; }

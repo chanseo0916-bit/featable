@@ -118,7 +118,7 @@
 .wizard-story-preview section > span { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
 
 
-.wizard-story-preview h3 { margin: 15px 0; font-size: 26px; }
+.wizard-story-preview h3 { margin: 15px 0; font-size: 28px; }
 
 
 .wizard-story-preview section p { margin: 0; color: var(--fg-muted); font-size: 12px; line-height: 1.8; }
@@ -193,7 +193,7 @@
 .submit-insight-grid button > span { color: var(--fg-default); font-size: 12px; font-weight: 700; }
 
 
-.submit-insight-grid button > strong { margin-top: auto; font-size: 26px; line-height: 1; letter-spacing: -.03em; }
+.submit-insight-grid button > strong { margin-top: auto; font-size: 28px; line-height: 1; letter-spacing: -.03em; }
 
 
 .submit-insight-grid button > strong small { margin-left: 2px; font-size: 12px; font-weight: 500; }
@@ -341,7 +341,7 @@
 .approved-publishing-form > header span, .approved-publishing-preview > header span { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: -.01em; }
 
 
-.approved-publishing-form > header h1 { margin: 8px 0 0; font-size: 26px; letter-spacing: -.03em; }
+.approved-publishing-form > header h1 { margin: 8px 0 0; font-size: 28px; letter-spacing: -.03em; }
 
 
 .approved-publishing-form > header p, .approved-publishing-preview > header p { margin: 8px 0 0; color: var(--fg-muted); font-size: 12px; line-height: 1.55; }

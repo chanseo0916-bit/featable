@@ -15,7 +15,7 @@ import {
 
 const inputCls =
   "w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition-colors focus:border-accent";
-const labelCls = "mb-1 mt-3 block text-xs font-semibold text-muted";
+const labelCls = "mb-1 mt-3 block text-xs font-medium text-muted";
 
 const EVENT_CATEGORIES = ["데모데이", "밋업", "컨퍼런스", "네트워킹", "해커톤", "세미나", "교육", "IR", "기타"];
 
@@ -86,10 +86,10 @@ export function EventForm() {
             {form.registrationMode === "external" ? <div><label className={labelCls}>신청 링크 *</label><input className={inputCls} value={form.applyUrl} placeholder="https://" onChange={(e) => set({ applyUrl: e.target.value })} /></div> : <div><label className={labelCls}>정원</label><input type="number" min="1" className={inputCls} value={form.capacity ?? ""} placeholder="비워두면 제한 없음" onChange={(e) => set({ capacity: e.target.value })} /></div>}
             <div><label className={labelCls}>대표 이미지 URL (선택)</label><input className={inputCls} value={form.coverUrl} placeholder="https://" onChange={(e) => set({ coverUrl: e.target.value })} /></div>
           </div>
-          <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-muted">
+          <label className="mt-3 flex items-center gap-2 text-xs font-medium text-muted">
             <input type="checkbox" checked={form.isOnline} onChange={(e) => set({ isOnline: e.target.checked })} /> 온라인 행사
           </label>
-          {form.registrationMode === "internal" && <label className="mt-3 flex items-center gap-2 text-xs font-semibold text-muted"><input type="checkbox" checked={form.waitlistEnabled} onChange={(e) => set({ waitlistEnabled: e.target.checked })} /> 정원 초과 시 대기 신청 받기</label>}
+          {form.registrationMode === "internal" && <label className="mt-3 flex items-center gap-2 text-xs font-medium text-muted"><input type="checkbox" checked={form.waitlistEnabled} onChange={(e) => set({ waitlistEnabled: e.target.checked })} /> 정원 초과 시 대기 신청 받기</label>}
           {notice && <p className="mt-3 rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">{notice}</p>}
           <button type="button" onClick={submit} disabled={pending}
             className="mt-3 rounded-lg bg-accent px-5 py-2 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50">
@@ -218,7 +218,7 @@ export function PartnerForm() {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={form.logoUrl} alt="" className="h-14 w-14 flex-none rounded-xl border border-border object-cover" />
             ) : (
-              <div className="grid h-14 w-14 flex-none place-items-center rounded-xl border border-dashed border-border text-[10px] text-muted">로고</div>
+              <div className="grid h-14 w-14 flex-none place-items-center rounded-xl border border-dashed border-border text-[12px] text-muted">로고</div>
             )}
             <label className="cursor-pointer rounded-lg border border-border px-4 py-2 text-xs font-bold hover:border-accent hover:text-accent">
               {logoUploading ? "업로드 중…" : form.logoUrl ? "로고 교체" : "로고 업로드"}
@@ -232,11 +232,11 @@ export function PartnerForm() {
           <div className="grid gap-2 sm:grid-cols-2">
             <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${!form.isFeatured ? "border-accent bg-accent-soft" : "border-border hover:border-accent"}`}>
               <input type="radio" name="partner-tier" className="mt-0.5 accent-[#EF4125]" checked={!form.isFeatured} onChange={() => set({ isFeatured: false })} />
-              <span><b className="block text-xs">Basic Partner</b><small className="mt-1 block text-[11px] leading-4 text-muted">일반 등록 — 파트너 목록과 푸터에 노출</small></span>
+              <span><b className="block text-xs">Basic Partner</b><small className="mt-1 block text-[12px] leading-4 text-muted">일반 등록 — 파트너 목록과 푸터에 노출</small></span>
             </label>
             <label className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${form.isFeatured ? "border-accent bg-accent-soft" : "border-border hover:border-accent"}`}>
               <input type="radio" name="partner-tier" className="mt-0.5 accent-[#EF4125]" checked={Boolean(form.isFeatured)} onChange={() => set({ isFeatured: true })} />
-              <span><b className="block text-xs">Featured Partner ★</b><small className="mt-1 block text-[11px] leading-4 text-muted">VIP — 파트너 페이지 최상단 + FEATURED 뱃지 + 푸터 우선</small></span>
+              <span><b className="block text-xs">Featured Partner ★</b><small className="mt-1 block text-[12px] leading-4 text-muted">VIP — 파트너 페이지 최상단 + FEATURED 뱃지 + 푸터 우선</small></span>
             </label>
           </div>
           <label className={labelCls}>한 줄 소개 *</label>
@@ -276,7 +276,7 @@ export function DeleteCurationButton({
 
   return (
     <button onClick={handleDelete} disabled={pending}
-      className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-muted hover:border-red-400 hover:text-red-500 disabled:opacity-50">
+      className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted hover:border-red-400 hover:text-red-500 disabled:opacity-50">
       삭제
     </button>
   );

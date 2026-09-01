@@ -14,9 +14,25 @@ SEED 디자인 토큰 준수 스냅 스크립트 — globals.css + src/styles/*.
 import re
 import os
 
-FILES = ["src/app/globals.css"] + [
+CSS_FILES = ["src/app/globals.css"] + [
     "src/styles/" + f for f in sorted(os.listdir("src/styles")) if f.endswith(".css")
 ]
+
+COMPONENT_CSS_FILES = []
+for _dir, _subdirs, _files in os.walk("src/components"):
+    for _f in sorted(_files):
+        if _f.endswith(".css"):
+            COMPONENT_CSS_FILES.append(os.path.join(_dir, _f).replace("\\", "/"))
+COMPONENT_CSS_FILES.sort()
+
+TSX_FILES = []
+for _dir, _subdirs, _files in os.walk("src"):
+    for _f in sorted(_files):
+        if _f.endswith(".tsx"):
+            TSX_FILES.append(os.path.join(_dir, _f).replace("\\", "/"))
+TSX_FILES.sort()
+
+FILES = CSS_FILES + COMPONENT_CSS_FILES
 
 # ---------- 매핑 테이블 ----------
 
@@ -26,7 +42,16 @@ WEIGHT_MAP = {
     "850": "700", "900": "700",
 }
 
-SEED_SIZES = [11, 12, 13, 14, 16, 18, 20, 22, 24, 26, 28, 32, 40, 48]
+# DESIGN.md typo scale: no 11px (min 12), no half-steps
+SEED_SIZES = [12, 13, 14, 16, 18, 20, 22, 24, 28, 32, 40, 48]
+TAILWIND_WEIGHT_MAP = {
+    "font-thin": "font-normal",
+    "font-extralight": "font-normal",
+    "font-light": "font-normal",
+    "font-semibold": "font-medium",
+    "font-extrabold": "font-bold",
+    "font-black": "font-bold",
+}
 
 def snap_size(v: str) -> str:
     n = int(round(float(v)))
@@ -158,19 +183,66 @@ def process(css: str):
     return css, stats
 
 
+# 라벨/뱃지 규칙(DESIGN.md): 제거된 커스텀 라벨 클래스의 재유입을 막는다.
+BANNED_LABEL_CLASSES = [
+    "founder-hero-id", "founder-hero-status", "opportunity-type",
+    "home-event-date", "story-article-topic", "product-chip", "drop-label",
+]
+
+def process_tsx(src: str):
+    """Tailwind class cleanup: font-weight -> 400/500/700, text-[Npx] -> SEED scale."""
+    stats = Counter()
+
+    def weight_repl(m):
+        old = m.group(0)
+        new = TAILWIND_WEIGHT_MAP.get(old, old)
+        if new != old:
+            stats["tw-weight"] += 1
+        return new
+
+    for cls in TAILWIND_WEIGHT_MAP:
+        src = re.sub(r"\b" + re.escape(cls) + r"\b", weight_repl, src)
+
+    def size_repl(m):
+        snapped = snap_size(m.group(1))
+        if snapped != m.group(1):
+            stats["tw-size"] += 1
+        return "text-[" + snapped + "px]"
+
+    src = re.sub(r"\btext-\[([\d.]+)px\]", size_repl, src)
+
+    # 라벨: 제거된 커스텀 라벨 클래스가 다시 들어오면 경고
+    for cls in BANNED_LABEL_CLASSES:
+        hits = len(re.findall(r"\b" + re.escape(cls) + r"\b", src))
+        if hits:
+            stats["banned-label:" + cls] += hits
+
+    return src, stats
+
+
 from collections import Counter
 
 def main():
     total = Counter()
     for path in FILES:
         s = open(path, encoding="utf-8", newline="").read()
-        eol = "\r\n" if "\r\n" in s[:200] else "\n"
         new_s, stats = process(s)
         if any(stats.values()):
             open(path, "w", encoding="utf-8", newline="").write(new_s)
         print(f"{os.path.basename(path)}: " + ", ".join(f"{k}={v}" for k, v in stats.items() if v))
         total.update(stats)
-    print("\n합계:", dict(total))
+
+    print("\n--- TSX (Tailwind) ---")
+    for path in TSX_FILES:
+        s = open(path, encoding="utf-8", newline="").read()
+        new_s, stats = process_tsx(s)
+        if any(stats.values()):
+            open(path, "w", encoding="utf-8", newline="").write(new_s)
+            print(f"{path}: " + ", ".join(f"{k}={v}" for k, v in stats.items() if v))
+        total.update(stats)
+
+    print("\nTSX total:", dict(total))
+
 
 
 if __name__ == "__main__":

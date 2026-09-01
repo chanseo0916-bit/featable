@@ -50,20 +50,6 @@
 
 .story-article-card { border: 1px solid var(--border); }
 
-.story-article-topic {
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 5px 10px;
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: var(--fs-t1);
-  font-weight: 700;
-  letter-spacing: -.02em;
-  color: var(--fg-muted);
-}
 
 .story-pagination {
   display: flex;

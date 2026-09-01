@@ -373,6 +373,13 @@ legend.profile-sec-head {
 .founder-spotlight-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 
 
+
+/* 창업가 목록(/founders) — 카드가 수십 장이므로 가로 캐러셀 대신 그리드로 훑는다.
+   홈의 .founder-spotlight-grid(소수 카드 캐러셀)과 용도가 달라 별도 클래스로 분리 */
+.founder-directory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1100px) { .founder-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .founder-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+
 .founder-card-interactive-link { display: block; min-width: 0; color: inherit; }
 
 
@@ -427,16 +434,13 @@ legend.profile-sec-head {
 .founder-hero-card .founder-spot-photo { aspect-ratio: 1 / 1; }
 
 
-.founder-hero-card .founder-spot-body h3 { font-size: 26px; }
+.founder-hero-card .founder-spot-body h3 { font-size: 28px; }
 
 
-.founder-hero-id { position: absolute; top: 14px; right: 16px; font-size: 12px; font-weight: 500; letter-spacing: -.01em; color: rgba(255, 255, 255, .75); text-shadow: 0 1px 6px rgba(0, 0, 0, .45); }
 
 
-.founder-hero-status { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #cfcfd6; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
 
 
-.founder-hero-status i { width: 6px; height: 6px; border-radius: 50%; background: #3ddc84; }
 
 
 .interactive-profile-card .founder-spot-photo { transform: translateZ(18px) scale(1.01); }

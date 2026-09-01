@@ -16,7 +16,7 @@ type EventSettingsProps = {
 };
 
 const input =
-  "block w-full h-11 rounded-lg border border-border bg-white px-4 text-[15px] text-fg-strong placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft";
+  "block w-full h-11 rounded-lg border border-border bg-white px-4 text-[16px] text-fg-strong placeholder:text-muted outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft";
 
 const STEPS = [
   { id: 1, label: "행사 정보", hint: "이름과 일시, 장소" },

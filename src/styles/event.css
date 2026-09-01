@@ -59,7 +59,7 @@
 .event-registration-panel > span { color: var(--muted); font-size: var(--fs-t2); font-weight: 500; letter-spacing: -.01em; }
 
 
-.event-registration-panel h2 { margin: 10px 0 8px; font-size: 26px; letter-spacing: -.03em; }
+.event-registration-panel h2 { margin: 10px 0 8px; font-size: 28px; letter-spacing: -.03em; }
 
 
 .event-registration-panel > p { margin: 0 0 22px; color: var(--fg-muted); font-size: 14px; line-height: 1.65; }
@@ -589,7 +589,7 @@
 .event-host-profile strong { overflow-wrap: anywhere; font-size: 16px; line-height: 1.35; }
 
 
-.event-host-profile small { color: var(--fg-muted); font-size: 11px; line-height: 1.4; }
+.event-host-profile small { color: var(--fg-muted); font-size: 12px; line-height: 1.4; }
 
 .event-host-profile > a { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid #e1e4e6; border-radius: 50%; color: var(--fg-strong); font-size: 14px; transition: border-color .2s ease, transform .2s ease; }
 

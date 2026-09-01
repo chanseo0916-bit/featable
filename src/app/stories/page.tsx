@@ -32,7 +32,7 @@ export default async function StoriesPage() {
       {interviews.length > 0 && <section className="stories-section">
         <header className="stories-section-head">
           <div>
-            <p className="eyebrow">INTERVIEW</p>
+            <p className="eyebrow">인터뷰</p>
             <h2>창업가 인터뷰</h2>
           </div>
           <span>직접 만든 사람에게 시작과 고비를 물었습니다.</span>
@@ -45,7 +45,7 @@ export default async function StoriesPage() {
       {articles.length > 0 && <section className="stories-section">
         <header className="stories-section-head">
           <div>
-            <p className="eyebrow">ARTICLE</p>
+            <p className="eyebrow">아티큼</p>
             <h2>창업 아티클</h2>
           </div>
           {articles.length > ARTICLE_PREVIEW && (

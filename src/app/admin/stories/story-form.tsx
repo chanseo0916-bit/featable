@@ -35,7 +35,7 @@ export interface StoryFormInitial {
 
 const inputCls =
   "w-full rounded-lg border border-border px-3 py-2 text-sm outline-none transition-colors focus:border-accent";
-const labelCls = "mb-1 mt-3 block text-xs font-semibold text-muted";
+const labelCls = "mb-1 mt-3 block text-xs font-medium text-muted";
 
 export function StoryForm({
   brands,
@@ -167,9 +167,9 @@ export function StoryForm({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={coverUrl} alt="" className="h-16 w-28 rounded-lg border border-border object-cover" />
                 ) : (
-                  <div className="grid h-16 w-28 place-items-center rounded-lg border border-dashed border-border text-[10px] text-muted">없음</div>
+                  <div className="grid h-16 w-28 place-items-center rounded-lg border border-dashed border-border text-[12px] text-muted">없음</div>
                 )}
-                <label className="cursor-pointer rounded-lg border border-border px-3 py-2 text-xs font-semibold hover:border-accent hover:text-accent">
+                <label className="cursor-pointer rounded-lg border border-border px-3 py-2 text-xs font-medium hover:border-accent hover:text-accent">
                   {uploading === "cover" ? "업로드 중…" : "업로드"}
                   <input type="file" accept="image/*" className="hidden" disabled={uploading !== null}
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f, "cover"); }} />
@@ -184,7 +184,7 @@ export function StoryForm({
             {body.length === 0 && <p className="rounded-lg border border-dashed border-border py-6 text-center text-xs text-muted">텍스트나 이미지 블록을 추가해 기사를 작성하세요.</p>}
             {body.map((block, index) => (
               <div key={index} className="rounded-xl border border-border p-3">
-                <div className="mb-2 flex items-center justify-between text-[11px] font-bold text-muted">
+                <div className="mb-2 flex items-center justify-between text-[12px] font-bold text-muted">
                   <span>{String(index + 1).padStart(2, "0")} · {block.type === "text" ? "텍스트" : "이미지"}</span>
                   <span className="flex gap-2">
                     <button type="button" onClick={() => moveBlock(index, -1)} disabled={index === 0} className="disabled:opacity-30">↑</button>
@@ -205,10 +205,10 @@ export function StoryForm({
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={block.src} alt="" className="h-20 w-32 flex-none rounded-lg border border-border object-cover" />
                     ) : (
-                      <div className="grid h-20 w-32 flex-none place-items-center rounded-lg border border-dashed border-border text-[10px] text-muted">이미지</div>
+                      <div className="grid h-20 w-32 flex-none place-items-center rounded-lg border border-dashed border-border text-[12px] text-muted">이미지</div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <label className="inline-block cursor-pointer rounded-lg border border-border px-3 py-1.5 text-[11px] font-semibold hover:border-accent hover:text-accent">
+                      <label className="inline-block cursor-pointer rounded-lg border border-border px-3 py-1.5 text-[12px] font-medium hover:border-accent hover:text-accent">
                         {uploading === String(index) ? "업로드 중…" : "업로드"}
                         <input type="file" accept="image/*" className="hidden" disabled={uploading !== null}
                           onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f, index); }} />
@@ -236,7 +236,7 @@ export function StoryForm({
               className="rounded-lg bg-accent px-5 py-2 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50">
               {pending ? "저장 중…" : initial?.published ? "수정사항 발행" : "발행하기 →"}
             </button>
-            {initial && <button type="button" onClick={() => router.push("/admin/stories")} className="ml-auto text-xs font-semibold text-muted hover:text-accent">← 목록으로</button>}
+            {initial && <button type="button" onClick={() => router.push("/admin/stories")} className="ml-auto text-xs font-medium text-muted hover:text-accent">← 목록으로</button>}
           </div>
         </div>
       )}

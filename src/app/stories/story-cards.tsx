@@ -1,4 +1,5 @@
 import { EntityCard } from "@/components/cards/entity-card";
+import { Badge } from "@/components/badge";
 import type { Feature } from "@/lib/types";
 import { formatDateKst } from "@/lib/datetime";
 
@@ -30,7 +31,7 @@ export function ArticleCard({ feature }: { feature: Feature }) {
       layout="text"
       className="story-article-card"
       href={`/stories/${feature.slug}`}
-      top={<span className="story-article-topic">{feature.primaryKeyword ?? "아티클"}</span>}
+      top={<Badge tone="neutral" variant="weak">{feature.primaryKeyword ?? "아티클"}</Badge>}
       title={feature.title}
       description={feature.excerpt}
       footerLeft={formatDateKst(feature.publishedAt)}

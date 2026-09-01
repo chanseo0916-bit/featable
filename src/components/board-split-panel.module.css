@@ -42,8 +42,8 @@
 .heading h2 {
   margin: 0;
   color: var(--fg-strong);
-  font-size: 21px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 700;
   line-height: 1.15;
   letter-spacing: -.035em;
 }
@@ -83,7 +83,7 @@
   display: grid;
   place-items: center;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
   color: var(--fg-default);
   cursor: pointer;
@@ -135,7 +135,7 @@
   gap: 7px;
   border-radius: 12px;
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: -.01em;
   transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
 }
@@ -200,12 +200,12 @@
   gap: 6px;
   color: var(--fg-muted);
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 .viewTabs a.active {
   color: var(--fg-strong);
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .viewTabs a.active::after {
@@ -215,7 +215,7 @@
   bottom: -1px;
   left: 0;
   height: 2px;
-  border-radius: 2px 2px 0 0;
+  border-radius: 4px 4px 0 0;
   background: var(--accent);
 }
 
@@ -245,7 +245,7 @@
   background: #fff;
   color: var(--fg-muted);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 .categoryTabs a.active {
@@ -285,13 +285,13 @@
   align-items: center;
   gap: 7px;
   color: var(--fg-subtle);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.2;
 }
 
 .postTopline > span {
   color: var(--accent);
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .postTopline b {
@@ -299,7 +299,7 @@
   border-radius: 4px;
   background: var(--accent-soft);
   color: var(--accent-hover);
-  font-size: 8px;
+  font-size: 12px;
   line-height: 1.2;
   letter-spacing: .04em;
 }
@@ -315,7 +315,7 @@
   overflow: hidden;
   color: var(--fg-strong);
   font-size: 14px;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.42;
   letter-spacing: -.018em;
   -webkit-box-orient: vertical;
@@ -327,7 +327,7 @@
   display: -webkit-box;
   overflow: hidden;
   color: var(--fg-muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.45;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
@@ -339,7 +339,7 @@
   align-items: center;
   gap: 10px;
   color: var(--fg-subtle);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .postMeta > span:first-child {
@@ -392,7 +392,7 @@
   margin-top: 18px;
   color: var(--accent);
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .moreLink {
@@ -451,7 +451,7 @@
 .loadingPost strong,
 .loadingPost i {
   display: block;
-  border-radius: 5px;
+  border-radius: 6px;
   background: var(--gray-200);
   animation: loadingPulse 1.2s ease-in-out infinite alternate;
 }

@@ -43,7 +43,7 @@ export default async function StoriesArchivePage({ searchParams }: PageProps) {
     <main className="shell listing-page stories-page">
       <div className="listing-heading">
         <div>
-          <p className="eyebrow">ARCHIVE</p>
+          <p className="eyebrow">아카이브</p>
           <h1>창업 아티클</h1>
           <p>사업자등록부터 세무·지원사업까지, 창업 초기에 부딪히는 주제를 모았습니다. 전체 {articles.length}편.</p>
         </div>

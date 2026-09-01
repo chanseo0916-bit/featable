@@ -294,7 +294,7 @@ export function SubmitWizard({
   ][step];
 
   const input = "w-full rounded-lg border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-accent";
-  const label = "mb-1 mt-4 block text-xs font-semibold text-muted";
+  const label = "mb-1 mt-4 block text-xs font-medium text-muted";
   const completion = useMemo(() => {
     const values = [draft.brandName, draft.tagline, draft.founderName, draft.founderHeadline, draft.description, draft.productName, draft.productTagline, draft.logoUrl, draft.heroUrl];
     return Math.round((values.filter((value) => value?.trim()).length / values.length) * 100);
@@ -305,7 +305,7 @@ export function SubmitWizard({
     const brandUrl = `/brands/${done.brandSlug}`;
     return (
       <div className="mx-auto max-w-lg py-20 text-center">
-        <p className="mb-3 text-[11px] font-extrabold tracking-[0.13em] text-accent">
+        <p className="mb-3 text-[12px] font-bold tracking-[0.13em] text-accent">
           {edit ? "수정 완료" : "발행 완료"}
         </p>
         <h1 className="mb-4 text-3xl font-bold tracking-tight">
@@ -368,7 +368,7 @@ export function SubmitWizard({
         {STEPS.map((s, i) => (
           <div key={s} className="flex-1">
             <div className={`h-1 rounded-full ${i <= step ? "bg-accent" : "bg-border"}`} />
-            <p className={`mt-2 hidden text-[10px] font-semibold sm:block ${i === step ? "text-accent" : "text-muted"}`}>
+            <p className={`mt-2 hidden text-[12px] font-medium sm:block ${i === step ? "text-accent" : "text-muted"}`}>
               {i + 1}. {s}
             </p>
           </div>
@@ -483,7 +483,7 @@ export function SubmitWizard({
                       없음
                     </div>
                   )}
-                  <label className="cursor-pointer rounded-lg border border-border px-4 py-2 text-xs font-semibold hover:border-accent hover:text-accent">
+                  <label className="cursor-pointer rounded-lg border border-border px-4 py-2 text-xs font-medium hover:border-accent hover:text-accent">
                     {uploading === kind ? "업로드 중…" : "파일 선택"}
                     <input type="file" accept="image/*" className="hidden" disabled={uploading !== null}
                       onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(kind, f); }} />
@@ -571,7 +571,7 @@ export function SubmitWizard({
           {aiNotice && <p className="mt-3 rounded-lg bg-accent-soft px-4 py-3 text-xs text-accent">{aiNotice}</p>}
           {aiResult && (
             <div className="mt-5 rounded-xl border border-border p-5 text-sm">
-              <p className="mb-2 text-[10px] font-extrabold tracking-widest text-accent">AI DRAFT</p>
+              <p className="mb-2 text-[12px] font-bold tracking-widest text-accent">AI DRAFT</p>
               {aiResult.tagline && <p className="mb-2"><b>한 줄 소개:</b> {aiResult.tagline}</p>}
               {aiResult.productTagline && <p className="mb-2"><b>제품 소개:</b> {aiResult.productTagline}</p>}
               {aiResult.founderHeadline && <p className="mb-2"><b>Founder:</b> {aiResult.founderHeadline}</p>}

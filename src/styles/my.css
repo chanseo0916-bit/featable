@@ -1477,9 +1477,9 @@
 }
 
 .my-events-page .my-event-status {
-  padding: 5px 10px;
+  padding: 6px 11px;
   border-radius: var(--radius-sm);
-  font-size: var(--fs-t1);
+  font-size: var(--fs-t2);
   font-weight: 700;
   letter-spacing: -.02em;
 }
