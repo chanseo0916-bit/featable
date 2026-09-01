@@ -16,7 +16,10 @@ const env = Object.fromEntries(
     }),
 );
 
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SECRET_KEY);
+const supabase = createClient(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.SUPABASE_SECRET_KEY ?? env.SUPABASE_SERVICE_ROLE_KEY,
+);
 
 const { data: profile, error: profileError } = await supabase
   .from("profiles")
@@ -113,7 +116,7 @@ const body = [
 const now = new Date().toISOString();
 const featureInput = {
   slug: SLUG,
-  title: "사진 한장으로 콘첸츠 '딸깍' 해드립니다",
+  title: "사진 한장으로 콘텐츠 '딸깍' 해드립니다",
   kind: "interview",
   excerpt: "사진 한 장으로 광고와 디자인 콘텐츠를 쉽게 만드는 AI 서비스 MONOV AI. 작은 브랜드가 좋아하는 이미지를 고르는 것만으로도 디자인할 수 있는 방법을 만드는 김채림 대표의 이야기입니다.",
   cover_url: coverUrl,

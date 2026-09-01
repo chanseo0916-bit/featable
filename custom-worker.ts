@@ -19,7 +19,7 @@ const worker = {
     if (!env.SYNC_CRON_SECRET) throw new Error("SYNC_CRON_SECRET is missing.");
     let paths: string[];
     if (event.cron === "0 */6 * * *") {
-      paths = ["/api/cron/bizinfo", "/api/cron/interview-emails", "/api/cron/board-images"];
+      paths = ["/api/cron/bizinfo", "/api/cron/board-images"];
     } else if (event.cron === "55 14 * * *") {
       paths = ["/api/cron/board-balance?target=tomorrow"];
     } else if (event.cron === "0 15 * * *") {

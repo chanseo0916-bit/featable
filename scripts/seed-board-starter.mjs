@@ -151,6 +151,7 @@ const existingLikeKeys = new Set(
 );
 
 const baseTime = Date.now();
+const seedRunStartedAt = new Date(baseTime).toISOString();
 const postsToInsert = seeds
   .map((seed) => {
     const id = stableUuid(`post:${seed.key}`);
@@ -207,6 +208,7 @@ const likesToInsert = seeds.flatMap((seed) => {
       ),
     }));
 });
+const syntheticLikeActorIds = [...new Set(likesToInsert.map((like) => like.user_id))];
 
 console.log(`validated ${seeds.length} posts and ${commentIds.length} comments`);
 console.log(`new rows: ${postsToInsert.length} posts, ${commentsToInsert.length} comments, ${likesToInsert.length} likes`);
@@ -265,7 +267,9 @@ if (likesToInsert.length > 0) {
     .delete()
     .eq("user_id", authorId)
     .eq("data->>kind", "board_like")
-    .in("data->>post_id", postIds);
+    .in("data->>post_id", postIds)
+    .in("actor_id", syntheticLikeActorIds)
+    .gte("created_at", seedRunStartedAt);
   if (notificationCleanupError) {
     console.error("Likes were inserted, but seed notification cleanup failed:", notificationCleanupError.message);
     process.exit(1);
